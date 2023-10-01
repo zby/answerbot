@@ -1,0 +1,3 @@
+requests==2.25.1
+
+simpleaichat>=0.0.1

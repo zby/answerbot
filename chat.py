@@ -1,15 +1,51 @@
 import requests
 import json
-from string import Template
+import re
+import sys
+import time
+from typing import Iterable
+
+### Sad testcases:
+# - question: "What was the first major battle in the Ukrainian War?"
+#   wikipedia: Russian_invasion_of_Ukraine
+#   problem: too many tokens, have to pick the best section
+
+# - question: "how old was Donald Tusk when he died" (trick question)
+#   wikipedia: Donald Tusk
+#   problem: "wikipedia.exceptions.PageError: Page id "donald buck" does not match any pages.".
+#             Wikipedia fetches a different page than it's asked to
+#             (one of Ukrainian War questions also did this)
+
+### Happy testcases
+
+# - question: how many planets are in the solar system
+#   wikipedia: Planets in the Solar System
+
+# - question: "how many keys does a US-ANSI keyboard have on it"
+#   wikipedia: British and American keyboards
+
+# - question: "how dense is ceramic"
+#   wikipedia: Ceramic
+#   notes: Answer:
+#       Ceramic materials are hard, brittle, and strong in compression, but weak in shearing and tension.
+#       They can withstand high temperatures ranging from 1,000 °C to 1,600 °C (1,800 °F to 3,000 °F).
+#   --> The density of ceramics is not mentioned in the given information.
+#   !!!
 
 
-#question = input("Enter your question: ")
-question = "What was the first major battle in the Ukrainian War?"
+
+import wikipedia
+
+question = input("Enter your question: ")
+#question = "What was the first major battle in the Ukrainian War?"
 
 # load the api key from a file
 with open("config.json", "r") as f:
     config = json.load(f)
     api_key = config["api_key"]
+
+def concise_answer(prompt: str) -> str:
+    return f"When answering the following question be concise - reply with only the text of the search term, don't repeat the question. {prompt}"
 
 # Define a function to interact with OpenAI API
 def openai_query(prompt, api_key):
@@ -18,55 +54,55 @@ def openai_query(prompt, api_key):
         "Content-Type": "application/json"
     }
     data = {
-        "prompt": prompt,
-        #"max_tokens": 350
+        "model": "gpt-3.5-turbo-16k",
+        "messages": [{ "role": "user", "content": prompt }],
+        "temperature": 0.7,
     }
-    response = requests.post("https://api.openai.com/v1/engines/davinci/completions", headers=headers, json=data)
+
+    response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=data)
+    if response.status_code == 429:
+        # TODO: maybe parse out the "Please try again in Xms" part and be clever
+        print("Rate limit reached, waiting a bit...")
+        time.sleep(5)
+        return openai_query(prompt, api_key)
     response_json = response.json()
-    print(response_json)
-    return response_json["choices"][0]["text"].strip()
+    return response_json["choices"][0]["message"]["content"].strip()
 
-# Get the Google search term
-g_query = openai_query(f"When answering the following question be concise - reply with only the text of the search term, don't repeat the question. What would be a good google search term to find out the answer to the question \"{question}\"?", api_key)
+def get_sections(page: wikipedia.WikipediaPage) -> Iterable[str]:
+    # theoretically `page.sections` should do this, but it doesn't
+    sections = []
+    for line in page.content.split('\n'):
+        match = re.match(r'\s*(=+)\s*(.*?)\s*(\1)', line)
+        if match:
+            print(match)
+            sections.append(match[2])
+    return sections
 
-if g_query[0] == '"' and g_query[-1] == '"':
-    g_query = g_query[1:-1]
+prompt = f'What wikipedia article would you search for in order to find an answer to the following question: "{question}"?'
+query = openai_query(concise_answer(prompt), api_key)
 
-print(f"Testing the following query in Google search: \n{g_query}\n")
+print(f'Will search wikipedia for "{query}"')
 
-base_url = "https://www.googleapis.com/customsearch/v1"
+wikipages = wikipedia.search(query)
+if len(wikipages) == 0:
+    print('No relevant wikipedia articles found')
+    sys.exit(0)
 
-params = {
-  "key": config["google_key"],
-  "cx": config["google_cx"],
-  "q": g_query
-}
-response = requests.get(base_url, params=params)
-results = response.json()
+print(f'Pages found:', ", ".join(wikipages))
+print(f'Getting the contents of "{wikipages[0]}"')
 
-filtered = []
-for result in results["items"]:
-  item = {}
-  item["link"] = result["link"]
-  item["title"] = result["title"]
-  item["snippet"] = result["snippet"]
-  # Append the item to the items list
-  filtered.append(item)
+page = wikipedia.page(wikipages[0])
+# print(page.content)
 
-prompt_template = Template("""Below I give you a json formatted list of web pages. Each web page record contains the link to it, its title and a short snippet of text from it.
-Please go through that list and guess if the webpages they link to can contain the answer to the question: "$question"
-Please tell me which one of these links is the most promising. Don't try to answer the question itself - only judge which webpage should contain the answer.
-Please answer with only a number - the index to the list of web pages - without any additional text.
-Here is the list of webpages to check:
-$links
-""")
+# Required when token length exceeded
+# sections = get_sections(page)
+# print(sections)
+# section_list = "\n".join(list(map(lambda section: f' - {section}', sections)))
+# 
+# prompt = f'Given the following sections of a wikipedia page, which one would you choose to answer the question "{question}"\n\n{section_list}'
+# response = openai_query(concise_answer(prompt), api_key)
+# print(response)
 
-# format the filtered list of web pages into a json string
-links = json.dumps(filtered, indent=2)
-
-prompt = prompt_template.substitute(question=question, links=links)
-
-print(prompt)
-chosen_web_page = openai_query(prompt, api_key)
-
-print(chosen_web_page)
+prompt = f'Given the contents of the wikipedia page included below, answer the following question: "{question}"\n\n{page.content}'
+response = openai_query(prompt, api_key)
+print(response)

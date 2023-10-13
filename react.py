@@ -74,22 +74,25 @@ def wikipedia_search(query):
 done = False
 MAX_ITER = 2
 iter = 0
+prompt = cot_prompt_short.format(input=question)
 while not done:
-    prompt = cot_prompt_short.format(input=question)
     print(prompt)
     reaction = openai_query(prompt, "\nObservation:", api_key)
     print(reaction)
+    prompt = prompt + f'\n{reaction}\n'
     lines = reaction.strip().split('\n')
     line = lines[-1]
-    if line.startswith("Action Finish["):
+    if line.startswith("Action: Finish["):
+        answer = line[15:-1]
+        print(f'Answer: {answer}')
         done = True
     elif line.startswith("Action: Search["):
         query = line[15:-1]
         print(f'Will search wikipedia for "{query}"')
         text = wikipedia_search(query)
-        print(text)
         prompt = prompt + f'\nObservation: {text}\n'
     if iter >= MAX_ITER:
+        print("Max iterations reached, exiting.")
         done = True
     iter += 1
 

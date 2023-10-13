@@ -2,6 +2,7 @@ import requests
 import json
 import time
 
+from document import Document
 
 cot_prompt_short = '''
 Solve a question answering task with interleaving Thought, Action, Observation steps. Thought can reason about the current situation, and Action can be three types: 
@@ -68,13 +69,17 @@ with open("config.json", "r") as f:
 
 question = "What was the first major battle in the Ukrainian War?"
 
-def wikipedia_search(query):
-    return 'aaaaaaaaaaaaaaaaaaaaaaaaaa'
+def wikipedia_search(entity):
+    entity_ = entity.replace(" ", "+")
+    search_url = f"https://en.wikipedia.org/w/index.php?search={entity_}"
+    response_text = requests.get(search_url).text
+    return Document(response_text)
 
 done = False
 MAX_ITER = 2
 iter = 0
 prompt = cot_prompt_short.format(input=question)
+document = None
 while not done:
     print(prompt)
     reaction = openai_query(prompt, "\nObservation:", api_key)
@@ -89,7 +94,17 @@ while not done:
     elif line.startswith("Action: Search["):
         query = line[15:-1]
         print(f'Will search wikipedia for "{query}"')
-        text = wikipedia_search(query)
+        document = wikipedia_search(query)
+        text = document.first_chunk()
+        prompt = prompt + f'\nObservation: {text}\n'
+    elif line.startswith("Action: Lookup["):
+        if not document is None:
+            print("No document defined, cannot lookup")
+            done = True
+        query = line[15:-1]
+        print(f'Will lookup paragraph containing "{query}"')
+        document = wikipedia_search(query)
+        text = document.lookup(query)
         prompt = prompt + f'\nObservation: {text}\n'
     if iter >= MAX_ITER:
         print("Max iterations reached, exiting.")

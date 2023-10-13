@@ -58,6 +58,8 @@ def openai_query(prompt, stops, api_key):
         time.sleep(5)
         return openai_query(prompt, stops, api_key)
     response_json = response.json()
+    if 'error' in response_json:
+        raise Exception(response_json["error"])
     return response_json["choices"][0]["message"]["content"].strip()
 
 

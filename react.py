@@ -1,6 +1,7 @@
 import requests
 import json
 import time
+import wikipedia
 
 
 cot_prompt_short = '''
@@ -35,7 +36,7 @@ Observation: Milhouse was named after U.S. president Richard Nixon, whose middle
 Thought: Milhouse was named after U.S. president Richard Nixon, so the answer is Richard Nixon.
 Action: Finish[President Richard Nixon]
 
-{input}
+Question: {input}
 '''
 
 
@@ -71,10 +72,18 @@ with open("config.json", "r") as f:
 question = "What was the first major battle in the Ukrainian War?"
 
 def wikipedia_search(query):
-    return 'aaaaaaaaaaaaaaaaaaaaaaaaaa'
+    try:
+        page = wikipedia.page(query)
+        return page.content
+    except wikipedia.exceptions.PageError:
+        wikipages = wikipedia.search(query)
+        if len(wikipages) == 0:
+            return 'No relevant wikipedia articles found'
+
+        return "The following wikipedia articles are available for that search term: " + ", ".join(wikipages)
 
 done = False
-MAX_ITER = 2
+MAX_ITER = 5
 iter = 0
 prompt = cot_prompt_short.format(input=question)
 while not done:

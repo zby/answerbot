@@ -1,9 +1,6 @@
 import requests
 import json
-import re
-import sys
 import time
-from typing import Iterable
 
 
 cot_prompt_short = '''
@@ -19,7 +16,7 @@ Action: Search[Colorado orogeny]
 Observation: The Colorado orogeny was an episode of mountain building (an orogeny) in Colorado and surrounding areas. This took place from 1780 to 1650 million years ago (Mya), during the Paleoproterozoic (Statherian Period). It is recorded in the Colorado orogen, a >500-km-wide belt of oceanic arc rock that extends southward into New Mexico. The Colorado orogeny was likely part of the larger Yavapai orogeny.
 Thought: It does not mention the eastern sector of the Colorado orogeny. I need to look up eastern sector.
 Action: Lookup[eastern sector]
-Observation: (Result 1 / 1) The Colorado orogen, formerly called the Colorado province, is a >500-km-wide belt of oceanic arc rock (1.78\u20131.65 Ga) that extends southward into New Mexico and composes a major part of the Proterozoic provinces of southwestern United States. This transcontinental collisional event occurred during the  Paleoproterozoic (Statherian Period).[1] The Wyoming sector of the Colorado orogeny was formerly called the Medicine Bow orogeny. The eastern sector extends into the High Plains and is called the Central Plains orogeny. The boundary between the Colorado orogeny and the Wyoming craton is the Cheyenne belt, a 5-km-wide mylonitic shear zone that verges northward. The Cheyenne belt transects and cuts off the south edge of the older Trans-Hudson orogeny.[2]
+Observation: The Colorado orogen, formerly called the Colorado province, is a >500-km-wide belt of oceanic arc rock (1.78\u20131.65 Ga) that extends southward into New Mexico and composes a major part of the Proterozoic provinces of southwestern United States. This transcontinental collisional event occurred during the  Paleoproterozoic (Statherian Period).[1] The Wyoming sector of the Colorado orogeny was formerly called the Medicine Bow orogeny. The eastern sector extends into the High Plains and is called the Central Plains orogeny. The boundary between the Colorado orogeny and the Wyoming craton is the Cheyenne belt, a 5-km-wide mylonitic shear zone that verges northward. The Cheyenne belt transects and cuts off the south edge of the older Trans-Hudson orogeny.[2]
 Thought: The eastern sector of Colorado orogeny extends into the High Plains, so High Plains is the area. I need to search High Plains and find its elevation range.
 Action: Search[High Plains]Observation 3: High Plains refers to one of two distinct land regions:
 Thought: I need to search High Plains (United States).
@@ -34,7 +31,7 @@ Action: Search[Milhouse]
 Observation: Milhouse Mussolini Van Houten is a recurring character in the Fox animated television series The Simpsons voiced by Pamela Hayden and created by Matt Groening.
 Thought: The paragraph does not tell who Milhouse is named after, maybe I can look up "named after".
 Action: Lookup[named after]
-Observation: (Result 1 / 1) Milhouse was named after U.S. president Richard Nixon, whose middle name was Milhous. 
+Observation: Milhouse was named after U.S. president Richard Nixon, whose middle name was Milhous. 
 Thought: Milhouse was named after U.S. president Richard Nixon, so the answer is Richard Nixon.
 Action: Finish[President Richard Nixon]
 

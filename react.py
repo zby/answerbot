@@ -2,7 +2,8 @@ import requests
 import json
 import time
 
-from document import Document
+import wikipedia
+from document import WikipediaDocument
 
 cot_prompt_short = '''
 Solve a question answering task with interleaving Thought, Action, Observation steps. Thought can reason about the current situation, and Action can be three types: 
@@ -70,10 +71,32 @@ with open("config.json", "r") as f:
 question = "What was the first major battle in the Ukrainian War?"
 
 def wikipedia_search(entity):
-    entity_ = entity.replace(" ", "+")
-    search_url = f"https://en.wikipedia.org/w/index.php?search={entity_}"
-    response_text = requests.get(search_url).text
-    return Document(response_text)
+    wikipages = wikipedia.search(entity)
+    if len(wikipages) == 0:
+        print('No relevant wikipedia articles found')
+        sys.exit(0)
+
+    print(f'Pages found:', ", ".join(wikipages))
+    print(f'Getting the contents of "{wikipages[0]}"')
+
+    page = None
+
+    for result in wikipages:
+        try:
+            page = wikipedia.page(result).content
+            break
+        except wikipedia.DisambiguationError as de:
+            # Handle disambiguation pages by attempting to get the first option
+            try:
+                page = wikipedia.page(de.options[0]).content
+                break
+            except:
+                continue
+        except wikipedia.exceptions.PageError:
+            # If the page doesn't exist, move to the next result
+            continue
+    return WikipediaDocument(page)
+
 
 done = False
 MAX_ITER = 2
@@ -98,7 +121,7 @@ while not done:
         text = document.first_chunk()
         prompt = prompt + f'\nObservation: {text}\n'
     elif line.startswith("Action: Lookup["):
-        if not document is None:
+        if document is None:
             print("No document defined, cannot lookup")
             done = True
         query = line[15:-1]

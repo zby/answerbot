@@ -69,37 +69,41 @@ with open("config.json", "r") as f:
     api_key = config["api_key"]
 
 question = "What was the first major battle in the Ukrainian War?"
+question = "What were the main publications by the Nobel Prize winner in economics in 2023?"
 
 def wikipedia_search(entity):
-    wikipages = wikipedia.search(entity)
-    if len(wikipages) == 0:
-        print('No relevant wikipedia articles found')
-        sys.exit(0)
-
-    print(f'Pages found:', ", ".join(wikipages))
-    print(f'Getting the contents of "{wikipages[0]}"')
-
     page = None
-
-    for result in wikipages:
-        try:
-            page = wikipedia.page(result).content
-            break
-        except wikipedia.DisambiguationError as de:
-            # Handle disambiguation pages by attempting to get the first option
+    try:
+        page = wikipedia.page(query)
+    except wikipedia.exceptions.PageError:
+        wikipages = wikipedia.search(query)
+        if len(wikipages) == 0:
+            return None
+        print("The following wikipedia articles are available for that search term: " + ", ".join(wikipages))
+        for result in wikipages:
             try:
-                page = wikipedia.page(de.options[0]).content
+                page = wikipedia.page(result)
                 break
-            except:
+            except wikipedia.DisambiguationError as de:
+                # Handle disambiguation pages by attempting to get the first option
+                try:
+                    page = wikipedia.page(de.options[0])
+                    break
+                except:
+                    continue
+            except wikipedia.exceptions.PageError:
+                # If the page doesn't exist, move to the next result
                 continue
-        except wikipedia.exceptions.PageError:
-            # If the page doesn't exist, move to the next result
-            continue
-    return WikipediaDocument(page)
+
+    if page is not None:
+        print(f'Getting the contents of {page.title}')
+        return WikipediaDocument(page.content, chunk_size=2048)
+    else:
+        return None
 
 
 done = False
-MAX_ITER = 2
+MAX_ITER = 3
 iter = 0
 prompt = cot_prompt_short.format(input=question)
 document = None
@@ -126,7 +130,6 @@ while not done:
             done = True
         query = line[15:-1]
         print(f'Will lookup paragraph containing "{query}"')
-        document = wikipedia_search(query)
         text = document.lookup(query)
         prompt = prompt + f'\nObservation: {text}\n'
     if iter >= MAX_ITER:

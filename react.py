@@ -2,13 +2,14 @@ import requests
 import json
 import time
 
-import wikipedia
+import get_wikipedia
 from document import WikipediaDocument
+from get_wikipedia import WikipediaApi, ContentRecord
 
 cot_prompt_short = '''
 Solve a question answering task with interleaving Thought, Action, Observation steps. Thought can reason about the current situation, and Action can be three types: 
-(1) Search[entity], which searches the exact entity on Wikipedia and returns the first paragraph if it exists. If not, it will return some similar entities to search.
-(2) Lookup[keyword], which returns the next sentence containing keyword in the current passage.
+(1) Search[entity], which searches the entity in wikipedia, it saves it for looking up parts of it and presents the beginning of it.
+(2) Lookup[keyword], which returns the text surrounding the keyword in the current wikipedia page.
 (3) Finish[answer], which returns the answer and finishes the task.
 After each observation, provide the next Thought and next Action. Here are some examples:
 
@@ -69,44 +70,21 @@ with open("config.json", "r") as f:
     api_key = config["api_key"]
 
 question = "What was the first major battle in the Ukrainian War?"
-question = "What were the main publications by the Nobel Prize winner in economics in 2023?"
+# question = "What were the main publications by the Nobel Prize winner in economics in 2023?"
+# question = "how old was Donald Tusk when he died?"
+# question = "how many keys does a US-ANSI keyboard have on it?"
+
 
 def wikipedia_search(entity):
-    page = None
-    try:
-        page = wikipedia.page(query)
-    except wikipedia.exceptions.PageError:
-        wikipages = wikipedia.search(query)
-        if len(wikipages) == 0:
-            return None
-        print("The following wikipedia articles are available for that search term: " + ", ".join(wikipages))
-        for result in wikipages:
-            try:
-                page = wikipedia.page(result)
-                break
-            except wikipedia.DisambiguationError as de:
-                # Handle disambiguation pages by attempting to get the first option
-                try:
-                    page = wikipedia.page(de.options[0])
-                    break
-                except:
-                    continue
-            except wikipedia.exceptions.PageError:
-                # If the page doesn't exist, move to the next result
-                continue
-
-    if page is not None:
-        print(f'Getting the contents of {page.title}')
-        return WikipediaDocument(page.content, chunk_size=2048)
-    else:
-        return None
-
+    wiki_api = WikipediaApi(max_retries=3)
+    return wiki_api.search(entity)
 
 done = False
 MAX_ITER = 3
 iter = 0
 prompt = cot_prompt_short.format(input=question)
 document = None
+wiki_api = WikipediaApi(max_retries=3)
 while not done:
     print(prompt)
     reaction = openai_query(prompt, "\nObservation:", api_key)
@@ -121,8 +99,11 @@ while not done:
     elif line.startswith("Action: Search["):
         query = line[15:-1]
         print(f'Will search wikipedia for "{query}"')
-        document = wikipedia_search(query)
+        search_record = wiki_api.search(query)
+        document = WikipediaDocument(search_record.page.content)
         text = document.first_chunk()
+        for record in search_record.retrieval_history:
+            prompt = prompt + f'\nObservation: {record}\n'
         prompt = prompt + f'\nObservation: {text}\n'
     elif line.startswith("Action: Lookup["):
         if document is None:
@@ -131,6 +112,8 @@ while not done:
         query = line[15:-1]
         print(f'Will lookup paragraph containing "{query}"')
         text = document.lookup(query)
+        if text is None or text == '':
+            text = f"{query} not found in document"
         prompt = prompt + f'\nObservation: {text}\n'
     if iter >= MAX_ITER:
         print("Max iterations reached, exiting.")

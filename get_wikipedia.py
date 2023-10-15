@@ -54,7 +54,7 @@ class WikipediaApi:
 
             if search_results:
                 titles = map(lambda x: f"'{x}'", search_results)
-                retrieval_history.append(f"Search results for query: '{query}': " + ", ".join(titles))
+                retrieval_history.append(f"Wikipedia search results for query: '{query}' is: " + ", ".join(titles))
 
                 first_result = search_results[0]
                 page_record = self.get_page(first_result, retrieval_history)

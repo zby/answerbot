@@ -69,8 +69,8 @@ with open("config.json", "r") as f:
     config = json.load(f)
     api_key = config["api_key"]
 
-question = "What was the first major battle in the Ukrainian War?"
-# question = "What were the main publications by the Nobel Prize winner in economics in 2023?"
+# question = "What was the first major battle in the Ukrainian War?"
+question = "What were the main publications by the Nobel Prize winner in economics in 2023?"
 # question = "how old was Donald Tusk when he died?"
 # question = "how many keys does a US-ANSI keyboard have on it?"
 
@@ -100,7 +100,7 @@ while not done:
         query = line[15:-1]
         print(f'Will search wikipedia for "{query}"')
         search_record = wiki_api.search(query)
-        document = WikipediaDocument(search_record.page.content)
+        document = WikipediaDocument(search_record.page.content, summary=search_record.page.summary)
         text = document.first_chunk()
         for record in search_record.retrieval_history:
             prompt = prompt + f'\nObservation: {record}\n'

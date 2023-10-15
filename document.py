@@ -5,17 +5,23 @@ CHUNK_SIZE = 1024
 
 
 class Document(ABC):
-    def __init__(self, content, chunk_size=CHUNK_SIZE, retrival_obs=None):
+    def __init__(self, content, chunk_size=CHUNK_SIZE, retrival_obs=[], summary=None):
         self.content = content
         self.chunk_size = chunk_size
         self.text = self.extract_text()
+        self.summary = summary
+        self.retrival_obs = retrival_obs
 
     @abstractmethod
     def extract_text(self):
         pass
 
     def first_chunk(self):
-        sentences = re.split(r'(?<=[.!?])\s+', self.text)
+        if self.summary:
+            text = self.summary
+        else:
+            text = self.text
+        sentences = re.split(r'(?<=[.!?])\s+', text)
         sentence = sentences[0]
         chunk = sentence[:self.chunk_size]
         for sentence in sentences[1:]:

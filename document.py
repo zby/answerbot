@@ -88,7 +88,7 @@ class SimpleHtmlDocument(Document):
 class WikipediaDocument(Document):
     def extract_text(self):
         # replace consecutive whitespaces with one space
-        text = re.sub(r'\s+', ' ', self.content)
+        return ' '.join(self.content.split())
 #        # Replace any number of consecutive whitespaces that include newline(s) with one newline
 #        text = re.sub(r'\s*[\r\n]+\s*', '\n', self.content)
 #        # Replace any number of consecutive whitespaces (except newlines) with one space

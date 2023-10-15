@@ -20,7 +20,7 @@ class WikipediaApi:
         try:
             wikipedia.set_lang(self.language)
             fixed_title = title.replace(" ", "_")
-            page = wikipedia.page(title)
+            page = wikipedia.page(title, auto_suggest=False)
             retrieval_history.append(f"Successfully retrieved '{title}' from Wikipedia.")
             return ContentRecord(page, retrieval_history)
         except wikipedia.exceptions.DisambiguationError as e:

@@ -87,12 +87,14 @@ class SimpleHtmlDocument(Document):
         return current.text
 class WikipediaDocument(Document):
     def extract_text(self):
-        # Replace any number of consecutive whitespaces that include newline(s) with one newline
-        text = re.sub(r'\s*[\r\n]+\s*', '\n', self.content)
-        # Replace any number of consecutive whitespaces (except newlines) with one space
-        text = re.sub(r'[ \t]+', ' ', text)
-        # Simplistic wikitext to plain text transformation
-        text = re.sub(r'\'\'\'(.*?)\'\'\'', r'\1', text)  # Bold to plain
+        # replace consecutive whitespaces with one space
+        return ' '.join(self.content.split())
+#        # Replace any number of consecutive whitespaces that include newline(s) with one newline
+#        text = re.sub(r'\s*[\r\n]+\s*', '\n', self.content)
+#        # Replace any number of consecutive whitespaces (except newlines) with one space
+#        text = re.sub(r'[ \t]+', ' ', text)
+#        # Simplistic wikitext to plain text transformation
+#        text = re.sub(r'\'\'\'(.*?)\'\'\'', r'\1', text)  # Bold to plain
         return text
 
     def section_titles(self):

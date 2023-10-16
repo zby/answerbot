@@ -70,66 +70,71 @@ def openai_query(prompt, stops, api_key):
     return response_json["choices"][0]["message"]["content"].strip()
 
 
-# load the api key from a file
-with open("config.json", "r") as f:
-    config = json.load(f)
-    api_key = config["api_key"]
-
-# question = "What was the first major battle in the Ukrainian War?"
-question = "What were the main publications by the Nobel Prize winner in economics in 2023?"
-#question = "What is the elevation range for the area that the eastern sector of the Colorado orogeny extends into?"
-#question = 'Musician and satirist Allie Goertz wrote a song about the "The Simpsons" character Milhouse, who Matt Groening named after who?'
-# question = "how old was Donald Tusk when he died?"
-# question = "how many keys does a US-ANSI keyboard have on it?"
-
 
 def wikipedia_search(entity):
     wiki_api = WikipediaApi(max_retries=3)
     return wiki_api.search(entity)
 
-done = False
-MAX_ITER = 3
-iter = 0
-prompt = cot_prompt_short.format(input=question)
-document = None
-wiki_api = WikipediaApi(max_retries=3)
-while not done:
-    print(prompt)
-    reaction = openai_query(prompt, "\nObservation:", api_key)
-    print(reaction)
-    if prompt[-1] != '\n':
-        prompt = prompt + '\n'
-    prompt = prompt + f'{reaction}'
-    if prompt[-1] != '\n':
-        prompt = prompt + '\n'
-    lines = reaction.strip().split('\n')
-    line = lines[-1]
-    if line.startswith("Action: Finish["):
-        answer = line[15:-1]
-        print(f'Answer: {answer}')
-        done = True
-    elif line.startswith("Action: Search["):
-        query = line[15:-1]
-        print(f'Will search wikipedia for "{query}"')
-        search_record = wiki_api.search(query)
-        document = WikipediaDocument(search_record.page.content, summary=search_record.page.summary)
-        text = document.first_chunk()
-        for record in search_record.retrieval_history:
-            prompt = prompt + f'Observation: {record}'
-        prompt = prompt + f'\nObservation: the retrieved wikipedia page summary contains: {text}'
-    elif line.startswith("Action: Lookup["):
-        if document is None:
-            print("No document defined, cannot lookup")
-            done = True
-        query = line[15:-1]
-        print(f'Will lookup paragraph containing "{query}"')
-        text = document.lookup(query)
-        if text is None or text == '':
-            text = f"{query} not found in document"
-        prompt = prompt + f'Observation: {text}\n'
-    if iter >= MAX_ITER:
-        print("Max iterations reached, exiting.")
-        done = True
-    iter += 1
+def get_answer(config, question):
+    api_key = config["api_key"]
+    MAX_ITER = 3
+    iter = 0
+    prompt = cot_prompt_short.format(input=question)
+    document = None
+    wiki_api = WikipediaApi(max_retries=3)
+    while True:
+        print(prompt)
+        reaction = openai_query(prompt, "\nObservation:", api_key)
+        print(reaction)
+        if prompt[-1] != '\n':
+            prompt = prompt + '\n'
+        prompt = prompt + f'{reaction}'
+        if prompt[-1] != '\n':
+            prompt = prompt + '\n'
+        lines = reaction.strip().split('\n')
+        line = lines[-1]
+        if line.startswith("Action: Finish["):
+            answer = line[15:-1]
+            print(f'Answer: {answer}')
+            return answer
+        elif line.startswith("Action: Search["):
+            query = line[15:-1]
+            print(f'Will search wikipedia for "{query}"')
+            search_record = wiki_api.search(query)
+            document = WikipediaDocument(search_record.page.content, summary=search_record.page.summary)
+            text = document.first_chunk()
+            for record in search_record.retrieval_history:
+                prompt = prompt + f'Observation: {record}'
+            prompt = prompt + f'\nObservation: the retrieved wikipedia page summary contains: {text}'
+        elif line.startswith("Action: Lookup["):
+            if document is None:
+                print("No document defined, cannot lookup")
+                return None
+            query = line[15:-1]
+            print(f'Will lookup paragraph containing "{query}"')
+            text = document.lookup(query)
+            if text is None or text == '':
+                text = f"{query} not found in document"
+            prompt = prompt + f'Observation: {text}\n'
+        if iter >= MAX_ITER:
+            print("Max iterations reached, exiting.")
+            return None
+        iter += 1
+
+# Example usage
+if __name__ == "__main__":
+    # load the api key from a file
+    with open("config.json", "r") as f:
+        config = json.load(f)
+
+    # question = "What was the first major battle in the Ukrainian War?"
+    question = "What were the main publications by the Nobel Prize winner in economics in 2023?"
+    # question = "What is the elevation range for the area that the eastern sector of the Colorado orogeny extends into?"
+    # question = 'Musician and satirist Allie Goertz wrote a song about the "The Simpsons" character Milhouse, who Matt Groening named after who?'
+    # question = "how old was Donald Tusk when he died?"
+    # question = "how many keys does a US-ANSI keyboard have on it?"
+
+    get_answer(config, question)
+
 
 

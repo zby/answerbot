@@ -6,7 +6,7 @@ import get_wikipedia
 from document import WikipediaDocument
 from get_wikipedia import WikipediaApi, ContentRecord
 
-cot_prompt_short = '''
+react_prompt_short = '''
 Solve a question answering task with interleaving Thought, Action, Observation steps. Thought can reason about the current situation, and Action can be three types: 
 (1) Search[entity], which searches the entity in wikipedia, it saves it for looking up parts of it and presents the beginning of it.
 (2) Lookup[keyword], which returns the text surrounding the keyword in the current wikipedia page.
@@ -79,7 +79,7 @@ def get_answer(config, question):
     api_key = config["api_key"]
     MAX_ITER = 3
     iter = 0
-    prompt = cot_prompt_short.format(input=question)
+    prompt = react_prompt_short.format(input=question)
     document = None
     wiki_api = WikipediaApi(max_retries=3)
     while True:

@@ -101,7 +101,7 @@ def get_answer(config, question):
             query = line[15:-1]
             print(f'Will search wikipedia for "{query}"')
             search_record = wiki_api.search(query)
-            document = WikipediaDocument(search_record.page.content, summary=search_record.page.summary)
+            document = search_record.document
             text = document.first_chunk()
             for record in search_record.retrieval_history:
                 prompt = prompt + f'Observation: {record}'

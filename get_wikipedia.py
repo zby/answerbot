@@ -1,11 +1,56 @@
 import wikipedia
+import re
+
+from document import Document
 
 MAX_RETRIES = 3
 LANGUAGE = 'en'
 
+
+class WikipediaDocument(Document):
+    def extract_text(self):
+        # replace consecutive whitespaces with one space
+        return ' '.join(self.content.split())
+        #        # Replace any number of consecutive whitespaces that include newline(s) with one newline
+        #        text = re.sub(r'\s*[\r\n]+\s*', '\n', self.content)
+        #        # Replace any number of consecutive whitespaces (except newlines) with one space
+        #        text = re.sub(r'[ \t]+', ' ', text)
+        #        # Simplistic wikitext to plain text transformation
+        #        text = re.sub(r'\'\'\'(.*?)\'\'\'', r'\0', text)  # Bold to plain
+        return text
+
+    def section_titles(self):
+        headings = re.findall(r'== (.*?) ==', self.content)
+        return headings
+
+    def lookup(self, keyword):
+        # Search for the keyword in the text
+        text = self.text
+        index = text.find(keyword)
+        if index == -1:  # Keyword not found
+            return None
+
+        # Determine the start and end points for the extraction
+        start = max(index - self.chunk_size // 1, 0)
+        end = min(index + len(keyword) + self.chunk_size // 1, len(self.text))
+        #surrounding_text = text[start:end]
+
+        # Adjust start point to make sure it doesn't extend past a section boundary
+        prev_section_boundary = text.rfind('==', start, index)
+        if prev_section_boundary != -1:  # Found a previous section boundary
+            the_other_boundary = text.rfind('==', start, prev_section_boundary)
+            if the_other_boundary != -1:
+                start = the_other_boundary
+
+        # Trim the surrounding text after the last '.' character after the keyword
+        last_dot_index = text.rfind('.', index, end)
+        if last_dot_index != -1:
+            end = last_dot_index + 1
+
+        return text[start:end].strip()
 class ContentRecord:
-    def __init__(self, page, retrieval_history):
-        self.page = page
+    def __init__(self, document, retrieval_history):
+        self.document = document
         self.retrieval_history = retrieval_history
 
 class WikipediaApi:
@@ -19,10 +64,11 @@ class WikipediaApi:
 
         try:
             wikipedia.set_lang(self.language)
-            fixed_title = title.replace(" ", "_")
+            # fixed_title = title.replace(" ", "_")
             page = wikipedia.page(title, auto_suggest=False)
+            document = WikipediaDocument(page.content, summary=page.summary)
             retrieval_history.append(f"Successfully retrieved '{title}' from Wikipedia.")
-            return ContentRecord(page, retrieval_history)
+            return ContentRecord(document, retrieval_history)
         except wikipedia.exceptions.DisambiguationError as e:
             options = e.options
             if options:

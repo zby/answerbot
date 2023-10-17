@@ -29,7 +29,6 @@ def openai_query(messages, api_key):
         time.sleep(5)
         return openai_query(messages, api_key)
     response_json = response.json()
-    print(response_json)
     return response_json["choices"][0]["message"]
 
 
@@ -66,10 +65,12 @@ def get_answer(config, question):
             reactor.add_observation(summary)
 
             sections = document.section_titles()
-            observation = f'the retrieved page contains the following sections: {", ".join(sections)}'
+            sections_list_md = "\n".join(map(lambda section: f' - {section}', sections))
+            observation = f'the retrieved page contains the following sections:\n{sections_list_md}'
             print(">>>", observation)
             reactor.add_observation(observation)
         elif action == 'lookup':
+            query = argument
             if document is None:
                 print("No document defined, cannot lookup")
                 return None
@@ -77,6 +78,7 @@ def get_answer(config, question):
             text = document.lookup(query)
             if text is None or text == '':
                 text = f"{query} not found in document"
+            print(">>>", text)
             reactor.add_observation(text)
         if iter >= MAX_ITER:
             print("Max iterations reached, exiting.")
@@ -93,8 +95,9 @@ if __name__ == "__main__":
     # question = "What were the main publications by the Nobel Prize winner in economics in 2023?"
     # question = "What is the elevation range for the area that the eastern sector of the Colorado orogeny extends into?"
     # question = 'Musician and satirist Allie Goertz wrote a song about the "The Simpsons" character Milhouse, who Matt Groening named after who?'
-    question = "how old was Donald Tusk when he died?"
+    # question = "how old was Donald Tusk when he died?"
     # question = "how many keys does a US-ANSI keyboard have on it?"
+    question = "How many children does Donald Tusk have?"
 
     get_answer(config, question)
 

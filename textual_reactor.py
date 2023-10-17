@@ -3,6 +3,7 @@ Solve a question answering task with interleaving Thought, Action, Observation s
 (1) Search[entity], which searches the entity in wikipedia, it saves it for looking up parts of it and presents the beginning of it.
 (2) Lookup[keyword], which returns the text surrounding the keyword in the current wikipedia page.
 (3) Finish[answer], which returns the answer and finishes the task.
+Each of your answers must contain an Action, and may contain multiple Thoughts. It must not contain Observations.
 '''
 
 prompt_messages = [
@@ -73,7 +74,6 @@ class TextualReactor:
     def query(self):
         response = self.query_function(self.messages)
         self.messages.append(response) # XXX: validate the format of the content?
-        print('response:', response)
         print("<<<", response["content"])
         response_lines = response["content"].strip().split('\n')
         last_line = response_lines[-1]

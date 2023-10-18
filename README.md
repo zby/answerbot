@@ -1,6 +1,6 @@
 # answerbot
 
-Currently working on react.py
+Currently working on react_with_functions.py
 
 ## Installation
 

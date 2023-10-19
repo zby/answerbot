@@ -246,7 +246,7 @@ def run_conversation(question, messages):
         )
 
         response_message = response["choices"][0]["message"]
-        print(type(response_message))
+        # print(type(response_message))
         rmessage = convert_to_dict(response_message)
         print("model response: ", rmessage)
         messages.append(rmessage)
@@ -308,16 +308,13 @@ if __name__ == "__main__":
         config = json.load(f)
     openai.api_key = config["api_key"]
 
-    # question = "What was the first major battle in the Ukrainian War?"
+    question = "What was the first major battle in the Ukrainian War?"
     # question = "What were the main publications by the Nobel Prize winner in economics in 2023?"
     # question = "What is the elevation range for the area that the eastern sector of the Colorado orogeny extends into?"
     # question = 'Musician and satirist Allie Goertz wrote a song about the "The Simpsons" character Milhouse, who Matt Groening named after who?'
     # question = "how old was Donald Tusk when he died?"
     # question = "how many keys does a US-ANSI keyboard have on it?"
-    question = "How many children does Donald Tusk have?"
-    question = "What were the main publications by the Nobel Prize winner in economics in 2023?"
-    question = "What is the elevation range for the area that the eastern sector of the Colorado orogeny extends into?"
-    question = 'Musician and satirist Allie Goertz wrote a song about the "The Simpsons" character Milhouse, who Matt Groening named after who?'
+    # question = "How many children does Donald Tusk have?"
 
     messages = []
     result = run_conversation(question, messages)

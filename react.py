@@ -4,7 +4,7 @@ import time
 
 import get_wikipedia
 from get_wikipedia import WikipediaApi, ContentRecord
-from textual_reactor import TextualReactor
+from reactors import TextualReactor
 
 def openai_query(messages, api_key):
     headers = {

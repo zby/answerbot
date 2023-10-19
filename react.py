@@ -112,5 +112,5 @@ if __name__ == "__main__":
         reactor_name = reactor.__class__.__name__
         print('Obtaining an answer using', reactor_name)
         answer, iterations = get_answer(config, question, reactor)
-        answer = f'"answer"' if answer else "Answer was not"
+        answer = f'"{answer}"' if answer else "Answer was not"
         print(f'[{reactor_name}] {answer} found after {iterations} queries')

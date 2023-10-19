@@ -22,8 +22,13 @@ After each function call, please analyze the response reflect on it and decide w
 examples = [
     { 'content': 'Question: What is the elevation range for the area that the eastern sector of the Colorado orogeny extends into?',
     'role': 'user'},
-    { 'content': 'Thought: I need to search Colorado orogeny, find the area that the eastern sector of the Colorado orogeny extends into, then find the elevation range of the area.',
-      'function_call': {'arguments': '{\n  "query": "Colorado orogeny"\n}', 'name': 'search_wikipedia'},
+    { 'function_call': {
+            'arguments': json.dumps({
+                "thought": 'Thought: I need to search Colorado orogeny, find the area that the eastern sector of the Colorado orogeny extends into, then find the elevation range of the area.',
+                "query": "Colorado orogeny"
+             }),
+            'name': 'search_wikipedia'},
+      "content": 'I need to call a "search_wikipedia" function',
       'role': 'assistant'},
     { 'content': "Observations:\n"
                  "Wikipedia search results for query: 'Colorado orogeny' is: 'Colorado orogeny', 'Laramide orogeny', "
@@ -37,14 +42,26 @@ examples = [
                  'orogeny was likely part of the larger Yavapai orogeny.\n',
       'name': 'search_wikipedia',
       'role': 'function'},
-    { 'content': "Thought: It does not mention the eastern sector of the Colorado orogeny. I need to look up eastern sector.",
-      'function_call': {'arguments': '{\n  "keyword": "eastern sector"\n}', 'name': 'lookup_word'},
+    { 'function_call': {
+            'arguments': json.dumps({
+                "thought": "Thought: It does not mention the eastern sector of the Colorado orogeny. I need to look up eastern sector.",
+                "keyword": "eastern sector"
+            }),
+            'name': 'lookup_word'
+        },
+      "content": 'I need to call a "lookup_word" function',
       'role': 'assistant'},
     { "role": "user",
       "content": "Observations: == Description == The Colorado orogen, formerly called the Colorado province, is a >500-km-wide belt of oceanic arc rock (1.78–1.65 Ga) that extends southward into New Mexico and composes a major part of the Proterozoic provinces of southwestern United States. This transcontinental collisional event occurred during the Paleoproterozoic (Statherian Period). The Wyoming sector of the Colorado orogeny was formerly called the Medicine Bow orogeny. The eastern sector extends into the High Plains and is called the Central Plains orogeny. The boundary between the Colorado orogeny and the Wyoming craton is the Cheyenne belt, a 5-km-wide mylonitic shear zone that verges northward. The Cheyenne belt transects and cuts off the south edge of the older Trans-Hudson orogeny." },
-    {'content': "Thought: The eastern sector of Colorado orogeny extends into the High Plains, so High Plains is the area. I need to search High Plains and find its elevation range.",
-     'function_call': {'arguments': '{\n  "query": "High Plains"\n}', 'name': 'search_wikipedia'},
-     'role': 'assistant'},
+    { 'function_call': {
+            'arguments': json.dumps({
+                "thought": "Thought: The eastern sector of Colorado orogeny extends into the High Plains, so High Plains is the area. I need to search High Plains and find its elevation range.",
+                "query": "High Plains"
+            }),
+            'name': 'search_wikipedia'
+        },
+      "content": 'I need to call a "search_wikipedia" function',
+      'role': 'assistant'},
     { 'content': "Observations:\n"
                "Wikipedia search results for query: 'High Plains' is: 'High Plains Drifter', 'High Plains', 'High "
                "Plains (United States)', 'Ogallala Aquifer', 'Great Plains', 'High Plains (Australia)', 'High Plains "
@@ -60,9 +77,14 @@ examples = [
                'critically acclaimed at the time of its initial release and remains popular.\n',
     'name': 'search_wikipedia',
     'role': 'function'},
-   { 'content': 'Tought: High Plains Drifter is a film I need information about different High Plains',
-    'function_call': {'arguments': '{\n  "query": "High Plains elevation range"\n}', 'name': 'search_wikipedia'},
-    'role': 'assistant'},
+   { 'function_call': {
+        'arguments': json.dumps({
+            "thought": 'Tought: High Plains Drifter is a film. I need information about different High Plains',
+            "query": "High Plains elevation range"
+        }),
+        'name': 'search_wikipedia'},
+     "content": 'I need to call a "search_wikipedia" function',
+     'role': 'assistant'},
    { 'content': "Observations:\n"
                "Wikipedia search results for query: 'High Plains elevation range' is: 'High Plains (United States)', "
                "'Laramie Plains', 'Plain', 'Roaring Plains West Wilderness', 'Northern Basin and Range ecoregion', "
@@ -83,18 +105,26 @@ examples = [
   { 'content': 'Thought: The High Plains have an elevation range from around 1,800 to 7,000 feet. I can use this '
                'information to answer the question about the elevation range of the area that the eastern sector of '
                'the Colorado orogeny extends into.',
-    'function_call': { 'arguments': '{\n'
-                                    '  "answer": "The elevation range for the area that the eastern sector of the '
-                                    'Colorado orogeny extends into is approximately 1,800 to 7,000 feet."\n'
-                                    '}',
-                       'name': 'finish'},
+    'function_call': {
+        'arguments': json.dumps({
+            "answer": "The elevation range for the area that the eastern sector of the Colorado orogeny extends into is approximately 1,800 to 7,000 feet."
+        }),
+        'name': 'finish'
+    },
+    "content": 'I need to call a "finish" function',
     'role': 'assistant'},
 
     { 'content': 'Question: Musician and satirist Allie Goertz wrote a song about the "The Simpsons" character Milhouse, '
                'who Matt Groening named after who?',
       'role': 'user'},
-    { 'content': 'Thought: I need to find out who Matt Groening named the Simpsons character Milhouse after.',
-      'function_call': {'arguments': '{\n  "query": "Milhouse Simpson"\n}', 'name': 'search_wikipedia'},
+    { 'function_call': {
+            'arguments': json.dumps({
+                "thought": 'Thought: I need to find out who Matt Groening named the Simpsons character Milhouse after.',
+                "query": "Milhouse Simpson"
+            }),
+            'name': 'search_wikipedia'
+        },
+      "content": 'I need to call a "search_wikipedia" function',
       'role': 'assistant'},
     { 'content': "Observations:\n"
                "Wikipedia search results for query: 'Milhouse Simpson' is: 'Milhouse Van Houten', 'A Milhouse "
@@ -113,19 +143,29 @@ examples = [
                'Ullman Show. When The Simpsons was greenlit for a full series by Fox, Milhouse became one of the '
                "series' most prominent recurring characters.\n",
       'name': 'search_wikipedia',
-      'role': 'function'},
+      'role': 'function'
+    },
     { "role": "assistant",
-      "content": 'Thought: The paragraph does not tell who Milhouse is named after, maybe I can look up "named after".',
-        'function_call': {'arguments': '{\n  "keyword": "named after"\n}', 'name': 'lookup_word'}},
+      'function_call': {
+          'arguments': json.dumps({
+              "thought": 'Thought: The summary does not tell who Milhouse is named after, I should check the section called "Creation".',
+              "keyword": "Creation"
+          }),
+          'name': 'lookup_word'
+      },
+      "content": 'I need to call a "lookup_word" function',
+    },
     { "content": "Observations:\n Milhouse was named after U.S. president Richard Nixon, whose middle name was Milhous.",
       'name': 'lookup_word',
       'role': 'function'},
     { "role": "assistant",
       "content": 'Thought: Milhouse was named after U.S. president Richard Nixon, so the answer is President Richard Nixon.',
-      'function_call': { 'arguments': '{\n'
-                                    '  "answer": "President Richard Nixon"'
-                                    '}',
-                       'name': 'finish'}},
+      'function_call': {
+          'arguments': json.dumps({ "answer": "President Richard Nixon" }),
+          'name': 'finish'
+       },
+      "content": 'I need to call a "finish" function',
+    },
 ]
 
 def convert_to_dict(obj):
@@ -152,9 +192,13 @@ def run_conversation(question, messages):
                     "query": {
                         "type": "string",
                         "description": "The query to search for on Wikipedia",
+                    },
+                    "thought": {
+                        "type": "string",
+                        "description": "The reason for searching for this particular article",
                     }
                 },
-                "required": ["query"],
+                "required": ["query", "thought"],
             },
         },
         {
@@ -165,10 +209,14 @@ def run_conversation(question, messages):
                 "properties": {
                     "keyword": {
                         "type": "string",
-                        "description": "The keyword to lookup within the retrieved content",
+                        "description": "The keyword or section to lookup within the retrieved content",
+                    },
+                    "thought": {
+                        "type": "string",
+                        "description": "The reason for checking in this particular section of the article",
                     }
                 },
-                "required": ["keyword"],
+                "required": ["keyword", "thought"],
             },
         },
         {

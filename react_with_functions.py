@@ -216,6 +216,11 @@ def run_conversation(question, messages):
                 for record in search_record.retrieval_history:
                     function_response = function_response + record + "\n"
                 function_response = function_response + "The retrieved wikipedia page summary starts with: " + document.first_chunk() + "\n"
+
+                sections = document.section_titles()
+                sections_list_md = "\n".join(map(lambda section: f' - {section}', sections))
+                observation = f'the retrieved page contains the following sections:\n{sections_list_md}'
+                function_response += observation
             elif function_name == "lookup_word":
                 function_response = "Observations:\n"
                 if document is None:

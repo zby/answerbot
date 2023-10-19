@@ -7,34 +7,7 @@ import get_wikipedia
 from get_wikipedia import WikipediaApi, ContentRecord
 from reactors import FunctionalReactor, TextualReactor
 
-def openai_query(messages, api_key):
-    headers = {
-        "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json"
-    }
-    data = {
-        "model": "gpt-3.5-turbo-16k",
-        "messages": messages,
-        "temperature": 0.7,
-        # "stop": stops,
-    }
-
-    response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=data)
-    if response.status_code >= 500:
-        print(f"OpenAI temporarily unavailable (code {response.status_code}), waiting a bit...")
-        time.sleep(5)
-        return openai_query(messages, api_key)
-    if response.status_code == 429:
-        # TODO: maybe parse out the "Please try again in Xms" part and be clever
-        print("Rate limit reached, waiting a bit...")
-        time.sleep(5)
-        return openai_query(messages, api_key)
-    response_json = response.json()
-    return response_json["choices"][0]["message"]
-
-
-# TODO: this should replace openai_query
-def openai_query_functional(messages, functions=None):
+def openai_query(messages, functions=None):
     def convert_to_dict(obj):
         if isinstance(obj, openai.openai_object.OpenAIObject):
             return {k: convert_to_dict(v) for k, v in obj.items()}
@@ -43,11 +16,15 @@ def openai_query_functional(messages, functions=None):
         else:
             return obj
 
+    args = {}
+    if functions is not None:
+        args["functions"] = functions
+        args["function_call"] = "auto"
+
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo-0613",
         messages=messages,
-        functions=functions,
-        function_call="auto",
+        **args
     )
 
     response_message = response["choices"][0]["message"]
@@ -123,10 +100,17 @@ if __name__ == "__main__":
     # question = "how many keys does a US-ANSI keyboard have on it?"
     question = "How many children does Donald Tusk have?"
 
+    mode = 'compare'
 
-    reactor = TextualReactor(lambda messages: openai_query(messages, openai.api_key))
-    # reactor = FunctionalReactor(openai_query_functional)
+    reactors = []
+    if mode == 'textual' or mode == 'compare':
+        reactors.append(TextualReactor(openai_query))
+    if mode == 'functional' or mode == 'compare':
+        reactors.append(FunctionalReactor(openai_query))
 
-    answer, iterations = get_answer(config, question, reactor)
-    answer = f'"answer"' if answer else "Answer was not"
-    print(f'{answer} found after {iterations} queries')
+    for reactor in reactors:
+        reactor_name = reactor.__class__.__name__
+        print('Obtaining an answer using', reactor_name)
+        answer, iterations = get_answer(config, question, reactor)
+        answer = f'"answer"' if answer else "Answer was not"
+        print(f'[{reactor_name}] {answer} found after {iterations} queries')

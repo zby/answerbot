@@ -26,9 +26,10 @@ class WikipediaDocument(Document):
     def lookup(self, keyword):
         # Search for the keyword in the text
         text = self.text
-        index = text.find(keyword)
-        if index == -1:  # Keyword not found
+        match = re.search(keyword, text, re.IGNORECASE)
+        if match is None:  # Keyword not found
             return None
+        index = match.span()[0]
 
         # Determine the start and end points for the extraction
         start = max(index - self.chunk_size // 1, 0)

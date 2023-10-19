@@ -1,10 +1,6 @@
-import openai
 import json
-import pprint
 
-from get_wikipedia import WikipediaApi
-
-MAX_ITER = 5
+from .common import Action
 
 system_message = '''
 Solve a question answering task with interleaving Thought, Action, Observation steps. 
@@ -27,8 +23,8 @@ examples = [
                 "thought": 'Thought: I need to search Colorado orogeny, find the area that the eastern sector of the Colorado orogeny extends into, then find the elevation range of the area.',
                 "query": "Colorado orogeny"
              }),
-            'name': 'search_wikipedia'},
-      "content": 'I need to call a "search_wikipedia" function',
+            'name': 'search'},
+      "content": 'I need to call a "search" function',
       'role': 'assistant'},
     { 'content': "Observations:\n"
                  "Wikipedia search results for query: 'Colorado orogeny' is: 'Colorado orogeny', 'Laramide orogeny', "
@@ -40,16 +36,16 @@ examples = [
                  'years ago (Mya), during the Paleoproterozoic (Statherian Period). It is recorded in the Colorado '
                  'orogen, a >500-km-wide belt of oceanic arc rock that extends southward into New Mexico. The Colorado '
                  'orogeny was likely part of the larger Yavapai orogeny.\n',
-      'name': 'search_wikipedia',
+      'name': 'search',
       'role': 'function'},
     { 'function_call': {
             'arguments': json.dumps({
                 "thought": "Thought: It does not mention the eastern sector of the Colorado orogeny. I need to look up eastern sector.",
                 "keyword": "eastern sector"
             }),
-            'name': 'lookup_word'
+            'name': 'lookup'
         },
-      "content": 'I need to call a "lookup_word" function',
+      "content": 'I need to call a "lookup" function',
       'role': 'assistant'},
     { "role": "user",
       "content": "Observations: == Description == The Colorado orogen, formerly called the Colorado province, is a >500-km-wide belt of oceanic arc rock (1.78–1.65 Ga) that extends southward into New Mexico and composes a major part of the Proterozoic provinces of southwestern United States. This transcontinental collisional event occurred during the Paleoproterozoic (Statherian Period). The Wyoming sector of the Colorado orogeny was formerly called the Medicine Bow orogeny. The eastern sector extends into the High Plains and is called the Central Plains orogeny. The boundary between the Colorado orogeny and the Wyoming craton is the Cheyenne belt, a 5-km-wide mylonitic shear zone that verges northward. The Cheyenne belt transects and cuts off the south edge of the older Trans-Hudson orogeny." },
@@ -58,9 +54,9 @@ examples = [
                 "thought": "Thought: The eastern sector of Colorado orogeny extends into the High Plains, so High Plains is the area. I need to search High Plains and find its elevation range.",
                 "query": "High Plains"
             }),
-            'name': 'search_wikipedia'
+            'name': 'search'
         },
-      "content": 'I need to call a "search_wikipedia" function',
+      "content": 'I need to call a "search" function',
       'role': 'assistant'},
     { 'content': "Observations:\n"
                "Wikipedia search results for query: 'High Plains' is: 'High Plains Drifter', 'High Plains', 'High "
@@ -75,15 +71,15 @@ examples = [
                'co-stars Verna Bloom, Mariana Hill, Mitchell Ryan, Jack Ging, and Stefan Gierasch. The film was shot '
                'on location on the shores of Mono Lake, California. Dee Barton wrote the film score. The film was '
                'critically acclaimed at the time of its initial release and remains popular.\n',
-    'name': 'search_wikipedia',
+    'name': 'search',
     'role': 'function'},
    { 'function_call': {
         'arguments': json.dumps({
             "thought": 'Tought: High Plains Drifter is a film. I need information about different High Plains',
             "query": "High Plains elevation range"
         }),
-        'name': 'search_wikipedia'},
-     "content": 'I need to call a "search_wikipedia" function',
+        'name': 'search'},
+     "content": 'I need to call a "search" function',
      'role': 'assistant'},
    { 'content': "Observations:\n"
                "Wikipedia search results for query: 'High Plains elevation range' is: 'High Plains (United States)', "
@@ -100,7 +96,7 @@ examples = [
                'contains the geological formation known as Llano Estacado which can be seen from a short distance or '
                'on satellite maps. From east to west, the High Plains rise in elevation from around 1,800 to 7,000 ft '
                '(550 to 2,130 m).\n',
-    'name': 'search_wikipedia',
+    'name': 'search',
     'role': 'function'},
   { 'content': 'Thought: The High Plains have an elevation range from around 1,800 to 7,000 feet. I can use this '
                'information to answer the question about the elevation range of the area that the eastern sector of '
@@ -122,9 +118,9 @@ examples = [
                 "thought": 'Thought: I need to find out who Matt Groening named the Simpsons character Milhouse after.',
                 "query": "Milhouse Simpson"
             }),
-            'name': 'search_wikipedia'
+            'name': 'search'
         },
-      "content": 'I need to call a "search_wikipedia" function',
+      "content": 'I need to call a "search" function',
       'role': 'assistant'},
     { 'content': "Observations:\n"
                "Wikipedia search results for query: 'Milhouse Simpson' is: 'Milhouse Van Houten', 'A Milhouse "
@@ -142,7 +138,7 @@ examples = [
                'while The Simpsons was still airing as a cartoon short series on the Fox variety show The Tracey '
                'Ullman Show. When The Simpsons was greenlit for a full series by Fox, Milhouse became one of the '
                "series' most prominent recurring characters.\n",
-      'name': 'search_wikipedia',
+      'name': 'search',
       'role': 'function'
     },
     { "role": "assistant",
@@ -151,12 +147,12 @@ examples = [
               "thought": 'Thought: The summary does not tell who Milhouse is named after, I should check the section called "Creation".',
               "keyword": "Creation"
           }),
-          'name': 'lookup_word'
+          'name': 'lookup'
       },
-      "content": 'I need to call a "lookup_word" function',
+      "content": 'I need to call a "lookup" function',
     },
     { "content": "Observations:\n Milhouse was named after U.S. president Richard Nixon, whose middle name was Milhous.",
-      'name': 'lookup_word',
+      'name': 'lookup',
       'role': 'function'},
     { "role": "assistant",
       "content": 'Thought: Milhouse was named after U.S. president Richard Nixon, so the answer is President Richard Nixon.',
@@ -168,156 +164,85 @@ examples = [
     },
 ]
 
-def convert_to_dict(obj):
-    if isinstance(obj, openai.openai_object.OpenAIObject):
-        return {k: convert_to_dict(v) for k, v in obj.items()}
-    elif isinstance(obj, list):
-        return [convert_to_dict(item) for item in obj]
-    else:
-        return obj
-
-def run_conversation(question, messages):
-    document = None
-    wiki_api = WikipediaApi(max_retries=3)
-    messages.append({"role": "system", "content": system_message})
-    messages.extend(examples)
-    messages.append({"role": "user", "content": f"Question: {question}"})
-    functions = [
-        {
-            "name": "search_wikipedia",
-            "description": "Search Wikipedia for a query, retrieve the page, save it for later and return the summary",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "query": {
-                        "type": "string",
-                        "description": "The query to search for on Wikipedia",
-                    },
-                    "thought": {
-                        "type": "string",
-                        "description": "The reason for searching for this particular article",
-                    }
+functions = [
+    {
+        "name": "search",
+        "description": "Search Wikipedia for a query, retrieve the page, save it for later and return the summary",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "query": {
+                    "type": "string",
+                    "description": "The query to search for on Wikipedia",
                 },
-                "required": ["query", "thought"],
-            },
-        },
-        {
-            "name": "lookup_word",
-            "description": "Look up a word in the saved Wikipedia page and return text surrounding it",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "keyword": {
-                        "type": "string",
-                        "description": "The keyword or section to lookup within the retrieved content",
-                    },
-                    "thought": {
-                        "type": "string",
-                        "description": "The reason for checking in this particular section of the article",
-                    }
-                },
-                "required": ["keyword", "thought"],
-            },
-        },
-        {
-            "name": "finish",
-            "description": "Finish the task and return the answer",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "answer": {
-                        "type": "string",
-                        "description": "The answer to the user's question",
-                    }
-                },
-                "required": ["answer"],
-            },
-        },
-    ]
-
-    iter = 0
-    while True:
-
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo-0613",
-            messages=messages,
-            functions=functions,
-            function_call="auto",
-        )
-
-        response_message = response["choices"][0]["message"]
-        # print(type(response_message))
-        rmessage = convert_to_dict(response_message)
-        print("model response: ", rmessage)
-        messages.append(rmessage)
-
-        if response_message.get("function_call"):
-            function_name = response_message["function_call"]["name"]
-            function_args = json.loads(response_message["function_call"]["arguments"])
-            if function_name == "finish":
-                answer = function_args["answer"]
-                return answer
-            elif function_name == "search_wikipedia":
-                function_response = "Observations:\n"
-                search_record = wiki_api.search(function_args["query"])
-                document = search_record.document
-                for record in search_record.retrieval_history:
-                    function_response = function_response + record + "\n"
-                function_response = function_response + "The retrieved wikipedia page summary starts with: " + document.first_chunk() + "\n"
-
-                sections = document.section_titles()
-                sections_list_md = "\n".join(map(lambda section: f' - {section}', sections))
-                observation = f'the retrieved page contains the following sections:\n{sections_list_md}'
-                function_response += observation
-            elif function_name == "lookup_word":
-                function_response = "Observations:\n"
-                if document is None:
-                    function_response = "No document defined, cannot lookup"
-                else:
-                    text = document.lookup(function_args["keyword"])
-                    if text:
-                        function_response = function_response + f"Found keyword: \n{text}"
-                    else:
-                        function_response = function_response + 'Keyword "' + function_args["keyword"] + '" not found in current page'
-            print (function_name, " response: ", function_response)
-            messages.append(
-                {
-                    "role": "function",
-                    "name": function_name,
-                    "content": function_response,
+                "thought": {
+                    "type": "string",
+                    "description": "The reason for searching for this particular article",
                 }
-            )
-#    response = openai.ChatCompletion.create(
-#        model="gpt-3.5-turbo-0613",
-#        messages=messages,
-#    )
-#
-#    response_message = response["choices"][0]["message"]
-#    print("model response: ", response_message)
-#    messages.append(response_message)
+            },
+            "required": ["query", "thought"],
+        },
+    },
+    {
+        "name": "lookup",
+        "description": "Look up a word or a section in the saved Wikipedia page and return text surrounding it",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "keyword": {
+                    "type": "string",
+                    "description": "The keyword or section to lookup within the retrieved content",
+                },
+                "thought": {
+                    "type": "string",
+                    "description": "The reason for checking in this particular section of the article",
+                }
+            },
+            "required": ["keyword", "thought"],
+        },
+    },
+    {
+        "name": "finish",
+        "description": "Finish the task and return the answer",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "answer": {
+                    "type": "string",
+                    "description": "The answer to the user's question",
+                }
+            },
+            "required": ["answer"],
+        },
+    },
+]
 
-    iter = iter + 1
-    if iter >= MAX_ITER:
-        print("Max iterations reached, exiting.")
-        return None
+class FunctionalReactor:
+    def __init__(self, query_function):
+        self.messages = [{"role": "system", "content": system_message}] + examples
+        self.query_function = query_function
 
+    def add_question(self, question: str):
+        self.messages.append({ "role": "user", "content": f"Question: {question}" }) 
 
-if __name__ == "__main__":
-    # load the api key from a file
-    with open("config.json", "r") as f:
-        config = json.load(f)
-    openai.api_key = config["api_key"]
+    def add_observation(self, observation, action: Action):
+        self.messages.append({ "role": "function", "name": action.name, "content": "observation" })
 
-    question = "What was the first major battle in the Ukrainian War?"
-    # question = "What were the main publications by the Nobel Prize winner in economics in 2023?"
-    # question = "What is the elevation range for the area that the eastern sector of the Colorado orogeny extends into?"
-    # question = 'Musician and satirist Allie Goertz wrote a song about the "The Simpsons" character Milhouse, who Matt Groening named after who?'
-    # question = "how old was Donald Tusk when he died?"
-    # question = "how many keys does a US-ANSI keyboard have on it?"
-    # question = "How many children does Donald Tusk have?"
+    def query(self) -> Action:
+        response = self.query_function(self.messages, functions)
+        self.messages.append(response)
+        print("<<<", response)
 
-    messages = []
-    result = run_conversation(question, messages)
-    pp = pprint.PrettyPrinter(indent=2, width=120)
-    pp.pprint(messages)
-    print(result)
+        if response.get("function_call"):
+            function_name = response["function_call"]["name"]
+            function_args = json.loads(response["function_call"]["arguments"])
+            if function_name == "finish":
+                return Action(name='finish', argument=function_args["answer"])
+            elif function_name == "search":
+                return Action(name='search', argument=function_args["query"])
+            elif function_name == "lookup":
+                return Action(name='lookup', argument=function_args["keyword"])
+            else:
+                raise Exception('Invalid function call requested in' + json.dumps(response))
+        else:
+            return None

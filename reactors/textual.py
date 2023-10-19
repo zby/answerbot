@@ -1,3 +1,5 @@
+from .common import Action
+
 system_prompt = '''
 Solve a question answering task with interleaving Thought, Action, Observation steps. Thought can reason about the current situation, and Action can be three types:
 (1) Search[entity], which searches the entity in wikipedia, it saves it for looking up parts of it and presents the beginning of it.
@@ -65,13 +67,13 @@ class TextualReactor:
         self.messages = prompt_messages[:] # clone
         self.query_function = query_function
 
-    def add_question(self, question):
+    def add_question(self, question: str):
         self.messages.append({ "role": "user", "content": f"Question: {question}" }) 
 
-    def add_observation(self, observation):
+    def add_observation(self, observation, action: Action):
         self.messages.append({ "role": "user", "content": f"Observation: {observation}" })
 
-    def query(self):
+    def query(self) -> Action:
         response = self.query_function(self.messages)
         self.messages.append(response) # XXX: validate the format of the content?
         print("<<<", response["content"])
@@ -80,11 +82,11 @@ class TextualReactor:
 
         if last_line.startswith('Action: Finish['):
             answer = last_line[15:-1]
-            return ('finish', answer)
+            return Action(name='finish', argument=answer)
         elif last_line.startswith("Action: Search["):
             query = last_line[15:-1]
-            return ('search', query)
+            return Action(name='search', argument=query)
         elif last_line.startswith("Action: Lookup["):
             query = last_line[15:-1]
-            return ('lookup', query)
+            return Action(name='lookup', argument=query)
 

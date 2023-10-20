@@ -5,7 +5,7 @@ import time
 
 import get_wikipedia
 from get_wikipedia import WikipediaApi, ContentRecord
-from reactors import FunctionalReactor, TextualReactor
+from reactors import FunctionalReactor, TextualReactor, PromptFormat
 
 def openai_query(messages, functions=None):
     def convert_to_dict(obj):
@@ -20,6 +20,9 @@ def openai_query(messages, functions=None):
     if functions is not None:
         args["functions"] = functions
         args["function_call"] = "auto"
+
+    if type(messages) == str:
+        messages = [{ "role": "user", "content": messages }]
 
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo-0613",
@@ -100,11 +103,11 @@ if __name__ == "__main__":
     # question = "how many keys does a US-ANSI keyboard have on it?"
     question = "How many children does Donald Tusk have?"
 
-    mode = 'compare'
+    mode = 'functional'
 
     reactors = []
     if mode == 'textual' or mode == 'compare':
-        reactors.append(TextualReactor(openai_query))
+        reactors.append(TextualReactor(openai_query, PromptFormat.plain))
     if mode == 'functional' or mode == 'compare':
         reactors.append(FunctionalReactor(openai_query))
 

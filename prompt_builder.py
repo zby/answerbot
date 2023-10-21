@@ -55,7 +55,7 @@ class FunctionCall(PromptMessage):
             arguments["thought"] = self.thought
         return {
             "role": "assistant",
-            "content": self.plaintext(),
+            #"content": self.plaintext(),
             "function_call": {
                 "name": self.name,
                 "arguments": json.dumps(arguments),
@@ -87,28 +87,23 @@ class OpenAIMessage(PromptMessage):
     def openai_message(self) -> dict:
         return self.message
 
-Formatter = Callable[[Iterable[PromptMessage]], Any]
 
-class OutputFormat:
-    @staticmethod
-    def plain(messages: Iterable[PromptMessage]) -> str:
-        return "\n".join(map(lambda m: m.plaintext(), messages))
-
-    @staticmethod
-    def openai_messages(messages: Iterable[PromptMessage]) -> Iterable[dict]:
-        """ For OpenAI's `messages` API, which expects a list of JSON objects, we return an iterable of dicts """
-        return list(map(lambda m: m.openai_message(), messages))
-
-class PromptBuilder:
+class Prompt:
     def __init__(self, parts: Iterable[PromptMessage]):
         self.parts = list(parts)
 
     def push(self, message: PromptMessage):
         self.parts.append(message)
 
-    def build(self, method: Formatter) -> Any: # TODO return something more specific? Something openai_query can be sure to handle
-        return method(self.parts)
+class Formatter:
+    @staticmethod
+    def plain(prompt: Prompt) -> str:
+        return "\n".join(map(lambda m: m.plaintext(), prompt.parts))
 
+    @staticmethod
+    def openai_messages(prompt: Prompt) -> Iterable[dict]:
+        """ For OpenAI's `messages` API, which expects a list of JSON objects, we return an iterable of dicts """
+        return list(map(lambda m: m.openai_message(), prompt.parts))
 
 if __name__ == "__main__":
     assert Assistant("Thought: I need to search through my book of Monty Python jokes.\nAction: Search[Monty Python]").plaintext() \
@@ -117,7 +112,7 @@ if __name__ == "__main__":
 
     from pprint import pprint
 
-    prompt = PromptBuilder([
+    prompt = Prompt([
         System("Solve a question answering task with interleaving Thought, Action and Observation steps."),
         User("Question: What is the terminal velocity of an unleaded swallow?"),
         FunctionCall('Search', query="Monty Python", thought="I need to search through my book of Monty Python jokes."),
@@ -127,5 +122,5 @@ if __name__ == "__main__":
         FunctionCall('Finish', query='Oh you!'),
     ])
 
-    print(prompt.build(OutputFormat.plain))
-    # pprint(prompt.build(OutputFormat.openai_messages))
+    print(Formatter.plain(prompt))
+    pprint(Formatter.openai_messages(prompt))

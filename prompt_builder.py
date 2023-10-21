@@ -39,23 +39,31 @@ class Assistant(PromptMessage):
         return { "role": "assistant", "content": self.content }
 
 class FunctionCall(PromptMessage):
-    def __init__(self, name: str, thought=None, **args):
+    def __init__(self, name: str, thought=None, content=None, **args):
         self.name = name
         self.thought = thought
+        self.content = content
         self.args = args
 
     def plaintext(self) -> str:
         arguments = ", ".join(self.args.values())
         thought = f"Thought: {self.thought}\n" if self.thought else ""
-        return f"{thought}Action: {self.name}[{arguments}]"
+        content = self.content + "\n" if self.content else ""
+        return f"{content}{thought}Action: {self.name}[{arguments}]"
 
     def openai_message(self) -> dict:
         arguments = dict(self.args)
         if self.thought is not None:
             arguments["thought"] = self.thought
+        if self.content is not None:
+            content = self.content
+        elif self.thought is not None:
+            content = f"Thought: {self.thought}\n"
+        else:
+            content = ""
         return {
             "role": "assistant",
-            #"content": self.plaintext(),
+            "content": content,
             "function_call": {
                 "name": self.name,
                 "arguments": json.dumps(arguments),

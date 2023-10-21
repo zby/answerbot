@@ -95,15 +95,12 @@ class Prompt:
     def push(self, message: PromptMessage):
         self.parts.append(message)
 
-class Formatter:
-    @staticmethod
-    def plain(prompt: Prompt) -> str:
-        return "\n".join(map(lambda m: m.plaintext(), prompt.parts))
+    def plain(self) -> str:
+        return "\n".join(map(lambda m: m.plaintext(), self.parts))
 
-    @staticmethod
-    def openai_messages(prompt: Prompt) -> Iterable[dict]:
+    def openai_messages(self) -> Iterable[dict]:
         """ For OpenAI's `messages` API, which expects a list of JSON objects, we return an iterable of dicts """
-        return list(map(lambda m: m.openai_message(), prompt.parts))
+        return list(map(lambda m: m.openai_message(), self.parts))
 
 if __name__ == "__main__":
     assert Assistant("Thought: I need to search through my book of Monty Python jokes.\nAction: Search[Monty Python]").plaintext() \
@@ -122,5 +119,5 @@ if __name__ == "__main__":
         FunctionCall('Finish', query='Oh you!'),
     ])
 
-    print(Formatter.plain(prompt))
-    pprint(Formatter.openai_messages(prompt))
+    print(prompt.plain())
+    pprint(prompt.openai_messages())

@@ -26,7 +26,8 @@ class WikipediaDocument(Document):
     def lookup(self, keyword):
         # Search for the keyword in the text
         text = self.text
-        match = re.search(keyword, text, re.IGNORECASE)
+        keyword_escaped = re.escape(keyword)
+        match = re.search(keyword_escaped, text, re.IGNORECASE)
         if match is None:  # Keyword not found
             return None
         index = match.span()[0]
@@ -125,9 +126,9 @@ if __name__ == "__main__":
     content_record = wiki_api.get_page(title)
 
     # Access the Wikipedia page and retrieval history
-    if content_record.page:
+    if content_record.document:
         print("Wikipedia Page Summary:")
-        print(content_record.page.summary)
+        print(content_record.document.summary)
     else:
         print("Page retrieval failed. Retrieval History:")
         for entry in content_record.retrieval_history:
@@ -138,10 +139,12 @@ if __name__ == "__main__":
     search_record = wiki_api.search(search_query)
 
     # Access the Wikipedia page and retrieval history for the first search result
-    if search_record.page:
+    if search_record.document:
         print("Wikipedia Page Summary:")
-        print(search_record.page.summary)
+        print(search_record.document.summary)
     else:
         print("No Wikipedia page found for the search query. Retrieval History:")
         for entry in search_record.retrieval_history:
             print(entry)
+
+

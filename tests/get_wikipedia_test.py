@@ -101,6 +101,13 @@ Paragraph with a new_keyword.
         self.assertTrue(doc.lookup("new_keyword").startswith("== Section 2 =="))
         self.assertIsNone(doc.lookup("nonexistent"))
 
+        # more lookup tests
+        wiki_content = "A (b)"
+        doc = WikipediaDocument(wiki_content)
+
+        self.assertIn(wiki_content, doc.lookup("a"))  # should be case insensitive
+        self.assertIn(wiki_content, doc.lookup("A (b)")) # should not treat keyword as regex
+
 
 if __name__ == '__main__':
     unittest.main()

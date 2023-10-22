@@ -23,7 +23,7 @@ class User(PromptMessage):
         self.content = content
 
     def plaintext(self) -> str:
-        return self.content
+        return "\n" + self.content
 
     def openai_message(self) -> dict:
         return { "role": "user", "content": self.content }
@@ -114,6 +114,21 @@ if __name__ == "__main__":
     assert Assistant("Thought: I need to search through my book of Monty Python jokes.\nAction: Search[Monty Python]").plaintext() \
         == FunctionCall('Search', query="Monty Python", thought="I need to search through my book of Monty Python jokes.").plaintext()
 
+    message = {
+        'role': 'assistant',
+        'content': 'Thought: I need to find out what the first major battle in the Ukrainian War was.\n',
+        'function_call': {
+            'name': 'search_wikipedia',
+            'arguments': '{"query": "Ukrainian War", "thought": "I need to find out what the first major battle in the Ukrainian War was."}'
+        }
+    }
+    function_call = message.get("function_call")
+
+    function_name = function_call["name"]
+    function_args = json.loads(function_call["arguments"])
+    message = FunctionCall(function_name, **function_args)
+    print("<<<", message.plaintext())
+    print()
 
     from pprint import pprint
 

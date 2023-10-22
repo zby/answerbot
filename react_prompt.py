@@ -39,87 +39,14 @@ def lookup_observations(document, keyword):
             observations = observations + "not found in current page"
     return observations
 
-examples = [
-
-
-    FunctionCall(
-        'search',
-        thought='High Plains Drifter is a film. I need information about different High Plains',
-        query="High Plains elevation range",
-    ),
-    FunctionResult(
-        'search',
-        "Wikipedia search results for query: 'High Plains elevation range' is: 'High Plains (United States)', "
-        "'Laramie Plains', 'Plain', 'Roaring Plains West Wilderness', 'Northern Basin and Range ecoregion', "
-        "'Great Basin Desert', 'List of elevation extremes by country', 'Liverpool Plains', 'Plateau', "
-        "'Geography of the United States'\n"
-        "Successfully retrieved 'High Plains (United States)' from Wikipedia.\n"
-        'The retrieved wikipedia page summary starts with: The High Plains are a subregion of the Great Plains, '
-        'mainly in the Western United States, but also partly in the Midwest states of Nebraska, Kansas, and '
-        'South Dakota, generally encompassing the western part of the Great Plains before the region reaches '
-        'the Rocky Mountains.The High Plains are located in eastern Montana, southeastern Wyoming, southwestern '
-        'South Dakota, western Nebraska, eastern Colorado, western Kansas, eastern New Mexico, the Oklahoma '
-        'Panhandle, and the Texas Panhandle. The southern region of the Western High Plains ecology region '
-        'contains the geological formation known as Llano Estacado which can be seen from a short distance or '
-        'on satellite maps. From east to west, the High Plains rise in elevation from around 1,800 to 7,000 ft '
-        '(550 to 2,130 m).',
-    ),
-    FunctionCall(
-        'finish',
-        thought='The High Plains have an elevation range from around 1,800 to 7,000 feet. I can use this '
-        'information to answer the question about the elevation range of the area that the eastern sector of '
-        'the Colorado orogeny extends into.',
-        answer="The elevation range for the area that the eastern sector of the Colorado orogeny extends into is approximately 1,800 to 7,000 feet.",
-    ),
-
-    User('Question: Musician and satirist Allie Goertz wrote a song about the "The Simpsons" character Milhouse, who Matt Groening named after who?'),
-    FunctionCall(
-        'search',
-        thought='I need to find out who Matt Groening named the Simpsons character Milhouse after.',
-        query="Milhouse Simpson",
-    ),
-    FunctionResult(
-        'search',
-        "Wikipedia search results for query: 'Milhouse Simpson' is: 'Milhouse Van Houten', 'A Milhouse "
-        "Divided', 'Bart Simpson', 'The Simpsons', 'List of recurring The Simpsons characters', 'Radioactive "
-        "Man (The Simpsons episode)', 'Milhouse of Sand and Fog', 'Treehouse of Horror XIX', 'The Simpsons "
-        "(season 35)', 'Homer Simpson'\n"
-        "Successfully retrieved 'Milhouse Van Houten' from Wikipedia.\n"
-        'The retrieved wikipedia page summary starts with: Milhouse Mussolini Van Houten is a recurring character '
-        'in the Fox animated television series The Simpsons voiced by Pamela Hayden and created by Matt '
-        "Groening.Milhouse is Bart Simpson's best friend in Mrs. Krabappel's fourth grade class at Springfield "
-        'Elementary School. He is insecure, gullible, and is often led into trouble by Bart, who takes '
-        "advantage of his friend's naïveté. Milhouse is a regular target for school bully Nelson Muntz and his "
-        "friends Jimbo Jones, Dolph Starbeam and Kearney Zzyzwicz. He has an unrequited crush on Bart's sister, "
-        'Lisa, which is a common plot element. Milhouse debuted in the 1988 commercial "The Butterfinger Group" '
-        'while The Simpsons was still airing as a cartoon short series on the Fox variety show The Tracey '
-        'Ullman Show. When The Simpsons was greenlit for a full series by Fox, Milhouse became one of the '
-        "series' most prominent recurring characters.",
-    ),
-    FunctionCall(
-        'lookup',
-        thought='The summary does not tell who Milhouse is named after, I should check the section called "Creation".',
-        keyword="Creation",
-    ),
-    FunctionResult(
-        'lookup',
-        "Milhouse was named after U.S. president Richard Nixon, whose middle name was Milhouse.",
-    ),
-    FunctionCall(
-        'finish',
-        thought="Milhouse was named after U.S. president Richard Nixon, so the answer is President Richard Nixon.",
-        answer="President Richard Nixon",
-    ),
-]
-
-def mk_record(name, chunk_size, history):
-    fixed_name = name.replace(" ", "_")
-    with open(f'data/wikipedia_pages/{fixed_name}.txt', 'r', encoding='utf-8') as file:
-        content = file.read()
-    record = ContentRecord( WikipediaDocument(content, chunk_size=chunk_size), history )
-    return record
-
 def get_examples(chunk_size):
+    def mk_record(name, chunk_size, history):
+        fixed_name = name.replace(" ", "_")
+        with open(f'data/wikipedia_pages/{fixed_name}.txt', 'r', encoding='utf-8') as file:
+            content = file.read()
+        record = ContentRecord(WikipediaDocument(content, chunk_size=chunk_size), history)
+        return record
+
     colorado_orogeny_record = mk_record(
         'Colorado orogeny',
         chunk_size, [

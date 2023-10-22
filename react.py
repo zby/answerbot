@@ -5,7 +5,7 @@ import pprint
 from get_wikipedia import WikipediaApi
 
 from prompt_builder import Prompt, PromptMessage, OpenAIMessage, User, System, Assistant, FunctionCall, FunctionResult
-from react_prompt import system_message, get_examples
+from react_prompt import system_message, get_examples, retrieval_observations, lookup_observations
 
 MAX_ITER = 5
 
@@ -115,30 +115,6 @@ def function_call_from_plain(response):
         }
     else:
         return None
-
-def retrieval_observations(search_record):
-    observations = ""
-    document = search_record.document
-    for record in search_record.retrieval_history:
-        observations = observations + record + "\n"
-    observations = observations + "The retrieved wikipedia page summary starts with: " + document.first_chunk() + "\n"
-
-    sections = document.section_titles()
-    sections_list_md = "\n".join(map(lambda section: f' - {section}', sections))
-    observations = observations + f'the retrieved page contains the following sections:\n{sections_list_md}'
-    return observations
-
-def lookup_observations(document, keyword):
-    if document is None:
-        observations = "No document defined, cannot lookup"
-    else:
-        text = document.lookup(keyword)
-        observations = 'Keyword "' + keyword + '" '
-        if text:
-            observations = observations + "found  in: \n" + text
-        else:
-            observations = observations + "not found in current page"
-    return observations
 
 def run_conversation(prompt, functional=True):
     document = None

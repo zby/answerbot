@@ -1,10 +1,11 @@
 # answerbot
 
-Currently working on react_with_functions.py
+Currently working on react.py
 
 ## Installation
 
 Copy `config.json_` to `config.json` and fill in the blanks.
+Install the requirements with `pip install -r requirements.txt`
 
 ## TODO
 * following links

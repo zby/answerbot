@@ -25,7 +25,7 @@ class WikipediaDocument(Document):
 
     def lookup(self, keyword):
         # Search for the keyword in the text
-        text = self.text
+        text = self.content
         keyword_escaped = re.escape(keyword)
         match = re.search(keyword_escaped, text, re.IGNORECASE)
         if match is None:  # Keyword not found
@@ -34,15 +34,13 @@ class WikipediaDocument(Document):
 
         # Determine the start and end points for the extraction
         start = max(index - self.chunk_size // 1, 0)
-        end = min(index + len(keyword) + self.chunk_size // 1, len(self.text))
-        #surrounding_text = text[start:end]
+        end = min(index + len(keyword) + self.chunk_size // 1, len(text))
+        surrounding_text = text[start:end]
 
         # Adjust start point to make sure it doesn't extend past a section boundary
-        prev_section_boundary = text.rfind('==', start, index)
+        prev_section_boundary = text.rfind('\n==', start, index)
         if prev_section_boundary != -1:  # Found a previous section boundary
-            the_other_boundary = text.rfind('==', start, prev_section_boundary)
-            if the_other_boundary != -1:
-                start = the_other_boundary
+            start = prev_section_boundary + 1
 
         # Trim the surrounding text after the last '.' character after the keyword
         last_dot_index = text.rfind('.', index, end)

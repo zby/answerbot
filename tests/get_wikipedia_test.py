@@ -99,6 +99,8 @@ Paragraph with a new_keyword.
         self.assertIn("Item 1 with the keyword", doc.lookup("keyword"))
         self.assertIn("Paragraph with a new_keyword.", doc.lookup("new_keyword"))
         self.assertTrue(doc.lookup("new_keyword").startswith("== Section 2 =="))
+        self.assertTrue(doc.lookup("Section 2").startswith("== Section 2 =="))
+        print(doc.lookup("Section 2"))
         self.assertIsNone(doc.lookup("nonexistent"))
 
         # more lookup tests

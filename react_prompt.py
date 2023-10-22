@@ -1,67 +1,47 @@
 from prompt_builder import Prompt, PromptMessage, OpenAIMessage, User, System, Assistant, FunctionCall, FunctionResult
+from get_wikipedia import WikipediaDocument, ContentRecord
 
 system_message = System('''
 Solve a question answering task with interleaving Thought, Action, Observation steps. 
 After each Observation you need to reflect on the response in a Thought step.
 Thought can reason about the current situation, and Action means calling 
 one of the available function.
-'''
+''')
 
 '''You are a helpful AI assistant trying to answer questions.
 You analyze the question and available information and decide what to do next.
 When you have enough information to answer the question please call the finish function with the answer.
 When you need additional information please use the available functions to get it.
 After each function call, please analyze the response reflect on it and decide what to do next.
-''')
+'''
+
+def retrieval_observations(search_record):
+    observations = ""
+    document = search_record.document
+    for record in search_record.retrieval_history:
+        observations = observations + record + "\n"
+    observations = observations + "The retrieved wikipedia page summary starts with: " + document.first_chunk() + "\n"
+
+    sections = document.section_titles()
+    sections_list_md = "\n".join(map(lambda section: f' - {section}', sections))
+    observations = observations + f'the retrieved page contains the following sections:\n{sections_list_md}'
+    return observations
+
+def lookup_observations(document, keyword):
+    if document is None:
+        observations = "No document defined, cannot lookup"
+    else:
+        text = document.lookup(keyword)
+        observations = 'Keyword "' + keyword + '" '
+        if text:
+            observations = observations + "found  in: \n" + text
+        else:
+            observations = observations + "not found in current page"
+    return observations
 
 examples = [
-    User("Question: What is the elevation range for the area that the eastern sector of the Colorado orogeny extends into?"),
-    FunctionCall(
-        "search",
-        thought='I need to search Colorado orogeny, find the area that the eastern sector of the Colorado orogeny extends into, then find the elevation range of the area.',
-        query="Colorado orogeny",
-    ),
-    FunctionResult(
-        'search',
-        "Wikipedia search results for query: 'Colorado orogeny' is: 'Colorado orogeny', 'Laramide orogeny', "
-        "'Colorado Mineral Belt', 'Sevier orogeny', 'Geology of Colorado', 'Wyoming Craton', 'Timeline of "
-        "natural history', 'Variscan orogeny', 'Sangre de Cristo Range', 'Colorado Plateau'\n"
-        "Successfully retrieved 'Colorado orogeny' from Wikipedia.\n"
-        'The retrieved wikipedia page summary starts with: The Colorado orogeny was an episode of mountain '
-        'building (an orogeny) in Colorado and surrounding areas.This took place from 1780 to 1650 million '
-        'years ago (Mya), during the Paleoproterozoic (Statherian Period). It is recorded in the Colorado '
-        'orogen, a >500-km-wide belt of oceanic arc rock that extends southward into New Mexico. The Colorado '
-        'orogeny was likely part of the larger Yavapai orogeny.',
-    ),
-    FunctionCall(
-        'lookup',
-        thought="It does not mention the eastern sector of the Colorado orogeny. I need to look up eastern sector.",
-        keyword="eastern sector",
-    ),
-    FunctionResult(
-        'lookup',
-        "== Description == The Colorado orogen, formerly called the Colorado province, is a >500-km-wide belt of oceanic arc rock (1.78–1.65 Ga) that extends southward into New Mexico and composes a major part of the Proterozoic provinces of southwestern United States. This transcontinental collisional event occurred during the Paleoproterozoic (Statherian Period). The Wyoming sector of the Colorado orogeny was formerly called the Medicine Bow orogeny. The eastern sector extends into the High Plains and is called the Central Plains orogeny. The boundary between the Colorado orogeny and the Wyoming craton is the Cheyenne belt, a 5-km-wide mylonitic shear zone that verges northward. The Cheyenne belt transects and cuts off the south edge of the older Trans-Hudson orogeny."
-    ),
-    FunctionCall(
-        'search',
-        thought="The eastern sector of Colorado orogeny extends into the High Plains, so High Plains is the area. I need to search High Plains and find its elevation range.",
-        query="High Plains",
-    ),
-    FunctionResult(
-        'search',
-        "Wikipedia search results for query: 'High Plains' is: 'High Plains Drifter', 'High Plains', 'High "
-        "Plains (United States)', 'Ogallala Aquifer', 'Great Plains', 'High Plains (Australia)', 'High Plains "
-        "Reader', 'High Plains Invaders', 'Bogong High Plains', 'Llano Estacado'\n"
-        "Successfully retrieved 'High Plains Drifter' from Wikipedia.\n"
-        'The retrieved wikipedia page summary starts with: High Plains Drifter is a 1973 American Western film '
-        'directed by Clint Eastwood, written by Ernest Tidyman, and produced by Robert Daley for The Malpaso '
-        'Company and Universal Pictures.The film stars Eastwood as a mysterious stranger who metes out justice '
-        "in a corrupt frontier mining town. The film was influenced by the work of Eastwood's two major "
-        'collaborators, film directors Sergio Leone and Don Siegel. In addition to Eastwood, the film also '
-        'co-stars Verna Bloom, Mariana Hill, Mitchell Ryan, Jack Ging, and Stefan Gierasch. The film was shot '
-        'on location on the shores of Mono Lake, California. Dee Barton wrote the film score. The film was '
-        'critically acclaimed at the time of its initial release and remains popular.',
-    ),
+
+
     FunctionCall(
         'search',
         thought='High Plains Drifter is a film. I need information about different High Plains',
@@ -131,3 +111,103 @@ examples = [
         answer="President Richard Nixon",
     ),
 ]
+
+def mk_record(name, chunk_size, history):
+    fixed_name = name.replace(" ", "_")
+    with open(f'data/wikipedia_pages/{fixed_name}.txt', 'r', encoding='utf-8') as file:
+        content = file.read()
+    record = ContentRecord( WikipediaDocument(content, chunk_size=chunk_size), history )
+    return record
+
+def get_examples(chunk_size):
+    colorado_orogeny_record = mk_record(
+        'Colorado orogeny',
+        chunk_size, [
+            "Wikipedia search results for query: 'Colorado orogeny' is: 'Colorado orogeny', 'Laramide orogeny', 'Colorado Mineral Belt', 'Sevier orogeny', 'Geology of Colorado', 'Wyoming Craton', 'Timeline of natural history', 'Variscan orogeny', 'Sangre de Cristo Range', 'Colorado Plateau'",
+            "Successfully retrieved 'Colorado orogeny' from Wikipedia."
+        ]
+    )
+
+    high_plains_record = mk_record(
+        'High Plains Drifter',
+        chunk_size, [
+            "Wikipedia search results for query: 'High Plains' is: 'High Plains Drifter', 'High Plains', 'High Plains (United States)', 'Ogallala Aquifer', 'Great Plains', 'High Plains (Australia)', 'High Plains Reader', 'High Plains Invaders', 'Bogong High Plains', 'Llano Estacado'",
+            "Successfully retrieved 'High Plains Drifter' from Wikipedia."
+        ]
+    )
+
+    high_plains_us_record = mk_record(
+        'High Plains (United States)',
+        chunk_size, [
+            "Wikipedia search results for query: 'High Plains elevation range' is: 'High Plains (United States)', 'Laramie Plains', 'Plain', 'Roaring Plains West Wilderness', 'Northern Basin and Range ecoregion', 'Great Basin Desert', 'List of elevation extremes by country', 'Liverpool Plains', 'Plateau', 'Geography of the United States'",
+            "Successfully retrieved 'High Plains (United States)' from Wikipedia."
+        ]
+    )
+
+    milhouse_record = mk_record(
+        'Milhouse Van Houten',
+        chunk_size, [
+            "Wikipedia search results for query: 'Milhouse Simpson' is: 'Milhouse Van Houten', 'A Milhouse Divided', 'Bart Simpson', 'The Simpsons', 'List of recurring The Simpsons characters', 'Radioactive Man (The Simpsons episode)', 'Milhouse of Sand and Fog', 'Treehouse of Horror XIX', 'The Simpsons (season 35)', 'Homer Simpson'"
+            "Successfully retrieved 'Milhouse Van Houten' from Wikipedia."
+        ]
+    )
+
+    examples = [
+        User("Question: What is the elevation range for the area that the eastern sector of the Colorado orogeny extends into?"),
+        FunctionCall(
+            "search",
+            thought='I need to search Colorado orogeny, find the area that the eastern sector of the Colorado orogeny extends into, then find the elevation range of the area.',
+            query="Colorado orogeny",
+        ),
+        FunctionResult('search', retrieval_observations(colorado_orogeny_record)),
+        FunctionCall(
+            'lookup',
+            thought="It does not mention the eastern sector of the Colorado orogeny. I need to look up eastern sector.",
+            keyword="eastern sector",
+        ),
+        FunctionResult('lookup', lookup_observations(colorado_orogeny_record.document, "eastern sector")),
+        FunctionCall(
+            'search',
+            thought="The eastern sector of Colorado orogeny extends into the High Plains, so High Plains is the area. I need to search High Plains and find its elevation range.",
+            query="High Plains",
+        ),
+        FunctionResult('search', retrieval_observations(high_plains_record)),
+        FunctionCall(
+            'search',
+            thought='High Plains Drifter is a film. I need information about different High Plains',
+            query="High Plains elevation range",
+        ),
+        FunctionResult('search', retrieval_observations(high_plains_us_record)),
+                User('Question: Musician and satirist Allie Goertz wrote a song about the "The Simpsons" character Milhouse, who Matt Groening named after who?'),
+        FunctionCall(
+            'search',
+            thought='I need to find out who Matt Groening named the Simpsons character Milhouse after.',
+            query="Milhouse Simpson",
+        ),
+        FunctionResult( 'search', retrieval_observations(milhouse_record)),
+        FunctionCall(
+            'lookup',
+            thought='The summary does not tell who Milhouse is named after, I should check the section called "Creation".',
+            keyword="Creation",
+        ),
+        FunctionResult( 'lookup', lookup_observations(milhouse_record.document, "Creation")),
+        FunctionCall(
+            'finish',
+            thought="Milhouse was named after U.S. president Richard Nixon, so the answer is President Richard Nixon.",
+            answer="President Richard Nixon",
+        ),
+    ]
+
+
+    return examples
+
+
+if __name__ == "__main__":
+    examples = get_examples(512)
+    prompt = Prompt([
+        system_message,
+        *examples,
+        User("Question: Bla bla bla"),
+    ])
+    print(prompt.plain())
+

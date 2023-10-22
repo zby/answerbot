@@ -105,7 +105,13 @@ def get_examples(chunk_size):
             query="High Plains elevation range",
         ),
         FunctionResult('search', retrieval_observations(high_plains_us_record)),
-                User('Question: Musician and satirist Allie Goertz wrote a song about the "The Simpsons" character Milhouse, who Matt Groening named after who?'),
+        FunctionCall(
+        'finish',
+            thought='The High Plains have an elevation range from around 1,800 to 7,000 feet. I can use this information to answer the question about the elevation range of the area that the eastern sector of the Colorado orogeny extends into.',
+            answer="The elevation range for the area that the eastern sector of the Colorado orogeny extends into is approximately 1,800 to 7,000 feet.",
+        ),
+
+        User('Question: Musician and satirist Allie Goertz wrote a song about the "The Simpsons" character Milhouse, who Matt Groening named after who?'),
         FunctionCall(
             'search',
             thought='I need to find out who Matt Groening named the Simpsons character Milhouse after.',
@@ -130,7 +136,7 @@ def get_examples(chunk_size):
 
 
 if __name__ == "__main__":
-    examples = get_examples(512)
+    examples = get_examples(1024)
     prompt = Prompt([
         system_message,
         *examples,

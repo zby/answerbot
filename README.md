@@ -8,6 +8,7 @@ https://github.com/andyz245/LanguageAgentTreeSearch/blob/main/hotpot/data/hotpot
 ## Installation
 
 Copy `config.json_` to `config.json` and fill in the blanks.
+
 Install the requirements with `pip install -r requirements.txt`
 
 ## TODO

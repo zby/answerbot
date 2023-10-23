@@ -64,6 +64,8 @@ functions = [
     },
 ]
 
+function_names = [f["name"] for f in functions]
+
 def openai_query(messages, functions=None):
     def convert_to_dict(obj):
         if isinstance(obj, openai.openai_object.OpenAIObject):
@@ -135,6 +137,9 @@ def run_conversation(prompt, chunk_size, functional):
         # Process the function calls
         if function_call:
             function_name = function_call["name"]
+            if function_name not in function_names:
+                print(f"<<< Unknown function name: {function_name}")
+                raise Exception(f"Unknown function name: {function_name}")
             function_args = json.loads(function_call["arguments"])
             message = FunctionCall(function_name, **function_args)
             print("<<< ", message.plaintext())

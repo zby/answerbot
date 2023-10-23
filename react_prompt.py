@@ -6,6 +6,7 @@ Solve a question answering task with interleaving Thought, Action, Observation s
 After each Observation you need to reflect on the response in a Thought step.
 Thought can reason about the current situation, and Action means calling 
 one of the available function.
+Please make the answer short and concise.
 ''')
 
 '''You are a helpful AI assistant trying to answer questions.
@@ -122,7 +123,7 @@ def get_examples(chunk_size):
         FunctionCall(
         'finish',
             thought='The High Plains have an elevation range from around 1,800 to 7,000 feet. I can use this information to answer the question about the elevation range of the area that the eastern sector of the Colorado orogeny extends into.',
-            answer="The elevation range for the area that the eastern sector of the Colorado orogeny extends into is approximately 1,800 to 7,000 feet.",
+            answer="approximately 1,800 to 7,000 feet",
         ),
 
         User('Question: Musician and satirist Allie Goertz wrote a song about the "The Simpsons" character Milhouse, who Matt Groening named after who?'),

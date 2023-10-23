@@ -9,7 +9,7 @@ from react import get_answer
 # Constants
 MAX_ITER = 5
 CHUNK_SIZE = 512
-FUNCTIONAL_STYLE = True
+FUNCTIONAL_STYLE = False
 
 MAX_QUESTIONS = 5
 config_filename = 'config.json'
@@ -68,3 +68,9 @@ with open(csv_filename, 'w', newline='') as csv_file:
     writer.writerows(limited_data)
 
 print(f'Answers successfully generated and saved to {csv_filename}')
+
+print('=' * 80)
+print('=' * 80)
+
+with open(csv_filename, 'r') as csv_file:
+    print(csv_file.read())

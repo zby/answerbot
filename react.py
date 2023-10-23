@@ -8,6 +8,7 @@ from prompt_builder import Prompt, PromptMessage, OpenAIMessage, User, System, A
 from react_prompt import system_message, get_examples, retrieval_observations, lookup_observations
 
 MAX_ITER = 5
+CHUNK_SIZE = 512
 
 functions = [
     {
@@ -116,9 +117,9 @@ def function_call_from_plain(response):
     else:
         return None
 
-def run_conversation(prompt, functional=True):
+def run_conversation(prompt, chunk_size, functional=True):
     document = None
-    wiki_api = WikipediaApi(max_retries=3)
+    wiki_api = WikipediaApi(max_retries=3, chunk_size=chunk_size)
     iter = 0
     while True:
         print(f">>>Iteration: {iter}")
@@ -171,13 +172,13 @@ if __name__ == "__main__":
     # question = "how many keys does a US-ANSI keyboard have on it?"
     # question = "How many children does Donald Tusk have?"
 
-    examples = get_examples(512)
+    examples = get_examples(CHUNK_SIZE)
     prompt = Prompt([
         system_message,
         *examples,
         User(f"Question: {question}"),
     ])
 
-    result = run_conversation(prompt, False)
+    result = run_conversation(prompt, CHUNK_SIZE, False)
     print(prompt.plain())
     print(result)

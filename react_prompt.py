@@ -79,6 +79,19 @@ def get_examples(chunk_size):
         ]
     )
 
+    additional_messages = []
+    document = high_plains_us_record.document
+    first_chunk = document.first_chunk()
+    if not 'elevation' in first_chunk:
+        additional_messages = [
+            FunctionCall(
+                'lookup',
+                keyword='elevation',
+                thought='This passge does not mention elevation. I need to find out the elevation range of the High Plains.'
+            ),
+            FunctionResult('lookup', lookup_observations(document, 'elevation'))
+        ]
+
     examples = [
         User("Question: What is the elevation range for the area that the eastern sector of the Colorado orogeny extends into?"),
         FunctionCall(
@@ -105,6 +118,7 @@ def get_examples(chunk_size):
             query="High Plains elevation range",
         ),
         FunctionResult('search', retrieval_observations(high_plains_us_record)),
+        *additional_messages,
         FunctionCall(
         'finish',
             thought='The High Plains have an elevation range from around 1,800 to 7,000 feet. I can use this information to answer the question about the elevation range of the area that the eastern sector of the Colorado orogeny extends into.',
@@ -136,7 +150,7 @@ def get_examples(chunk_size):
 
 
 if __name__ == "__main__":
-    examples = get_examples(1024)
+    examples = get_examples(512)
     prompt = Prompt([
         system_message,
         *examples,

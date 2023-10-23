@@ -46,6 +46,10 @@ class WikipediaDocument(Document):
         last_dot_index = text.rfind('.', index, end)
         if last_dot_index != -1:
             end = last_dot_index + 1
+        # Trim the surrounding before after the first '.' character before the keyword
+        first_dot_index = text.find('.', start, index)
+        if first_dot_index != -1:
+            start = first_dot_index + 1
 
         return text[start:end].strip()
 class ContentRecord:
@@ -54,9 +58,10 @@ class ContentRecord:
         self.retrieval_history = retrieval_history
 
 class WikipediaApi:
-    def __init__(self, language=LANGUAGE, max_retries=MAX_RETRIES):
+    def __init__(self, language=LANGUAGE, max_retries=MAX_RETRIES, chunk_size=1024):
         self.language = language
         self.max_retries = max_retries
+        self.chunk_size = chunk_size
 
     def get_page(self, title, retrieval_history=None, retries=0):
         if retrieval_history is None:
@@ -66,7 +71,7 @@ class WikipediaApi:
             wikipedia.set_lang(self.language)
             # fixed_title = title.replace(" ", "_")
             page = wikipedia.page(title, auto_suggest=False)
-            document = WikipediaDocument(page.content, summary=page.summary)
+            document = WikipediaDocument(page.content, summary=page.summary, chunk_size=self.chunk_size)
             retrieval_history.append(f"Successfully retrieved '{title}' from Wikipedia.")
             return ContentRecord(document, retrieval_history)
         except wikipedia.exceptions.DisambiguationError as e:

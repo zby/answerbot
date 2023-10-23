@@ -2,10 +2,15 @@ import json
 import csv
 import os
 import sys
+import openai
 from datetime import datetime
-from react import get_answer  # Import the get_answer function from react.py
+from react import get_answer
 
 # Constants
+MAX_ITER = 5
+CHUNK_SIZE = 512
+FUNCTIONAL_STYLE = True
+
 MAX_QUESTIONS = 5
 config_filename = 'config.json'
 
@@ -33,6 +38,7 @@ with open(input_filename, 'r') as json_file:
 # Load the configuration from the config file
 with open(config_filename, 'r') as config_file:
     config = json.load(config_file)
+    openai.api_key = config["api_key"]
 
 # Iterate through the data and add new answers, limited by MAX_QUESTIONS
 answered_questions = 0
@@ -42,8 +48,14 @@ for entry in data:
         break
 
     question = entry['question']
-    new_answer = get_answer(config, question)
-    entry['new_answer'] = new_answer
+    try:
+        new_answer = get_answer(question, CHUNK_SIZE, FUNCTIONAL_STYLE)
+        entry['new_answer'] = new_answer
+        entry['error'] = None
+    except Exception as e:
+        print(f'Error: {e}')
+        entry['new_answer'] = None
+        entry['error'] = str(e)
     limited_data.append(entry)
     answered_questions += 1
 

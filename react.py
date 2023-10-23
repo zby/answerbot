@@ -9,6 +9,7 @@ from react_prompt import system_message, get_examples, retrieval_observations, l
 
 MAX_ITER = 5
 CHUNK_SIZE = 512
+FUNCTIONAL_STYLE = True
 
 functions = [
     {
@@ -117,7 +118,7 @@ def function_call_from_plain(response):
     else:
         return None
 
-def run_conversation(prompt, chunk_size, functional=True):
+def run_conversation(prompt, chunk_size, functional):
     document = None
     wiki_api = WikipediaApi(max_retries=3, chunk_size=chunk_size)
     iter = 0
@@ -157,6 +158,15 @@ def run_conversation(prompt, chunk_size, functional=True):
             print("<<< Max iterations reached, exiting.")
             return None
 
+def get_answer(question, chunk_size, functional):
+    examples = get_examples(chunk_size)
+    prompt = Prompt([
+        system_message,
+        *examples,
+        User(f"Question: {question}"),
+    ])
+    #print(prompt.plain())
+    return run_conversation(prompt, chunk_size, functional)
 
 if __name__ == "__main__":
     # load the api key from a file
@@ -164,21 +174,13 @@ if __name__ == "__main__":
         config = json.load(f)
     openai.api_key = config["api_key"]
 
-    question = "What was the first major battle in the Ukrainian War?"
+    # question = "What was the first major battle in the Ukrainian War?"
     # question = "What were the main publications by the Nobel Prize winner in economics in 2023?"
     # question = "What is the elevation range for the area that the eastern sector of the Colorado orogeny extends into?"
     # question = 'Musician and satirist Allie Goertz wrote a song about the "The Simpsons" character Milhouse, who Matt Groening named after who?'
     # question = "how old was Donald Tusk when he died?"
-    # question = "how many keys does a US-ANSI keyboard have on it?"
+    question = "how many keys does a US-ANSI keyboard have on it?"
     # question = "How many children does Donald Tusk have?"
 
-    examples = get_examples(CHUNK_SIZE)
-    prompt = Prompt([
-        system_message,
-        *examples,
-        User(f"Question: {question}"),
-    ])
-
-    result = run_conversation(prompt, CHUNK_SIZE, False)
-    print(prompt.plain())
+    result = get_answer(question, CHUNK_SIZE, FUNCTIONAL_STYLE)
     print(result)

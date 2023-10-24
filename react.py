@@ -8,8 +8,8 @@ from prompt_builder import Prompt, PromptMessage, OpenAIMessage, User, System, A
 from react_prompt import system_message, get_examples, retrieval_observations, lookup_observations
 
 MAX_ITER = 5
-CHUNK_SIZE = 512
-FUNCTIONAL_STYLE = True
+CHUNK_SIZE = 400
+FUNCTIONAL_STYLE = False
 MODEL = "gpt-3.5-turbo-0613"
 
 functions = [

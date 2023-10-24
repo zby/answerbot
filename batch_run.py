@@ -9,7 +9,7 @@ from react import get_answer
 # Constants
 MAX_ITER = 5
 CHUNK_SIZE = 512
-FUNCTIONAL_STYLE = False
+FUNCTIONAL_STYLE = True
 
 MAX_QUESTIONS = 5
 config_filename = 'config.json'

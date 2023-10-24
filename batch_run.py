@@ -12,6 +12,8 @@ CHUNK_SIZE = 512
 FUNCTIONAL_STYLE = True
 
 MAX_QUESTIONS = 5
+START_INDEX = 5
+
 config_filename = 'config.json'
 
 # Check for the correct number of command line arguments
@@ -43,7 +45,7 @@ with open(config_filename, 'r') as config_file:
 # Iterate through the data and add new answers, limited by MAX_QUESTIONS
 answered_questions = 0
 limited_data = []
-for entry in data:
+for entry in data[START_INDEX:]:
     if answered_questions >= MAX_QUESTIONS:
         break
 

@@ -10,10 +10,11 @@ from react_prompt import system_message, get_examples, retrieval_observations, l
 MAX_ITER = 5
 CHUNK_SIZE = 512
 FUNCTIONAL_STYLE = True
+MODEL = "gpt-3.5-turbo-0613"
 
 functions = [
     {
-        "name": "search_wikipedia",
+        "name": "search",
         "description": "Search Wikipedia for a query, retrieve the page, save it for later and return the summary",
         "parameters": {
             "type": "object",
@@ -31,7 +32,7 @@ functions = [
         },
     },
     {
-        "name": "lookup_word",
+        "name": "lookup",
         "description": "Look up a word in the saved Wikipedia page and return text surrounding it",
         "parameters": {
             "type": "object",
@@ -84,7 +85,7 @@ def openai_query(messages, functions=None):
         messages = [{ "role": "user", "content": messages }]
 
     response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo-0613",
+        model=MODEL,
         messages=messages,
         **args
     )
@@ -108,13 +109,13 @@ def function_call_from_plain(response):
     elif last_line.startswith('Action: search['):
         query = last_line[15:-1]
         return {
-            "name": "search_wikipedia",
+            "name": "search",
             "arguments": json.dumps({"query": query})
         }
     elif last_line.startswith('Action: lookup['):
         keyword = last_line[15:-1]
         return {
-            "name": "lookup_word",
+            "name": "lookup",
             "arguments": json.dumps({"keyword": keyword})
         }
     else:
@@ -147,11 +148,11 @@ def run_conversation(prompt, chunk_size, functional):
             if function_name == "finish":
                 answer = function_args["answer"]
                 return answer
-            elif function_name == "search_wikipedia":
+            elif function_name == "search":
                 search_record = wiki_api.search(function_args["query"])
                 document = search_record.document
                 observations = retrieval_observations(search_record)
-            elif function_name == "lookup_word":
+            elif function_name == "lookup":
                 observations = lookup_observations(document, function_args["keyword"])
             message = FunctionResult(function_name, observations)
             print("<<< ", message.plaintext())

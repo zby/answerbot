@@ -165,7 +165,7 @@ def run_conversation(prompt, chunk_size, functional):
             return None
 
 def get_answer(question, chunk_size, functional):
-    examples = get_examples(chunk_size)
+    examples = get_examples()
     prompt = Prompt([
         system_message,
         *examples,

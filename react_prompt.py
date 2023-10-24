@@ -3,6 +3,8 @@ import tiktoken
 from prompt_builder import Prompt, PromptMessage, OpenAIMessage, User, System, Assistant, FunctionCall, FunctionResult
 from get_wikipedia import WikipediaDocument, ContentRecord
 
+EXAMPLES_CHUNK_SIZE = 300
+
 system_message = System('''
 Solve a question answering task with interleaving Thought, Action, Observation steps. 
 Please make the answer short and concise.
@@ -42,7 +44,7 @@ def lookup_observations(document, keyword):
             observations = observations + "not found in current page"
     return observations
 
-def get_examples(chunk_size):
+def get_examples(chunk_size=EXAMPLES_CHUNK_SIZE):
     def mk_record(name, chunk_size, history):
         fixed_name = name.replace(" ", "_")
         with open(f'data/wikipedia_pages/{fixed_name}.txt', 'r', encoding='utf-8') as file:
@@ -159,7 +161,7 @@ def num_tokens_from_string(string: str, encoding_name: str) -> int:
 
 
 if __name__ == "__main__":
-    examples = get_examples(300)
+    examples = get_examples()
     prompt = Prompt([
         system_message,
         *examples,

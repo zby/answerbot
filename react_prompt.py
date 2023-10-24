@@ -25,11 +25,14 @@ def retrieval_observations(search_record):
     document = search_record.document
     for record in search_record.retrieval_history:
         observations = observations + record + "\n"
-    observations = observations + "The retrieved wikipedia page summary starts with: " + document.first_chunk() + "\n"
+    if document is None:
+        observations = observations + "No wikipedia page found"
+    else:
+        observations = observations + "The retrieved wikipedia page summary starts with: " + document.first_chunk() + "\n"
 
-    sections = document.section_titles()
-    sections_list_md = "\n".join(map(lambda section: f' - {section}', sections))
-    observations = observations + f'the retrieved page contains the following sections:\n{sections_list_md}'
+        sections = document.section_titles()
+        sections_list_md = "\n".join(map(lambda section: f' - {section}', sections))
+        observations = observations + f'the retrieved page contains the following sections:\n{sections_list_md}'
     return observations
 
 def lookup_observations(document, keyword):
@@ -119,8 +122,8 @@ def get_examples(chunk_size=EXAMPLES_CHUNK_SIZE):
         FunctionResult('search', retrieval_observations(high_plains_record)),
         FunctionCall(
             'search',
-            thought='High Plains Drifter is a film. I need information about different High Plains',
-            query="High Plains elevation range",
+            thought='High Plains Drifter is a film. I need information about High Plains in geology or geography',
+            query="High Plains geology",
         ),
         FunctionResult('search', retrieval_observations(high_plains_us_record)),
         *additional_messages,

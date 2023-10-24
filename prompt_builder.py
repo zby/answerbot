@@ -23,10 +23,16 @@ class User(PromptMessage):
         self.content = content
 
     def plaintext(self) -> str:
-        return "\n" + self.content
+        return self.content
 
     def openai_message(self) -> dict:
         return { "role": "user", "content": self.content }
+
+class Question(User):
+    def plaintext(self) -> str:
+        return '\nQuestion: ' + self.content
+    def openai_message(self) -> dict:
+        return { "role": "user", "content": 'Question: ' + self.content }
 
 class Assistant(PromptMessage):
     def __init__(self, content: str):
@@ -39,31 +45,22 @@ class Assistant(PromptMessage):
         return { "role": "assistant", "content": self.content }
 
 class FunctionCall(PromptMessage):
-    def __init__(self, name: str, thought=None, content=None, **args):
+    def __init__(self, name: str, thought=None, **args):
         self.name = name
         self.thought = thought
-        self.content = content
         self.args = args
 
     def plaintext(self) -> str:
         arguments = ", ".join(self.args.values())
         thought = f"Thought: {self.thought}\n" if self.thought else ""
-        content = self.content + "\n" if self.content else ""
-        return f"{content}{thought}Action: {self.name}[{arguments}]"
+        return f"{thought}Action: {self.name}[{arguments}]"
 
     def openai_message(self) -> dict:
         arguments = dict(self.args)
-        if self.thought is not None:
-            arguments["thought"] = self.thought
-        if self.content is not None:
-            content = self.content
-        elif self.thought is not None:
-            content = f"Thought: {self.thought}\n"
-        else:
-            content = ""
+        arguments["thought"] = self.thought
         return {
             "role": "assistant",
-            "content": content,
+            "content": self.thought,
             "function_call": {
                 "name": self.name,
                 "arguments": json.dumps(arguments),
@@ -134,7 +131,7 @@ if __name__ == "__main__":
 
     prompt = Prompt([
         System("Solve a question answering task with interleaving Thought, Action and Observation steps."),
-        User("Question: What is the terminal velocity of an unleaded swallow?"),
+        Question("What is the terminal velocity of an unleaded swallow?"),
         FunctionCall('Search', query="Monty Python", thought="I need to search through my book of Monty Python jokes."),
         FunctionResult('Search', "Here are all the Monty Python jokes you know: ..."),
         Assistant("Lookup[Unleaded swallow]"),

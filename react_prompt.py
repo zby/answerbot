@@ -1,6 +1,6 @@
 import tiktoken
 
-from prompt_builder import Prompt, PromptMessage, OpenAIMessage, User, System, Assistant, FunctionCall, FunctionResult
+from prompt_builder import Prompt, PromptMessage, OpenAIMessage, User, System, Question, Assistant, FunctionCall, FunctionResult
 from get_wikipedia import WikipediaDocument, ContentRecord
 
 EXAMPLES_CHUNK_SIZE = 300
@@ -101,7 +101,7 @@ def get_examples(chunk_size=EXAMPLES_CHUNK_SIZE):
         ]
 
     examples = [
-        User("Question: What is the elevation range for the area that the eastern sector of the Colorado orogeny extends into?"),
+        Question("What is the elevation range for the area that the eastern sector of the Colorado orogeny extends into?"),
         FunctionCall(
             "search",
             thought='I need to search Colorado orogeny, find the area that the eastern sector of the Colorado orogeny extends into, then find the elevation range of the area.',
@@ -133,7 +133,7 @@ def get_examples(chunk_size=EXAMPLES_CHUNK_SIZE):
             answer="approximately 1,800 to 7,000 feet",
         ),
 
-        User('Question: Musician and satirist Allie Goertz wrote a song about the "The Simpsons" character Milhouse, who Matt Groening named after who?'),
+        Question('Musician and satirist Allie Goertz wrote a song about the "The Simpsons" character Milhouse, who Matt Groening named after who?'),
         FunctionCall(
             'search',
             thought='I need to find out who Matt Groening named the Simpsons character Milhouse after.',
@@ -168,7 +168,7 @@ if __name__ == "__main__":
     prompt = Prompt([
         system_message,
         *examples,
-        User("Question: Bla bla bla"),
+        Question("Bla bla bla"),
     ])
     print(prompt.plain())
     # print a line separator

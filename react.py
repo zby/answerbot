@@ -4,13 +4,13 @@ import pprint
 
 from get_wikipedia import WikipediaApi
 
-from prompt_builder import Prompt, PromptMessage, OpenAIMessage, User, System, Assistant, FunctionCall, FunctionResult
+from prompt_builder import Prompt, PromptMessage, OpenAIMessage, Question, System, Assistant, FunctionCall, FunctionResult
 from react_prompt import system_message, get_examples, retrieval_observations, lookup_observations
 
 MAX_ITER = 5
 CHUNK_SIZE = 400
-FUNCTIONAL_STYLE = False
-MODEL = "gpt-3.5-turbo-0613"
+FUNCTIONAL_STYLE = True
+MODEL = "gpt-3.5-turbo"
 
 functions = [
     {
@@ -98,28 +98,33 @@ def function_call_from_functional(response):
 
 def function_call_from_plain(response):
     response_lines = response["content"].strip().split('\n')
+    last_but_one_line = response_lines[-2]
     last_line = response_lines[-1]
+    if last_line.startswith('Action: '):
+        if last_but_one_line.startswith('Thought: '):
+            thought = last_but_one_line[9:]
+        else:
+            thought = None
+        if last_line.startswith('Action: finish['):
+            answer = last_line[15:-1]
+            return {
+                "name": "finish",
+                "arguments": json.dumps({"answer": answer, "thought": thought})
+            }
+        elif last_line.startswith('Action: search['):
+            query = last_line[15:-1]
+            return {
+                "name": "search",
+                "arguments": json.dumps({"query": query, "thought": thought})
+            }
+        elif last_line.startswith('Action: lookup['):
+            keyword = last_line[15:-1]
+            return {
+                "name": "lookup",
+                "arguments": json.dumps({"keyword": keyword, "thought": thought})
+            }
 
-    if last_line.startswith('Action: finish['):
-        answer = last_line[15:-1]
-        return {
-            "name": "finish",
-            "arguments": json.dumps({"answer": answer})
-        }
-    elif last_line.startswith('Action: search['):
-        query = last_line[15:-1]
-        return {
-            "name": "search",
-            "arguments": json.dumps({"query": query})
-        }
-    elif last_line.startswith('Action: lookup['):
-        keyword = last_line[15:-1]
-        return {
-            "name": "lookup",
-            "arguments": json.dumps({"keyword": keyword})
-        }
-    else:
-        return None
+    return None
 
 def run_conversation(prompt, chunk_size, functional):
     document = None
@@ -133,7 +138,7 @@ def run_conversation(prompt, chunk_size, functional):
         else:
             response = openai_query(prompt.plain())
             function_call = function_call_from_plain(response)
-        print("model response: ", response)
+        #print("model response: ", response)
 
         # Process the function calls
         if function_call:
@@ -142,11 +147,20 @@ def run_conversation(prompt, chunk_size, functional):
                 print(f"<<< Unknown function name: {function_name}")
                 raise Exception(f"Unknown function name: {function_name}")
             function_args = json.loads(function_call["arguments"])
+            # sometimes model returns a function call without a thought
+            # or alternatively a function call with a thought but without a content
+            if 'thought' not in function_args and 'content' in response:   #
+                function_args['thought'] = response['content']
             message = FunctionCall(function_name, **function_args)
             print("<<< ", message.plaintext())
             prompt.push(message)
             if function_name == "finish":
                 answer = function_args["answer"]
+                print()
+                print("=" * 80)
+                print()
+                print(prompt.plain())
+
                 return answer
             elif function_name == "search":
                 search_record = wiki_api.search(function_args["query"])
@@ -155,23 +169,28 @@ def run_conversation(prompt, chunk_size, functional):
             elif function_name == "lookup":
                 observations = lookup_observations(document, function_args["keyword"])
             message = FunctionResult(function_name, observations)
-            print("<<< ", message.plaintext())
-            prompt.push(message)
         else:
-            prompt.push(Assistant(response.get("content")))
+            message = Assistant(response.get("content"))
+        print("<<< ", message.plaintext())
+        prompt.push(message)
         iter = iter + 1
         if iter >= MAX_ITER:
             print("<<< Max iterations reached, exiting.")
+            print()
+            print("=" * 80)
+            print()
+            print(prompt.plain())
+
             return None
 
 def get_answer(question, chunk_size, functional):
+    print("\n\n<<< Question:", question)
     examples = get_examples()
     prompt = Prompt([
         system_message,
         *examples,
-        User(f"Question: {question}"),
+        Question(question),
     ])
-    #print(prompt.plain())
     return run_conversation(prompt, chunk_size, functional)
 
 if __name__ == "__main__":
@@ -185,8 +204,11 @@ if __name__ == "__main__":
     # question = "What is the elevation range for the area that the eastern sector of the Colorado orogeny extends into?"
     # question = 'Musician and satirist Allie Goertz wrote a song about the "The Simpsons" character Milhouse, who Matt Groening named after who?'
     # question = "how old was Donald Tusk when he died?"
-    question = "how many keys does a US-ANSI keyboard have on it?"
+    # question = "how many keys does a US-ANSI keyboard have on it?"
     # question = "How many children does Donald Tusk have?"
+    # question = "What government position was held by the woman who portrayed Corliss Archer in the film Kiss and Tell?"
+    # question = "The director of the romantic comedy \"Big Stone Gap\" is based in what New York city?"
+    question = "The arena where the Lewiston Maineiacs played their home games can seat how many people?"
 
     result = get_answer(question, CHUNK_SIZE, FUNCTIONAL_STYLE)
     print(result)

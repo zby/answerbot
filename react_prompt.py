@@ -1,12 +1,14 @@
+import tiktoken
+
 from prompt_builder import Prompt, PromptMessage, OpenAIMessage, User, System, Assistant, FunctionCall, FunctionResult
 from get_wikipedia import WikipediaDocument, ContentRecord
 
 system_message = System('''
 Solve a question answering task with interleaving Thought, Action, Observation steps. 
+Please make the answer short and concise.
 After each Observation you need to reflect on the response in a Thought step.
 Thought can reason about the current situation, and Action means calling 
 one of the available function.
-Please make the answer short and concise.
 ''')
 
 '''You are a helpful AI assistant trying to answer questions.
@@ -51,7 +53,7 @@ def get_examples(chunk_size):
     colorado_orogeny_record = mk_record(
         'Colorado orogeny',
         chunk_size, [
-            "Wikipedia search results for query: 'Colorado orogeny' is: 'Colorado orogeny', 'Laramide orogeny', 'Colorado Mineral Belt', 'Sevier orogeny', 'Geology of Colorado', 'Wyoming Craton', 'Timeline of natural history', 'Variscan orogeny', 'Sangre de Cristo Range', 'Colorado Plateau'",
+            "Wikipedia search results for query: 'Colorado orogeny' is: 'Colorado orogeny', 'Laramide orogeny', 'Colorado Mineral Belt', 'Sevier orogeny'",
             "Successfully retrieved 'Colorado orogeny' from Wikipedia."
         ]
     )
@@ -59,7 +61,7 @@ def get_examples(chunk_size):
     high_plains_record = mk_record(
         'High Plains Drifter',
         chunk_size, [
-            "Wikipedia search results for query: 'High Plains' is: 'High Plains Drifter', 'High Plains', 'High Plains (United States)', 'Ogallala Aquifer', 'Great Plains', 'High Plains (Australia)', 'High Plains Reader', 'High Plains Invaders', 'Bogong High Plains', 'Llano Estacado'",
+            "Wikipedia search results for query: 'High Plains' is: 'High Plains Drifter', 'High Plains', 'High Plains (United States)', 'Ogallala Aquifer'",
             "Successfully retrieved 'High Plains Drifter' from Wikipedia."
         ]
     )
@@ -67,7 +69,7 @@ def get_examples(chunk_size):
     high_plains_us_record = mk_record(
         'High Plains (United States)',
         chunk_size, [
-            "Wikipedia search results for query: 'High Plains elevation range' is: 'High Plains (United States)', 'Laramie Plains', 'Plain', 'Roaring Plains West Wilderness', 'Northern Basin and Range ecoregion', 'Great Basin Desert', 'List of elevation extremes by country', 'Liverpool Plains', 'Plateau', 'Geography of the United States'",
+            "Wikipedia search results for query: 'High Plains elevation range' is: 'High Plains (United States)', 'Laramie Plains', 'Plain', 'Roaring Plains West Wilderness', 'Northern Basin and Range ecoregion'",
             "Successfully retrieved 'High Plains (United States)' from Wikipedia."
         ]
     )
@@ -75,7 +77,7 @@ def get_examples(chunk_size):
     milhouse_record = mk_record(
         'Milhouse Van Houten',
         chunk_size, [
-            "Wikipedia search results for query: 'Milhouse Simpson' is: 'Milhouse Van Houten', 'A Milhouse Divided', 'Bart Simpson', 'The Simpsons', 'List of recurring The Simpsons characters', 'Radioactive Man (The Simpsons episode)', 'Milhouse of Sand and Fog', 'Treehouse of Horror XIX', 'The Simpsons (season 35)', 'Homer Simpson'"
+            "Wikipedia search results for query: 'Milhouse Simpson' is: 'Milhouse Van Houten', 'A Milhouse Divided', 'Bart Simpson', 'The Simpsons', 'List of recurring The Simpsons characters'"
             "Successfully retrieved 'Milhouse Van Houten' from Wikipedia."
         ]
     )
@@ -149,13 +151,24 @@ def get_examples(chunk_size):
 
     return examples
 
+def num_tokens_from_string(string: str, encoding_name: str) -> int:
+    """Returns the number of tokens in a text string."""
+    encoding = tiktoken.get_encoding(encoding_name)
+    num_tokens = len(encoding.encode(string))
+    return num_tokens
+
 
 if __name__ == "__main__":
-    examples = get_examples(512)
+    examples = get_examples(300)
     prompt = Prompt([
         system_message,
         *examples,
         User("Question: Bla bla bla"),
     ])
     print(prompt.plain())
-
+    # print a line separator
+    print()
+    print("-" * 80)
+    print()
+    print("The lenght of the prompt is: " + str(len(prompt.plain())) + " characters.")
+    print("The lenght of the prompt is: " + str(num_tokens_from_string(prompt.plain(), "cl100k_base")) + " tokens.")

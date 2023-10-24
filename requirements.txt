@@ -2,3 +2,5 @@ wikipedia
 requests
 openai
 bs4
+tiktoken
+

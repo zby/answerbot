@@ -9,22 +9,13 @@ LANGUAGE = 'en'
 
 class WikipediaDocument(Document):
     def extract_text(self):
-        # replace consecutive whitespaces with one space
-        return ' '.join(self.content.split())
-        #        # Replace any number of consecutive whitespaces that include newline(s) with one newline
-        #        text = re.sub(r'\s*[\r\n]+\s*', '\n', self.content)
-        #        # Replace any number of consecutive whitespaces (except newlines) with one space
-        #        text = re.sub(r'[ \t]+', ' ', text)
-        #        # Simplistic wikitext to plain text transformation
-        #        text = re.sub(r'\'\'\'(.*?)\'\'\'', r'\0', text)  # Bold to plain
-        return text
+        return self.content
 
     def section_titles(self):
         headings = re.findall(r'== (.*?) ==', self.content)
         return headings
 
     def lookup(self, keyword):
-        # Search for the keyword in the text
         text = self.content
         keyword_escaped = re.escape(keyword)
         match = re.search(keyword_escaped, text, re.IGNORECASE)
@@ -63,91 +54,78 @@ class WikipediaApi:
         self.max_retries = max_retries
         self.chunk_size = chunk_size
 
-    def get_page(self, title, retrieval_history=None, retries=0):
-        if retrieval_history is None:
-            retrieval_history = []
+    def bracket_links_in_content(self, content, links):
+        # Sort links by length in descending order to replace longer links first
+        sorted_links = sorted(links, key=len, reverse=True)
+        for link in sorted_links:
+            # Escape special characters in link for regex pattern
+            escaped_link = re.escape(link)
+            # Replace occurrences of the link in the content with link surrounded by brackets.
+            # Ensure that our match is not already surrounded by brackets.
+            content = re.sub(rf'(?<!\[)\b{escaped_link}\b(?!\])', f'[{link}]', content)
+        return content
 
-        try:
-            wikipedia.set_lang(self.language)
-            # fixed_title = title.replace(" ", "_")
-            page = wikipedia.page(title, auto_suggest=False)
-            document = WikipediaDocument(page.content, summary=page.summary, chunk_size=self.chunk_size)
-            retrieval_history.append(f"Successfully retrieved '{title}' from Wikipedia.")
-            return ContentRecord(document, retrieval_history)
-        except wikipedia.exceptions.DisambiguationError as e:
-            options = e.options
-            if options:
-                retrieval_history.append(f"Title: '{title}' is ambiguous. Possible alternatives: {', '.join(options)}")
-                if retries < self.max_retries:
-                    first_option = options[0]
-                    retrieval_history.append(f"Retrying with '{first_option}' (Retry {retries + 1}/{self.max_retries}).")
-                    return self.get_page(first_option, retrieval_history, retries=retries + 1)
-                else:
-                    retrieval_history.append(f"Retries exhausted. No options available.")
-                    return ContentRecord(None, retrieval_history)
-            else:
-                retrieval_history.append(f"Title: '{title}' is ambiguous but no alternatives found.")
-                return ContentRecord(None, retrieval_history)
-        except wikipedia.exceptions.HTTPTimeoutError:
-            retrieval_history.append("HTTPTimeoutError: Request to Wikipedia timed out.")
-            return ContentRecord(None, retrieval_history)
-        except Exception as e:
-            retrieval_history.append(f"Error: {str(e)}")
-            return ContentRecord(None, retrieval_history)
-
-    def search(self, query):
+    def get_page(self, title):
         retrieval_history = []
+        retries = 0
 
-        try:
-            # Perform a search
-            wikipedia.set_lang(self.language)
-            search_results = wikipedia.search(query)
+        while retries < self.max_retries:
+            try:
+                page = wikipedia.page(title, auto_suggest=False)
+                retrieval_history.append(f"Successfully retrieved '{title}' from Wikipedia.")
+                if page.content:
+                    document = WikipediaDocument(page.content, chunk_size=self.chunk_size)
+                    #marked_content = self.bracket_links_in_content(page.content, page.links)
+                    #document = WikipediaDocument(marked_content, chunk_size=self.chunk_size)
+                else:
+                    document = None
+                return ContentRecord(document, retrieval_history)
+            except wikipedia.DisambiguationError as e:
+                retrieval_history.append(f"Retrieved disambiguation page for '{title}'. Options: {', '.join(e.options)}")
+                title = e.options[0]
+            except wikipedia.RedirectError as e:
+                retrieval_history.append(f"{title} redirects to {e.title}")
+                title = e.title
+            except wikipedia.PageError:
+                retrieval_history.append(f"Page '{title}' does not exist.")
+                break
+            retries += 1
 
-            if search_results:
-                titles = map(lambda x: f"'{x}'", search_results)
-                retrieval_history.append(f"Wikipedia search results for query: '{query}' is: " + ", ".join(titles))
+        retrieval_history.append(f"Retries exhausted. No options available.")
+        return ContentRecord(None, retrieval_history)
 
-                first_result = search_results[0]
-                page_record = self.get_page(first_result, retrieval_history)
-                return page_record
-            else:
-                retrieval_history.append(f"No search results found for query: '{query}'")
-                return ContentRecord(None, retrieval_history)
-        except wikipedia.exceptions.HTTPTimeoutError:
-            retrieval_history.append("HTTPTimeoutError: Request to Wikipedia timed out.")
-            return ContentRecord(None, retrieval_history)
-        except Exception as e:
-            retrieval_history.append(f"Error: {str(e)}")
-            return ContentRecord(None, retrieval_history)
+    def search(self, search_query):
+        search_results = wikipedia.search(search_query, results=10)
+        search_history = [f"Wikipedia search results for query: '{search_query}' is: " + ", ".join(search_results)]
+
+        if search_results:
+            content_record = self.get_page(search_results[0])
+            combined_history = search_history + content_record.retrieval_history
+            return ContentRecord(content_record.document, combined_history)
+        else:
+            return ContentRecord(None, search_history)
+
 
 # Example usage
 if __name__ == "__main__":
-    wiki_api = WikipediaApi(max_retries=3)
-
-    # Example 1: Retrieve a Wikipedia page and its retrieval history
-    title = "Python (programming language)"
-    content_record = wiki_api.get_page(title)
-
-    # Access the Wikipedia page and retrieval history
+    scraper = WikipediaApi()
+    title = "Python"
+    content_record = scraper.get_page(title)
     if content_record.document:
-        print("Wikipedia Page Summary:")
-        print(content_record.document.summary)
+        print(f"Document for {title}:\n")
+        print(content_record.document.first_chunk())
+        print("\nRetrieval History:")
+        for record in content_record.retrieval_history:
+            print(record)
     else:
-        print("Page retrieval failed. Retrieval History:")
-        for entry in content_record.retrieval_history:
-            print(entry)
+        print("No document found")
 
-    # Example 2: Perform a search and retrieve the first search result with retrieval history
     search_query = "Machine learning"
-    search_record = wiki_api.search(search_query)
-
-    # Access the Wikipedia page and retrieval history for the first search result
+    search_record = scraper.search(search_query)
     if search_record.document:
-        print("Wikipedia Page Summary:")
-        print(search_record.document.summary)
+        print(search_record.document.first_chunk())
+        print("\nRetrieval History:")
+        for record in search_record.retrieval_history:
+            print(record)
     else:
-        print("No Wikipedia page found for the search query. Retrieval History:")
-        for entry in search_record.retrieval_history:
-            print(entry)
-
-
+        print("No document found")

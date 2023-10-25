@@ -1,4 +1,5 @@
 import tiktoken
+import os
 
 from prompt_builder import Prompt, PromptMessage, OpenAIMessage, User, System, Question, Assistant, FunctionCall, FunctionResult
 from get_wikipedia import WikipediaDocument, ContentRecord
@@ -48,43 +49,52 @@ def lookup_observations(document, keyword):
     return observations
 
 def get_examples(chunk_size=EXAMPLES_CHUNK_SIZE):
-    def mk_record(name, chunk_size, history):
-        fixed_name = name.replace(" ", "_")
-        with open(f'data/wikipedia_pages/{fixed_name}.txt', 'r', encoding='utf-8') as file:
-            content = file.read()
-        record = ContentRecord(WikipediaDocument(content, chunk_size=chunk_size), history)
-        return record
+
+    def mk_record(title, chunk_size):
+        """
+        Load a ContentRecord from saved wikitext and retrieval history files based on a given title.
+
+        Returns:
+        - ContentRecord: A ContentRecord object reconstructed from the saved files.
+        """
+        directory = "data/wikipedia_pages"
+        sanitized_title = title.replace("/", "_").replace("\\", "_")  # To ensure safe filenames
+        sanitized_title = sanitized_title.replace(" ", "_")
+        wikitext_filename = os.path.join(directory, f"{sanitized_title}.txt")
+        history_filename = os.path.join(directory, f"{sanitized_title}.retrieval_history")
+
+        # Load wikitext content
+        with open(wikitext_filename, "r", encoding="utf-8") as f:
+            document_content = f.read()
+
+        # Load retrieval history
+        retrieval_history = []
+        with open(history_filename, "r", encoding="utf-8") as f:
+            for line in f:
+                retrieval_history.append(line.strip())
+
+        document = WikipediaDocument(
+            document_content, chunk_size=chunk_size)
+        return ContentRecord(document, retrieval_history)
 
     colorado_orogeny_record = mk_record(
         'Colorado orogeny',
-        chunk_size, [
-            "Wikipedia search results for query: 'Colorado orogeny' is: 'Colorado orogeny', 'Laramide orogeny', 'Colorado Mineral Belt', 'Sevier orogeny'",
-            "Successfully retrieved 'Colorado orogeny' from Wikipedia."
-        ]
+        chunk_size
     )
 
     high_plains_record = mk_record(
-        'High Plains Drifter',
-        chunk_size, [
-            "Wikipedia search results for query: 'High Plains' is: 'High Plains Drifter', 'High Plains', 'High Plains (United States)', 'Ogallala Aquifer'",
-            "Successfully retrieved 'High Plains Drifter' from Wikipedia."
-        ]
+        'High Plains',
+        chunk_size
     )
 
     high_plains_us_record = mk_record(
-        'High Plains (United States)',
-        chunk_size, [
-            "Wikipedia search results for query: 'High Plains elevation range' is: 'High Plains (United States)', 'Laramie Plains', 'Plain', 'Roaring Plains West Wilderness', 'Northern Basin and Range ecoregion'",
-            "Successfully retrieved 'High Plains (United States)' from Wikipedia."
-        ]
+        'High Plains geology',
+        chunk_size
     )
 
     milhouse_record = mk_record(
         'Milhouse Van Houten',
-        chunk_size, [
-            "Wikipedia search results for query: 'Milhouse Simpson' is: 'Milhouse Van Houten', 'A Milhouse Divided', 'Bart Simpson', 'The Simpsons', 'List of recurring The Simpsons characters'"
-            "Successfully retrieved 'Milhouse Van Houten' from Wikipedia."
-        ]
+        chunk_size
     )
 
     additional_messages = []

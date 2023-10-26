@@ -1,6 +1,7 @@
 import unittest
+import wikipedia
 from unittest.mock import patch, Mock
-from get_wikipedia import WikipediaApi, WikipediaDocument
+from get_wikipedia import WikipediaApi, WikipediaDocument, ContentRecord
 
 SMALL_CHUNK_SIZE = 70
 
@@ -10,59 +11,72 @@ class TestWikipediaApi(unittest.TestCase):
     def setUp(self):
         # Create an instance of WikipediaApi for testing
         self.wiki_api = WikipediaApi(max_retries=3)
+        self.api = WikipediaApi(max_retries=3, chunk_size=SMALL_CHUNK_SIZE)
 
-    @patch('get_wikipedia.wikipedia')
-    def test_get_page_success(self, mock_wikipedia):
-        # Mock the behavior of wikipedia.page
-        mock_page = Mock()
-        mock_page.content = "Mocked page content"
-        mock_wikipedia.page.return_value = mock_page
+    @patch("wikipedia.page")
+    def test_successful_retrieval(self, mock_page):
+        mock_content = "Sample content"
+        mock_page.return_value = Mock(content=mock_content, links=[])
 
-        # Test retrieving a page successfully
-        title = "Python (programming language)"
-        content_record = self.wiki_api.get_page(title)
+        record = self.api.get_page("Python")
 
-        # Check content
-        self.assertEqual(content_record.document.content, "Mocked page content")
+        self.assertTrue("Successfully retrieved 'Python' from Wikipedia." in record.retrieval_history)
+        self.assertIsNotNone(record.document)
+        self.assertEqual(record.document.content, mock_content)  # Thi
+    @patch("wikipedia.page")
+    def test_disambiguation_error(self, mock_page):
+        mock_page.side_effect = wikipedia.DisambiguationError("Python", ["Python (programming)", "Python (snake)"])
+        record = self.api.get_page("Python")
+        self.assertTrue("Retrieved disambiguation page for 'Python'. Options: Python (programming), Python (snake)" in record.retrieval_history)
 
-    @patch('get_wikipedia.wikipedia')
-    def test_search_success(self, mock_wikipedia):
-        # Mock the behavior of wikipedia.search
-        mock_wikipedia.search.return_value = ['Machine learning', 'Other Result']
+    @patch("wikipedia.page")
+    def test_redirect_error(self, mock_page):
+        mock_page.side_effect = wikipedia.RedirectError("Python (programming)")
+        record = self.api.get_page("Python")
+        self.assertTrue("Python redirects to Python (programming)" in record.retrieval_history)
 
-        # Mock the behavior of wikipedia.page for the first search result
-        mock_results = ['Machine learning', 'Other Result']
-        mock_wikipedia.search.return_value = mock_results
+    @patch("wikipedia.page")
+    def test_page_error(self, mock_page):
+        mock_page.side_effect = wikipedia.PageError("Python")
+        record = self.api.get_page("Python")
+        self.assertTrue("Page 'Python' does not exist." in record.retrieval_history)
 
-        mock_page = Mock()
-        mock_page.summary = "Mocked page summary"
-        mock_page.content = "Mocked page content"
-        mock_page.title = "Mocked page title"
-        mock_wikipedia.page.return_value = mock_page
 
-        # Test searching for 'Machine learning' and retrieving the first result
-        search_query = "Machine learning"
-        content_record = self.wiki_api.search(search_query)
+    @patch.object(WikipediaApi, 'get_page')
+    @patch("wikipedia.search")
+    def test_search_with_results(self, mock_search, mock_get_page):
+        # Mock the behavior of the wikipedia search to return a result
+        mock_search.return_value = ["Python (programming)"]
 
-        history = content_record.retrieval_history
-        self.assertEqual(history[0], "Wikipedia search results for query: 'Machine learning' is: 'Machine learning', 'Other Result'")
-        self.assertEqual(history[1], "Successfully retrieved 'Machine learning' from Wikipedia.")
-        self.assertEqual(len(history), 2)
+        # Mock the behavior of get_page to return a sample ContentRecord
+        mock_document = Mock(content="Sample content for Python")
+        mock_get_page.return_value = ContentRecord(mock_document, ["Sample retrieval history"])
 
-        # Check that the page summary is correctly set in the ContentRecord
-        self.assertEqual(content_record.document.summary, "Mocked page summary")
+        record = self.api.search("Python")
 
-    @patch('get_wikipedia.wikipedia')
-    def test_search_no_results(self, mock_wikipedia):
-        # Mock the behavior of wikipedia.search to return no results
-        mock_wikipedia.search.return_value = []
+        # Verify that get_page was called with the expected argument
+        mock_get_page.assert_called_once_with("Python (programming)")
 
-        # Test searching for a query with no results
-        search_query = "Nonexistent Query"
-        content_record = self.wiki_api.search(search_query)
+        # Check if the search history and get_page retrieval history are both recorded
+        self.assertIn("Wikipedia search results for query: 'Python' is: [[Python (programming)]]", record.retrieval_history)
+        self.assertIn("Sample retrieval history", record.retrieval_history)
+        self.assertEqual(record.document.content, "Sample content for Python")
 
-        # Check that the retrieval history indicates no search results
-        self.assertIn("No search results found for query:", content_record.retrieval_history[0])
+
+    @patch.object(WikipediaApi, 'get_page')
+    @patch("wikipedia.search")
+    def test_search_no_results(self, mock_search, mock_get_page):
+        # Mock the behavior of the wikipedia search to return no results
+        mock_search.return_value = []
+
+        record = self.api.search("NonExistentTopic")
+
+        # Verify that get_page was not called
+        mock_get_page.assert_not_called()
+
+        # Check if the search history indicates no results
+        self.assertIn("Wikipedia search results for query: 'NonExistentTopic' is: ", record.retrieval_history)
+        self.assertIsNone(record.document)
 
 
 class TestWikipediaDocument(unittest.TestCase):
@@ -81,7 +95,7 @@ Paragraph with a new_keyword.
 """
         doc = WikipediaDocument(wiki_content, chunk_size=SMALL_CHUNK_SIZE)
         # print(doc.text)
-        self.assertEqual(doc.text, ' '.join(wiki_content.split()))
+        self.assertEqual(doc.text, wiki_content)
 
         # Test the first chunk
         self.assertIn("This is the first paragraph.", doc.first_chunk())

@@ -12,7 +12,7 @@ CHUNK_SIZE = 512
 FUNCTIONAL_STYLE = True
 
 MAX_QUESTIONS = 5
-START_INDEX = 5
+START_INDEX = 0
 
 config_filename = 'config.json'
 
@@ -61,18 +61,21 @@ for entry in data[START_INDEX:]:
     limited_data.append(entry)
     answered_questions += 1
 
-# Write the updated data to the CSV file
-with open(csv_filename, 'w', newline='') as csv_file:
-    header = limited_data[0].keys()
-    writer = csv.DictWriter(csv_file, fieldnames=header)
+if limited_data:
+    # Write the updated data to the CSV file
+    with open(csv_filename, 'w', newline='') as csv_file:
+        header = limited_data[0].keys()
+        writer = csv.DictWriter(csv_file, fieldnames=header)
 
-    writer.writeheader()
-    writer.writerows(limited_data)
+        writer.writeheader()
+        writer.writerows(limited_data)
 
-print(f'Answers successfully generated and saved to {csv_filename}')
+    print(f'Answers successfully generated and saved to {csv_filename}')
 
-print('=' * 80)
-print('=' * 80)
+    print('=' * 80)
+    print('=' * 80)
 
-with open(csv_filename, 'r') as csv_file:
-    print(csv_file.read())
+    with open(csv_filename, 'r') as csv_file:
+        print(csv_file.read())
+else:
+    print('No questions found!')

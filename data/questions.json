@@ -1,11 +1,11 @@
 [
     {
-        "question": "What was the first major battle in the Ukrainian War?"
+        "question": "What was the first major battle in the Ukrainian War?",
         "answer": "",
         "type": "tricky question"
     },
     {
-        "question": "What were some publications by the Nobel Prize winner in economics in 2023?"
+        "question": "What were some publications by the Nobel Prize winner in economics in 2023?",
         "answer": "Understanding the Gender Gap, Strategic Factors in Nineteenth Century American Economic History, Regulated Economy: A Historical Approach to Political Economy.",
         "type": "tricky question"
     },
@@ -23,10 +23,5 @@
         "question": "How many children does Donald Tusk have?",
         "answer": "2",
         "type": "easy"
-    },
-    {
-        "question": "How many children does Donald Tusk have?",
-        "answer": "2",
-        "type": "easy"
-    },
+    }
 ]

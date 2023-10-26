@@ -10,8 +10,10 @@ system_message = System('''
 Solve a question answering task with interleaving Thought, Action, Observation steps. 
 Please make the answer short and concise.
 After each Observation you need to reflect on the response in a Thought step.
-Thought can reason about the current situation, and Action means calling 
-one of the available function.
+Thought can reason about the current situation, and Action means looking up more information or finishing the task.
+You can search for new documents with the search function, look up keywords in the current document with the lookup function,
+or you can jump to a new document with the get function.
+The words in double square brackets are links - you can follow them with the get function.
 ''')
 
 '''You are a helpful AI assistant trying to answer questions.

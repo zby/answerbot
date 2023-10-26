@@ -25,7 +25,25 @@ functions = [
                 },
                 "thought": {
                     "type": "string",
-                    "description": "The reason for searching for this particular article",
+                    "description": "The reason for searching",
+                }
+            },
+            "required": ["query", "thought"],
+        },
+    },
+    {
+        "name": "get",
+        "description": "Get a Wikipedia page, save it for later and return the summary",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "title": {
+                    "type": "string",
+                    "description": "The title of the Wikipedia page to get",
+                },
+                "thought": {
+                    "type": "string",
+                    "description": "The reason for retrieving this particular article",
                 }
             },
             "required": ["query", "thought"],
@@ -117,6 +135,12 @@ def function_call_from_plain(response):
                 "name": "search",
                 "arguments": json.dumps({"query": query, "thought": thought})
             }
+        elif last_line.startswith('Action: get['):
+            query = last_line[15:-1]
+            return {
+                "name": "get",
+                "arguments": json.dumps({"title": query, "thought": thought})
+            }
         elif last_line.startswith('Action: lookup['):
             keyword = last_line[15:-1]
             return {
@@ -164,6 +188,10 @@ def run_conversation(prompt, chunk_size, functional):
                 return answer
             elif function_name == "search":
                 search_record = wiki_api.search(function_args["query"])
+                document = search_record.document
+                observations = retrieval_observations(search_record)
+            elif function_name == "get":
+                search_record = wiki_api.get_page(function_args["title"])
                 document = search_record.document
                 observations = retrieval_observations(search_record)
             elif function_name == "lookup":

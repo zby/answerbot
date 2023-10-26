@@ -62,7 +62,7 @@ class WikipediaApi:
             escaped_link = re.escape(link)
             # Replace occurrences of the link in the content with link surrounded by brackets.
             # Ensure that our match is not already surrounded by brackets.
-            content = re.sub(rf'(?<!\[)\b{escaped_link}\b(?!\])', f'[{link}]', content)
+            content = re.sub(rf'(?<!\[)\b{escaped_link}\b(?!\])', f'[[{link}]]', content)
         return content
 
     def get_page(self, title):
@@ -75,8 +75,8 @@ class WikipediaApi:
                 retrieval_history.append(f"Successfully retrieved '{title}' from Wikipedia.")
                 if page.content:
                     document = WikipediaDocument(page.content, chunk_size=self.chunk_size)
-                    #marked_content = self.bracket_links_in_content(page.content, page.links)
-                    #document = WikipediaDocument(marked_content, chunk_size=self.chunk_size)
+                    marked_content = self.bracket_links_in_content(page.content, page.links)
+                    document = WikipediaDocument(marked_content, chunk_size=self.chunk_size)
                 else:
                     document = None
                 return ContentRecord(document, retrieval_history)
@@ -96,7 +96,8 @@ class WikipediaApi:
 
     def search(self, search_query):
         search_results = wikipedia.search(search_query, results=10)
-        search_history = [f"Wikipedia search results for query: '{search_query}' is: " + ", ".join(search_results)]
+        squared_results = [f"[[{result}]]" for result in search_results]
+        search_history = [f"Wikipedia search results for query: '{search_query}' is: " + ", ".join(squared_results)]
 
         if search_results:
             content_record = self.get_page(search_results[0])

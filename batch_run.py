@@ -7,14 +7,23 @@ from datetime import datetime
 from react import get_answer
 
 # Constants
-MAX_ITER = 5
-CHUNK_SIZE = 512
-FUNCTIONAL_STYLE = True
-
 MAX_QUESTIONS = 5
 START_INDEX = 0
 
+config = {
+    "chunk_size": 300,
+    "functional": True,
+    "example_chunk_size": 200,
+    "max_llm_calls": 5,
+    "model": "gpt-3.5-turbo"
+}
+
 config_filename = 'config.json'
+# Load the configuration from the config file
+with open(config_filename, 'r') as config_file:
+    json_config = json.load(config_file)
+    openai.api_key = json_config["api_key"]
+
 
 # Check for the correct number of command line arguments
 if len(sys.argv) != 2:
@@ -37,11 +46,6 @@ csv_filename = os.path.join(logs_directory, f'{input_filename_prefix}_{timestamp
 with open(input_filename, 'r') as json_file:
     data = json.load(json_file)
 
-# Load the configuration from the config file
-with open(config_filename, 'r') as config_file:
-    config = json.load(config_file)
-    openai.api_key = config["api_key"]
-
 # Iterate through the data and add new answers, limited by MAX_QUESTIONS
 answered_questions = 0
 limited_data = []
@@ -51,13 +55,13 @@ for entry in data[START_INDEX:]:
 
     question = entry['question']
     try:
-        new_answer = get_answer(question, CHUNK_SIZE, FUNCTIONAL_STYLE)
+        new_answer, prompt = get_answer(question, config)
         entry['new_answer'] = new_answer
         entry['error'] = None
     except Exception as e:
         print(f'Error: {e}')
         entry['new_answer'] = None
-        entry['error'] = str(e)
+        entry['error'] = 1
     limited_data.append(entry)
     answered_questions += 1
 

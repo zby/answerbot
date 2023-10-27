@@ -12,9 +12,9 @@ class Question(User):
 
 
 
-preamble = '''You are a helpful AI assistant trying to answer questions.
-Please make the answer short and concise.
-Solve a question answering task with interleaving Thought, Action, Observation steps. 
+preamble = '''Solve a question answering task with interleaving Thought, Action, Observation steps.
+Please make the answer as short as possible. If it can be answered with a single word, that is best.
+Don't put any explanations in the answer, that is what the Thought step is for.
 After each Observation you need to reflect on the response in a Thought step.
 Thought can reason about the current situation, and Action means looking up more information or finishing the task.'''
 system_message = InitialSystemMessage(

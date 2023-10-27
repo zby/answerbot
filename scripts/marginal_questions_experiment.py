@@ -15,12 +15,14 @@ ITERATIONS = 1
 # This might be a lot of experiments, so be careful!
 
 settings = {
-    "questions": ["Who is older, Annie Morton or Terry Richardson?",
-                  "The arena where the Lewiston Maineiacs played their home games can seat how many people?"],
+    #"questions": ["Who is older, Annie Morton or Terry Richardson?"],
+    "questions": ["Were Scott Derrickson and Ed Wood of the same nationality?"],
+    #     "questions": ["Who is older, Annie Morton or Terry Richardson?",
+#         "The arena where the Lewiston Maineiacs played their home games can seat how many people?"],
     "chunk_sizes": [150, 200, 300],
     "functional_styles": [True, False],
     "example_chunk_sizes": [200, 300],
-    "max_llm_calls": [5, 7],
+    "max_llm_calls": [5],
     "models": ["gpt-3.5-turbo"]
 }
 
@@ -119,3 +121,8 @@ if os.path.getsize(errors_file_path) == 0:  # If the error file is empty, remove
     os.remove(errors_file_path)
 else:
     print(f"Errors saved to {errors_file_path}")
+
+print("Results:\n")
+with open(file_path, 'r') as file:
+    content = file.read()
+    print(content)

@@ -16,7 +16,11 @@ preamble = '''Solve a question answering task with interleaving Thought, Action,
 Please make the answer as short as possible. If it can be answered with a single word, that is best.
 Don't put any explanations in the answer, that is what the Thought step is for.
 After each Observation you need to reflect on the response in a Thought step.
-Thought can reason about the current situation, and Action means looking up more information or finishing the task.'''
+Thought can reason about the current situation, and Action means looking up more information or finishing the task.
+If you want to learn about a property of something don't search for 'something property', but rather,
+first search for 'something' and then lookup 'property' in the retrieved content.
+For example don't search for 'High Plains elevation', but rather search for 'High Plains' and then lookup 'elevation' in the retrieved content.
+'''
 system_message = InitialSystemMessage(
     preamble + '''
 (1) search[query], which searches Wikipedia saves the first result page and informs about the content of that page.
@@ -24,13 +28,11 @@ system_message = InitialSystemMessage(
 (2) get[title], which gets the Wikipedia page with the given title, saves it and informs about the content of that page.
 (3) finish[answer], which returns the answer and finishes the task.
 After each observation, provide the next Thought and next Action. Here are some examples: 
-
 ''',
     preamble + '''
 For the Action step you can call the available functions.
 The words in double square brackets are links - you can follow them with the get function.
 Here are some examples:
-
 ''',
 )
 def retrieval_observations(search_record):

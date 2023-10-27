@@ -1,6 +1,7 @@
-wikipedia
-requests
-openai
 bs4
+datetime
+openai
+requests
 tiktoken
-
+typing
+wikipedia

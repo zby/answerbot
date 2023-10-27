@@ -1,28 +1,41 @@
 import tiktoken
 import os
 
-from prompt_builder import Prompt, PromptMessage, User, System, Question, Assistant, FunctionCall, FunctionResult
+from prompt_builder import Prompt, PromptMessage, User, InitialSystemMessage, Assistant, FunctionCall, FunctionResult
 from get_wikipedia import WikipediaDocument, ContentRecord
 
 EXAMPLES_CHUNK_SIZE = 300
 
-system_message = System('''
-Solve a question answering task with interleaving Thought, Action, Observation steps. 
+
+class Question(User):
+    def plaintext(self) -> str:
+        return '\nQuestion: ' + self.content
+    def openai_message(self) -> dict:
+        return { "role": "user", "content": 'Question: ' + self.content }
+
+
+
+preamble = '''You are a helpful AI assistant trying to answer questions.
 Please make the answer short and concise.
+Solve a question answering task with interleaving Thought, Action, Observation steps. 
 After each Observation you need to reflect on the response in a Thought step.
-Thought can reason about the current situation, and Action means looking up more information or finishing the task.
-You can search for new documents with the search function, look up keywords in the current document with the lookup function,
-or you can jump to a new document with the get function.
+Thought can reason about the current situation, and Action means looking up more information or finishing the task.'''
+system_message = InitialSystemMessage(
+    preamble + '''
+(1) search[query], which searches Wikipedia saves the first result page and informs about the content of that page.
+(2) lookup[keyword], which returns text surrounding the keyword in the current page.
+(2) get[title], which gets the Wikipedia page with the given title, saves it and informs about the content of that page.
+(3) Finish[answer], which returns the answer and finishes the task.
+After each observation, provide the next Thought and next Action. Here are some examples: 
+
+''',
+    preamble + '''
+For the Action step you can call the available functions.
 The words in double square brackets are links - you can follow them with the get function.
-''')
+Here are some examples:
 
-'''You are a helpful AI assistant trying to answer questions.
-You analyze the question and available information and decide what to do next.
-When you have enough information to answer the question please call the finish function with the answer.
-When you need additional information please use the available functions to get it.
-After each function call, please analyze the response reflect on it and decide what to do next.
-'''
-
+''',
+)
 def retrieval_observations(search_record):
     observations = ""
     document = search_record.document
@@ -182,6 +195,9 @@ if __name__ == "__main__":
         *examples,
         Question("Bla bla bla"),
     ])
+
+    from pprint import pprint
+    pprint(prompt.openai_messages())
     print(prompt.plain())
     # print a line separator
     print()

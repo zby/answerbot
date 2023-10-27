@@ -28,11 +28,6 @@ class User(PromptMessage):
     def openai_message(self) -> dict:
         return { "role": "user", "content": self.content }
 
-class Question(User):
-    def plaintext(self) -> str:
-        return '\nQuestion: ' + self.content
-    def openai_message(self) -> dict:
-        return { "role": "user", "content": 'Question: ' + self.content }
 
 class Assistant(PromptMessage):
     def __init__(self, content: str):
@@ -82,6 +77,19 @@ class FunctionResult(PromptMessage):
             "content": self.content,
         }
 
+class InitialSystemMessage(System):
+    def __init__(self, plaintext_content: str, functional_style_content: str):
+        self.plaintext_content = plaintext_content
+        self.functional_style_content = functional_style_content
+
+    def plaintext(self) -> str:
+        return self.plaintext_content
+
+    def openai_message(self) -> dict:
+        return {
+            "role": "system",
+            "content": self.functional_style_content
+        }
 
 class Prompt:
     def __init__(self, parts: Iterable[PromptMessage]):
@@ -121,7 +129,7 @@ if __name__ == "__main__":
 
     prompt = Prompt([
         System("Solve a question answering task with interleaving Thought, Action and Observation steps."),
-        Question("What is the terminal velocity of an unleaded swallow?"),
+        User("\nQuestion: What is the terminal velocity of an unleaded swallow?"),
         FunctionCall('Search', query="Monty Python", thought="I need to search through my book of Monty Python jokes."),
         FunctionResult('Search', "Here are all the Monty Python jokes you know: ..."),
         Assistant("Lookup[Unleaded swallow]"),

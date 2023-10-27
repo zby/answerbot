@@ -4,18 +4,18 @@ import pprint
 
 from get_wikipedia import WikipediaApi
 
-from prompt_builder import Prompt, PromptMessage, Question, System, Assistant, FunctionCall, FunctionResult
-from react_prompt import system_message, get_examples, retrieval_observations, lookup_observations
+from prompt_builder import Prompt, PromptMessage, System, Assistant, FunctionCall, FunctionResult
+from react_prompt import Question, system_message, get_examples, retrieval_observations, lookup_observations
 
 MAX_ITER = 5
-CHUNK_SIZE = 400
+CHUNK_SIZE = 512
 FUNCTIONAL_STYLE = True
 MODEL = "gpt-3.5-turbo"
 
 functions = [
     {
         "name": "search",
-        "description": "Search Wikipedia for a query, retrieve the page, save it for later and return the summary",
+        "description": "searches Wikipedia saves the first result page and informs about the content of that page",
         "parameters": {
             "type": "object",
             "properties": {
@@ -33,7 +33,7 @@ functions = [
     },
     {
         "name": "get",
-        "description": "Get a Wikipedia page, save it for later and return the summary",
+        "description": "gets the Wikipedia page with the given title, saves it and informs about the content of that page",
         "parameters": {
             "type": "object",
             "properties": {
@@ -51,7 +51,7 @@ functions = [
     },
     {
         "name": "lookup",
-        "description": "Look up a word in the saved Wikipedia page and return text surrounding it",
+        "description": "returns text surrounding the keyword in the current page",
         "parameters": {
             "type": "object",
             "properties": {

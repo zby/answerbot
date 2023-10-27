@@ -25,7 +25,7 @@ system_message = InitialSystemMessage(
 (1) search[query], which searches Wikipedia saves the first result page and informs about the content of that page.
 (2) lookup[keyword], which returns text surrounding the keyword in the current page.
 (2) get[title], which gets the Wikipedia page with the given title, saves it and informs about the content of that page.
-(3) Finish[answer], which returns the answer and finishes the task.
+(3) finish[answer], which returns the answer and finishes the task.
 After each observation, provide the next Thought and next Action. Here are some examples: 
 
 ''',

@@ -7,10 +7,7 @@ from get_wikipedia import WikipediaApi
 from prompt_builder import Prompt, PromptMessage, System, Assistant, FunctionCall, FunctionResult
 from react_prompt import Question, system_message, get_examples, retrieval_observations, lookup_observations
 
-MAX_ITER = 5
-CHUNK_SIZE = 512
-FUNCTIONAL_STYLE = True
-MODEL = "gpt-3.5-turbo"
+
 
 functions = [
     {
@@ -85,7 +82,7 @@ functions = [
 
 function_names = [f["name"] for f in functions]
 
-def openai_query(messages, functions=None):
+def openai_query(messages, model, functions):
     def convert_to_dict(obj):
         if isinstance(obj, openai.openai_object.OpenAIObject):
             return {k: convert_to_dict(v) for k, v in obj.items()}
@@ -102,8 +99,9 @@ def openai_query(messages, functions=None):
     if type(messages) == str:
         messages = [{ "role": "user", "content": messages }]
 
+    openai.api_requestor.TIMEOUT_SECS = 60
     response = openai.ChatCompletion.create(
-        model=MODEL,
+        model=model,
         messages=messages,
         **args
     )
@@ -150,17 +148,17 @@ def function_call_from_plain(response):
 
     return None
 
-def run_conversation(prompt, chunk_size, functional):
+def run_conversation(prompt, config):
     document = None
-    wiki_api = WikipediaApi(max_retries=3, chunk_size=chunk_size)
+    wiki_api = WikipediaApi(max_retries=3, chunk_size=config['chunk_size'])
     iter = 0
     while True:
         print(f">>>Iteration: {iter}")
-        if functional:
-            response = openai_query(prompt.openai_messages(), functions)
+        if config['functional']:
+            response = openai_query(prompt.openai_messages(), config['model'], functions)
             function_call = function_call_from_functional(response)
         else:
-            response = openai_query(prompt.plain())
+            response = openai_query(prompt.plain(), config['model'], None)
             function_call = function_call_from_plain(response)
         #print("model response: ", response)
 
@@ -180,12 +178,7 @@ def run_conversation(prompt, chunk_size, functional):
             prompt.push(message)
             if function_name == "finish":
                 answer = function_args["answer"]
-                print()
-                print("=" * 80)
-                print()
-                print(prompt.plain())
-
-                return answer
+                return answer, prompt
             elif function_name == "search":
                 search_record = wiki_api.search(function_args["query"])
                 document = search_record.document
@@ -202,30 +195,31 @@ def run_conversation(prompt, chunk_size, functional):
         print("<<< ", message.plaintext())
         prompt.push(message)
         iter = iter + 1
-        if iter >= MAX_ITER:
-            print("<<< Max iterations reached, exiting.")
-            print()
-            print("=" * 80)
-            print()
-            print(prompt.plain())
+        if iter >= config['max_llm_calls']:
+            print("<<< Max llm calls reached, exiting.")
+            return None, prompt
 
-            return None
-
-def get_answer(question, chunk_size, functional):
+def get_answer(question, config):
     print("\n\n<<< Question:", question)
-    examples = get_examples()
+    # Check that config contains the required fields
+    required_fields = ['chunk_size', 'functional', 'example_chunk_size', 'max_llm_calls', ]
+    missing_fields = [field for field in required_fields if field not in config]
+    if missing_fields:
+        raise ValueError(f"Missing required config fields: {', '.join(missing_fields)}")
+
+    examples = get_examples(config['example_chunk_size'])
     prompt = Prompt([
         system_message,
         *examples,
         Question(question),
     ])
-    return run_conversation(prompt, chunk_size, functional)
+    return run_conversation(prompt, config)
 
 if __name__ == "__main__":
     # load the api key from a file
     with open("config.json", "r") as f:
-        config = json.load(f)
-    openai.api_key = config["api_key"]
+        json_config = json.load(f)
+    openai.api_key = json_config["api_key"]
 
     # question = "What was the first major battle in the Ukrainian War?"
     # question = "What were the main publications by the Nobel Prize winner in economics in 2023?"
@@ -238,5 +232,13 @@ if __name__ == "__main__":
     # question = "The director of the romantic comedy \"Big Stone Gap\" is based in what New York city?"
     question = "The arena where the Lewiston Maineiacs played their home games can seat how many people?"
 
-    result = get_answer(question, CHUNK_SIZE, FUNCTIONAL_STYLE)
-    print(result)
+    config = {
+        "chunk_size": 300,
+        "functional": False,
+        "example_chunk_size": 300,
+        "max_llm_calls": 5,
+        "model": "gpt-3.5-turbo",
+    }
+
+    answer, prompt = get_answer(question, config)
+    print(prompt.plain())

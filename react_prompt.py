@@ -4,9 +4,6 @@ import os
 from prompt_builder import Prompt, PromptMessage, User, InitialSystemMessage, Assistant, FunctionCall, FunctionResult
 from get_wikipedia import WikipediaDocument, ContentRecord
 
-EXAMPLES_CHUNK_SIZE = 300
-
-
 class Question(User):
     def plaintext(self) -> str:
         return '\nQuestion: ' + self.content
@@ -63,9 +60,9 @@ def lookup_observations(document, keyword):
             observations = observations + "not found in current page"
     return observations
 
-def get_examples(chunk_size=EXAMPLES_CHUNK_SIZE):
+def get_examples(examples_chunk_size):
 
-    def mk_record(title, chunk_size):
+    def mk_record(title):
         """
         Load a ContentRecord from saved wikitext and retrieval history files based on a given title.
 
@@ -89,27 +86,23 @@ def get_examples(chunk_size=EXAMPLES_CHUNK_SIZE):
                 retrieval_history.append(line.strip())
 
         document = WikipediaDocument(
-            document_content, chunk_size=chunk_size)
+            document_content, chunk_size=examples_chunk_size)
         return ContentRecord(document, retrieval_history)
 
     colorado_orogeny_record = mk_record(
         'Colorado orogeny',
-        chunk_size
     )
 
     high_plains_record = mk_record(
         'High Plains',
-        chunk_size
     )
 
     high_plains_us_record = mk_record(
         'High Plains geology',
-        chunk_size
     )
 
     milhouse_record = mk_record(
         'Milhouse Van Houten',
-        chunk_size
     )
 
     additional_messages = []
@@ -189,7 +182,7 @@ def num_tokens_from_string(string: str, encoding_name: str) -> int:
 
 
 if __name__ == "__main__":
-    examples = get_examples()
+    examples = get_examples(300)
     prompt = Prompt([
         system_message,
         *examples,

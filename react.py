@@ -4,7 +4,7 @@ import pprint
 
 from get_wikipedia import WikipediaApi
 
-from prompt_builder import Prompt, PromptMessage, OpenAIMessage, Question, System, Assistant, FunctionCall, FunctionResult
+from prompt_builder import Prompt, PromptMessage, Question, System, Assistant, FunctionCall, FunctionResult
 from react_prompt import system_message, get_examples, retrieval_observations, lookup_observations
 
 MAX_ITER = 5

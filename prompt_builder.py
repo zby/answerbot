@@ -82,16 +82,6 @@ class FunctionResult(PromptMessage):
             "content": self.content,
         }
 
-class OpenAIMessage(PromptMessage):
-    def __init__(self, message: dict):
-        self.message = message
-
-    def plaintext(self) -> str:
-        return self.message.get("content", "")
-
-    def openai_message(self) -> dict:
-        return self.message
-
 
 class Prompt:
     def __init__(self, parts: Iterable[PromptMessage]):

@@ -1,7 +1,7 @@
 import tiktoken
 import os
 
-from prompt_builder import Prompt, PromptMessage, OpenAIMessage, User, System, Question, Assistant, FunctionCall, FunctionResult
+from prompt_builder import Prompt, PromptMessage, User, System, Question, Assistant, FunctionCall, FunctionResult
 from get_wikipedia import WikipediaDocument, ContentRecord
 
 EXAMPLES_CHUNK_SIZE = 300

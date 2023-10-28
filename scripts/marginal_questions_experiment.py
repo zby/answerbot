@@ -1,4 +1,5 @@
 import os
+import sys
 import csv
 import json
 import subprocess
@@ -7,6 +8,7 @@ from react import get_answer
 import openai
 import traceback
 import itertools
+import pprint
 
 ITERATIONS = 1
 
@@ -14,15 +16,34 @@ ITERATIONS = 1
 # and runs the ITERATIONS experiments for each combination
 # This might be a lot of experiments, so be careful!
 
+# Check for command-line arguments
+if len(sys.argv) > 1:
+    filename = sys.argv[1]  # The name of the JSON file containing the questions
+
+filename = 'data/hotpot_dev_pretty.json'
+
+if 'filename' in locals():  # If the user specified a filename, load the questions from the file
+    MAX_QUESTIONS = 10
+    START_INDEX = 0
+    # Load the questions from the file
+    with open(filename, 'r') as f:
+        data = json.load(f)
+
+    # Convert the JSON data to the format needed for the settings dictionary
+    # And take only a subset of questions based on START_INDEX and MAX_QUESTIONS
+    questions_list = [{"text": item["question"], "answers": [item["answer"]], "type": item["type"]}
+                      for item in data[START_INDEX:START_INDEX+MAX_QUESTIONS]]
+else:
+    questions_list = [
+        {
+            "text": "The arena where the Lewiston Maineiacs played their home games can seat how many people?",
+            "answers": ["3,677", "3677", "3,677 people", "3677 people", "4,000 capacity (3,677 seated)"],
+            "type": "number"
+        },
+    ]
+
 settings = {
-    #"questions": ["Who is older, Annie Morton or Terry Richardson?"],
-    "questions": [
-#        ("Were Scott Derrickson and Ed Wood of the same nationality?", ["yes", "American"]),
-#        ("Who is older, Annie Morton or Terry Richardson?", ["Terry Richardson"]),
-        ("The arena where the Lewiston Maineiacs played their home games can seat how many people?", ["3,677", "3677", "4,000 people, with 3,677 seated"]),
-    ],
-    #     "questions": ["Who is older, Annie Morton or Terry Richardson?",
-#         "The arena where the Lewiston Maineiacs played their home games can seat how many people?"],
+    "questions": questions_list,
     "chunk_sizes": [
 #        150,
 #        200,
@@ -70,7 +91,6 @@ version_file_path = os.path.join(output_dir, "version.txt")
 with open(version_file_path, 'w') as version_file:
     commit_hash = subprocess.getoutput("git rev-parse HEAD")
     version_file.write(f"Commit Hash: {commit_hash}\n\n")
-
     diff_output = subprocess.getoutput("git diff")
     version_file.write("Differences from last commit:\n")
     version_file.write(diff_output)
@@ -79,12 +99,9 @@ prompts_file_path = os.path.join(output_dir, "prompts.txt")
 file_path = os.path.join(output_dir, "results.csv")
 errors_file_path = os.path.join(output_dir, "errors.txt")
 
-# Collect results and write to CSV
-with open(file_path, 'w', newline='') as csvfile, open(errors_file_path, 'w') as error_file, open(prompts_file_path,
-                                                                                                  'w') as prompts_file:
-    fieldnames = ['chunk_size', 'functional_style', 'example_chunk_size', 'max_llm_calls', 'model', 'answer', 'error', 'question_index', 'correct']
+with open(file_path, 'w', newline='') as csvfile, open(errors_file_path, 'w') as error_file, open(prompts_file_path, 'w') as prompts_file:
+    fieldnames = ['chunk_size', 'functional_style', 'example_chunk_size', 'max_llm_calls', 'model', 'answer', 'error', 'type', 'question_index', 'correct']
     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-
     writer.writeheader()
     for cs, fs, question_index, ecs, mi, model in combinations:
         config = {
@@ -94,16 +111,14 @@ with open(file_path, 'w', newline='') as csvfile, open(errors_file_path, 'w') as
             "max_llm_calls": mi,
             "model": model
         }
-
         for _ in range(ITERATIONS):
-            question = settings["questions"][question_index][0]
-            log_preamble = ('=' * 80) + f"\nQuestion: {question}\nConfig: {config}\n"
+            question_data = settings["questions"][question_index]
+            question_text = question_data["text"]
+            question_type = question_data["type"]
+            log_preamble = ('=' * 80) + f"\nQuestion: {question_text}\nConfig: {config}\n"
             try:
-                answer, prompt = get_answer(question, config)
-                if answer in settings["questions"][question_index][1]:
-                    correct = 1
-                else:
-                    correct = 0
+                answer, prompt = get_answer(question_text, config)
+                correct = 1 if answer in question_data["answers"] else 0
                 writer.writerow({
                     'chunk_size': cs,
                     'functional_style': fs,
@@ -112,10 +127,15 @@ with open(file_path, 'w', newline='') as csvfile, open(errors_file_path, 'w') as
                     'example_chunk_size': ecs,
                     'max_llm_calls': mi,
                     'model': model,
+                    'type': question_type,
                     'question_index': question_index,
-                    'correct': correct
+                    'correct': correct,
                 })
-                prompts_file.write(f"{log_preamble}\nPrompt:\n{prompt.plain()}\n\n")
+                if fs:
+                    prompt_text = pprint.pformat(prompt.openai_messages())
+                else:
+                    prompt_text = prompt.plain()
+                prompts_file.write(f"{log_preamble}\nPrompt:\n{prompt_text}\n\n")
             except Exception as e:
                 error_trace = traceback.format_exc()
                 error_file.write(f"{log_preamble}\n{error_trace}\n\n")
@@ -127,7 +147,9 @@ with open(file_path, 'w', newline='') as csvfile, open(errors_file_path, 'w') as
                     'example_chunk_size': ecs,
                     'max_llm_calls': mi,
                     'model': model,
-                    'question_index': question_index
+                    'type': question_type,
+                    'question_index': question_index,
+                    'correct': 0,
                 })
 
 print(f"Results saved to {file_path}")

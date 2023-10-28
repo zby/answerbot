@@ -83,6 +83,7 @@ with open(file_path, 'w', newline='') as csvfile, open(errors_file_path, 'w') as
 
         for _ in range(ITERATIONS):
             question = settings["questions"][question_index]
+            log_preamble = ('=' * 80) + f"\nQuestion: {question}\nConfig: {config}\n"
             try:
                 answer, prompt = get_answer(question, config)
                 writer.writerow({
@@ -95,14 +96,10 @@ with open(file_path, 'w', newline='') as csvfile, open(errors_file_path, 'w') as
                     'model': model,
                     'question_index': question_index
                 })
-
-                prompts_file.write(f"\nConfig: {json.dumps(config)}\nQuestion: {question}\nPrompt:\n")
-                prompts_file.write(f"{prompt.plain()}\n\n")
+                prompts_file.write(f"{log_preamble}\nPrompt:\n{prompt.plain()}\n\n")
             except Exception as e:
                 error_trace = traceback.format_exc()
-                error_file.write('\n')
-                error_file.write('=' * 80)
-                error_file.write(f'\nError for question: "{question}"\nconfig: {config}:\n{error_trace}\n')
+                error_file.write(f"{log_preamble}\n{error_trace}\n\n")
                 writer.writerow({
                     'chunk_size': cs,
                     'functional_style': fs,

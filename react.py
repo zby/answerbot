@@ -114,7 +114,10 @@ def function_call_from_functional(response):
 
 def function_call_from_plain(response):
     response_lines = response["content"].strip().split('\n')
-    last_but_one_line = response_lines[-2]
+    if len(response_lines) >= 2:
+        last_but_one_line = response_lines[-2]
+    else:
+        last_but_one_line = ""
     last_line = response_lines[-1]
     if last_line.startswith('Action: '):
         if last_but_one_line.startswith('Thought: '):

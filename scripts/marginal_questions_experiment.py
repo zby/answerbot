@@ -16,12 +16,26 @@ ITERATIONS = 1
 
 settings = {
     #"questions": ["Who is older, Annie Morton or Terry Richardson?"],
-    "questions": ["Were Scott Derrickson and Ed Wood of the same nationality?"],
+    "questions": [
+#        ("Were Scott Derrickson and Ed Wood of the same nationality?", ["yes", "Yes", "American"]),
+#        ("Who is older, Annie Morton or Terry Richardson?", ["Terry Richardson"]),
+        ("The arena where the Lewiston Maineiacs played their home games can seat how many people?", ["3,677", "3677", "4,000 people, with 3,677 seated"]),
+    ],
     #     "questions": ["Who is older, Annie Morton or Terry Richardson?",
 #         "The arena where the Lewiston Maineiacs played their home games can seat how many people?"],
-    "chunk_sizes": [150, 200, 300],
-    "functional_styles": [True, False],
-    "example_chunk_sizes": [200, 300],
+    "chunk_sizes": [
+#        150,
+#        200,
+        300
+    ],
+    "functional_styles": [
+        True,
+        False
+    ],
+    "example_chunk_sizes": [
+#        200,
+        300
+    ],
     "max_llm_calls": [5],
     "models": ["gpt-3.5-turbo"]
 }
@@ -68,7 +82,7 @@ errors_file_path = os.path.join(output_dir, "errors.txt")
 # Collect results and write to CSV
 with open(file_path, 'w', newline='') as csvfile, open(errors_file_path, 'w') as error_file, open(prompts_file_path,
                                                                                                   'w') as prompts_file:
-    fieldnames = ['chunk_size', 'functional_style', 'answer', 'error', 'example_chunk_size', 'max_llm_calls', 'model', 'question_index']
+    fieldnames = ['chunk_size', 'functional_style', 'example_chunk_size', 'max_llm_calls', 'model', 'answer', 'error', 'question_index', 'correct']
     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
     writer.writeheader()
@@ -82,10 +96,14 @@ with open(file_path, 'w', newline='') as csvfile, open(errors_file_path, 'w') as
         }
 
         for _ in range(ITERATIONS):
-            question = settings["questions"][question_index]
+            question = settings["questions"][question_index][0]
             log_preamble = ('=' * 80) + f"\nQuestion: {question}\nConfig: {config}\n"
             try:
                 answer, prompt = get_answer(question, config)
+                if answer in settings["questions"][question_index][1]:
+                    correct = 1
+                else:
+                    correct = 0
                 writer.writerow({
                     'chunk_size': cs,
                     'functional_style': fs,
@@ -94,7 +112,8 @@ with open(file_path, 'w', newline='') as csvfile, open(errors_file_path, 'w') as
                     'example_chunk_size': ecs,
                     'max_llm_calls': mi,
                     'model': model,
-                    'question_index': question_index
+                    'question_index': question_index,
+                    'correct': correct
                 })
                 prompts_file.write(f"{log_preamble}\nPrompt:\n{prompt.plain()}\n\n")
             except Exception as e:

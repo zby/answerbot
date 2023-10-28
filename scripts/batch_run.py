@@ -7,7 +7,7 @@ from datetime import datetime
 from react import get_answer
 
 # Constants
-MAX_QUESTIONS = 5
+MAX_QUESTIONS = 10
 START_INDEX = 0
 
 config = {
@@ -49,15 +49,19 @@ with open(input_filename, 'r') as json_file:
 # Iterate through the data and add new answers, limited by MAX_QUESTIONS
 answered_questions = 0
 limited_data = []
+prompts_file_path = os.path.join(logs_directory, f'{input_filename_prefix}_{timestamp}.txt')
+prompts_file = open(prompts_file_path, 'w')
 for entry in data[START_INDEX:]:
     if answered_questions >= MAX_QUESTIONS:
         break
 
     question = entry['question']
+    log_preamble = ('=' * 80) + f"\nQuestion: {question}\nConfig: {config}\n"
     try:
         new_answer, prompt = get_answer(question, config)
         entry['new_answer'] = new_answer
         entry['error'] = None
+        prompts_file.write(log_preamble + prompt.plain() + '\n')
     except Exception as e:
         print(f'Error: {e}')
         entry['new_answer'] = None

@@ -46,11 +46,10 @@ def retrieval_observations(search_record):
     if document is None:
         observations = observations + "No wikipedia page found"
     else:
-        observations = observations + "The retrieved wikipedia page summary starts with: " + document.first_chunk() + "\n"
-
         sections = document.section_titles()
         sections_list_md = "\n".join(map(lambda section: f' - {section}', sections))
-        observations = observations + f'the retrieved page contains the following sections:\n{sections_list_md}'
+        observations = observations + f'The retrieved page contains the following sections:\n{sections_list_md}\n'
+        observations = observations + "The retrieved page summary starts with: " + document.first_chunk() + "\n"
     return observations
 
 def lookup_observations(document, keyword):

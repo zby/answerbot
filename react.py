@@ -181,6 +181,9 @@ def run_conversation(prompt, config):
             prompt.push(message)
             if function_name == "finish":
                 answer = function_args["answer"]
+                # normalize the answer
+                if answer.lower() == 'yes' or answer.lower == 'no':
+                    answer = answer.lower()
                 return answer, prompt
             elif function_name == "search":
                 search_record = wiki_api.search(function_args["query"])

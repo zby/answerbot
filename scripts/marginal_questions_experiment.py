@@ -17,7 +17,7 @@ ITERATIONS = 1
 settings = {
     #"questions": ["Who is older, Annie Morton or Terry Richardson?"],
     "questions": [
-#        ("Were Scott Derrickson and Ed Wood of the same nationality?", ["yes", "Yes", "American"]),
+#        ("Were Scott Derrickson and Ed Wood of the same nationality?", ["yes", "American"]),
 #        ("Who is older, Annie Morton or Terry Richardson?", ["Terry Richardson"]),
         ("The arena where the Lewiston Maineiacs played their home games can seat how many people?", ["3,677", "3677", "4,000 people, with 3,677 seated"]),
     ],

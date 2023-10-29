@@ -1,7 +1,7 @@
 import tiktoken
 import os
 
-from prompt_builder import FunctionalPrompt, PlainTextPrompt, User, InitialSystemMessage, Assistant, FunctionCall, FunctionResult
+from prompt_builder import FunctionalPrompt, PlainTextPrompt, User, System, Assistant, FunctionCall, FunctionResult
 from get_wikipedia import WikipediaDocument, ContentRecord
 
 class Question(User):
@@ -24,20 +24,19 @@ If the page is wrong - then try another search.
 For example if you want to know the elevation of 'High Plains' search('High Plains')
 and then lookup('elevation').
 '''
-system_message = InitialSystemMessage(
+plain_system_message = System(
     preamble + '''The available Actions are:
 (1) search[query] searches Wikipedia saves the first result page and informs about the content of that page.
 (2) lookup[keyword] returns text surrounding the keyword in the current page.
 (2) get[title] gets the Wikipedia page with the given title, saves it and informs about the content of that page.
 (3) finish[answer] returns the answer and finishes the task.
-After each observation, provide the next Thought and next Action. Here are some examples: 
-''',
+After each observation, provide the next Thought and next Action. Here are some examples:''')
+functional_system_message = System(
     preamble + '''
 For the Action step you can call the available functions.
 The words in double square brackets are links - you can follow them with the get function.
-Here are some examples:
-''',
-)
+Here are some examples:''')
+
 def retrieval_observations(search_record):
     observations = ""
     document = search_record.document
@@ -188,12 +187,12 @@ def num_tokens_from_string(string: str, encoding_name: str) -> int:
 if __name__ == "__main__":
     examples = get_examples(300)
     fprompt = FunctionalPrompt([
-        system_message,
+        functional_system_message,
         *examples,
         Question("Bla bla bla"),
     ])
     pprompt = PlainTextPrompt([
-        system_message,
+        plain_system_message,
         *examples,
         Question("Bla bla bla"),
     ])

@@ -79,20 +79,6 @@ class FunctionResult(PromptMessage):
             "content": self.content,
         }
 
-class InitialSystemMessage(System):
-    def __init__(self, plaintext_content: str, functional_style_content: str):
-        self.plaintext_content = plaintext_content
-        self.functional_style_content = functional_style_content
-
-    def plaintext(self) -> str:
-        return self.plaintext_content
-
-    def openai_message(self) -> dict:
-        return {
-            "role": "system",
-            "content": self.functional_style_content
-        }
-
 class Prompt:
     def __init__(self, parts: Iterable[PromptMessage] = []):
         self.parts = list(parts)

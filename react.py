@@ -4,7 +4,7 @@ import pprint
 
 from get_wikipedia import WikipediaApi
 
-from prompt_builder import Prompt, PromptMessage, System, Assistant, FunctionCall, FunctionResult
+from prompt_builder import FunctionalPrompt, PlainTextPrompt, System, Assistant, FunctionCall, FunctionResult
 from react_prompt import Question, system_message, get_examples, retrieval_observations, lookup_observations
 
 
@@ -82,7 +82,7 @@ functions = [
 
 function_names = [f["name"] for f in functions]
 
-def openai_query(messages, model, functions):
+def openai_query(prompt, model):
     def convert_to_dict(obj):
         if isinstance(obj, openai.openai_object.OpenAIObject):
             return {k: convert_to_dict(v) for k, v in obj.items()}
@@ -91,18 +91,17 @@ def openai_query(messages, model, functions):
         else:
             return obj
 
-    args = { 'stop': ["\nObservation:"] }
-    if functions is not None:
+    args = {}
+    if isinstance(prompt, FunctionalPrompt):
         args["functions"] = functions
         args["function_call"] = "auto"
-
-    if type(messages) == str:
-        messages = [{ "role": "user", "content": messages }]
+    else:
+        args["stop"] = ["\nObservation:"]
 
     openai.api_requestor.TIMEOUT_SECS = 60
     response = openai.ChatCompletion.create(
         model=model,
-        messages=messages,
+        messages=prompt.to_messages(),
         **args
     )
 
@@ -157,11 +156,10 @@ def run_conversation(prompt, config):
     iter = 0
     while True:
         print(f">>>Iteration: {iter}")
+        response = openai_query(prompt, config['model'])
         if config['functional']:
-            response = openai_query(prompt.openai_messages(), config['model'], functions)
             function_call = function_call_from_functional(response)
         else:
-            response = openai_query(prompt.plain(), config['model'], None)
             function_call = function_call_from_plain(response)
         #print("model response: ", response)
 
@@ -214,11 +212,18 @@ def get_answer(question, config):
         raise ValueError(f"Missing required config fields: {', '.join(missing_fields)}")
 
     examples = get_examples(config['example_chunk_size'])
-    prompt = Prompt([
-        system_message,
-        *examples,
-        Question(question),
-    ])
+    if config['functional']:
+        prompt = FunctionalPrompt([
+            system_message,
+            *examples,
+            Question(question),
+        ])
+    else:
+        prompt = PlainTextPrompt([
+            system_message,
+            *examples,
+            Question(question),
+        ])
     return run_conversation(prompt, config)
 
 if __name__ == "__main__":
@@ -240,11 +245,11 @@ if __name__ == "__main__":
 
     config = {
         "chunk_size": 300,
-        "functional": False,
+        "functional": True,
         "example_chunk_size": 300,
         "max_llm_calls": 5,
         "model": "gpt-3.5-turbo",
     }
 
     answer, prompt = get_answer(question, config)
-    print(prompt.plain())
+    print(prompt.to_text())

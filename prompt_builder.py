@@ -1,5 +1,7 @@
 import json
-from typing import Any, Callable, Iterable
+from typing import Any, Callable, Iterable, List, Dict
+from pprint import pformat
+
 
 class PromptMessage:
     def plaintext(self) -> str:
@@ -92,50 +94,60 @@ class InitialSystemMessage(System):
         }
 
 class Prompt:
-    def __init__(self, parts: Iterable[PromptMessage]):
+    def __init__(self, parts: Iterable[PromptMessage] = []):
         self.parts = list(parts)
 
     def push(self, message: PromptMessage):
         self.parts.append(message)
 
-    def plain(self) -> str:
-        return "\n".join(map(lambda m: m.plaintext(), self.parts))
+    def to_messages(self) -> Any:
+        raise NotImplementedError
 
-    def openai_messages(self) -> Iterable[dict]:
-        """ For OpenAI's `messages` API, which expects a list of JSON objects, we return an iterable of dicts """
-        return list(map(lambda m: m.openai_message(), self.parts))
+class FunctionalPrompt(Prompt):
+    def to_messages(self) -> List[Dict[str, Any]]:
+        return [part.openai_message() for part in self.parts]
+
+    def to_text(self):
+        return pformat(self.to_messages())
+
+class PlainTextPrompt(Prompt):
+
+    def to_text(self) -> str:
+        return "\n".join(part.plaintext() for part in self.parts)
+
+    def to_messages(self) -> List[Dict[str, Any]]:
+        return [{ "role": "user", "content": self.to_text()}]
+
+
+# Example Usage:
 
 if __name__ == "__main__":
-    assert Assistant("Thought: I need to search through my book of Monty Python jokes.\nAction: Search[Monty Python]").plaintext() \
-        == FunctionCall('Search', query="Monty Python", thought="I need to search through my book of Monty Python jokes.").plaintext()
 
-    message = {
-        'role': 'assistant',
-        'content': 'Thought: I need to find out what the first major battle in the Ukrainian War was.\n',
-        'function_call': {
-            'name': 'search_wikipedia',
-            'arguments': '{"query": "Ukrainian War", "thought": "I need to find out what the first major battle in the Ukrainian War was."}'
-        }
-    }
-    function_call = message.get("function_call")
-
-    function_name = function_call["name"]
-    function_args = json.loads(function_call["arguments"])
-    message = FunctionCall(function_name, **function_args)
-    print("<<<", message.plaintext())
-    print()
-
-    from pprint import pprint
-
-    prompt = Prompt([
+    # Using FunctionalPrompt
+    fprompt = FunctionalPrompt([
         System("Solve a question answering task with interleaving Thought, Action and Observation steps."),
         User("\nQuestion: What is the terminal velocity of an unleaded swallow?"),
-        FunctionCall('Search', query="Monty Python", thought="I need to search through my book of Monty Python jokes."),
+        FunctionCall('Search', thought="I need to search through my book of Monty Python jokes.", query="Monty Python"),
         FunctionResult('Search', "Here are all the Monty Python jokes you know: ..."),
         Assistant("Lookup[Unleaded swallow]"),
         User("Observation: Did you mean Unladen Swallow?"),
         FunctionCall('Finish', query='Oh you!'),
     ])
+    print(fprompt.to_text())
 
-    print(prompt.plain())
-    pprint(prompt.openai_messages())
+    print()
+    print("-" * 80)
+    print()
+
+    # Using PlainTextPrompt
+    pprompt = PlainTextPrompt([
+        System("Solve a question answering task with interleaving Thought, Action and Observation steps."),
+        User("\nQuestion: What is the terminal velocity of an unleaded swallow?"),
+        FunctionCall('Search', thought="I need to search through my book of Monty Python jokes.", query="Monty Python"),
+        FunctionResult('Search', "Here are all the Monty Python jokes you know: ..."),
+        Assistant("Lookup[Unleaded swallow]"),
+        User("Observation: Did you mean Unladen Swallow?"),
+        FunctionCall('Finish', query='Oh you!'),
+    ])
+    print(pprompt.to_text())
+

@@ -1,7 +1,7 @@
 import tiktoken
 import os
 
-from prompt_builder import Prompt, PromptMessage, User, InitialSystemMessage, Assistant, FunctionCall, FunctionResult
+from prompt_builder import FunctionalPrompt, PlainTextPrompt, User, InitialSystemMessage, Assistant, FunctionCall, FunctionResult
 from get_wikipedia import WikipediaDocument, ContentRecord
 
 class Question(User):
@@ -187,18 +187,26 @@ def num_tokens_from_string(string: str, encoding_name: str) -> int:
 
 if __name__ == "__main__":
     examples = get_examples(300)
-    prompt = Prompt([
+    fprompt = FunctionalPrompt([
+        system_message,
+        *examples,
+        Question("Bla bla bla"),
+    ])
+    pprompt = PlainTextPrompt([
         system_message,
         *examples,
         Question("Bla bla bla"),
     ])
 
-    from pprint import pprint
-    pprint(prompt.openai_messages())
-    print(prompt.plain())
+
+    print(fprompt.to_text())
+    print()
+    print("-" * 80)
+    print()
+    print(pprompt.to_text())
     # print a line separator
     print()
     print("-" * 80)
     print()
-    print("The lenght of the prompt is: " + str(len(prompt.plain())) + " characters.")
-    print("The lenght of the prompt is: " + str(num_tokens_from_string(prompt.plain(), "cl100k_base")) + " tokens.")
+    print("The lenght of the text prompt is: " + str(len(pprompt.to_text())) + " characters.")
+    print("The lenght of the text prompt is: " + str(num_tokens_from_string(pprompt.to_text(), "cl100k_base")) + " tokens.")

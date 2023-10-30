@@ -1,13 +1,10 @@
 import openai
 import json
-import pprint
 
 from get_wikipedia import WikipediaApi
 
-from prompt_builder import FunctionalPrompt, PlainTextPrompt, System, Assistant, FunctionCall, FunctionResult
-from react_prompt import Question, FunctionalReactPrompt, TextReactPrompt, retrieval_observations, lookup_observations
-
-
+from prompt_builder import FunctionalPrompt, Assistant, FunctionCall, FunctionResult
+from react_prompt import FunctionalReactPrompt, TextReactPrompt, retrieval_observations, lookup_observations
 
 functions = [
     {
@@ -108,47 +105,6 @@ def openai_query(prompt, model):
     response_message = response["choices"][0]["message"]
     return convert_to_dict(response_message)
 
-def function_call_from_functional(response):
-    return response.get("function_call")
-
-def function_call_from_plain(response):
-    response_lines = response["content"].strip().split('\n')
-    if len(response_lines) >= 2:
-        last_but_one_line = response_lines[-2]
-    else:
-        last_but_one_line = ""
-    last_line = response_lines[-1]
-    if last_line.startswith('Action: '):
-        if last_but_one_line.startswith('Thought: '):
-            thought = last_but_one_line[9:]
-        else:
-            thought = None
-        if last_line.startswith('Action: finish['):
-            answer = last_line[15:-1]
-            return {
-                "name": "finish",
-                "arguments": json.dumps({"answer": answer, "thought": thought})
-            }
-        elif last_line.startswith('Action: search['):
-            query = last_line[15:-1]
-            return {
-                "name": "search",
-                "arguments": json.dumps({"query": query, "thought": thought})
-            }
-        elif last_line.startswith('Action: get['):
-            query = last_line[15:-1]
-            return {
-                "name": "get",
-                "arguments": json.dumps({"title": query, "thought": thought})
-            }
-        elif last_line.startswith('Action: lookup['):
-            keyword = last_line[15:-1]
-            return {
-                "name": "lookup",
-                "arguments": json.dumps({"keyword": keyword, "thought": thought})
-            }
-
-    return None
 
 def run_conversation(prompt, config):
     document = None
@@ -157,14 +113,12 @@ def run_conversation(prompt, config):
     while True:
         print(f">>>Iteration: {iter}")
         response = openai_query(prompt, config['model'])
-        if config['functional']:
-            function_call = function_call_from_functional(response)
-        else:
-            function_call = function_call_from_plain(response)
-        #print("model response: ", response)
+        print("model response: ", response)
+        function_call = prompt.function_call_from_response(response)
 
         # Process the function calls
         if function_call:
+            print("function_call: ", function_call)
             function_name = function_call["name"]
             if function_name not in function_names:
                 print(f"<<< Unknown function name: {function_name}")
@@ -206,15 +160,18 @@ def run_conversation(prompt, config):
 def get_answer(question, config):
     print("\n\n<<< Question:", question)
     # Check that config contains the required fields
-    required_fields = ['chunk_size', 'functional', 'example_chunk_size', 'max_llm_calls', ]
+    required_fields = ['chunk_size', 'prompt', 'example_chunk_size', 'max_llm_calls', ]
     missing_fields = [field for field in required_fields if field not in config]
     if missing_fields:
         raise ValueError(f"Missing required config fields: {', '.join(missing_fields)}")
+    # A dictionary that maps class names to classes
+    CLASS_MAP = {
+        'FRP': FunctionalReactPrompt,
+        'TRP': TextReactPrompt
+    }
+    prompt_class = CLASS_MAP[config['prompt']]
+    prompt = prompt_class(question, config['example_chunk_size'])
 
-    if config['functional']:
-        prompt = FunctionalReactPrompt(question, config['example_chunk_size'])
-    else:
-        prompt = TextReactPrompt(question, config['example_chunk_size'])
     return run_conversation(prompt, config)
 
 if __name__ == "__main__":
@@ -236,7 +193,7 @@ if __name__ == "__main__":
 
     config = {
         "chunk_size": 300,
-        "functional": False,
+        "prompt": 'FRP',
         "example_chunk_size": 300,
         "max_llm_calls": 5,
         "model": "gpt-3.5-turbo",

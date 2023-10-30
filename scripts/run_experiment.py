@@ -11,7 +11,7 @@ import openai
 
 # Constants
 ITERATIONS = 1
-CONFIG_KEYS = ['chunk_size', 'functional', 'example_chunk_size', 'max_llm_calls', 'model']
+CONFIG_KEYS = ['chunk_size', 'prompt', 'example_chunk_size', 'max_llm_calls', 'model']
 ADDITIONAL_KEYS = ['answer', 'error', 'type', 'question_index', 'correct']
 
 def load_config_from_file(config_filename):
@@ -117,7 +117,7 @@ if __name__ == "__main__":
     settings = {
         "question": questions_list,
         "chunk_size": [300],
-        "functional": [True, False],
+        "prompt": ['TRP'],
         "example_chunk_size": [300],
         "max_llm_calls": [5],
         "model": ["gpt-3.5-turbo"]

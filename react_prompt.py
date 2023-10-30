@@ -1,3 +1,5 @@
+import json
+
 import tiktoken
 import os
 
@@ -191,9 +193,51 @@ class FunctionalReactPrompt(ReactPrompt, FunctionalPrompt):
     def __init__(self, question, examples_chunk_size=300):
         super().__init__(question, functional_system_message, examples_chunk_size)
 
+    def function_call_from_response(self, response):
+        return response.get("function_call")
+
+
 class TextReactPrompt(ReactPrompt, PlainTextPrompt):
     def __init__(self, question, examples_chunk_size=300):
         super().__init__(question, plain_system_message, examples_chunk_size)
+
+    def function_call_from_response(self, response):
+        response_lines = response["content"].strip().split('\n')
+        if len(response_lines) >= 2:
+            last_but_one_line = response_lines[-2]
+        else:
+            last_but_one_line = ""
+        last_line = response_lines[-1]
+        if last_line.startswith('Action: '):
+            if last_but_one_line.startswith('Thought: '):
+                thought = last_but_one_line[9:]
+            else:
+                thought = None
+            if last_line.startswith('Action: finish['):
+                answer = last_line[15:-1]
+                return {
+                    "name": "finish",
+                    "arguments": json.dumps({"answer": answer, "thought": thought})
+                }
+            elif last_line.startswith('Action: search['):
+                query = last_line[15:-1]
+                return {
+                    "name": "search",
+                    "arguments": json.dumps({"query": query, "thought": thought})
+                }
+            elif last_line.startswith('Action: get['):
+                query = last_line[15:-1]
+                return {
+                    "name": "get",
+                    "arguments": json.dumps({"title": query, "thought": thought})
+                }
+            elif last_line.startswith('Action: lookup['):
+                keyword = last_line[15:-1]
+                return {
+                    "name": "lookup",
+                    "arguments": json.dumps({"keyword": keyword, "thought": thought})
+                }
+        return None
 
 def num_tokens_from_string(string: str, encoding_name: str) -> int:
     """Returns the number of tokens in a text string."""

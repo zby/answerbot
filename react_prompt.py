@@ -63,119 +63,137 @@ def lookup_observations(document, keyword):
             observations = observations + "not found in current page"
     return observations
 
-def get_examples(examples_chunk_size):
 
-    def mk_record(title):
-        """
-        Load a ContentRecord from saved wikitext and retrieval history files based on a given title.
+class ReactPrompt:
+    def __init__(self, question, initial_system_message, examples_chunk_size=300):
+        self.examples_chunk_size = examples_chunk_size
+        self.question = question
+        self.initial_system_message = initial_system_message
+        examples = self.get_examples()
+        super().__init__([self.initial_system_message, *examples, Question(self.question)])
 
-        Returns:
-        - ContentRecord: A ContentRecord object reconstructed from the saved files.
-        """
-        directory = "data/wikipedia_pages"
-        sanitized_title = title.replace("/", "_").replace("\\", "_")  # To ensure safe filenames
-        sanitized_title = sanitized_title.replace(" ", "_")
-        wikitext_filename = os.path.join(directory, f"{sanitized_title}.txt")
-        history_filename = os.path.join(directory, f"{sanitized_title}.retrieval_history")
+    def get_examples(self):
 
-        # Load wikitext content
-        with open(wikitext_filename, "r", encoding="utf-8") as f:
-            document_content = f.read()
+        def mk_record(title):
+            """
+            Load a ContentRecord from saved wikitext and retrieval history files based on a given title.
 
-        # Load retrieval history
-        retrieval_history = []
-        with open(history_filename, "r", encoding="utf-8") as f:
-            for line in f:
-                retrieval_history.append(line.strip())
+            Returns:
+            - ContentRecord: A ContentRecord object reconstructed from the saved files.
+            """
+            directory = "data/wikipedia_pages"
+            sanitized_title = title.replace("/", "_").replace("\\", "_")  # To ensure safe filenames
+            sanitized_title = sanitized_title.replace(" ", "_")
+            wikitext_filename = os.path.join(directory, f"{sanitized_title}.txt")
+            history_filename = os.path.join(directory, f"{sanitized_title}.retrieval_history")
 
-        document = WikipediaDocument(
-            document_content, chunk_size=examples_chunk_size)
-        return ContentRecord(document, retrieval_history)
+            # Load wikitext content
+            with open(wikitext_filename, "r", encoding="utf-8") as f:
+                document_content = f.read()
 
-    colorado_orogeny_record = mk_record(
-        'Colorado orogeny',
-    )
+            # Load retrieval history
+            retrieval_history = []
+            with open(history_filename, "r", encoding="utf-8") as f:
+                for line in f:
+                    retrieval_history.append(line.strip())
 
-    high_plains_record = mk_record(
-        'High Plains',
-    )
+            document = WikipediaDocument(
+                document_content, chunk_size=self.examples_chunk_size)
+            return ContentRecord(document, retrieval_history)
 
-    high_plains_us_record = mk_record(
-        'High Plains geology',
-    )
+        colorado_orogeny_record = mk_record(
+            'Colorado orogeny',
+        )
 
-    milhouse_record = mk_record(
-        'Milhouse Van Houten',
-    )
+        high_plains_record = mk_record(
+            'High Plains',
+        )
 
-    additional_messages = []
-    document = high_plains_us_record.document
-    first_chunk = document.first_chunk()
-    if not 'elevation' in first_chunk:
-        additional_messages = [
+        high_plains_us_record = mk_record(
+            'High Plains geology',
+        )
+
+        milhouse_record = mk_record(
+            'Milhouse Van Houten',
+        )
+
+        additional_messages = []
+        document = high_plains_us_record.document
+        first_chunk = document.first_chunk()
+        if not 'elevation' in first_chunk:
+            additional_messages = [
+                FunctionCall(
+                    'lookup',
+                    keyword='elevation',
+                    thought='This passge does not mention elevation. I need to find out the elevation range of the High Plains.'
+                ),
+                FunctionResult('lookup', lookup_observations(document, 'elevation'))
+            ]
+
+        examples = [
+            Question(
+                "What is the elevation range for the area that the eastern sector of the Colorado orogeny extends into?"),
+            FunctionCall(
+                "search",
+                thought='I need to search Colorado orogeny, find the area that the eastern sector of the Colorado orogeny extends into, then find the elevation range of the area.',
+                query="Colorado orogeny",
+            ),
+            FunctionResult('search', retrieval_observations(colorado_orogeny_record)),
             FunctionCall(
                 'lookup',
-                keyword='elevation',
-                thought='This passge does not mention elevation. I need to find out the elevation range of the High Plains.'
+                thought="It does not mention the eastern sector of the Colorado orogeny. I need to look up eastern sector.",
+                keyword="eastern sector",
             ),
-            FunctionResult('lookup', lookup_observations(document, 'elevation'))
+            FunctionResult('lookup', lookup_observations(colorado_orogeny_record.document, "eastern sector")),
+            FunctionCall(
+                'search',
+                thought="The eastern sector of Colorado orogeny extends into the High Plains, so High Plains is the area. I need to find out the elevation of High Plains.",
+                query="High Plains",
+            ),
+            FunctionResult('search', retrieval_observations(high_plains_record)),
+            FunctionCall(
+                'search',
+                thought='High Plains Drifter is a film. I need information about High Plains in geology or geography',
+                query="High Plains geology",
+            ),
+            FunctionResult('search', retrieval_observations(high_plains_us_record)),
+            *additional_messages,
+            FunctionCall(
+                'finish',
+                thought='The High Plains have an elevation range from around 1,800 to 7,000 feet. I can use this information to answer the question about the elevation range of the area that the eastern sector of the Colorado orogeny extends into.',
+                answer="approximately 1,800 to 7,000 feet",
+            ),
+
+            Question(
+                'Musician and satirist Allie Goertz wrote a song about the "The Simpsons" character Milhouse, who Matt Groening named after who?'),
+            FunctionCall(
+                'search',
+                thought='I need to find out who Matt Groening named the Simpsons character Milhouse after.',
+                query="Milhouse Simpson",
+            ),
+            FunctionResult('search', retrieval_observations(milhouse_record)),
+            FunctionCall(
+                'lookup',
+                thought='The summary does not tell who Milhouse is named after, I should check the section called "Creation".',
+                keyword="Creation",
+            ),
+            FunctionResult('lookup', lookup_observations(milhouse_record.document, "Creation")),
+            FunctionCall(
+                'finish',
+                thought="Milhouse was named after U.S. president Richard Nixon, so the answer is President Richard Nixon.",
+                answer="President Richard Nixon",
+            ),
         ]
 
-    examples = [
-        Question("What is the elevation range for the area that the eastern sector of the Colorado orogeny extends into?"),
-        FunctionCall(
-            "search",
-            thought='I need to search Colorado orogeny, find the area that the eastern sector of the Colorado orogeny extends into, then find the elevation range of the area.',
-            query="Colorado orogeny",
-        ),
-        FunctionResult('search', retrieval_observations(colorado_orogeny_record)),
-        FunctionCall(
-            'lookup',
-            thought="It does not mention the eastern sector of the Colorado orogeny. I need to look up eastern sector.",
-            keyword="eastern sector",
-        ),
-        FunctionResult('lookup', lookup_observations(colorado_orogeny_record.document, "eastern sector")),
-        FunctionCall(
-            'search',
-            thought="The eastern sector of Colorado orogeny extends into the High Plains, so High Plains is the area. I need to find out the elevation of High Plains.",
-            query="High Plains",
-        ),
-        FunctionResult('search', retrieval_observations(high_plains_record)),
-        FunctionCall(
-            'search',
-            thought='High Plains Drifter is a film. I need information about High Plains in geology or geography',
-            query="High Plains geology",
-        ),
-        FunctionResult('search', retrieval_observations(high_plains_us_record)),
-        *additional_messages,
-        FunctionCall(
-        'finish',
-            thought='The High Plains have an elevation range from around 1,800 to 7,000 feet. I can use this information to answer the question about the elevation range of the area that the eastern sector of the Colorado orogeny extends into.',
-            answer="approximately 1,800 to 7,000 feet",
-        ),
+        return examples
 
-        Question('Musician and satirist Allie Goertz wrote a song about the "The Simpsons" character Milhouse, who Matt Groening named after who?'),
-        FunctionCall(
-            'search',
-            thought='I need to find out who Matt Groening named the Simpsons character Milhouse after.',
-            query="Milhouse Simpson",
-        ),
-        FunctionResult( 'search', retrieval_observations(milhouse_record)),
-        FunctionCall(
-            'lookup',
-            thought='The summary does not tell who Milhouse is named after, I should check the section called "Creation".',
-            keyword="Creation",
-        ),
-        FunctionResult( 'lookup', lookup_observations(milhouse_record.document, "Creation")),
-        FunctionCall(
-            'finish',
-            thought="Milhouse was named after U.S. president Richard Nixon, so the answer is President Richard Nixon.",
-            answer="President Richard Nixon",
-        ),
-    ]
+class FunctionalReactPrompt(ReactPrompt, FunctionalPrompt):
+    def __init__(self, question, examples_chunk_size=300):
+        super().__init__(question, functional_system_message, examples_chunk_size)
 
-
-    return examples
+class TextReactPrompt(ReactPrompt, PlainTextPrompt):
+    def __init__(self, question, examples_chunk_size=300):
+        super().__init__(question, plain_system_message, examples_chunk_size)
 
 def num_tokens_from_string(string: str, encoding_name: str) -> int:
     """Returns the number of tokens in a text string."""
@@ -183,29 +201,45 @@ def num_tokens_from_string(string: str, encoding_name: str) -> int:
     num_tokens = len(encoding.encode(string))
     return num_tokens
 
-
 if __name__ == "__main__":
-    examples = get_examples(300)
-    fprompt = FunctionalPrompt([
-        functional_system_message,
-        *examples,
-        Question("Bla bla bla"),
-    ])
-    pprompt = PlainTextPrompt([
-        plain_system_message,
-        *examples,
-        Question("Bla bla bla"),
-    ])
+    frprompt = FunctionalReactPrompt("Bla bla bla", 300)
 
+    trprompt = TextReactPrompt("Bla bla bla", 300)
 
-    print(fprompt.to_text())
+    print(frprompt.to_text())
     print()
     print("-" * 80)
     print()
-    print(pprompt.to_text())
+    print(trprompt.to_text())
     # print a line separator
     print()
     print("-" * 80)
     print()
-    print("The lenght of the text prompt is: " + str(len(pprompt.to_text())) + " characters.")
-    print("The lenght of the text prompt is: " + str(num_tokens_from_string(pprompt.to_text(), "cl100k_base")) + " tokens.")
+    print("The length of the text prompt is: " + str(len(trprompt.to_text())) + " characters.")
+    print("The length of the text prompt is: " + str(num_tokens_from_string(trprompt.to_text(), "cl100k_base")) + " tokens.")
+#
+#if __name__ == "__main__":
+#    examples = get_examples(300)
+#    fprompt = FunctionalPrompt([
+#        functional_system_message,
+#        *examples,
+#        Question("Bla bla bla"),
+#    ])
+#    pprompt = PlainTextPrompt([
+#        plain_system_message,
+#        *examples,
+#        Question("Bla bla bla"),
+#    ])
+#
+#
+#    print(fprompt.to_text())
+#    print()
+#    print("-" * 80)
+#    print()
+#    print(pprompt.to_text())
+#    # print a line separator
+#    print()
+#    print("-" * 80)
+#    print()
+#    print("The lenght of the text prompt is: " + str(len(pprompt.to_text())) + " characters.")
+#    print("The lenght of the text prompt is: " + str(num_tokens_from_string(pprompt.to_text(), "cl100k_base")) + " tokens.")

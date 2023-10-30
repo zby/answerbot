@@ -5,7 +5,7 @@ import pprint
 from get_wikipedia import WikipediaApi
 
 from prompt_builder import FunctionalPrompt, PlainTextPrompt, System, Assistant, FunctionCall, FunctionResult
-from react_prompt import Question, functional_system_message, plain_system_message, get_examples, retrieval_observations, lookup_observations
+from react_prompt import Question, FunctionalReactPrompt, TextReactPrompt, retrieval_observations, lookup_observations
 
 
 
@@ -211,19 +211,10 @@ def get_answer(question, config):
     if missing_fields:
         raise ValueError(f"Missing required config fields: {', '.join(missing_fields)}")
 
-    examples = get_examples(config['example_chunk_size'])
     if config['functional']:
-        prompt = FunctionalPrompt([
-            functional_system_message,
-            *examples,
-            Question(question),
-        ])
+        prompt = FunctionalReactPrompt(question, config['example_chunk_size'])
     else:
-        prompt = PlainTextPrompt([
-            plain_system_message,
-            *examples,
-            Question(question),
-        ])
+        prompt = TextReactPrompt(question, config['example_chunk_size'])
     return run_conversation(prompt, config)
 
 if __name__ == "__main__":
@@ -245,7 +236,7 @@ if __name__ == "__main__":
 
     config = {
         "chunk_size": 300,
-        "functional": True,
+        "functional": False,
         "example_chunk_size": 300,
         "max_llm_calls": 5,
         "model": "gpt-3.5-turbo",

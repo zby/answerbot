@@ -95,13 +95,18 @@ def openai_query(prompt, model):
     else:
         args["stop"] = ["\nObservation:"]
 
-    openai.api_requestor.TIMEOUT_SECS = 60
-    response = openai.ChatCompletion.create(
-        model=model,
-        messages=prompt.to_messages(),
-        **args
-    )
-
+    for i in range(3):
+        try:
+            openai.api_requestor.TIMEOUT_SECS = i * 20 + 20
+            response = openai.ChatCompletion.create(
+                model=model,
+                messages=prompt.to_messages(),
+                **args
+            )
+            break
+        except openai.error.APIConnectionError as e:
+            print("APIConnectionError: ", e)
+            continue
     response_message = response["choices"][0]["message"]
     return convert_to_dict(response_message)
 
@@ -134,7 +139,7 @@ def run_conversation(prompt, config):
             if function_name == "finish":
                 answer = function_args["answer"]
                 # normalize the answer
-                if answer.lower() == 'yes' or answer.lower == 'no':
+                if answer.lower() == 'yes' or answer.lower() == 'no':
                     answer = answer.lower()
                 return answer, prompt
             elif function_name == "search":
@@ -194,10 +199,11 @@ if __name__ == "__main__":
     question = "The arena where the Lewiston Maineiacs played their home games can seat how many people?"
     #question = "When Poland became elective monarchy?"
     question = "Were Scott Derrickson and Ed Wood of the same nationality?"
+    question = "What science fantasy young adult series, told in first person, has a set of companion books narrating the stories of enslaved worlds and alien species?"
 
     config = {
         "chunk_size": 300,
-        "prompt": 'TRP',
+        "prompt": 'NFRP',
         "example_chunk_size": 300,
         "max_llm_calls": 2,
         "model": "gpt-3.5-turbo",

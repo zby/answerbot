@@ -12,7 +12,21 @@ class Question(User):
     def openai_message(self) -> dict:
         return { "role": "user", "content": 'Question: ' + self.content }
 
-
+new_functional_system_message = System('''Solve a question answering task by interacting with the Wikipedia API.
+Please make the answer as short as possible. If it can be answered with yes or no that is best.
+Remove all explanations from the answer and put them into a separate field.
+You can check information in the Wikipedia by calling the available functions.
+You need to think carefully what you need to know and how can you get this information using the available tools.
+After you get new information you need to reflect on it and decide what to do next.
+If you want to learn about a property of something first search('something'),
+check if the right page is retrieved, check if the information you are looking for is in the results.
+If the right page is retrieved, but it does not have the needed information at the beginning 
+then call lookup('property').
+If the page is wrong - then try another search.
+For example if you want to know the elevation of 'High Plains' search('High Plains') and if you have the
+the right page then lookup('elevation').
+The words in double square brackets are links - you can follow them with the get function.
+Here are some examples:''')
 
 preamble = '''Solve a question answering task with interleaving Thought, Action, Observation steps.
 Please make the answer as short as possible. If it can be answered with a single word, that is best.
@@ -39,7 +53,7 @@ For the Action step you can call the available functions.
 The words in double square brackets are links - you can follow them with the get function.
 Here are some examples:''')
 
-def retrieval_observations(search_record):
+def retrieval_observations(search_record, limit_sections = 10):
     observations = ""
     document = search_record.document
     for record in search_record.retrieval_history:
@@ -49,6 +63,8 @@ def retrieval_observations(search_record):
     else:
         sections = document.section_titles()
         sections_list_md = "\n".join(map(lambda section: f' - {section}', sections))
+        if limit_sections is not None:
+            sections_list_md = sections_list_md[:limit_sections]
         observations = observations + f'The retrieved page contains the following sections:\n{sections_list_md}\n'
         observations = observations + "The retrieved page summary starts with: " + document.first_chunk() + "\n"
     return observations
@@ -74,49 +90,53 @@ class ReactPrompt:
         examples = self.get_examples()
         super().__init__([self.initial_system_message, *examples, Question(self.question)])
 
+    def mk_record(self, title):
+        """
+        Load a ContentRecord from saved wikitext and retrieval history files based on a given title.
+
+        Returns:
+        - ContentRecord: A ContentRecord object reconstructed from the saved files.
+        """
+        directory = "data/wikipedia_pages"
+        sanitized_title = title.replace("/", "_").replace("\\", "_")  # To ensure safe filenames
+        sanitized_title = sanitized_title.replace(" ", "_")
+        wikitext_filename = os.path.join(directory, f"{sanitized_title}.txt")
+        history_filename = os.path.join(directory, f"{sanitized_title}.retrieval_history")
+
+        # Load wikitext content
+        with open(wikitext_filename, "r", encoding="utf-8") as f:
+            document_content = f.read()
+
+        # Load retrieval history
+        retrieval_history = []
+        with open(history_filename, "r", encoding="utf-8") as f:
+            for line in f:
+                retrieval_history.append(line.strip())
+
+        document = WikipediaDocument(
+            document_content, chunk_size=self.examples_chunk_size)
+        return ContentRecord(document, retrieval_history)
+
     def get_examples(self):
 
-        def mk_record(title):
-            """
-            Load a ContentRecord from saved wikitext and retrieval history files based on a given title.
-
-            Returns:
-            - ContentRecord: A ContentRecord object reconstructed from the saved files.
-            """
-            directory = "data/wikipedia_pages"
-            sanitized_title = title.replace("/", "_").replace("\\", "_")  # To ensure safe filenames
-            sanitized_title = sanitized_title.replace(" ", "_")
-            wikitext_filename = os.path.join(directory, f"{sanitized_title}.txt")
-            history_filename = os.path.join(directory, f"{sanitized_title}.retrieval_history")
-
-            # Load wikitext content
-            with open(wikitext_filename, "r", encoding="utf-8") as f:
-                document_content = f.read()
-
-            # Load retrieval history
-            retrieval_history = []
-            with open(history_filename, "r", encoding="utf-8") as f:
-                for line in f:
-                    retrieval_history.append(line.strip())
-
-            document = WikipediaDocument(
-                document_content, chunk_size=self.examples_chunk_size)
-            return ContentRecord(document, retrieval_history)
-
-        colorado_orogeny_record = mk_record(
+        colorado_orogeny_record = self.mk_record(
             'Colorado orogeny',
         )
 
-        high_plains_record = mk_record(
+        high_plains_record = self.mk_record(
             'High Plains',
         )
 
-        high_plains_us_record = mk_record(
+        high_plains_us_record = self.mk_record(
             'High Plains geology',
         )
 
-        milhouse_record = mk_record(
+        milhouse_record = self.mk_record(
             'Milhouse Van Houten',
+        )
+
+        poland_record = self.mk_record(
+            'Poland',
         )
 
         additional_messages = []
@@ -140,10 +160,10 @@ class ReactPrompt:
                 thought='I need to search Colorado orogeny, find the area that the eastern sector of the Colorado orogeny extends into, then find the elevation range of the area.',
                 query="Colorado orogeny",
             ),
-            FunctionResult('search', retrieval_observations(colorado_orogeny_record)),
+            FunctionResult('search', retrieval_observations(colorado_orogeny_record, 2)),
             FunctionCall(
                 'lookup',
-                thought="It does not mention the eastern sector of the Colorado orogeny. I need to look up eastern sector.",
+                thought="This is the right page - but it does not mention the eastern sector of the Colorado orogeny. I need to look up eastern sector.",
                 keyword="eastern sector",
             ),
             FunctionResult('lookup', lookup_observations(colorado_orogeny_record.document, "eastern sector")),
@@ -152,13 +172,13 @@ class ReactPrompt:
                 thought="The eastern sector of Colorado orogeny extends into the High Plains, so High Plains is the area. I need to find out the elevation of High Plains.",
                 query="High Plains",
             ),
-            FunctionResult('search', retrieval_observations(high_plains_record)),
+            FunctionResult('search', retrieval_observations(high_plains_record, 2)),
             FunctionCall(
                 'search',
-                thought='High Plains Drifter is a film. I need information about High Plains in geology or geography',
+                thought='High Plains Drifter is a film. I am not on the right page I need information about High Plains in geology or geography',
                 query="High Plains geology",
             ),
-            FunctionResult('search', retrieval_observations(high_plains_us_record)),
+            FunctionResult('search', retrieval_observations(high_plains_us_record, 2)),
             *additional_messages,
             FunctionCall(
                 'finish',
@@ -173,10 +193,10 @@ class ReactPrompt:
                 thought='I need to find out who Matt Groening named the Simpsons character Milhouse after.',
                 query="Milhouse Simpson",
             ),
-            FunctionResult('search', retrieval_observations(milhouse_record)),
+            FunctionResult('search', retrieval_observations(milhouse_record, 2)),
             FunctionCall(
                 'lookup',
-                thought='The summary does not tell who Milhouse is named after, I should check the section called "Creation".',
+                thought='This is the right page - but the summary does not tell who Milhouse is named after, the section called "Creation" should contain information about how it was created and maybe who Milhouse was named after.',
                 keyword="Creation",
             ),
             FunctionResult('lookup', lookup_observations(milhouse_record.document, "Creation")),
@@ -185,20 +205,45 @@ class ReactPrompt:
                 thought="Milhouse was named after U.S. president Richard Nixon, so the answer is President Richard Nixon.",
                 answer="President Richard Nixon",
             ),
+            Question("When Poland became elective monarchy?"),
+            FunctionCall(
+                'search',
+                thought="I need to read about Poland's history to find out when Poland became an elective monarchy.",
+                query="Poland",
+            ),
+            FunctionResult('search', retrieval_observations(poland_record, 2)),
+            FunctionCall(
+                'lookup',
+                thought='This is the right page. Hmm "elective monarchy" might be spelled as "elective-monarchy" or "elective monarchy" - I will lookup "elective" instead, it is uncommon word.',
+                keyword="elective",
+            ),
+            FunctionResult('lookup', lookup_observations(poland_record.document, "elective")),
+            FunctionCall(
+                'finish',
+                thought="The Union of Lublin of 1569 established the Polish Lithuanian Commonwealth which was an elective monarchy.",
+                answer="1569",
+            ),
         ]
 
         return examples
 
 class FunctionalReactPrompt(ReactPrompt, FunctionalPrompt):
-    def __init__(self, question, examples_chunk_size=300):
+    def __init__(self, question, examples_chunk_size):
         super().__init__(question, functional_system_message, examples_chunk_size)
+
+    def function_call_from_response(self, response):
+        return response.get("function_call")
+
+class NewFunctionalReactPrompt(ReactPrompt, FunctionalPrompt):
+    def __init__(self, question, examples_chunk_size):
+        super().__init__(question, new_functional_system_message, examples_chunk_size)
 
     def function_call_from_response(self, response):
         return response.get("function_call")
 
 
 class TextReactPrompt(ReactPrompt, PlainTextPrompt):
-    def __init__(self, question, examples_chunk_size=300):
+    def __init__(self, question, examples_chunk_size):
         super().__init__(question, plain_system_message, examples_chunk_size)
 
     def function_call_from_response(self, response):
@@ -246,8 +291,16 @@ def num_tokens_from_string(string: str, encoding_name: str) -> int:
     return num_tokens
 
 if __name__ == "__main__":
-    frprompt = FunctionalReactPrompt("Bla bla bla", 300)
 
+#    frprompt = FunctionalReactPrompt("Bla bla bla", 300)
+#    erecord = frprompt.mk_record('Poland')
+#    search_res = FunctionResult('search', retrieval_observations(erecord))
+#    print(search_res.plaintext())
+#    lookup_res = FunctionResult('lookup', lookup_observations(erecord.document, "elective monarchy"))
+#    print(lookup_res.plaintext())
+
+
+    frprompt = FunctionalReactPrompt("Bla bla bla", 300)
     trprompt = TextReactPrompt("Bla bla bla", 300)
 
     print(frprompt.to_text())
@@ -261,29 +314,3 @@ if __name__ == "__main__":
     print()
     print("The length of the text prompt is: " + str(len(trprompt.to_text())) + " characters.")
     print("The length of the text prompt is: " + str(num_tokens_from_string(trprompt.to_text(), "cl100k_base")) + " tokens.")
-#
-#if __name__ == "__main__":
-#    examples = get_examples(300)
-#    fprompt = FunctionalPrompt([
-#        functional_system_message,
-#        *examples,
-#        Question("Bla bla bla"),
-#    ])
-#    pprompt = PlainTextPrompt([
-#        plain_system_message,
-#        *examples,
-#        Question("Bla bla bla"),
-#    ])
-#
-#
-#    print(fprompt.to_text())
-#    print()
-#    print("-" * 80)
-#    print()
-#    print(pprompt.to_text())
-#    # print a line separator
-#    print()
-#    print("-" * 80)
-#    print()
-#    print("The lenght of the text prompt is: " + str(len(pprompt.to_text())) + " characters.")
-#    print("The lenght of the text prompt is: " + str(num_tokens_from_string(pprompt.to_text(), "cl100k_base")) + " tokens.")

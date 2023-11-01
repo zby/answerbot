@@ -5,6 +5,7 @@ from get_wikipedia import WikipediaDocument, ContentRecord, WikipediaApi
 
 # List of titles
 queries = [
+    "Poland",
     "Python (programming language)",
     "Colorado orogeny",
     "High Plains",

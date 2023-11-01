@@ -4,7 +4,7 @@ import json
 from get_wikipedia import WikipediaApi
 
 from prompt_builder import FunctionalPrompt, Assistant, FunctionCall, FunctionResult
-from react_prompt import FunctionalReactPrompt, TextReactPrompt, retrieval_observations, lookup_observations
+from react_prompt import FunctionalReactPrompt, NewFunctionalReactPrompt, TextReactPrompt, retrieval_observations, lookup_observations
 
 functions = [
     {
@@ -111,7 +111,7 @@ def run_conversation(prompt, config):
     wiki_api = WikipediaApi(max_retries=3, chunk_size=config['chunk_size'])
     iter = 0
     while True:
-        print(f">>>Iteration: {iter}")
+        print(f">>>LLM call number: {iter}")
         response = openai_query(prompt, config['model'])
         print("model response: ", response)
         function_call = prompt.function_call_from_response(response)
@@ -138,7 +138,8 @@ def run_conversation(prompt, config):
                     answer = answer.lower()
                 return answer, prompt
             elif function_name == "search":
-                search_record = wiki_api.search(function_args["query"])
+                search_query = function_args["query"]
+                search_record = wiki_api.search(search_query)
                 document = search_record.document
                 observations = retrieval_observations(search_record)
             elif function_name == "get":
@@ -152,10 +153,10 @@ def run_conversation(prompt, config):
             message = Assistant(response.get("content"))
         print("<<< ", message.plaintext())
         prompt.push(message)
-        iter = iter + 1
         if iter >= config['max_llm_calls']:
             print("<<< Max llm calls reached, exiting.")
             return None, prompt
+        iter = iter + 1
 
 def get_answer(question, config):
     print("\n\n<<< Question:", question)
@@ -166,6 +167,7 @@ def get_answer(question, config):
         raise ValueError(f"Missing required config fields: {', '.join(missing_fields)}")
     # A dictionary that maps class names to classes
     CLASS_MAP = {
+        'NFRP': NewFunctionalReactPrompt,
         'FRP': FunctionalReactPrompt,
         'TRP': TextReactPrompt
     }
@@ -190,12 +192,14 @@ if __name__ == "__main__":
     # question = "What government position was held by the woman who portrayed Corliss Archer in the film Kiss and Tell?"
     # question = "The director of the romantic comedy \"Big Stone Gap\" is based in what New York city?"
     question = "The arena where the Lewiston Maineiacs played their home games can seat how many people?"
+    #question = "When Poland became elective monarchy?"
+    question = "Were Scott Derrickson and Ed Wood of the same nationality?"
 
     config = {
         "chunk_size": 300,
-        "prompt": 'FRP',
+        "prompt": 'TRP',
         "example_chunk_size": 300,
-        "max_llm_calls": 5,
+        "max_llm_calls": 2,
         "model": "gpt-3.5-turbo",
     }
 

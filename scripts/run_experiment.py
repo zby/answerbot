@@ -22,8 +22,14 @@ def load_config_from_file(config_filename):
 def load_questions_from_file(filename, start_index, end_index):
     with open(filename, 'r') as f:
         data = json.load(f)
-    return [{"text": item["question"], "answers": [item["answer"]], "type": item["type"]}
-            for item in data[start_index:end_index]]
+    result = []
+    for item in data[start_index:end_index]:
+        if isinstance(item['answer'], list):
+            answers = item['answer']
+        else:
+            answers = [item['answer']]
+        result.append({"text": item["question"], "answers": answers, "type": item["type"]})
+    return result
 
 def generate_directory_name():
     current_time = datetime.now().strftime("%Y%m%d%H%M%S")
@@ -100,19 +106,30 @@ def perform_experiments(settings, output_dir):
 
 if __name__ == "__main__":
     filename = sys.argv[1] if len(sys.argv) > 1 else None
-    filename = 'data/hotpot_dev_pretty.json'
+    #    filename = 'data/hotpot_dev_pretty.json'
+    filename = 'filtered_questions.json'
     if filename:
         start_index = 0
-        end_index = 4
+        end_index = 20
         questions_list = load_questions_from_file(filename, start_index, end_index)
     else:
         # Default Question
         questions_list = [
+#            {
+#                "text": "The arena where the Lewiston Maineiacs played their home games can seat how many people?",
+#                "answers": ["3,677", "3677", "3,677 people", "3677 people"],
+#                "type": "number"
+#            },
+#            {
+#                "text": "2014 S/S is the debut album of a South Korean boy group that was formed by who?",
+#                "answers": ["YG Entertainment"],
+#                "type": "bridge"
+#            },
             {
-                "text": "The arena where the Lewiston Maineiacs played their home games can seat how many people?",
-                "answers": ["3,677", "3677", "3,677 people", "3677 people"],
-                "type": "number"
-            },
+                "text": "Are Random House Tower and 888 7th Avenue both used for real estate?",
+                "answers": ["no"],
+                "type": "comparison"
+            }
         ]
 
     settings = {

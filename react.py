@@ -104,8 +104,8 @@ def openai_query(prompt, model):
                 **args
             )
             break
-        except openai.error.APIConnectionError as e:
-            print("APIConnectionError: ", e)
+        except openai.error.Timeout as e:
+            print("OpenAI Timeout: ", e)
             continue
     response_message = response["choices"][0]["message"]
     return convert_to_dict(response_message)

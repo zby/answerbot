@@ -12,16 +12,17 @@ class Question(User):
     def openai_message(self) -> dict:
         return { "role": "user", "content": 'Question: ' + self.content }
 
-new_functional_system_message = System('''Solve a question answering task by interacting with the Wikipedia API.
+new_functional_system_message = System('''You are an expert Wikipedia editor. 
+Solve a question answering task by interacting with the Wikipedia API.
 Please make the answer as short as possible. If it can be answered with yes or no that is best.
 Remove all explanations from the answer and put them into a separate field.
-You can check information in the Wikipedia by calling the available functions.
-You need to think carefully what you need to know and how can you get this information using the available tools.
-After you get new information you need to reflect on it and decide what to do next.
-If you want to learn about a property of something first search('something'),
-check if the right page is retrieved, check if the information you are looking for is in the results.
-If the right page is retrieved, but it does not have the needed information at the beginning 
-then call lookup('property').
+When searching for something you need to think what wikipedia page could contain that information. For example
+if you want to know the nationality of a person search for the person's name. If you want to know something
+about a place or institution search for the place or institution name.
+After you get new information you need to reflect on it, check if you got all the needed information
+and decide what to do next.
+If you found the right page is retrieved, but you don't see the needed information then call the lookup function.
+If you lookup for a phrase and you don't find it - then try looking up words from the phrase.
 If the page is wrong - then try another search.
 For example if you want to know the elevation of 'High Plains' search('High Plains') and if you have the
 the right page then lookup('elevation').
@@ -153,6 +154,30 @@ class ReactPrompt:
             ]
 
         examples = [
+            Question("When Poland became elective-monarchy?"),
+            FunctionCall(
+                'search',
+                thought="I need to read about Poland's history to find out when Poland became an elective-monarchy.",
+                query="Poland",
+            ),
+            FunctionResult('search', retrieval_observations(poland_record, 2)),
+            FunctionCall(
+                'lookup',
+                thought='This is the right page. I will lookup "elective-monarchy" here.',
+                keyword="elective",
+            ),
+            FunctionResult('lookup', lookup_observations(poland_record.document, "elective-monarchy")),
+            FunctionCall(
+                'lookup',
+                thought='Hmm. Maybe I will lookup "elective" here.',
+                keyword="elective",
+            ),
+            FunctionResult('lookup', lookup_observations(poland_record.document, "elective")),
+            FunctionCall(
+                'finish',
+                thought="The Union of Lublin of 1569 established the Polish Lithuanian Commonwealth which was an elective monarchy.",
+                answer="1569",
+            ),
             Question(
                 "What is the elevation range for the area that the eastern sector of the Colorado orogeny extends into?"),
             FunctionCall(
@@ -164,9 +189,9 @@ class ReactPrompt:
             FunctionCall(
                 'lookup',
                 thought="This is the right page - but it does not mention the eastern sector of the Colorado orogeny. I need to look up eastern sector.",
-                keyword="eastern sector",
+                keyword="eastern",
             ),
-            FunctionResult('lookup', lookup_observations(colorado_orogeny_record.document, "eastern sector")),
+            FunctionResult('lookup', lookup_observations(colorado_orogeny_record.document, "eastern")),
             FunctionCall(
                 'search',
                 thought="The eastern sector of Colorado orogeny extends into the High Plains, so High Plains is the area. I need to find out the elevation of High Plains.",
@@ -205,24 +230,7 @@ class ReactPrompt:
                 thought="Milhouse was named after U.S. president Richard Nixon, so the answer is President Richard Nixon.",
                 answer="President Richard Nixon",
             ),
-            Question("When Poland became elective monarchy?"),
-            FunctionCall(
-                'search',
-                thought="I need to read about Poland's history to find out when Poland became an elective monarchy.",
-                query="Poland",
-            ),
-            FunctionResult('search', retrieval_observations(poland_record, 2)),
-            FunctionCall(
-                'lookup',
-                thought='This is the right page. Hmm "elective monarchy" might be spelled as "elective-monarchy" or "elective monarchy" - I will lookup "elective" instead, it is uncommon word.',
-                keyword="elective",
-            ),
-            FunctionResult('lookup', lookup_observations(poland_record.document, "elective")),
-            FunctionCall(
-                'finish',
-                thought="The Union of Lublin of 1569 established the Polish Lithuanian Commonwealth which was an elective monarchy.",
-                answer="1569",
-            ),
+
         ]
 
         return examples

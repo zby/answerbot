@@ -63,9 +63,9 @@ def retrieval_observations(search_record, limit_sections = 10):
         observations = observations + "No wikipedia page found"
     else:
         sections = document.section_titles()
-        sections_list_md = "\n".join(map(lambda section: f' - {section}', sections))
         if limit_sections is not None:
-            sections_list_md = sections_list_md[:limit_sections]
+            sections = sections[:limit_sections]
+        sections_list_md = "\n".join(map(lambda section: f' - {section}', sections))
         observations = observations + f'The retrieved page contains the following sections:\n{sections_list_md}\n'
         observations = observations + "The retrieved page summary starts with: " + document.first_chunk() + "\n"
     return observations

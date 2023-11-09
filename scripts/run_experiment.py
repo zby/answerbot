@@ -106,11 +106,11 @@ def perform_experiments(settings, output_dir):
 
 if __name__ == "__main__":
     filename = sys.argv[1] if len(sys.argv) > 1 else None
-    #    filename = 'data/hotpot_dev_pretty.json'
-    filename = 'filtered_questions.json'
+    filename = 'data/hotpot_dev_pretty.json'
+    #filename = 'filtered_questions.json'
     if filename:
         start_index = 0
-        end_index = 20
+        end_index = 10
         questions_list = load_questions_from_file(filename, start_index, end_index)
     else:
         # Default Question
@@ -138,16 +138,16 @@ if __name__ == "__main__":
             300
         ],
         "prompt": [
-            'TRP',
+#            'TRP',
 #            'FRP',
             'NFRP',
         ],
         "example_chunk_size": [
-            300,
+#            300,
             200,
         ],
-        "max_llm_calls": [5],
-        "model": ["gpt-3.5-turbo"]
+        "max_llm_calls": [7],
+        "model": ["gpt-4"]
     }
     load_config_from_file('config.json')
     output_dir = generate_directory_name()

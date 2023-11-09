@@ -54,7 +54,7 @@ For the Action step you can call the available functions.
 The words in double square brackets are links - you can follow them with the get function.
 Here are some examples:''')
 
-def retrieval_observations(search_record, limit_sections = 10):
+def retrieval_observations(search_record, limit_sections = None):
     observations = ""
     document = search_record.document
     for record in search_record.retrieval_history:

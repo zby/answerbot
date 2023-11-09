@@ -1,5 +1,6 @@
 import openai
 import json
+import time
 
 from get_wikipedia import WikipediaApi
 
@@ -162,6 +163,7 @@ def run_conversation(prompt, config):
             print("<<< Max llm calls reached, exiting.")
             return None, prompt
         iter = iter + 1
+        time.sleep(60)
 
 def get_answer(question, config):
     print("\n\n<<< Question:", question)
@@ -196,16 +198,17 @@ if __name__ == "__main__":
     # question = "How many children does Donald Tusk have?"
     # question = "What government position was held by the woman who portrayed Corliss Archer in the film Kiss and Tell?"
     # question = "The director of the romantic comedy \"Big Stone Gap\" is based in what New York city?"
-    question = "The arena where the Lewiston Maineiacs played their home games can seat how many people?"
     #question = "When Poland became elective monarchy?"
     question = "Were Scott Derrickson and Ed Wood of the same nationality?"
     question = "What science fantasy young adult series, told in first person, has a set of companion books narrating the stories of enslaved worlds and alien species?"
+    question = "The arena where the Lewiston Maineiacs played their home games can seat how many people?"
+    question = "What is the name of the fight song of the university whose main campus is in Lawrence, Kansas and whose branch campuses are in the Kansas City metropolitan area?"
 
     config = {
         "chunk_size": 300,
         "prompt": 'NFRP',
         "example_chunk_size": 300,
-        "max_llm_calls": 2,
+        "max_llm_calls": 5,
         "model": "gpt-3.5-turbo",
     }
 

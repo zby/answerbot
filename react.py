@@ -96,7 +96,8 @@ def openai_query(prompt, model):
     else:
         args["stop"] = ["\nObservation:"]
 
-    for i in range(3):
+    errors = []
+    for i in range(2):
         try:
             openai.api_requestor.TIMEOUT_SECS = i * 20 + 20
             response = openai.ChatCompletion.create(
@@ -107,7 +108,17 @@ def openai_query(prompt, model):
             break
         except openai.error.Timeout as e:
             print("OpenAI Timeout: ", e)
+            time.sleep(20)
+            errors.append(e)
             continue
+        except openai.error.APIError as e:
+            print("OpenAI APIError: ", e)
+            time.sleep(20)
+            errors.append(e)
+            continue
+    if response is None:
+        errors_string = "\n".join([str(e) for e in errors])
+        raise Exception(f"OpenAI API calls failed: {errors_string}")
     response_message = response["choices"][0]["message"]
     return convert_to_dict(response_message)
 
@@ -203,13 +214,14 @@ if __name__ == "__main__":
     question = "What science fantasy young adult series, told in first person, has a set of companion books narrating the stories of enslaved worlds and alien species?"
     question = "The arena where the Lewiston Maineiacs played their home games can seat how many people?"
     question = "What is the name of the fight song of the university whose main campus is in Lawrence, Kansas and whose branch campuses are in the Kansas City metropolitan area?"
+    question = "What year did Guns N Roses perform a promo for a movie starring Arnold Schwarzenegger as a former New York Police detective?"
 
     config = {
         "chunk_size": 300,
         "prompt": 'NFRP',
-        "example_chunk_size": 300,
-        "max_llm_calls": 5,
-        "model": "gpt-3.5-turbo",
+        "example_chunk_size": 200,
+        "max_llm_calls": 7,
+        "model": "gpt-4-1106-preview",
     }
 
     answer, prompt = get_answer(question, config)

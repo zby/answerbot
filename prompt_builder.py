@@ -57,7 +57,7 @@ class FunctionCall(PromptMessage):
         arguments["thought"] = self.thought
         return {
             "role": "assistant",
-            "content": self.thought,
+            "content": '',
             "function_call": {
                 "name": self.name,
                 "arguments": json.dumps(arguments),

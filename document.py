@@ -91,3 +91,16 @@ class SimpleHtmlDocument(Document):
             current = current.parent
 
         return current.text
+
+if __name__ == '__main__':
+    CHUNK_SIZE = 300
+    file_path = 'data/wikipedia_pages/Oxygen.html'
+
+    with open(file_path, 'r', encoding='utf-8') as file:
+        html_content = file.read()
+
+
+    doc = SimpleHtmlDocument(html_content, chunk_size=CHUNK_SIZE)
+
+    print(doc.first_chunk())
+    print(doc.lookup('atomic weight'))

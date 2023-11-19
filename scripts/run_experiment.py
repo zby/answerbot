@@ -147,7 +147,7 @@ if __name__ == "__main__":
             200,
         ],
         "max_llm_calls": [7],
-        "model": ["gpt-4"]
+        "model": ["gpt-4-1106-preview"]
     }
     load_config_from_file('config.json')
     output_dir = generate_directory_name()

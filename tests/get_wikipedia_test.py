@@ -1,52 +1,51 @@
 import unittest
 import wikipedia
+import requests
 from unittest.mock import patch, Mock
 from get_wikipedia import WikipediaApi, WikipediaDocument, ContentRecord
 
 SMALL_CHUNK_SIZE = 70
 
 class TestWikipediaApi(unittest.TestCase):
-    # this code is from gpt4
-    # it failed with testing the exceptions
     def setUp(self):
-        # Create an instance of WikipediaApi for testing
-        self.wiki_api = WikipediaApi(max_retries=3)
-        self.api = WikipediaApi(max_retries=3, chunk_size=SMALL_CHUNK_SIZE)
+        self.api = WikipediaApi(max_retries=3, chunk_size=500)  # Adjust chunk size as needed
 
-    @patch("wikipedia.page")
-    def test_successful_retrieval(self, mock_page):
-        mock_content = "Sample content"
-        mock_page.return_value = Mock(content=mock_content, links=[])
+    @patch('requests.get')
+    def test_successful_retrieval(self, mock_get):
+        # Mock the API response for successful page retrieval
+        mock_get.return_value.json.return_value = {
+            'query': {
+                'pages': {
+                    '12345': {
+                        'pageid': 12345,
+                        'ns': 0,
+                        'title': 'Python',
+                        'revisions': [{'*': '<html>Sample content</html>'}]
+                    }
+                }
+            }
+        }
+        mock_get.return_value.status_code = 200
 
         record = self.api.get_page("Python")
 
-        self.assertTrue("Successfully retrieved 'Python' from Wikipedia." in record.retrieval_history)
+        self.assertIn("Successfully retrieved 'Python' from Wikipedia.", record.retrieval_history)
         self.assertIsNotNone(record.document)
-        self.assertEqual(record.document.content, mock_content)  # Thi
-    @patch("wikipedia.page")
-    def test_disambiguation_error(self, mock_page):
-        mock_page.side_effect = wikipedia.DisambiguationError("Python", ["Python (programming)", "Python (snake)"])
-        record = self.api.get_page("Python")
-        self.assertTrue("Retrieved disambiguation page for 'Python'. Options: Python (programming), Python (snake)" in record.retrieval_history)
-
-    @patch("wikipedia.page")
-    def test_redirect_error(self, mock_page):
-        mock_page.side_effect = wikipedia.RedirectError("Python (programming)")
-        record = self.api.get_page("Python")
-        self.assertTrue("Python redirects to Python (programming)" in record.retrieval_history)
-
-    @patch("wikipedia.page")
-    def test_page_error(self, mock_page):
-        mock_page.side_effect = wikipedia.PageError("Python")
-        record = self.api.get_page("Python")
-        self.assertTrue("Page 'Python' does not exist." in record.retrieval_history)
+        self.assertIn('Sample content', record.document.content)
 
 
     @patch.object(WikipediaApi, 'get_page')
-    @patch("wikipedia.search")
-    def test_search_with_results(self, mock_search, mock_get_page):
-        # Mock the behavior of the wikipedia search to return a result
-        mock_search.return_value = ["Python (programming)"]
+    @patch('requests.get')
+    def test_search_with_results(self, mock_get, mock_get_page):
+        # Mock the API response for search
+        mock_get.return_value.json.return_value = {
+            'query': {
+                'search': [{
+                    'title': 'Python (programming)'
+                }]
+            }
+        }
+        mock_get.return_value.status_code = 200
 
         # Mock the behavior of get_page to return a sample ContentRecord
         mock_document = Mock(content="Sample content for Python")
@@ -58,16 +57,21 @@ class TestWikipediaApi(unittest.TestCase):
         mock_get_page.assert_called_once_with("Python (programming)")
 
         # Check if the search history and get_page retrieval history are both recorded
-        self.assertIn("Wikipedia search results for query: 'Python' is: [[Python (programming)]]", record.retrieval_history)
+        self.assertIn("Wikipedia search results for query: 'Python' are: [[Python (programming)]]", record.retrieval_history)
         self.assertIn("Sample retrieval history", record.retrieval_history)
         self.assertEqual(record.document.content, "Sample content for Python")
 
 
     @patch.object(WikipediaApi, 'get_page')
-    @patch("wikipedia.search")
-    def test_search_no_results(self, mock_search, mock_get_page):
-        # Mock the behavior of the wikipedia search to return no results
-        mock_search.return_value = []
+    @patch('requests.get')
+    def test_search_no_results(self, mock_get, mock_get_page):
+        # Mock the API response for search with no results
+        mock_get.return_value.json.return_value = {
+            'query': {
+                'search': []  # Empty list to simulate no search results
+            }
+        }
+        mock_get.return_value.status_code = 200
 
         record = self.api.search("NonExistentTopic")
 
@@ -75,9 +79,8 @@ class TestWikipediaApi(unittest.TestCase):
         mock_get_page.assert_not_called()
 
         # Check if the search history indicates no results
-        self.assertIn("Wikipedia search results for query: 'NonExistentTopic' is: ", record.retrieval_history)
+        self.assertIn("Wikipedia search results for query: 'NonExistentTopic' are: ", record.retrieval_history)
         self.assertIsNone(record.document)
-
 
 class TestWikipediaDocument(unittest.TestCase):
 

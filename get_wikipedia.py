@@ -1,6 +1,7 @@
 import re
 import requests
 import html2text
+import os
 
 
 from document import Document
@@ -50,7 +51,7 @@ class MarkdownDocument(Document):
         return self.content
 
     def section_titles(self):
-        headings = re.findall(r'^###?(.*)', self.content, re.MULTILINE)
+        headings = re.findall(r'^###? *(.*)', self.content, re.MULTILINE)
         return headings
 
     def lookup(self, keyword):
@@ -67,7 +68,7 @@ class MarkdownDocument(Document):
         surrounding_text = text[start:end]
 
         # Adjust start point to make sure it doesn't extend past a section boundary
-        prev_section_boundary = text.rfind('\n##', start, index)
+        prev_section_boundary = text.rfind('\n##', start, index + 3)
         if prev_section_boundary != -1:  # Found a previous section boundary
             start = prev_section_boundary + 1
 
@@ -78,6 +79,33 @@ class ContentRecord:
     def __init__(self, document, retrieval_history):
         self.document = document
         self.retrieval_history = retrieval_history
+    @classmethod
+    def load_from_disk(self, title, chunk_size):
+        """
+        Load a ContentRecord from saved wikitext and retrieval history files based on a given title.
+
+        Returns:
+        - ContentRecord: A ContentRecord object reconstructed from the saved files.
+        """
+        directory = "data/wikipedia_pages"
+        sanitized_title = title.replace("/", "_").replace("\\", "_")  # To ensure safe filenames
+        sanitized_title = sanitized_title.replace(" ", "_")
+        wikitext_filename = os.path.join(directory, f"{sanitized_title}.md")
+        history_filename = os.path.join(directory, f"{sanitized_title}.retrieval_history")
+
+        # Load wikitext content
+        with open(wikitext_filename, "r", encoding="utf-8") as f:
+            document_content = f.read()
+
+        # Load retrieval history
+        retrieval_history = []
+        with open(history_filename, "r", encoding="utf-8") as f:
+            for line in f:
+                retrieval_history.append(line.strip())
+
+        document = MarkdownDocument(
+            document_content, chunk_size=chunk_size)
+        return ContentRecord(document, retrieval_history)
 
 class WikipediaApi:
     def __init__(self, max_retries=MAX_RETRIES, chunk_size=1024, api_url=API_URL):
@@ -137,6 +165,10 @@ class WikipediaApi:
                     # __TODO__: move that to MarkdownDocument
                     edit_link_pattern = r'\[\[edit\]\(/w/index\.php\?title=.*?\)]'
                     cleaned_content = re.sub(edit_link_pattern, '', markdown)
+                    # Regex pattern to match the image links
+                    pattern = r'\[!\[\]\(.*?\)\]\(.*?\)'
+                    # Replace the image links with an empty string
+                    cleaned_content = re.sub(pattern, '', cleaned_content)
                     document = MarkdownDocument(cleaned_content, self.chunk_size)
                     retrieval_history.append(f"Successfully retrieved '{title}' from Wikipedia.")
                 else:

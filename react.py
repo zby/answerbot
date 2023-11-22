@@ -5,7 +5,7 @@ import time
 from get_wikipedia import WikipediaApi
 
 from prompt_builder import FunctionalPrompt, Assistant, FunctionCall, FunctionResult
-from react_prompt import FunctionalReactPrompt, NewFunctionalReactPrompt, TextReactPrompt, retrieval_observations, lookup_observations
+from react_prompt import FunctionalReactPrompt, NewFunctionalReactPrompt, TextReactPrompt, ToolBox
 
 functions = [
     {
@@ -123,58 +123,36 @@ def openai_query(prompt, model):
     return convert_to_dict(response_message)
 
 
-def run_conversation(prompt, config):
-    document = None
-    wiki_api = WikipediaApi(max_retries=3, chunk_size=config['chunk_size'])
-    iter = 0
-    while True:
-        print(f">>>LLM call number: {iter}")
-        response = openai_query(prompt, config['model'])
-        print("model response: ", response)
-        function_call = prompt.function_call_from_response(response)
+def run_conversation(prompt, config, toolbox):
+   iter = 0
+   while True:
+       print(f">>>LLM call number: {iter}")
+       response = openai_query(prompt, config['model'])
+       print("<<< ", response)
+       function_call = prompt.function_call_from_response(response)
 
-        # Process the function calls
-        if function_call:
-            print("function_call: ", function_call)
-            function_name = function_call["name"]
-            if function_name not in function_names:
-                print(f"<<< Unknown function name: {function_name}")
-                raise Exception(f"Unknown function name: {function_name}")
-            function_args = json.loads(function_call["arguments"])
-            # sometimes model returns a function call without a thought
-            # or alternatively a function call with a thought but without a content
-            if 'thought' not in function_args and 'content' in response:   #
-                function_args['thought'] = response['content']
-            message = FunctionCall(function_name, **function_args)
-            print("<<< ", message.plaintext())
-            prompt.push(message)
-            if function_name == "finish":
-                answer = function_args["answer"]
-                # normalize the answer
-                if answer.lower() == 'yes' or answer.lower() == 'no':
-                    answer = answer.lower()
-                return answer, prompt
-            elif function_name == "search":
-                search_query = function_args["query"]
-                search_record = wiki_api.search(search_query)
-                document = search_record.document
-                observations = retrieval_observations(search_record)
-            elif function_name == "get":
-                search_record = wiki_api.get_page(function_args["title"])
-                document = search_record.document
-                observations = retrieval_observations(search_record)
-            elif function_name == "lookup":
-                observations = lookup_observations(document, function_args["keyword"])
-            message = FunctionResult(function_name, observations)
-        else:
-            message = Assistant(response.get("content"))
-        print("<<< ", message.plaintext())
-        prompt.push(message)
-        if iter >= config['max_llm_calls']:
-            print("<<< Max llm calls reached, exiting.")
-            return None, prompt
-        iter = iter + 1
-        time.sleep(60)
+       # Process the function calls
+       if function_call:
+           print("function_call: ", function_call)
+           message = FunctionCall(function_call["name"], **json.loads(function_call["arguments"]))
+           prompt.push(message)
+
+           result = toolbox.process(function_call)
+           print("<<< ", result)
+           message = FunctionResult(function_call["name"], result)
+           prompt.push(message)
+           if toolbox.answer is not None:
+               print("<<< Conversation finished.")
+               return toolbox.answer, prompt
+       else:
+           message = Assistant(response.get("content"))
+           prompt.push(message)
+       if iter >= config['max_llm_calls']:
+           print("<<< Max llm calls reached, exiting.")
+           return None, prompt
+       iter = iter + 1
+       time.sleep(60)
+
 
 def get_answer(question, config):
     print("\n\n<<< Question:", question)
@@ -191,8 +169,9 @@ def get_answer(question, config):
     }
     prompt_class = CLASS_MAP[config['prompt']]
     prompt = prompt_class(question, config['example_chunk_size'])
-
-    return run_conversation(prompt, config)
+    wiki_api = WikipediaApi(max_retries=3, chunk_size=config['chunk_size'])
+    toolbox = ToolBox(wiki_api)
+    return run_conversation(prompt, config, toolbox)
 
 if __name__ == "__main__":
     # load the api key from a file
@@ -221,7 +200,7 @@ if __name__ == "__main__":
         "prompt": 'NFRP',
         "example_chunk_size": 200,
         "max_llm_calls": 7,
-        "model": "gpt-4-1106-preview",
+        "model": "gpt-4",
     }
 
     answer, prompt = get_answer(question, config)

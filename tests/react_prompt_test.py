@@ -33,7 +33,7 @@ class TestFunctionalReactPrompt(unittest.TestCase):
 
     def setUp(self):
         with patch.object(ReactPrompt, 'get_examples', return_value=[]):
-            self.instance = FunctionalReactPrompt(question="Some question")
+            self.instance = FunctionalReactPrompt("Some question", 200)
 
     def test_function_call_from_response(self):
         response = {
@@ -54,7 +54,7 @@ class TestTextReactPrompt(unittest.TestCase):
 
     def setUp(self):
         with patch.object(ReactPrompt, 'get_examples', return_value=[]):
-            self.instance = TextReactPrompt(question="Another question")
+            self.instance = TextReactPrompt("Another question", 200)
 
     def test_function_call_from_response_finish(self):
         response = {

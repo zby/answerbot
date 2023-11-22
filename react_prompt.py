@@ -4,7 +4,7 @@ import tiktoken
 import os
 
 from prompt_builder import FunctionalPrompt, PlainTextPrompt, User, System, Assistant, FunctionCall, FunctionResult
-from get_wikipedia import WikipediaDocument, ContentRecord
+from get_wikipedia import WikipediaApi, ContentRecord
 
 class Question(User):
     def plaintext(self) -> str:
@@ -54,184 +54,136 @@ For the Action step you can call the available functions.
 The words in double square brackets are links - you can follow them with the get function.
 Here are some examples:''')
 
-def retrieval_observations(search_record, limit_sections = None):
-    observations = ""
-    document = search_record.document
-    for record in search_record.retrieval_history:
-        observations = observations + record + "\n"
-    if document is None:
-        observations = observations + "No wikipedia page found"
-    else:
-        sections = document.section_titles()
-        if limit_sections is not None:
-            sections = sections[:limit_sections]
-        sections_list_md = "\n".join(map(lambda section: f' - {section}', sections))
-        observations = observations + f'The retrieved page contains the following sections:\n{sections_list_md}\n'
-        observations = observations + "The retrieved page summary starts with: " + document.first_chunk() + "\n"
-    return observations
 
-def lookup_observations(document, keyword):
-    if document is None:
-        observations = "No document defined, cannot lookup"
-    else:
-        text = document.lookup(keyword)
-        observations = 'Keyword "' + keyword + '" '
-        if text:
-            observations = observations + "found  in: \n" + text
+class ToolBox:
+    def __init__(self, wiki_api):
+        self.wiki_api = wiki_api
+        self.document = None
+        self.answer = None
+        self.function_mapping = {
+            "search": self.search,
+            "get": self.get,
+            "lookup": self.lookup,
+            "finish": self.finish
+        }
+
+    def search(self, function_args):
+        search_query = function_args["query"]
+        search_record = self.wiki_api.search(search_query)
+        self.document = search_record.document
+        return self.retrieval_observations(search_record)
+
+    def get(self, function_args):
+        search_record = self.wiki_api.get_page(function_args["title"])
+        self.document = search_record.document
+        return self.retrieval_observations(search_record)
+
+    def lookup(self, function_args):
+        return self.lookup_observations(function_args["keyword"])
+
+    def finish(self, function_args):
+        answer = function_args["answer"]
+        if answer.lower() == 'yes' or answer.lower() == 'no':
+            answer = answer.lower()
+        self.answer = answer
+        return answer
+
+    def process(self, function_call, cached=False):
+        function_name = function_call["name"]
+        if function_name not in self.function_mapping:
+            print(f"<<< Unknown function name: {function_name}")
+            raise Exception(f"Unknown function name: {function_name}")
+        function_args = json.loads(function_call["arguments"])
+        if cached and function_name == "search":
+            title = function_args["query"]
+            chunk_size = self.wiki_api.chunk_size
+            search_record = ContentRecord.load_from_disk(title, chunk_size)
+            self.document = search_record.document
+            return self.retrieval_observations(search_record)
+        if cached and function_name == "get":
+            raise Exception("Cached get not implemented")
+        return self.function_mapping[function_name](function_args)
+
+    def retrieval_observations(self, search_record, limit_sections = None):
+        observations = ""
+        document = search_record.document
+        for record in search_record.retrieval_history:
+            observations = observations + record + "\n"
+        if document is None:
+            observations = observations + "No wikipedia page found"
         else:
-            observations = observations + "not found in current page"
-    return observations
+            sections = document.section_titles()
+            if limit_sections is not None:
+                sections = sections[:limit_sections]
+            sections_list_md = "\n".join(map(lambda section: f' - {section}', sections))
+            observations = observations + f'The retrieved page contains the following sections:\n{sections_list_md}\n'
+            observations = observations + "The retrieved page summary starts with: " + document.first_chunk() + "\n"
+        return observations
 
+    def lookup_observations(self, keyword):
+        if self.document is None:
+            observations = "No document defined, cannot lookup"
+        else:
+            text = self.document.lookup(keyword)
+            observations = 'Keyword "' + keyword + '" '
+            if text:
+                observations = observations + "found  in: \n" + text
+            else:
+                observations = observations + "not found in current page"
+        return observations
 
 class ReactPrompt:
     def __init__(self, question, initial_system_message, examples_chunk_size=300):
         self.examples_chunk_size = examples_chunk_size
         self.question = question
         self.initial_system_message = initial_system_message
+        wiki_api = WikipediaApi(max_retries=3, chunk_size=examples_chunk_size)
+        self.toolbox = ToolBox(wiki_api)
         examples = self.get_examples()
         super().__init__([self.initial_system_message, *examples, Question(self.question)])
 
-    def mk_record(self, title):
-        """
-        Load a ContentRecord from saved wikitext and retrieval history files based on a given title.
 
-        Returns:
-        - ContentRecord: A ContentRecord object reconstructed from the saved files.
-        """
-        directory = "data/wikipedia_pages"
-        sanitized_title = title.replace("/", "_").replace("\\", "_")  # To ensure safe filenames
-        sanitized_title = sanitized_title.replace(" ", "_")
-        wikitext_filename = os.path.join(directory, f"{sanitized_title}.txt")
-        history_filename = os.path.join(directory, f"{sanitized_title}.retrieval_history")
+    def mk_example_call(self, name, **args):
+        fcall = FunctionCall( name, **args)
+        fcall_parsed = fcall.openai_message().get("function_call")
+        # __TODO__ don't go through openai for this
+        result = self.toolbox.process(fcall_parsed, cached=True)
+        return [fcall, FunctionResult(fcall_parsed["name"], result)]
 
-        # Load wikitext content
-        with open(wikitext_filename, "r", encoding="utf-8") as f:
-            document_content = f.read()
-
-        # Load retrieval history
-        retrieval_history = []
-        with open(history_filename, "r", encoding="utf-8") as f:
-            for line in f:
-                retrieval_history.append(line.strip())
-
-        document = WikipediaDocument(
-            document_content, chunk_size=self.examples_chunk_size)
-        return ContentRecord(document, retrieval_history)
+    def mk_additional_lookup_if_needed(self, keyword):
+        if not keyword in self.toolbox.document.first_chunk():
+            fcall = FunctionCall(
+                'lookup',
+                keyword=keyword,
+                thought='This is the right page - but it does not mention "' + keyword + '". I need to look up "' + keyword + '".'
+            )
+            fcall_parsed = fcall.openai_message().get("function_call")
+            result = self.toolbox.process(fcall_parsed, cached=True)
+            return [fcall, FunctionResult(fcall_parsed["name"], result)]
+        else:
+            return []
 
     def get_examples(self):
+        examples = []
+        examples.append(Question("When Poland became elective-monarchy?"))
+        examples.extend(self.mk_example_call("search", query="Poland", thought="I need to read about Poland's history to find out when Poland became an elective-monarchy."))
+        examples.extend(self.mk_example_call("lookup", keyword="elective-monarchy", thought="This is the right page. I will lookup \"elective-monarchy\" here."))
+        examples.extend(self.mk_example_call("lookup", keyword="elective", thought="Hmm. Maybe I will lookup \"elective\" here."))
+        examples.extend(self.mk_example_call("finish", answer="1569", thought="The Union of Lublin of 1569 established the Polish Lithuanian Commonwealth which was an elective monarchy."))
 
-        colorado_orogeny_record = self.mk_record(
-            'Colorado orogeny',
-        )
+        examples.append(Question("What is the elevation range for the area that the eastern sector of the Colorado orogeny extends into?"))
+        examples.extend(self.mk_example_call("search", query="Colorado orogeny", thought="I need to search Colorado orogeny, find the area that the eastern sector of the Colorado orogeny extends into, then find the elevation range of the area."))
+        examples.extend(self.mk_example_call("lookup", keyword="eastern", thought="This is the right page - but it does not mention the eastern sector of the Colorado orogeny. I need to look up eastern sector."))
+        examples.extend(self.mk_example_call("search", query="High Plains", thought="The eastern sector of Colorado orogeny extends into the High Plains, so High Plains is the area. I need to find out the elevation of High Plains."))
+        examples.extend(self.mk_example_call("search", query="High Plains geology", thought="High Plains Drifter is a film. I am not on the right page I need information about High Plains in geology or geography"))
+        examples.extend(self.mk_additional_lookup_if_needed("elevation"))
+        examples.extend(self.mk_example_call("finish", answer="approximately 1,800 to 7,000 feet", thought="The High Plains have an elevation range from around 1,800 to 7,000 feet. I can use this information to answer the question about the elevation range of the area that the eastern sector of the Colorado orogeny extends into."))
 
-        high_plains_record = self.mk_record(
-            'High Plains',
-        )
-
-        high_plains_us_record = self.mk_record(
-            'High Plains geology',
-        )
-
-        milhouse_record = self.mk_record(
-            'Milhouse Van Houten',
-        )
-
-        poland_record = self.mk_record(
-            'Poland',
-        )
-
-        additional_messages = []
-        document = high_plains_us_record.document
-        first_chunk = document.first_chunk()
-        if not 'elevation' in first_chunk:
-            additional_messages = [
-                FunctionCall(
-                    'lookup',
-                    keyword='elevation',
-                    thought='This passge does not mention elevation. I need to find out the elevation range of the High Plains.'
-                ),
-                FunctionResult('lookup', lookup_observations(document, 'elevation'))
-            ]
-
-        examples = [
-            Question("When Poland became elective-monarchy?"),
-            FunctionCall(
-                'search',
-                thought="I need to read about Poland's history to find out when Poland became an elective-monarchy.",
-                query="Poland",
-            ),
-            FunctionResult('search', retrieval_observations(poland_record, 2)),
-            FunctionCall(
-                'lookup',
-                thought='This is the right page. I will lookup "elective-monarchy" here.',
-                keyword="elective",
-            ),
-            FunctionResult('lookup', lookup_observations(poland_record.document, "elective-monarchy")),
-            FunctionCall(
-                'lookup',
-                thought='Hmm. Maybe I will lookup "elective" here.',
-                keyword="elective",
-            ),
-            FunctionResult('lookup', lookup_observations(poland_record.document, "elective")),
-            FunctionCall(
-                'finish',
-                thought="The Union of Lublin of 1569 established the Polish Lithuanian Commonwealth which was an elective monarchy.",
-                answer="1569",
-            ),
-            Question(
-                "What is the elevation range for the area that the eastern sector of the Colorado orogeny extends into?"),
-            FunctionCall(
-                "search",
-                thought='I need to search Colorado orogeny, find the area that the eastern sector of the Colorado orogeny extends into, then find the elevation range of the area.',
-                query="Colorado orogeny",
-            ),
-            FunctionResult('search', retrieval_observations(colorado_orogeny_record, 2)),
-            FunctionCall(
-                'lookup',
-                thought="This is the right page - but it does not mention the eastern sector of the Colorado orogeny. I need to look up eastern sector.",
-                keyword="eastern",
-            ),
-            FunctionResult('lookup', lookup_observations(colorado_orogeny_record.document, "eastern")),
-            FunctionCall(
-                'search',
-                thought="The eastern sector of Colorado orogeny extends into the High Plains, so High Plains is the area. I need to find out the elevation of High Plains.",
-                query="High Plains",
-            ),
-            FunctionResult('search', retrieval_observations(high_plains_record, 2)),
-            FunctionCall(
-                'search',
-                thought='High Plains Drifter is a film. I am not on the right page I need information about High Plains in geology or geography',
-                query="High Plains geology",
-            ),
-            FunctionResult('search', retrieval_observations(high_plains_us_record, 2)),
-            *additional_messages,
-            FunctionCall(
-                'finish',
-                thought='The High Plains have an elevation range from around 1,800 to 7,000 feet. I can use this information to answer the question about the elevation range of the area that the eastern sector of the Colorado orogeny extends into.',
-                answer="approximately 1,800 to 7,000 feet",
-            ),
-
-            Question(
-                'Musician and satirist Allie Goertz wrote a song about the "The Simpsons" character Milhouse, who Matt Groening named after who?'),
-            FunctionCall(
-                'search',
-                thought='I need to find out who Matt Groening named the Simpsons character Milhouse after.',
-                query="Milhouse Simpson",
-            ),
-            FunctionResult('search', retrieval_observations(milhouse_record, 2)),
-            FunctionCall(
-                'lookup',
-                thought='This is the right page - but the summary does not tell who Milhouse is named after, the section called "Creation" should contain information about how it was created and maybe who Milhouse was named after.',
-                keyword="Creation",
-            ),
-            FunctionResult('lookup', lookup_observations(milhouse_record.document, "Creation")),
-            FunctionCall(
-                'finish',
-                thought="Milhouse was named after U.S. president Richard Nixon, so the answer is President Richard Nixon.",
-                answer="President Richard Nixon",
-            ),
-
-        ]
+        examples.append(Question(
+            'Musician and satirist Allie Goertz wrote a song about the "The Simpsons" character Milhouse, who Matt Groening named after who?'))
+        examples.extend(self.mk_example_call("search", query="Milhouse Simpsons", thought="I need to find out who Matt Groening named the Simpsons character Milhouse after."))
+        examples.extend(self.mk_example_call("lookup", keyword="named after", thought="This is the right page - but the summary does not tell who Milhouse is named after, I'll lookup 'named after' here."))
+        examples.extend(self.mk_example_call("finish", answer="President Richard Nixon", thought="Milhouse was named after U.S. president Richard Nixon, so the answer is President Richard Nixon."))
 
         return examples
 
@@ -299,17 +251,13 @@ def num_tokens_from_string(string: str, encoding_name: str) -> int:
     return num_tokens
 
 if __name__ == "__main__":
+    frprompt = FunctionalReactPrompt("Bla bla bla", 200)
+    # _, result = frprompt.mk_example_call("search", query="Milhouse Simpsons", thought="I need to find out who Matt Groening named the Simpsons character Milhouse after.")
+    # _, result = frprompt.mk_example_call("lookup", keyword="named after", thought="This is the right page - but the summary does not tell who Milhouse is named after, I'll lookup 'named after' here.")
+    # print(result.openai_message()['content'])
+    # exit()
 
-#    frprompt = FunctionalReactPrompt("Bla bla bla", 300)
-#    erecord = frprompt.mk_record('Poland')
-#    search_res = FunctionResult('search', retrieval_observations(erecord))
-#    print(search_res.plaintext())
-#    lookup_res = FunctionResult('lookup', lookup_observations(erecord.document, "elective monarchy"))
-#    print(lookup_res.plaintext())
-
-
-    frprompt = FunctionalReactPrompt("Bla bla bla", 300)
-    trprompt = TextReactPrompt("Bla bla bla", 300)
+    trprompt = TextReactPrompt("Bla bla bla", 200)
 
     print(frprompt.to_text())
     print()

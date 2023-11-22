@@ -2,7 +2,7 @@ import unittest
 import wikipedia
 import requests
 from unittest.mock import patch, Mock
-from get_wikipedia import WikipediaApi, WikipediaDocument, ContentRecord
+from get_wikipedia import WikipediaApi, WikipediaDocument, MarkdownDocument, ContentRecord
 
 SMALL_CHUNK_SIZE = 70
 
@@ -117,12 +117,55 @@ Paragraph with a new_keyword.
         self.assertIn("Paragraph with a new_keyword.", doc.lookup("new_keyword"))
         self.assertTrue(doc.lookup("new_keyword").startswith("== Section 2 =="))
         self.assertTrue(doc.lookup("Section 2").startswith("== Section 2 =="))
-        print(doc.lookup("Section 2"))
         self.assertIsNone(doc.lookup("nonexistent"))
 
         # more lookup tests
         wiki_content = "A (b)"
         doc = WikipediaDocument(wiki_content)
+
+        self.assertIn(wiki_content, doc.lookup("a"))  # should be case insensitive
+        self.assertIn(wiki_content, doc.lookup("A (b)")) # should not treat keyword as regex
+
+class TestMarkdownDocument(unittest.TestCase):
+
+    def test_wikipedia_document_extraction(self):
+        wiki_content = """
+## Test Page
+Main Title
+Subtitle
+This is the first paragraph. It's pretty long and contains a lot of text that should be split into chunks. Here's another sentence. And yet another one here. And more and more and more.
+* Item 1 with the keyword
+* Item 2
+Another paragraph with the keyword.
+## Section 2
+Paragraph with a new_keyword.
+"""
+        doc = MarkdownDocument(wiki_content, chunk_size=SMALL_CHUNK_SIZE)
+        # print(doc.text)
+        self.assertEqual(doc.text, wiki_content)
+
+        # Test the first chunk
+        self.assertIn("This is the first paragraph.", doc.first_chunk())
+        # Making sure the first_chunk doesn't exceed the smaller chunk_size (not defined here, should be based on your implementation)
+        self.assertLessEqual(len(doc.first_chunk()), SMALL_CHUNK_SIZE)
+
+        # Test section titles
+        expected_section_titles = ['Test Page', 'Section 2']
+        self.assertEqual(doc.section_titles(), expected_section_titles)
+
+        # Test lookup
+        self.assertIn("Item 1 with the keyword", doc.lookup("keyword"))
+        self.assertIn("Paragraph with a new_keyword.", doc.lookup("new_keyword"))
+        self.assertTrue(doc.lookup("new_keyword").startswith("## Section 2"))
+        self.assertTrue(doc.lookup("Section 2").startswith("## Section 2"))
+        self.assertTrue(doc.lookup("## Section 2").startswith("## Section 2"))
+        #print(doc.lookup("## Section 2"))
+        #print(doc.lookup("Section 2"))
+        self.assertIsNone(doc.lookup("nonexistent"))
+
+        # more lookup tests
+        wiki_content = "A (b)"
+        doc = MarkdownDocument(wiki_content)
 
         self.assertIn(wiki_content, doc.lookup("a"))  # should be case insensitive
         self.assertIn(wiki_content, doc.lookup("A (b)")) # should not treat keyword as regex

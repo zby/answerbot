@@ -5,12 +5,12 @@ from get_wikipedia import WikipediaDocument, ContentRecord, WikipediaApi
 
 # List of titles
 queries = [
+    "Oxygen",
     "Poland",
-    "Python (programming language)",
     "Colorado orogeny",
     "High Plains",
     "High Plains geology",
-    "Milhouse Van Houten",
+    "Milhouse Simpsons",
 ]
 
 # Initialize scraper with an example chunk size (you can adjust this)
@@ -27,7 +27,7 @@ for query in queries:
     wikitext = content_record.document.content
     sanitized_title = query.replace("/", "_").replace("\\", "_")  # To ensure safe filenames
     sanitized_title = sanitized_title.replace(" ", "_")
-    wikitext_filename = os.path.join(directory, f"{sanitized_title}.txt")
+    wikitext_filename = os.path.join(directory, f"{sanitized_title}.md")
     history_filename = os.path.join(directory, f"{sanitized_title}.retrieval_history")
 
     # Save the wikitext and retrieval history

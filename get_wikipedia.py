@@ -160,14 +160,17 @@ class WikipediaApi:
                     converter = html2text.HTML2Text()
                     # Avoid breaking links into newlines
                     converter.body_width = 0
+                    #converter.protect_links = True # this does not seem to work
                     markdown = converter.handle(html)
                     # replace the edit links with an empty string
                     # __TODO__: move that to MarkdownDocument
                     edit_link_pattern = r'\[\[edit\]\(/w/index\.php\?title=.*?\)]'
                     cleaned_content = re.sub(edit_link_pattern, '', markdown)
                     # Regex pattern to match the image links
-                    pattern = r'\[!\[\]\(.*?\)\]\(.*?\)'
-                    # Replace the image links with an empty string
+                    pattern = r'\[!\[.*?\]\((?:.*?[^\\]|.*?)\)\]\((?:.*?[^\\]|.*?)\)'
+                    # sometimes urls have escaped parenthesis inside them:
+                    # /wiki/File:Glasto2023_Guns_%27N%27_Roses_\(sans_Dave_Grohl\).jpg
+                    # !!!
                     cleaned_content = re.sub(pattern, '', cleaned_content)
                     document = MarkdownDocument(cleaned_content, self.chunk_size)
                     retrieval_history.append(f"Successfully retrieved '{title}' from Wikipedia.")

@@ -1,11 +1,20 @@
 import openai
 import json
 import time
+import logging
+
+from pprint import pformat
 
 from get_wikipedia import WikipediaApi
 
 from prompt_builder import FunctionalPrompt, Assistant, FunctionCall, FunctionResult
 from react_prompt import FunctionalReactPrompt, NewFunctionalReactPrompt, TextReactPrompt, ToolBox
+
+# Configure basic logging
+logging.basicConfig(level=logging.INFO)
+
+# Get a logger for the current module
+logger = logging.getLogger(__name__)
 
 functions = [
     {
@@ -122,14 +131,22 @@ def openai_query(prompt, model):
     response_message = response["choices"][0]["message"]
     return convert_to_dict(response_message)
 
+def truncate_string(input, max_length=180):
+    input_string = str(input)
+    if len(input_string) > max_length:
+        return input_string[:max_length] + '...'
+    else:
+        return input_string
 
 def process_prompt(prompt, model, toolbox):
+    logger.debug(f"Processing prompt: {prompt}")
     response = openai_query(prompt, model)
     function_call = prompt.function_call_from_response(response)
     if function_call:
         message = FunctionCall(function_call["name"], **json.loads(function_call["arguments"]))
     else:
         message = Assistant(response.get("content"))
+    logger.info(str(message))
     prompt.push(message)
 
     if function_call:
@@ -141,6 +158,7 @@ def process_prompt(prompt, model, toolbox):
                 return answer.lower()
         result = toolbox.process(tool_name, function_args)
         message = FunctionResult(tool_name, result)
+        logger.info(str(message))
         prompt.push(message)
 
     return None
@@ -167,6 +185,7 @@ def get_answer(question, config):
     while True:
         print(f">>>LLM call number: {iter}")
         answer = process_prompt(prompt, config['model'], toolbox)
+        #print(prompt.parts[-1])
         if answer:
             return answer, prompt
         if iter >= config['max_llm_calls']:
@@ -207,4 +226,4 @@ if __name__ == "__main__":
     }
 
     answer, prompt = get_answer(question, config)
-    print(prompt.to_text())
+    print(prompt)

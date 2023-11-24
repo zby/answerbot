@@ -10,39 +10,37 @@ class PromptMessage:
     def openai_message(self) -> dict:
         raise Exception("openai_message() not implemented for", self.__class__.__name__)
 
-class System(PromptMessage):
+
+class BasicPrompt(PromptMessage):
     def __init__(self, content: str):
         self.content = content
 
     def plaintext(self) -> str:
         return self.content
+
+    def __repr__(self):
+         class_name = self.__class__.__name__
+         return f"{class_name}({repr(self.content)})"
+
+
+class System(BasicPrompt):
 
     def openai_message(self) -> dict:
         return { "role": "system", "content": self.content }
 
-class User(PromptMessage):
-    def __init__(self, content: str):
-        self.content = content
-
-    def plaintext(self) -> str:
-        return self.content
+class User(BasicPrompt):
 
     def openai_message(self) -> dict:
         return { "role": "user", "content": self.content }
 
 
-class Assistant(PromptMessage):
-    def __init__(self, content: str):
-        self.content = content
-
-    def plaintext(self) -> str:
-        return self.content
+class Assistant(BasicPrompt):
 
     def openai_message(self) -> dict:
         return { "role": "assistant", "content": self.content }
 
 class FunctionCall(PromptMessage):
-    def __init__(self, name: str, thought=None, **args):
+    def __init__(self, name: str, thought: str = None, **args):
         self.name = name
         self.thought = thought
         self.args = args
@@ -63,6 +61,11 @@ class FunctionCall(PromptMessage):
                 "arguments": json.dumps(arguments),
             },
         }
+    def __repr__(self):
+        args_repr = ', '.join([f"{k}={repr(v)}" for k, v in self.args.items()])
+        thought_repr = f"thought={self.thought!r}" if self.thought is not None else ''
+        joined_repr = ', '.join(filter(None, [args_repr, thought_repr]))
+        return f"{self.__class__.__name__}(name={self.name!r}, {joined_repr})"
 
 class FunctionResult(PromptMessage):
     def __init__(self, name: str, content: str):
@@ -79,6 +82,9 @@ class FunctionResult(PromptMessage):
             "content": self.content,
         }
 
+    def __repr__(self):
+        return f"{self.__class__.__name__}({self.name!r}, {pformat(self.content, width=120)})"
+
 class Prompt:
     def __init__(self, parts: Iterable[PromptMessage] = []):
         self.parts = list(parts)
@@ -89,6 +95,13 @@ class Prompt:
     def to_messages(self) -> Any:
         raise NotImplementedError
 
+    def __repr__(self):
+        parts_repr = ',\n  '.join(repr(part) for part in self.parts)
+        return f"{self.__class__.__name__}([\n  {parts_repr}\n])"
+#    def __repr__(self):
+#        parts_repr = pformat(self.parts, indent=2, width=80, depth=None)
+#        return f"{self.__class__.__name__}({parts_repr})"
+
 class FunctionalPrompt(Prompt):
     def to_messages(self) -> List[Dict[str, Any]]:
         return [part.openai_message() for part in self.parts]
@@ -98,8 +111,6 @@ class FunctionalPrompt(Prompt):
 
 class PlainTextPrompt(Prompt):
 
-    def to_text(self) -> str:
-        return "\n".join(part.plaintext() for part in self.parts)
 
     def to_messages(self) -> List[Dict[str, Any]]:
         return [{ "role": "user", "content": self.to_text()}]
@@ -120,6 +131,7 @@ if __name__ == "__main__":
         FunctionCall('Finish', query='Oh you!'),
     ])
     print(fprompt.to_text())
+    #print(pformat(fprompt))
 
     print()
     print("-" * 80)
@@ -136,4 +148,5 @@ if __name__ == "__main__":
         FunctionCall('Finish', query='Oh you!'),
     ])
     print(pprompt.to_text())
+    #print(pformat(pprompt))
 

@@ -107,7 +107,7 @@ class ToolBox:
                 sections = sections[:limit_sections]
             sections_list_md = "\n".join(map(lambda section: f' - {section}', sections))
             observations = observations + f'The retrieved page contains the following sections:\n{sections_list_md}\n'
-            observations = observations + "The retrieved page summary starts with: " + document.first_chunk() + "\n"
+            observations = observations + "The retrieved page summary starts with:\n" + document.first_chunk() + "\n"
         return observations
 
     def lookup_observations(self, keyword):
@@ -236,6 +236,10 @@ def num_tokens_from_string(string: str, encoding_name: str) -> int:
     return num_tokens
 
 if __name__ == "__main__":
+
+    #toolbox = ToolBox(WikipediaApi(max_retries=3, chunk_size=300))
+    #print(toolbox.process("search", {"query": "Guns N Roses", "thought": "I need to read about Guns N Roses."}))
+
     frprompt = FunctionalReactPrompt("Bla bla bla", 200)
     # _, result = frprompt.mk_example_call("search", query="Milhouse Simpsons", thought="I need to find out who Matt Groening named the Simpsons character Milhouse after.")
     # _, result = frprompt.mk_example_call("lookup", keyword="named after", thought="This is the right page - but the summary does not tell who Milhouse is named after, I'll lookup 'named after' here.")

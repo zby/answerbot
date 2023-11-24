@@ -123,35 +123,27 @@ def openai_query(prompt, model):
     return convert_to_dict(response_message)
 
 
-def run_conversation(prompt, config, toolbox):
-   iter = 0
-   while True:
-       print(f">>>LLM call number: {iter}")
-       response = openai_query(prompt, config['model'])
-       print("<<< ", response)
-       function_call = prompt.function_call_from_response(response)
+def process_prompt(prompt, model, toolbox):
+    response = openai_query(prompt, model)
+    function_call = prompt.function_call_from_response(response)
+    if function_call:
+        message = FunctionCall(function_call["name"], **json.loads(function_call["arguments"]))
+    else:
+        message = Assistant(response.get("content"))
+    prompt.push(message)
 
-       # Process the function calls
-       if function_call:
-           print("function_call: ", function_call)
-           message = FunctionCall(function_call["name"], **json.loads(function_call["arguments"]))
-           prompt.push(message)
+    if function_call:
+        function_args = json.loads(function_call["arguments"])
+        tool_name = function_call["name"]
+        if tool_name == "finish":
+            answer = function_args["answer"]
+            if answer.lower() == 'yes' or answer.lower() == 'no':
+                return answer.lower()
+        result = toolbox.process(tool_name, function_args)
+        message = FunctionResult(tool_name, result)
+        prompt.push(message)
 
-           result = toolbox.process(function_call)
-           print("<<< ", result)
-           message = FunctionResult(function_call["name"], result)
-           prompt.push(message)
-           if toolbox.answer is not None:
-               print("<<< Conversation finished.")
-               return toolbox.answer, prompt
-       else:
-           message = Assistant(response.get("content"))
-           prompt.push(message)
-       if iter >= config['max_llm_calls']:
-           print("<<< Max llm calls reached, exiting.")
-           return None, prompt
-       iter = iter + 1
-       time.sleep(60)
+    return None
 
 
 def get_answer(question, config):
@@ -171,7 +163,18 @@ def get_answer(question, config):
     prompt = prompt_class(question, config['example_chunk_size'])
     wiki_api = WikipediaApi(max_retries=3, chunk_size=config['chunk_size'])
     toolbox = ToolBox(wiki_api)
-    return run_conversation(prompt, config, toolbox)
+    iter = 0
+    while True:
+        print(f">>>LLM call number: {iter}")
+        answer = process_prompt(prompt, config['model'], toolbox)
+        if answer:
+            return answer, prompt
+        if iter >= config['max_llm_calls']:
+            print("<<< Max llm calls reached, exiting.")
+            return None, prompt
+        iter = iter + 1
+        time.sleep(60)
+
 
 if __name__ == "__main__":
     # load the api key from a file
@@ -199,7 +202,7 @@ if __name__ == "__main__":
         "chunk_size": 300,
         "prompt": 'NFRP',
         "example_chunk_size": 200,
-        "max_llm_calls": 7,
+        "max_llm_calls": 3,
         "model": "gpt-4",
     }
 

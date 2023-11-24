@@ -64,7 +64,6 @@ class ToolBox:
             "search": self.search,
             "get": self.get,
             "lookup": self.lookup,
-            "finish": self.finish
         }
 
     def search(self, function_args):
@@ -81,19 +80,10 @@ class ToolBox:
     def lookup(self, function_args):
         return self.lookup_observations(function_args["keyword"])
 
-    def finish(self, function_args):
-        answer = function_args["answer"]
-        if answer.lower() == 'yes' or answer.lower() == 'no':
-            answer = answer.lower()
-        self.answer = answer
-        return answer
-
-    def process(self, function_call, cached=False):
-        function_name = function_call["name"]
+    def process(self, function_name, function_args, cached=False):
         if function_name not in self.function_mapping:
             print(f"<<< Unknown function name: {function_name}")
             raise Exception(f"Unknown function name: {function_name}")
-        function_args = json.loads(function_call["arguments"])
         if cached and function_name == "search":
             title = function_args["query"]
             chunk_size = self.wiki_api.chunk_size
@@ -144,22 +134,17 @@ class ReactPrompt:
 
 
     def mk_example_call(self, name, **args):
-        fcall = FunctionCall( name, **args)
-        fcall_parsed = fcall.openai_message().get("function_call")
-        # __TODO__ don't go through openai for this
-        result = self.toolbox.process(fcall_parsed, cached=True)
-        return [fcall, FunctionResult(fcall_parsed["name"], result)]
+        fcall = FunctionCall(name, **args)
+        if name == 'finish':
+            return [fcall]
+        result = self.toolbox.process(name, args, cached=True)
+        return [fcall, FunctionResult(name, result)]
 
     def mk_additional_lookup_if_needed(self, keyword):
         if not keyword in self.toolbox.document.first_chunk():
-            fcall = FunctionCall(
-                'lookup',
-                keyword=keyword,
-                thought='This is the right page - but it does not mention "' + keyword + '". I need to look up "' + keyword + '".'
-            )
-            fcall_parsed = fcall.openai_message().get("function_call")
-            result = self.toolbox.process(fcall_parsed, cached=True)
-            return [fcall, FunctionResult(fcall_parsed["name"], result)]
+            name = 'lookup'
+            args = {"keyword": keyword, "thought": f'This is the right page - but it does not mention "f{keyword}". I need to look up "{keyword}".'}
+            return self.mk_example_call(name, **args)
         else:
             return []
 

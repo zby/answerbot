@@ -106,15 +106,14 @@ class FunctionalPrompt(Prompt):
     def to_messages(self) -> List[Dict[str, Any]]:
         return [part.openai_message() for part in self.parts]
 
-    def to_text(self):
-        return pformat(self.to_messages())
-
     def function_call_from_response(self, response):
         return response.get("function_call")
 
 
 class PlainTextPrompt(Prompt):
 
+    def to_text(self) -> str:
+        return "\n".join(part.plaintext() for part in self.parts)
 
     def to_messages(self) -> List[Dict[str, Any]]:
         return [{ "role": "user", "content": self.to_text()}]

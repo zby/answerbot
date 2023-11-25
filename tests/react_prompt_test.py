@@ -10,8 +10,8 @@ class TestReactPrompt(unittest.TestCase):
 
     def test_functional_react_prompt_initialization(self):
         frprompt = FunctionalReactPrompt("Bla bla bla", 300)
-        self.assertIn("Bla bla bla", frprompt.to_text())
-        self.assertIn("For the Action step you can call the available functions.", frprompt.to_text())
+        self.assertIn("Bla bla bla", str(frprompt))
+        self.assertIn("For the Action step you can call the available functions.", str(frprompt))
 
     def test_text_react_prompt_initialization(self):
         trprompt = TextReactPrompt("Bla bla bla", 300)
@@ -25,7 +25,7 @@ class TestReactPrompt(unittest.TestCase):
 
         # This is a simple test to check if the larger chunk size results in a longer text.
         # You may need a more precise test depending on your actual implementation.
-        self.assertTrue(len(frprompt_large.to_text()) >= len(frprompt_small.to_text()))
+        self.assertTrue(len(str(frprompt_large)) >= len(str(frprompt_small)))
 
 
 

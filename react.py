@@ -156,6 +156,8 @@ def process_prompt(prompt, model, toolbox):
             answer = function_args["answer"]
             if answer.lower() == 'yes' or answer.lower() == 'no':
                 return answer.lower()
+            else:
+                return answer
         result = toolbox.process(tool_name, function_args)
         message = FunctionResult(tool_name, result)
         logger.info(str(message))

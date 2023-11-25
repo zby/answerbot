@@ -176,8 +176,6 @@ class FunctionalReactPrompt(ReactPrompt, FunctionalPrompt):
     def __init__(self, question, examples_chunk_size):
         super().__init__(question, functional_system_message, examples_chunk_size)
 
-    def function_call_from_response(self, response):
-        return response.get("function_call")
 
 class NewFunctionalReactPrompt(ReactPrompt, FunctionalPrompt):
     def __init__(self, question, examples_chunk_size):

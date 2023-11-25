@@ -109,6 +109,10 @@ class FunctionalPrompt(Prompt):
     def to_text(self):
         return pformat(self.to_messages())
 
+    def function_call_from_response(self, response):
+        return response.get("function_call")
+
+
 class PlainTextPrompt(Prompt):
 
 

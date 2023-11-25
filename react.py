@@ -72,6 +72,20 @@ functions = [
         },
     },
     {
+        "name": "reflection",
+        "description": "Analyze the received information, extract the data relevant for answering the question",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string",
+                    "description": "The reflection",
+                }
+            },
+            "required": ["content"],
+        },
+    },
+    {
         "name": "finish",
         "description": "Finish the task and return the answer",
         "parameters": {
@@ -158,10 +172,11 @@ def process_prompt(prompt, model, toolbox):
                 return answer.lower()
             else:
                 return answer
-        result = toolbox.process(tool_name, function_args)
-        message = FunctionResult(tool_name, result)
-        logger.info(str(message))
-        prompt.push(message)
+        if not tool_name == "reflection":
+            result = toolbox.process(tool_name, function_args)
+            message = FunctionResult(tool_name, result)
+            logger.info(str(message))
+            prompt.push(message)
 
     return None
 

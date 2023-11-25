@@ -33,7 +33,6 @@ Run tests:
 `python -m unittest discover -p '*_test.py' -s tests/`
 
 ## TODO
-* error recovery for timeouts
 * stats in experiments
 * better prompt testing in experiments
 * better prompts

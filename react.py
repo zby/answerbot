@@ -103,7 +103,7 @@ functions = [
 
 function_names = [f["name"] for f in functions]
 
-def openai_query(prompt, model):
+def openai_query(prompt, model, **args):
     def convert_to_dict(obj):
         if isinstance(obj, openai.openai_object.OpenAIObject):
             return {k: convert_to_dict(v) for k, v in obj.items()}
@@ -112,10 +112,10 @@ def openai_query(prompt, model):
         else:
             return obj
 
-    args = {}
     if isinstance(prompt, FunctionalPrompt):
         args["functions"] = functions
-        args["function_call"] = "auto"
+        if not "function_call" in args:
+            args["function_call"] = "auto"
     else:
         args["stop"] = ["\nObservation:"]
 

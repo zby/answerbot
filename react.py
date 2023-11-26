@@ -120,6 +120,7 @@ def openai_query(prompt, model, **args):
         args["stop"] = ["\nObservation:"]
 
     errors = []
+    response = None
     for i in range(2):
         try:
             openai.api_requestor.TIMEOUT_SECS = i * 20 + 20

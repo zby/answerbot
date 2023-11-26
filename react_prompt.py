@@ -184,6 +184,17 @@ class NewFunctionalReactPrompt(ReactPrompt, FunctionalPrompt):
     def function_call_from_response(self, response):
         return response.get("function_call")
 
+class NoExamplesReactPrompt(FunctionalPrompt):
+    def __init__(self, question, examples_chunk_size):
+        system_prompt = \
+"""Please answer the following question. You can use wikipedia for reference - but think carefully about what pages exist at wikipedia.
+When you receive information from wikipedia always analyze it and check what useful informatiou have you found and what else do you need.
+Write a plan.
+When you know the answer call finish. Please make the answer as short as possible. If it can be answered with yes or no that is best.
+Remove all explanations from the answer and put them into the thought field.
+The search function automatically retrieves the first search result. The pages are formated in Markdown
+"""
+        super().__init__([ System(system_prompt), Question(question) ])
 
 class TextReactPrompt(ReactPrompt, PlainTextPrompt):
     def __init__(self, question, examples_chunk_size):

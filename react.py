@@ -8,7 +8,7 @@ from pprint import pformat
 from get_wikipedia import WikipediaApi
 
 from prompt_builder import FunctionalPrompt, Assistant, FunctionCall, FunctionResult
-from react_prompt import FunctionalReactPrompt, NewFunctionalReactPrompt, TextReactPrompt, ToolBox
+from react_prompt import FunctionalReactPrompt, NewFunctionalReactPrompt, TextReactPrompt, ToolBox, NoExamplesReactPrompt
 
 # Configure basic logging
 logging.basicConfig(level=logging.INFO)
@@ -178,6 +178,13 @@ def process_prompt(prompt, model, toolbox):
             logger.info(str(message))
             prompt.push(message)
 
+            # now reflect on the observations
+            response = openai_query(prompt, model, function_call={'name': 'reflection'})
+            function_call = prompt.function_call_from_response(response)
+            message = FunctionCall(function_call["name"], **json.loads(function_call["arguments"]))
+            logger.info(str(message))
+            prompt.push(message)
+
     return None
 
 
@@ -192,7 +199,8 @@ def get_answer(question, config):
     CLASS_MAP = {
         'NFRP': NewFunctionalReactPrompt,
         'FRP': FunctionalReactPrompt,
-        'TRP': TextReactPrompt
+        'TRP': TextReactPrompt,
+        'NERP': NoExamplesReactPrompt,
     }
     prompt_class = CLASS_MAP[config['prompt']]
     prompt = prompt_class(question, config['example_chunk_size'])
@@ -200,6 +208,7 @@ def get_answer(question, config):
     toolbox = ToolBox(wiki_api)
     iter = 0
     while True:
+        print()
         print(f">>>LLM call number: {iter}")
         answer = process_prompt(prompt, config['model'], toolbox)
         #print(prompt.parts[-1])
@@ -232,11 +241,11 @@ if __name__ == "__main__":
     question = "What science fantasy young adult series, told in first person, has a set of companion books narrating the stories of enslaved worlds and alien species?"
     question = "The arena where the Lewiston Maineiacs played their home games can seat how many people?"
     question = "What is the name of the fight song of the university whose main campus is in Lawrence, Kansas and whose branch campuses are in the Kansas City metropolitan area?"
-    question = "What year did Guns N Roses perform a promo for a movie starring Arnold Schwarzenegger as a former New York Police detective?"
+    # question = "What year did Guns N Roses perform a promo for a movie starring Arnold Schwarzenegger as a former New York Police detective?"
 
     config = {
         "chunk_size": 300,
-        "prompt": 'NFRP',
+        "prompt": 'NERP',
         "example_chunk_size": 200,
         "max_llm_calls": 3,
         "model": "gpt-4",

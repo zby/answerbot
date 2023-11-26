@@ -105,7 +105,7 @@ class ToolBox:
             sections = document.section_titles()
             if limit_sections is not None:
                 sections = sections[:limit_sections]
-            sections_list_md = "\n".join(map(lambda section: f' - {section}', sections))
+            sections_list_md = "\n".join(sections)
             observations = observations + f'The retrieved page contains the following sections:\n{sections_list_md}\n'
             observations = observations + "The retrieved page summary starts with:\n" + document.first_chunk() + "\n"
         return observations

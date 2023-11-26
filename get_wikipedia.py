@@ -3,6 +3,7 @@ import requests
 import html2text
 import os
 
+from bs4 import BeautifulSoup
 
 from document import Document
 
@@ -51,7 +52,7 @@ class MarkdownDocument(Document):
         return self.content
 
     def section_titles(self):
-        headings = re.findall(r'^###? *(.*)', self.content, re.MULTILINE)
+        headings = re.findall(r'^(###? *.*)', self.content, re.MULTILINE)
         return headings
 
     def lookup(self, keyword):
@@ -124,6 +125,35 @@ class WikipediaApi:
             content = re.sub(rf'(?<!\[)\b{escaped_link}\b(?!\])', f'[[{link}]]', content)
         return content
 
+    @classmethod
+    def clean_html_and_textify(self, html):
+
+        #with open('data/wikipedia_pages/Oxygen.html', 'w', encoding='utf-8') as file:
+        #    file.write(html)
+
+        # remove table of content
+        soup = BeautifulSoup(html, 'html.parser')
+        toc_element = soup.find('div', {'id': 'toc'})
+        if toc_element:
+            toc_element.decompose()
+        modified_html = str(soup)
+
+        converter = html2text.HTML2Text()
+        # Avoid breaking links into newlines
+        converter.body_width = 0
+        # converter.protect_links = True # this does not seem to work
+        markdown = converter.handle(modified_html)
+        # replace the edit links with an empty string
+        # __TODO__: move that to MarkdownDocument
+        edit_link_pattern = r'\[\[edit\]\(/w/index\.php\?title=.*?\)]'
+        cleaned_content = re.sub(edit_link_pattern, '', markdown)
+        # Regex pattern to match the image links
+        pattern = r'\[!\[.*?\]\((?:.*?[^\\]|.*?)\)\]\((?:.*?[^\\]|.*?)\)'
+        # sometimes urls have escaped parenthesis inside them:
+        # /wiki/File:Glasto2023_Guns_%27N%27_Roses_\(sans_Dave_Grohl\).jpg
+        # !!!
+        cleaned_content = re.sub(pattern, '', cleaned_content)
+        return cleaned_content
 
     def get_page(self, title):
         retrieval_history = []
@@ -157,21 +187,8 @@ class WikipediaApi:
                 # Extract HTML content
                 if 'revisions' in page and page['revisions']:
                     html = page['revisions'][0]['*']
-                    converter = html2text.HTML2Text()
-                    # Avoid breaking links into newlines
-                    converter.body_width = 0
-                    #converter.protect_links = True # this does not seem to work
-                    markdown = converter.handle(html)
-                    # replace the edit links with an empty string
-                    # __TODO__: move that to MarkdownDocument
-                    edit_link_pattern = r'\[\[edit\]\(/w/index\.php\?title=.*?\)]'
-                    cleaned_content = re.sub(edit_link_pattern, '', markdown)
-                    # Regex pattern to match the image links
-                    pattern = r'\[!\[.*?\]\((?:.*?[^\\]|.*?)\)\]\((?:.*?[^\\]|.*?)\)'
-                    # sometimes urls have escaped parenthesis inside them:
-                    # /wiki/File:Glasto2023_Guns_%27N%27_Roses_\(sans_Dave_Grohl\).jpg
-                    # !!!
-                    cleaned_content = re.sub(pattern, '', cleaned_content)
+                    cleaned_content = self.clean_html_and_textify(html)
+
                     document = MarkdownDocument(cleaned_content, self.chunk_size)
                     retrieval_history.append(f"Successfully retrieved '{title}' from Wikipedia.")
                 else:

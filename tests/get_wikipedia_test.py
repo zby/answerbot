@@ -4,7 +4,7 @@ import requests
 from unittest.mock import patch, Mock
 from get_wikipedia import WikipediaApi, WikipediaDocument, MarkdownDocument, ContentRecord
 
-SMALL_CHUNK_SIZE = 70
+SMALL_CHUNK_SIZE = 72
 
 class TestWikipediaApi(unittest.TestCase):
     def setUp(self):
@@ -131,8 +131,8 @@ class TestMarkdownDocument(unittest.TestCase):
     def test_wikipedia_document_extraction(self):
         wiki_content = """
 ## Test Page
-Main Title
-Subtitle
+### Main Title
+#### Subtitle
 This is the first paragraph. It's pretty long and contains a lot of text that should be split into chunks. Here's another sentence. And yet another one here. And more and more and more.
 * Item 1 with the keyword
 * Item 2
@@ -150,7 +150,7 @@ Paragraph with a new_keyword.
         self.assertLessEqual(len(doc.first_chunk()), SMALL_CHUNK_SIZE)
 
         # Test section titles
-        expected_section_titles = ['Test Page', 'Section 2']
+        expected_section_titles = ['## Test Page', '### Main Title', '#### Subtitle', '## Section 2']
         self.assertEqual(doc.section_titles(), expected_section_titles)
 
         # Test lookup

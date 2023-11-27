@@ -109,6 +109,10 @@ class FunctionalPrompt(Prompt):
     def function_call_from_response(self, response):
         return response.get("function_call")
 
+    #__TODO__
+    def __repr__(self):
+        parts_repr = ',\n  '.join(repr(part) for part in self.parts)
+        return f"FunctionalPrompt([\n  {parts_repr}\n])"
 
 class PlainTextPrompt(Prompt):
 
@@ -133,7 +137,7 @@ if __name__ == "__main__":
         User("Observation: Did you mean Unladen Swallow?"),
         FunctionCall('Finish', query='Oh you!'),
     ])
-    print(fprompt.to_text())
+    print(fprompt)
     #print(pformat(fprompt))
 
     print()

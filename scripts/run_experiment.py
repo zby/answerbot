@@ -62,6 +62,9 @@ def perform_experiments(settings, output_dir):
     file_path = os.path.join(output_dir, "results.csv")
     errors_file_path = os.path.join(output_dir, "errors.txt")
 
+    promptsdir = os.path.join(output_dir, "prompts")
+    os.makedirs(promptsdir, exist_ok=True)
+
     with open(file_path, 'w', newline='') as csvfile, open(errors_file_path, 'w') as error_file, open(prompts_file_path,
                                                                                                       'w') as prompts_file:
         writer = csv.DictWriter(csvfile, fieldnames=CONFIG_KEYS + ADDITIONAL_KEYS)
@@ -84,6 +87,11 @@ def perform_experiments(settings, output_dir):
 
                 try:
                     answer, prompt = get_answer(question_text, config)
+
+                    prompt_file = open(os.path.join(promptsdir, f"{question_index}.txt"), 'w')
+                    prompt_file.write(str(prompt))
+                    prompt_file.close()
+
                     correct = 1 if answer in question_data["answers"] else 0
                     config.update({
                         'type': question_type,

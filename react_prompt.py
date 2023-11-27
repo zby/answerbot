@@ -257,7 +257,7 @@ if __name__ == "__main__":
 
     trprompt = TextReactPrompt("Bla bla bla", 200)
 
-    print(frprompt.to_text())
+    print(frprompt)
     print()
     print("-" * 80)
     print()

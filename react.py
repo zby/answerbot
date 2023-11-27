@@ -153,9 +153,12 @@ def truncate_string(input, max_length=180):
     else:
         return input_string
 
-def process_prompt(prompt, model, toolbox):
+def process_prompt(prompt, model, toolbox, finish_now):
     logger.debug(f"Processing prompt: {prompt}")
-    response = openai_query(prompt, model)
+    if finish_now:
+        response = openai_query(prompt, model, function_call={'name': 'finish'})
+    else:
+        response = openai_query(prompt, model)
     function_call = prompt.function_call_from_response(response)
     if function_call:
         message = FunctionCall(function_call["name"], **json.loads(function_call["arguments"]))
@@ -211,7 +214,8 @@ def get_answer(question, config):
     while True:
         print()
         print(f">>>LLM call number: {iter}")
-        answer = process_prompt(prompt, config['model'], toolbox)
+        finish_now = iter >= config['max_llm_calls']
+        answer = process_prompt(prompt, config['model'], toolbox, finish_now)
         #print(prompt.parts[-1])
         if answer:
             return answer, prompt

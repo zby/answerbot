@@ -24,10 +24,13 @@ def load_questions_from_file(filename, start_index, end_index):
         data = json.load(f)
     result = []
     for item in data[start_index:end_index]:
-        if isinstance(item['answer'], list):
-            answers = item['answer']
+        if 'answers' in item.keys():
+            answers = item['answers']
         else:
-            answers = [item['answer']]
+            if isinstance(item['answer'], list):
+                answers = item['answer']
+            else:
+                answers = [item['answer']]
         result.append({"text": item["question"], "answers": answers, "type": item["type"]})
     return result
 
@@ -89,7 +92,7 @@ def perform_experiments(settings, output_dir):
                         'error': "",
                         'correct': correct,
                     })
-                    prompts_file.write(f"{log_preamble}\nPrompt:\n{prompt.to_text()}\n\n")
+                    prompts_file.write(f"{log_preamble}\nPrompt:\n{str(prompt)}\n\n")
                 except Exception as e:
                     error_trace = traceback.format_exc()
                     error_file.write(f"{log_preamble}\n{error_trace}\n\n")
@@ -140,13 +143,13 @@ if __name__ == "__main__":
         "prompt": [
 #            'TRP',
 #            'FRP',
-            'NFRP',
+            'NERP',
         ],
         "example_chunk_size": [
 #            300,
             200,
         ],
-        "max_llm_calls": [7],
+        "max_llm_calls": [5],
         "model": ["gpt-4-1106-preview"]
     }
     load_config_from_file('config.json')

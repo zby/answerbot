@@ -109,7 +109,7 @@ def perform_experiments(settings, output_dir):
 
 if __name__ == "__main__":
     filename = sys.argv[1] if len(sys.argv) > 1 else None
-    filename = 'data/hotpot_dev_pretty.json'
+    filename = 'data/hotpot_reasonable.json'
     #filename = 'filtered_questions.json'
     if filename:
         start_index = 0

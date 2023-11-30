@@ -1,58 +1,91 @@
 import json
-from typing import Any, Callable, Iterable, List, Dict
+from typing import Any, Iterable, List, Dict
 from pprint import pformat
 
-
 class PromptMessage:
-    def plaintext(self) -> str:
-        raise Exception("plaintext() not implemented for", self.__class__.__name__)
-
-    def openai_message(self) -> dict:
-        raise Exception("openai_message() not implemented for", self.__class__.__name__)
-
-
-class BasicPrompt(PromptMessage):
-    def __init__(self, content: str):
+    def __init__(self, content, **kwargs: dict):
+        for key, value in self.defaults().items():
+            setattr(self, key, value)
+        for key, value in kwargs.items():
+            setattr(self, key, value)
         self.content = content
 
+    def get_content(self) -> str:
+        if self.summarized_below:
+            content = "This message is summarized in subsequent messages."
+        else:
+            content = self.content
+        return content
+    def openai_message(self) -> dict:
+        return {
+            "role": self.role,
+            "content": self.get_content(),
+        }
+
     def plaintext(self) -> str:
-        return self.content
+        return self.get_content()
+
+    @classmethod
+    def defaults(cls) -> dict:
+        return {
+            "role": cls.__name__.lower(),
+            "summarized_below": False,
+        }
+
+    @classmethod
+    def positional_arguments(cls) -> List[str]:
+        return ['content']
 
     def __repr__(self):
-         class_name = self.__class__.__name__
-         return f"{class_name}({repr(self.content)})"
+        attrs = self.__dict__.copy()
+        for key in self.defaults():
+            if key in attrs and attrs[key] == self.defaults()[key]:
+                attrs.pop(key, None)
+        positional_args = []
+        for key in self.positional_arguments():
+            value = attrs.pop(key, None)
+            positional_args.append(f'{value!r}')
+        named_args = [f'{key}={getattr(self, key)!r}' for key in attrs]
+        attr_str = ', '.join(positional_args + named_args)
+        return f'{self.__class__.__name__}({attr_str})'
 
+class System(PromptMessage):
+    pass
 
-class System(BasicPrompt):
+class User(PromptMessage):
+    pass
 
-    def openai_message(self) -> dict:
-        return { "role": "system", "content": self.content }
+class Assistant(PromptMessage):
+    pass
 
-class User(BasicPrompt):
-
-    def openai_message(self) -> dict:
-        return { "role": "user", "content": self.content }
-
-
-class Assistant(BasicPrompt):
-
-    def openai_message(self) -> dict:
-        return { "role": "assistant", "content": self.content }
 
 class FunctionCall(PromptMessage):
-    def __init__(self, name: str, thought: str = None, **args):
-        self.name = name
-        self.thought = thought
-        self.args = args
+    def __init__(self, name: str, reason: str = None, summarized_below=False, **args):
+        # ATTENTION functions cannot have arguments with the same name as the
+        # __init__ arguments.
+        # That is 'name', 'reason' and 'summarized_below'
+        super().__init__('',
+            role='assistant', name=name, reason=reason, summarized_below=summarized_below, args=args)
+
+    def __repr__(self):
+        args = self.args.copy()
+        if self.summarized_below:
+            args['summarized_below'] = True
+        positional_args = [f"'{self.name}'"]
+        if self.reason is not None:
+            positional_args.append(f'{self.reason!r}')
+        named_args = [f'{key}={args[key]!r}' for key in args]
+        attr_str = ', '.join(positional_args + named_args)
+        return f'{self.__class__.__name__}({attr_str})'
 
     def plaintext(self) -> str:
-        arguments = ", ".join(self.args.values())
-        thought = f"Thought: {self.thought}\n" if self.thought else ""
-        return f"{thought}Action: {self.name}[{arguments}]"
+        arguments = ", ".join(str(value) for value in self.args.values())
+        reason = f"Reason: {self.reason}\n" if self.reason else ""
+        return f"{reason}Action: {self.name}[{arguments}]"
 
     def openai_message(self) -> dict:
         arguments = dict(self.args)
-        arguments["thought"] = self.thought
+        arguments["reason"] = self.reason
         return {
             "role": "assistant",
             "content": '',
@@ -61,32 +94,36 @@ class FunctionCall(PromptMessage):
                 "arguments": json.dumps(arguments),
             },
         }
-    def __repr__(self):
-        args_repr = ', '.join([f"{k}={repr(v)}" for k, v in self.args.items()])
-        thought_repr = f"thought={self.thought!r}" if self.thought is not None else ''
-        joined_repr = ', '.join(filter(None, [args_repr, thought_repr]))
-        return f"{self.__class__.__name__}(name={self.name!r}, {joined_repr})"
 
 class FunctionResult(PromptMessage):
-    def __init__(self, name: str, content: str):
-        self.name = name
-        self.content = content
+
+    def __init__(self, name: str, content: str, summarized_below=False):
+        super().__init__(content, role='assistant', name=name, summarized_below=summarized_below)
+    @classmethod
+    def defaults(cls) -> dict:
+        return {
+            "role": 'assistant',
+            "summarized_below": False,
+        }
+
+    @classmethod
+    def positional_arguments(cls) -> List[str]:
+        return ['name', 'content']
 
     def plaintext(self) -> str:
-        return f"Observation: {self.content}"
+        return f"Observation: {self.get_content()}"
 
     def openai_message(self) -> dict:
         return {
             "role": "function",
             "name": self.name,
-            "content": self.content,
+            "content": self.get_content(),
         }
 
-    def __repr__(self):
-        return f"{self.__class__.__name__}({self.name!r}, {pformat(self.content, width=120)})"
-
 class Prompt:
-    def __init__(self, parts: Iterable[PromptMessage] = []):
+    def __init__(self, parts=None):
+        if parts is None:
+            parts = []
         self.parts = list(parts)
 
     def push(self, message: PromptMessage):
@@ -109,10 +146,6 @@ class FunctionalPrompt(Prompt):
     def function_call_from_response(self, response):
         return response.get("function_call")
 
-    #__TODO__
-    def __repr__(self):
-        parts_repr = ',\n  '.join(repr(part) for part in self.parts)
-        return f"FunctionalPrompt([\n  {parts_repr}\n])"
 
 class PlainTextPrompt(Prompt):
 
@@ -131,15 +164,17 @@ if __name__ == "__main__":
     fprompt = FunctionalPrompt([
         System("Solve a question answering task with interleaving Thought, Action and Observation steps."),
         User("\nQuestion: What is the terminal velocity of an unleaded swallow?"),
-        FunctionCall('Search', thought="I need to search through my book of Monty Python jokes.", query="Monty Python"),
+        FunctionCall('Search', "I need to search through my book of Monty Python jokes.", query="Monty Python"),
         FunctionResult('Search', "Here are all the Monty Python jokes you know: ..."),
-        Assistant("Lookup[Unleaded swallow]"),
+        FunctionResult('Search', "Here are all the Monty Python jokes you know: ...", summarized_below=True),
+        FunctionCall('Lookup', "Lookup the Swallow joke", keyword="Unleaded swallow"),
         User("Observation: Did you mean Unladen Swallow?"),
         FunctionCall('Finish', query='Oh you!'),
     ])
+    print(pformat(fprompt.to_messages()))
     print(fprompt)
     #print(pformat(fprompt))
-
+    exit()
     print()
     print("-" * 80)
     print()
@@ -148,8 +183,9 @@ if __name__ == "__main__":
     pprompt = PlainTextPrompt([
         System("Solve a question answering task with interleaving Thought, Action and Observation steps."),
         User("\nQuestion: What is the terminal velocity of an unleaded swallow?"),
-        FunctionCall('Search', thought="I need to search through my book of Monty Python jokes.", query="Monty Python"),
+        FunctionCall('Search', "I need to search through my book of Monty Python jokes.", query="Monty Python"),
         FunctionResult('Search', "Here are all the Monty Python jokes you know: ..."),
+        FunctionResult('Search', "Here are all the Monty Python jokes you know: ...", summarized_below=True),
         Assistant("Lookup[Unleaded swallow]"),
         User("Observation: Did you mean Unladen Swallow?"),
         FunctionCall('Finish', query='Oh you!'),

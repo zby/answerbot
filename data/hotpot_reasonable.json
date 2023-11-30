@@ -46,7 +46,7 @@
     },
     {
         "question": "What is the name of the fight song of the university whose main campus is in Lawrence, Kansas and whose branch campuses are in the Kansas City metropolitan area?",
-        "answer": ["Kansas Song", "\"Kansas Song (We're From Kansas)\"", "I'm a Jayhawk"],
+        "answer": ["Kansas Song", "Kansas Song (We're From Kansas)", "I'm a Jayhawk"],
         "type": "bridge"
     }
 ]

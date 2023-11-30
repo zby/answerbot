@@ -159,6 +159,7 @@ if __name__ == "__main__":
         ],
         "max_llm_calls": [5],
         "model": ["gpt-4-1106-preview"]
+        #"model": ["gpt-3.5-turbo-1106"]
     }
     load_config_from_file('config.json')
     output_dir = generate_directory_name()

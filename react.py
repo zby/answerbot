@@ -7,7 +7,7 @@ from pprint import pformat
 
 from get_wikipedia import WikipediaApi
 
-from prompt_builder import FunctionalPrompt, Assistant, FunctionCall, FunctionResult
+from prompt_builder import FunctionalPrompt, Assistant, System, FunctionCall, FunctionResult
 from react_prompt import FunctionalReactPrompt, NewFunctionalReactPrompt, TextReactPrompt, ToolBox, NoExamplesReactPrompt
 
 # Configure basic logging
@@ -27,12 +27,12 @@ functions = [
                     "type": "string",
                     "description": "The query to search for on Wikipedia",
                 },
-                "thought": {
+                "reason": {
                     "type": "string",
                     "description": "The reason for searching",
                 }
             },
-            "required": ["query", "thought"],
+            "required": ["query", "reason"],
         },
     },
     {
@@ -45,12 +45,12 @@ functions = [
                     "type": "string",
                     "description": "The title of the Wikipedia page to get",
                 },
-                "thought": {
+                "reason": {
                     "type": "string",
                     "description": "The reason for retrieving this particular article",
                 }
             },
-            "required": ["query", "thought"],
+            "required": ["query", "reason"],
         },
     },
     {
@@ -63,26 +63,12 @@ functions = [
                     "type": "string",
                     "description": "The keyword or section to lookup within the retrieved content",
                 },
-                "thought": {
+                "reason": {
                     "type": "string",
                     "description": "The reason for checking in this particular section of the article",
                 }
             },
-            "required": ["keyword", "thought"],
-        },
-    },
-    {
-        "name": "reflection",
-        "description": "Analyze the received information, extract the data relevant for answering the question",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "content": {
-                    "type": "string",
-                    "description": "The reflection",
-                }
-            },
-            "required": ["content"],
+            "required": ["keyword", "reason"],
         },
     },
     {
@@ -94,9 +80,13 @@ functions = [
                 "answer": {
                     "type": "string",
                     "description": "The answer to the user's question",
+                },
+                "reason": {
+                    "type": "string",
+                    "description": "The reasoning behind the answer",
                 }
             },
-            "required": ["answer"],
+            "required": ["answer", "reason"],
         },
     },
 ]
@@ -176,19 +166,23 @@ def process_prompt(prompt, model, toolbox, finish_now):
                 return answer.lower()
             else:
                 return answer
-        if not tool_name == "reflection":
+        else:
             result = toolbox.process(tool_name, function_args)
             message = FunctionResult(tool_name, result)
             logger.info(str(message))
+            if len(message.content) > 500:
+                message.summarized_below = True
             prompt.push(message)
 
             # now reflect on the observations
-            response = openai_query(prompt, model, function_call={'name': 'reflection'})
-            function_call = prompt.function_call_from_response(response)
-            message = FunctionCall(function_call["name"], **json.loads(function_call["arguments"]))
+            summarize_prompt = "Please extract the relevant facts from the data above, note which sections of the current page could contain more relevant information and plan next steps."
+            message = System(summarize_prompt)
             logger.info(str(message))
             prompt.push(message)
-
+            response = openai_query(prompt, model, function_call='none')
+            message = Assistant(response.get("content"))
+            logger.info(str(message))
+            prompt.push(message)
     return None
 
 
@@ -223,7 +217,8 @@ def get_answer(question, config):
             print("<<< Max llm calls reached, exiting.")
             return None, prompt
         iter = iter + 1
-        time.sleep(60)
+        if 'gpt-4' in config['model']:
+            time.sleep(60)
 
 
 if __name__ == "__main__":

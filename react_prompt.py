@@ -143,7 +143,7 @@ class ReactPrompt:
     def mk_additional_lookup_if_needed(self, keyword):
         if not keyword in self.toolbox.document.first_chunk():
             name = 'lookup'
-            args = {"keyword": keyword, "thought": f'This is the right page - but it does not mention "f{keyword}". I need to look up "{keyword}".'}
+            args = {"keyword": keyword, "reason": f'This is the right page - but it does not mention "f{keyword}". I need to look up "{keyword}".'}
             return self.mk_example_call(name, **args)
         else:
             return []
@@ -151,24 +151,24 @@ class ReactPrompt:
     def get_examples(self):
         examples = []
         examples.append(Question("When Poland became elective-monarchy?"))
-        examples.extend(self.mk_example_call("search", query="Poland", thought="I need to read about Poland's history to find out when Poland became an elective-monarchy."))
-        examples.extend(self.mk_example_call("lookup", keyword="elective-monarchy", thought="This is the right page. I will lookup \"elective-monarchy\" here."))
-        examples.extend(self.mk_example_call("lookup", keyword="elective", thought="Hmm. Maybe I will lookup \"elective\" here."))
-        examples.extend(self.mk_example_call("finish", answer="1569", thought="The Union of Lublin of 1569 established the Polish Lithuanian Commonwealth which was an elective monarchy."))
+        examples.extend(self.mk_example_call("search", query="Poland", reason="I need to read about Poland's history to find out when Poland became an elective-monarchy."))
+        examples.extend(self.mk_example_call("lookup", keyword="elective-monarchy", reason="This is the right page. I will lookup \"elective-monarchy\" here."))
+        examples.extend(self.mk_example_call("lookup", keyword="elective", reason="Hmm. Maybe I will lookup \"elective\" here."))
+        examples.extend(self.mk_example_call("finish", answer="1569", reason="The Union of Lublin of 1569 established the Polish Lithuanian Commonwealth which was an elective monarchy."))
 
         examples.append(Question("What is the elevation range for the area that the eastern sector of the Colorado orogeny extends into?"))
-        examples.extend(self.mk_example_call("search", query="Colorado orogeny", thought="I need to search Colorado orogeny, find the area that the eastern sector of the Colorado orogeny extends into, then find the elevation range of the area."))
-        examples.extend(self.mk_example_call("lookup", keyword="eastern", thought="This is the right page - but it does not mention the eastern sector of the Colorado orogeny. I need to look up eastern sector."))
-        examples.extend(self.mk_example_call("search", query="High Plains", thought="The eastern sector of Colorado orogeny extends into the High Plains, so High Plains is the area. I need to find out the elevation of High Plains."))
-        examples.extend(self.mk_example_call("search", query="High Plains geology", thought="High Plains Drifter is a film. I am not on the right page I need information about High Plains in geology or geography"))
+        examples.extend(self.mk_example_call("search", query="Colorado orogeny", reason="I need to search Colorado orogeny, find the area that the eastern sector of the Colorado orogeny extends into, then find the elevation range of the area."))
+        examples.extend(self.mk_example_call("lookup", keyword="eastern", reason="This is the right page - but it does not mention the eastern sector of the Colorado orogeny. I need to look up eastern sector."))
+        examples.extend(self.mk_example_call("search", query="High Plains", reason="The eastern sector of Colorado orogeny extends into the High Plains, so High Plains is the area. I need to find out the elevation of High Plains."))
+        examples.extend(self.mk_example_call("search", query="High Plains geology", reason="High Plains Drifter is a film. I am not on the right page I need information about High Plains in geology or geography"))
         examples.extend(self.mk_additional_lookup_if_needed("elevation"))
-        examples.extend(self.mk_example_call("finish", answer="approximately 1,800 to 7,000 feet", thought="The High Plains have an elevation range from around 1,800 to 7,000 feet. I can use this information to answer the question about the elevation range of the area that the eastern sector of the Colorado orogeny extends into."))
+        examples.extend(self.mk_example_call("finish", answer="approximately 1,800 to 7,000 feet", reason="The High Plains have an elevation range from around 1,800 to 7,000 feet. I can use this information to answer the question about the elevation range of the area that the eastern sector of the Colorado orogeny extends into."))
 
         examples.append(Question(
             'Musician and satirist Allie Goertz wrote a song about the "The Simpsons" character Milhouse, who Matt Groening named after who?'))
-        examples.extend(self.mk_example_call("search", query="Milhouse Simpsons", thought="I need to find out who Matt Groening named the Simpsons character Milhouse after."))
-        examples.extend(self.mk_example_call("lookup", keyword="named after", thought="This is the right page - but the summary does not tell who Milhouse is named after, I'll lookup 'named after' here."))
-        examples.extend(self.mk_example_call("finish", answer="President Richard Nixon", thought="Milhouse was named after U.S. president Richard Nixon, so the answer is President Richard Nixon."))
+        examples.extend(self.mk_example_call("search", query="Milhouse Simpsons", reason="I need to find out who Matt Groening named the Simpsons character Milhouse after."))
+        examples.extend(self.mk_example_call("lookup", keyword="named after", reason="This is the right page - but the summary does not tell who Milhouse is named after, I'll lookup 'named after' here."))
+        examples.extend(self.mk_example_call("finish", answer="President Richard Nixon", reason="Milhouse was named after U.S. president Richard Nixon, so the answer is President Richard Nixon."))
 
         return examples
 
@@ -189,9 +189,9 @@ class NoExamplesReactPrompt(FunctionalPrompt):
         system_prompt = \
 """Please answer the following question. You can use wikipedia for reference - but think carefully about what pages exist at wikipedia.
 When you receive information from wikipedia always analyze it and check what useful informatiou have you found and what else do you need.
-Write a plan.
+Write it down in a summary note for later use.
 When you know the answer call finish. Please make the answer as short as possible. If it can be answered with yes or no that is best.
-Remove all explanations from the answer and put them into the thought field.
+Remove all explanations from the answer and put them into the reason field.
 The search function automatically retrieves the first search result. The pages are formated in Markdown
 """
         super().__init__([ System(system_prompt), Question(question) ])
@@ -209,32 +209,32 @@ class TextReactPrompt(ReactPrompt, PlainTextPrompt):
         last_line = response_lines[-1]
         if last_line.startswith('Action: '):
             if last_but_one_line.startswith('Thought: '):
-                thought = last_but_one_line[9:]
+                reason = last_but_one_line[9:]
             else:
-                thought = None
+                reason = None
             if last_line.startswith('Action: finish['):
                 answer = last_line[15:-1]
                 return {
                     "name": "finish",
-                    "arguments": json.dumps({"answer": answer, "thought": thought})
+                    "arguments": json.dumps({"answer": answer, "reason": reason})
                 }
             elif last_line.startswith('Action: search['):
                 query = last_line[15:-1]
                 return {
                     "name": "search",
-                    "arguments": json.dumps({"query": query, "thought": thought})
+                    "arguments": json.dumps({"query": query, "reason": reason})
                 }
             elif last_line.startswith('Action: get['):
                 query = last_line[15:-1]
                 return {
                     "name": "get",
-                    "arguments": json.dumps({"title": query, "thought": thought})
+                    "arguments": json.dumps({"title": query, "reason": reason})
                 }
             elif last_line.startswith('Action: lookup['):
                 keyword = last_line[15:-1]
                 return {
                     "name": "lookup",
-                    "arguments": json.dumps({"keyword": keyword, "thought": thought})
+                    "arguments": json.dumps({"keyword": keyword, "reason": reason})
                 }
         return None
 
@@ -250,8 +250,8 @@ if __name__ == "__main__":
     #print(toolbox.process("search", {"query": "Guns N Roses", "thought": "I need to read about Guns N Roses."}))
 
     frprompt = FunctionalReactPrompt("Bla bla bla", 200)
-    # _, result = frprompt.mk_example_call("search", query="Milhouse Simpsons", thought="I need to find out who Matt Groening named the Simpsons character Milhouse after.")
-    # _, result = frprompt.mk_example_call("lookup", keyword="named after", thought="This is the right page - but the summary does not tell who Milhouse is named after, I'll lookup 'named after' here.")
+    # _, result = frprompt.mk_example_call("search", query="Milhouse Simpsons", reason="I need to find out who Matt Groening named the Simpsons character Milhouse after.")
+    # _, result = frprompt.mk_example_call("lookup", keyword="named after", reason="This is the right page - but the summary does not tell who Milhouse is named after, I'll lookup 'named after' here.")
     # print(result.openai_message()['content'])
     # exit()
 

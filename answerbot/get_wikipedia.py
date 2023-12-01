@@ -5,7 +5,7 @@ import os
 
 from bs4 import BeautifulSoup, NavigableString
 
-from document import Document
+from .document import Document
 
 MAX_RETRIES = 3
 API_URL = 'https://en.wikipedia.org/w/api.php'

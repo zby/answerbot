@@ -1,4 +1,4 @@
-from get_wikipedia import ContentRecord
+from .get_wikipedia import ContentRecord
 
 
 class ToolBox:

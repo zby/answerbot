@@ -4,8 +4,8 @@ import os
 import shutil
 
 # Assuming the refactored script with perform_experiments function is named "experiment_script.py"
-from scripts.run_experiment import  perform_experiments
-from prompt_builder import FunctionalPrompt
+from scripts.run_experiment import perform_experiments
+from answerbot.prompt_builder import FunctionalPrompt
 
 class TestPerformExperiments(unittest.TestCase):
 

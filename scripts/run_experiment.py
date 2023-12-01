@@ -6,8 +6,9 @@ import subprocess
 from datetime import datetime
 import itertools
 import traceback
-from react import get_answer
 import openai
+
+from answerbot.react import get_answer
 
 # Constants
 ITERATIONS = 1

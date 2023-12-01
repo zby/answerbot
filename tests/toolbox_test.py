@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import MagicMock, Mock
-from get_wikipedia import ContentRecord, Document
-from toolbox import WikipediaSearch
+from answerbot.get_wikipedia import ContentRecord, Document
+from answerbot.toolbox import WikipediaSearch
 
 
 class TestWikipediaSearch(unittest.TestCase):

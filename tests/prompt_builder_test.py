@@ -1,7 +1,7 @@
 import unittest
 import json
 
-from prompt_builder import System, User, Assistant, Prompt, FunctionCall, FunctionResult, PlainTextPrompt, FunctionalPrompt
+from answerbot.prompt_builder import System, User, Assistant, Prompt, FunctionCall, FunctionResult, PlainTextPrompt, FunctionalPrompt
 
 class TestPromptMessages(unittest.TestCase):
 

@@ -3,7 +3,7 @@ import unittest
 from unittest.mock import patch
 
 
-from react_prompt import ReactPrompt, FunctionalReactPrompt, TextReactPrompt
+from answerbot.react_prompt import ReactPrompt, FunctionalReactPrompt, TextReactPrompt
 
 
 class TestReactPrompt(unittest.TestCase):

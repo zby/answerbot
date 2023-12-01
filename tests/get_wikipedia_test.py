@@ -2,7 +2,7 @@ import unittest
 import wikipedia
 import requests
 from unittest.mock import patch, Mock
-from get_wikipedia import WikipediaApi, WikipediaDocument, MarkdownDocument, ContentRecord
+from answerbot.get_wikipedia import WikipediaApi, WikipediaDocument, MarkdownDocument, ContentRecord
 
 SMALL_CHUNK_SIZE = 72
 

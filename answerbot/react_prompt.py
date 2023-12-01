@@ -2,9 +2,9 @@ import json
 
 import tiktoken
 
-from prompt_builder import FunctionalPrompt, PlainTextPrompt, User, System, FunctionCall, FunctionResult
-from get_wikipedia import WikipediaApi
-from toolbox import WikipediaSearch
+from .prompt_builder import FunctionalPrompt, PlainTextPrompt, User, System, FunctionCall, FunctionResult
+from .get_wikipedia import WikipediaApi
+from .toolbox import WikipediaSearch
 
 
 class Question(User):

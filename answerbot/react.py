@@ -5,11 +5,11 @@ import logging
 
 from pprint import pformat
 
-from get_wikipedia import WikipediaApi
+from .get_wikipedia import WikipediaApi
 
-from prompt_builder import FunctionalPrompt, Assistant, System, FunctionCall, FunctionResult
-from react_prompt import FunctionalReactPrompt, NewFunctionalReactPrompt, TextReactPrompt, NoExamplesReactPrompt
-from toolbox import WikipediaSearch
+from .prompt_builder import FunctionalPrompt, Assistant, System, FunctionCall, FunctionResult
+from .react_prompt import FunctionalReactPrompt, NewFunctionalReactPrompt, TextReactPrompt, NoExamplesReactPrompt
+from .toolbox import WikipediaSearch
 
 # Configure basic logging
 logging.basicConfig(level=logging.INFO)

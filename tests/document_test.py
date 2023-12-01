@@ -1,6 +1,6 @@
 import unittest
 
-from document import SimpleHtmlDocument
+from answerbot.document import SimpleHtmlDocument
 
 SMALL_CHUNK_SIZE = 70
 

@@ -1,10 +1,11 @@
 import json
 
 import tiktoken
-import os
 
-from prompt_builder import FunctionalPrompt, PlainTextPrompt, User, System, Assistant, FunctionCall, FunctionResult
-from get_wikipedia import WikipediaApi, ContentRecord
+from prompt_builder import FunctionalPrompt, PlainTextPrompt, User, System, FunctionCall, FunctionResult
+from get_wikipedia import WikipediaApi
+from toolbox import WikipediaSearch
+
 
 class Question(User):
     def plaintext(self) -> str:
@@ -55,80 +56,13 @@ The words in double square brackets are links - you can follow them with the get
 Here are some examples:''')
 
 
-class ToolBox:
-    def __init__(self, wiki_api):
-        self.wiki_api = wiki_api
-        self.document = None
-        self.answer = None
-        self.function_mapping = {
-            "search": self.search,
-            "get": self.get,
-            "lookup": self.lookup,
-        }
-
-    def search(self, function_args):
-        search_query = function_args["query"]
-        search_record = self.wiki_api.search(search_query)
-        self.document = search_record.document
-        return self.retrieval_observations(search_record)
-
-    def get(self, function_args):
-        search_record = self.wiki_api.get_page(function_args["title"])
-        self.document = search_record.document
-        return self.retrieval_observations(search_record)
-
-    def lookup(self, function_args):
-        return self.lookup_observations(function_args["keyword"])
-
-    def process(self, function_name, function_args, cached=False):
-        if function_name not in self.function_mapping:
-            print(f"<<< Unknown function name: {function_name}")
-            raise Exception(f"Unknown function name: {function_name}")
-        if cached and function_name == "search":
-            title = function_args["query"]
-            chunk_size = self.wiki_api.chunk_size
-            search_record = ContentRecord.load_from_disk(title, chunk_size)
-            self.document = search_record.document
-            return self.retrieval_observations(search_record)
-        if cached and function_name == "get":
-            raise Exception("Cached get not implemented")
-        return self.function_mapping[function_name](function_args)
-
-    def retrieval_observations(self, search_record, limit_sections = None):
-        observations = ""
-        document = search_record.document
-        for record in search_record.retrieval_history:
-            observations = observations + record + "\n"
-        if document is None:
-            observations = observations + "No wikipedia page found"
-        else:
-            sections = document.section_titles()
-            if limit_sections is not None:
-                sections = sections[:limit_sections]
-            sections_list_md = "\n".join(sections)
-            observations = observations + f'The retrieved page contains the following sections:\n{sections_list_md}\n'
-            observations = observations + "The retrieved page summary starts with:\n" + document.first_chunk() + "\n"
-        return observations
-
-    def lookup_observations(self, keyword):
-        if self.document is None:
-            observations = "No document defined, cannot lookup"
-        else:
-            text = self.document.lookup(keyword)
-            observations = 'Keyword "' + keyword + '" '
-            if text:
-                observations = observations + "found  in: \n" + text
-            else:
-                observations = observations + "not found in current page"
-        return observations
-
 class ReactPrompt:
     def __init__(self, question, initial_system_message, examples_chunk_size=300):
         self.examples_chunk_size = examples_chunk_size
         self.question = question
         self.initial_system_message = initial_system_message
         wiki_api = WikipediaApi(max_retries=3, chunk_size=examples_chunk_size)
-        self.toolbox = ToolBox(wiki_api)
+        self.toolbox = WikipediaSearch(wiki_api)
         examples = self.get_examples()
         super().__init__([self.initial_system_message, *examples, Question(self.question)])
 
@@ -246,7 +180,7 @@ def num_tokens_from_string(string: str, encoding_name: str) -> int:
 
 if __name__ == "__main__":
 
-    #toolbox = ToolBox(WikipediaApi(max_retries=3, chunk_size=300))
+    #toolbox = WikipediaSearch(WikipediaApi(max_retries=3, chunk_size=300))
     #print(toolbox.process("search", {"query": "Guns N Roses", "thought": "I need to read about Guns N Roses."}))
 
     frprompt = FunctionalReactPrompt("Bla bla bla", 200)

@@ -8,7 +8,8 @@ from pprint import pformat
 from get_wikipedia import WikipediaApi
 
 from prompt_builder import FunctionalPrompt, Assistant, System, FunctionCall, FunctionResult
-from react_prompt import FunctionalReactPrompt, NewFunctionalReactPrompt, TextReactPrompt, ToolBox, NoExamplesReactPrompt
+from react_prompt import FunctionalReactPrompt, NewFunctionalReactPrompt, TextReactPrompt, NoExamplesReactPrompt
+from toolbox import WikipediaSearch
 
 # Configure basic logging
 logging.basicConfig(level=logging.INFO)
@@ -16,84 +17,8 @@ logging.basicConfig(level=logging.INFO)
 # Get a logger for the current module
 logger = logging.getLogger(__name__)
 
-functions = [
-    {
-        "name": "search",
-        "description": "searches Wikipedia saves the first result page and informs about the content of that page",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "query": {
-                    "type": "string",
-                    "description": "The query to search for on Wikipedia",
-                },
-                "reason": {
-                    "type": "string",
-                    "description": "The reason for searching",
-                }
-            },
-            "required": ["query", "reason"],
-        },
-    },
-    {
-        "name": "get",
-        "description": "gets the Wikipedia page with the given title, saves it and informs about the content of that page",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "title": {
-                    "type": "string",
-                    "description": "The title of the Wikipedia page to get",
-                },
-                "reason": {
-                    "type": "string",
-                    "description": "The reason for retrieving this particular article",
-                }
-            },
-            "required": ["query", "reason"],
-        },
-    },
-    {
-        "name": "lookup",
-        "description": "returns text surrounding the keyword in the current page",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "keyword": {
-                    "type": "string",
-                    "description": "The keyword or section to lookup within the retrieved content",
-                },
-                "reason": {
-                    "type": "string",
-                    "description": "The reason for checking in this particular section of the article",
-                }
-            },
-            "required": ["keyword", "reason"],
-        },
-    },
-    {
-        "name": "finish",
-        "description": "Finish the task and return the answer",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "answer": {
-                    "type": "string",
-                    "description": "The answer to the user's question",
-                },
-                "reason": {
-                    "type": "string",
-                    "description": "The reasoning behind the answer",
-                }
-            },
-            "required": ["answer", "reason"],
-        },
-    },
-]
 
-function_names = [f["name"] for f in functions]
-
-def openai_query(prompt, model, **args):
+def openai_query(prompt, model, functions=[], **args):
     def convert_to_dict(obj):
         if isinstance(obj, openai.openai_object.OpenAIObject):
             return {k: convert_to_dict(v) for k, v in obj.items()}
@@ -146,9 +71,9 @@ def truncate_string(input, max_length=180):
 def process_prompt(prompt, model, toolbox, finish_now):
     logger.debug(f"Processing prompt: {prompt}")
     if finish_now:
-        response = openai_query(prompt, model, function_call={'name': 'finish'})
+        response = openai_query(prompt, model, toolbox.functions, function_call={'name': 'finish'})
     else:
-        response = openai_query(prompt, model)
+        response = openai_query(prompt, model, toolbox.functions)
     function_call = prompt.function_call_from_response(response)
     if function_call:
         message = FunctionCall(function_call["name"], **json.loads(function_call["arguments"]))
@@ -179,7 +104,7 @@ def process_prompt(prompt, model, toolbox, finish_now):
             message = System(summarize_prompt)
             logger.info(str(message))
             prompt.push(message)
-            response = openai_query(prompt, model, function_call='none')
+            response = openai_query(prompt, model, toolbox.functions, function_call='none')
             message = Assistant(response.get("content"))
             logger.info(str(message))
             prompt.push(message)
@@ -203,7 +128,7 @@ def get_answer(question, config):
     prompt_class = CLASS_MAP[config['prompt']]
     prompt = prompt_class(question, config['example_chunk_size'])
     wiki_api = WikipediaApi(max_retries=3, chunk_size=config['chunk_size'])
-    toolbox = ToolBox(wiki_api)
+    toolbox = WikipediaSearch(wiki_api)
     iter = 0
     while True:
         print()

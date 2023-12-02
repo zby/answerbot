@@ -14,9 +14,9 @@ Run tests:
 
 ## Scripts
 
-### `answerbot/react.py`
-This is mostly a library - but if it is executed it runs one example.
-Edit the end of the file to change the example.
+### `scripts/answer.py`
+Runs a question and answer session.
+Edit the file to change the question.
 
 ### `scripts/run_experiment.py`
 It runs an experiment on a full product of sets of available values for config options and available questions.
@@ -36,6 +36,8 @@ More questions in in the same format in:
 [https://github.com/andyz245/LanguageAgentTreeSearch/blob/main/hotpot/data/](https://github.com/andyz245/LanguageAgentTreeSearch/blob/main/hotpot/data/)
 
 ## TODO
+* ongoing refactoring for easier use in Jupyter notebooks
+* working on less hallucinations in summaries
 * stats in experiments
 * better prompt testing in experiments
 * better prompts

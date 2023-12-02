@@ -3,14 +3,11 @@ import json
 import time
 import logging
 
-from pprint import pformat
-
+from .prompt_builder import FunctionalPrompt, Assistant, System, FunctionCall, FunctionResult
 from .get_wikipedia import WikipediaApi
 
-from .prompt_builder import FunctionalPrompt, Assistant, System, FunctionCall, FunctionResult
 from .react_prompt import FunctionalReactPrompt, NewFunctionalReactPrompt, TextReactPrompt, NoExamplesReactPrompt
 from .toolbox import WikipediaSearch
-
 # Configure basic logging
 logging.basicConfig(level=logging.INFO)
 
@@ -18,100 +15,116 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def openai_query(prompt, model, functions=[], **args):
+class LLMReactor:
+    def __init__(self, model, toolbox, prompt, summarize_prompt, max_llm_calls):
+        self.model = model
+        self.toolbox = toolbox
+        self.prompt = prompt
+        self.summarize_prompt = summarize_prompt
+        self.max_llm_calls = max_llm_calls
+        self.step = 0
+        self.finished = False
+
+    @staticmethod
     def convert_to_dict(obj):
         if isinstance(obj, openai.openai_object.OpenAIObject):
-            return {k: convert_to_dict(v) for k, v in obj.items()}
+            return {k: LLMReactor.convert_to_dict(v) for k, v in obj.items()}
         elif isinstance(obj, list):
-            return [convert_to_dict(item) for item in obj]
+            return [LLMReactor.convert_to_dict(item) for item in obj]
         else:
             return obj
 
-    if isinstance(prompt, FunctionalPrompt):
-        args["functions"] = functions
-        if not "function_call" in args:
-            args["function_call"] = "auto"
-    else:
-        args["stop"] = ["\nObservation:"]
-
-    errors = []
-    response = None
-    for i in range(2):
-        try:
-            openai.api_requestor.TIMEOUT_SECS = i * 20 + 20
-            response = openai.ChatCompletion.create(
-                model=model,
-                messages=prompt.to_messages(),
-                **args
-            )
-            break
-        except openai.error.Timeout as e:
-            print("OpenAI Timeout: ", e)
-            time.sleep(20)
-            errors.append(e)
-            continue
-        except openai.error.APIError as e:
-            print("OpenAI APIError: ", e)
-            time.sleep(20)
-            errors.append(e)
-            continue
-    if response is None:
-        errors_string = "\n".join([str(e) for e in errors])
-        raise Exception(f"OpenAI API calls failed: {errors_string}")
-    response_message = response["choices"][0]["message"]
-    return convert_to_dict(response_message)
-
-def truncate_string(input, max_length=180):
-    input_string = str(input)
-    if len(input_string) > max_length:
-        return input_string[:max_length] + '...'
-    else:
-        return input_string
-
-def process_prompt(prompt, model, toolbox, finish_now):
-    logger.debug(f"Processing prompt: {prompt}")
-    if finish_now:
-        response = openai_query(prompt, model, toolbox.functions, function_call={'name': 'finish'})
-    else:
-        response = openai_query(prompt, model, toolbox.functions)
-    function_call = prompt.function_call_from_response(response)
-    if function_call:
-        message = FunctionCall(function_call["name"], **json.loads(function_call["arguments"]))
-    else:
-        message = Assistant(response.get("content"))
-    logger.info(str(message))
-    prompt.push(message)
-
-    if function_call:
-        function_args = json.loads(function_call["arguments"])
-        tool_name = function_call["name"]
-        if tool_name == "finish":
-            answer = function_args["answer"]
-            if answer.lower() == 'yes' or answer.lower() == 'no':
-                return answer.lower()
-            else:
-                return answer
+    def openai_query(self, **args):
+        if isinstance(self.prompt, FunctionalPrompt):
+            # todo - we might optimize and only send the functions that are relevant
+            # in particular not send the functions if function_call = 'none'
+            args["functions"] = self.toolbox.functions
+            if not "function_call" in args:
+                args["function_call"] = "auto"
         else:
-            result = toolbox.process(tool_name, function_args)
-            message = FunctionResult(tool_name, result)
-            logger.info(str(message))
-            if len(message.content) > 500:
-                message.summarized_below = True
-            prompt.push(message)
+            args["stop"] = ["\nObservation:"]
 
-            # now reflect on the observations
-            summarize_prompt = "Please extract the relevant facts from the data above, note which sections of the current page could contain more relevant information and plan next steps."
-            message = System(summarize_prompt)
-            logger.info(str(message))
-            prompt.push(message)
-            response = openai_query(prompt, model, toolbox.functions, function_call='none')
+        errors = []
+        response = None
+        for i in range(2):
+            try:
+                openai.api_requestor.TIMEOUT_SECS = i * 20 + 20
+                response = openai.ChatCompletion.create(
+                    model=self.model,
+                    messages=self.prompt.to_messages(),
+                    **args
+                )
+                break
+            except openai.error.Timeout as e:
+                # todo logger
+                print("OpenAI Timeout: ", e)
+                time.sleep(20)
+                errors.append(e)
+                continue
+            except openai.error.APIError as e:
+                # todo logger
+                print("OpenAI APIError: ", e)
+                time.sleep(20)
+                errors.append(e)
+                continue
+        if response is None:
+            errors_string = "\n".join([str(e) for e in errors])
+            raise Exception(f"OpenAI API calls failed: {errors_string}")
+        response_message = response["choices"][0]["message"]
+        return self.convert_to_dict(response_message)
+
+    def set_finished(self):
+        self.finished = True
+    def process_prompt(self):
+        logger.debug(f"Processing prompt: {self.prompt}")
+        self.step += 1
+        if self.step == self.max_llm_calls:
+            response = self.openai_query(function_call={'name': 'finish'})
+        else:
+            response = self.openai_query()
+        function_call = self.prompt.function_call_from_response(response)
+        if function_call:
+            message = FunctionCall(function_call["name"], **json.loads(function_call["arguments"]))
+        else:
             message = Assistant(response.get("content"))
-            logger.info(str(message))
-            prompt.push(message)
-    return None
+        logger.info(str(message))
+        self.prompt.push(message)
 
+        if function_call:
+            function_args = json.loads(function_call["arguments"])
+            tool_name = function_call["name"]
+            if tool_name == "finish":
+                answer = function_args["answer"]
+                self.set_finished()
+                if answer.lower() == 'yes' or answer.lower() == 'no':
+                    return answer.lower()
+                else:
+                    return answer
+            elif self.step == self.max_llm_calls:
+                self.set_finished()
+                logger.info("<<< Max LLM calls reached without finishing")
+                return None
+            else:
+                result = self.toolbox.process(tool_name, function_args)
+                message = FunctionResult(tool_name, result)
+                logger.info(str(message))
+#                if len(message.content) > 500:
+#                    message.summarized_below = True
+                self.prompt.push(message)
+
+                # now reflect on the observations
+                message = System(self.summarize_prompt)
+                logger.info(str(message))
+                self.prompt.push(message)
+                response = self.openai_query(function_call='none')
+                message = Assistant(response.get("content"))
+                logger.info(str(message))
+                self.prompt.push(message)
+        return None
 
 def get_answer(question, config):
+    if 'summarize_prompt' not in config:
+        config['summarize_prompt'] = "Please extract the relevant facts from the data above, note which sections of the current page could contain more relevant information and plan next steps."
     print("\n\n<<< Question:", question)
     # Check that config contains the required fields
     required_fields = ['chunk_size', 'prompt', 'example_chunk_size', 'max_llm_calls', ]
@@ -127,54 +140,16 @@ def get_answer(question, config):
     }
     prompt_class = CLASS_MAP[config['prompt']]
     prompt = prompt_class(question, config['example_chunk_size'])
-    wiki_api = WikipediaApi(max_retries=3, chunk_size=config['chunk_size'])
+    wiki_api = WikipediaApi(max_retries=2, chunk_size=config['chunk_size'])
     toolbox = WikipediaSearch(wiki_api)
-    iter = 0
+    reactor = LLMReactor(config['model'], toolbox, prompt, config['summarize_prompt'], config['max_llm_calls'])
     while True:
         print()
-        print(f">>>LLM call number: {iter}")
-        finish_now = iter >= config['max_llm_calls']
-        answer = process_prompt(prompt, config['model'], toolbox, finish_now)
-        #print(prompt.parts[-1])
-        if answer:
+        print(f">>>LLM call number: {reactor.step}")
+        answer = reactor.process_prompt()
+        #print(prompt.parts[-2])
+        if reactor.finished:
             return answer, prompt
-        if iter >= config['max_llm_calls']:
-            print("<<< Max llm calls reached, exiting.")
-            return None, prompt
-        iter = iter + 1
-        if 'gpt-4' in config['model']:
-            time.sleep(60)
+#        if 'gpt-4' in config['model']:
+#            time.sleep(59)
 
-
-if __name__ == "__main__":
-    # load the api key from a file
-    with open("config.json", "r") as f:
-        json_config = json.load(f)
-    openai.api_key = json_config["api_key"]
-
-    # question = "What was the first major battle in the Ukrainian War?"
-    # question = "What were the main publications by the Nobel Prize winner in economics in 2023?"
-    # question = "What is the elevation range for the area that the eastern sector of the Colorado orogeny extends into?"
-    # question = 'Musician and satirist Allie Goertz wrote a song about the "The Simpsons" character Milhouse, who Matt Groening named after who?'
-    # question = "how old was Donald Tusk when he died?"
-    # question = "how many keys does a US-ANSI keyboard have on it?"
-    # question = "How many children does Donald Tusk have?"
-    # question = "What government position was held by the woman who portrayed Corliss Archer in the film Kiss and Tell?"
-    # question = "The director of the romantic comedy \"Big Stone Gap\" is based in what New York city?"
-    #question = "When Poland became elective monarchy?"
-    question = "Were Scott Derrickson and Ed Wood of the same nationality?"
-    question = "What science fantasy young adult series, told in first person, has a set of companion books narrating the stories of enslaved worlds and alien species?"
-    question = "The arena where the Lewiston Maineiacs played their home games can seat how many people?"
-    question = "What is the name of the fight song of the university whose main campus is in Lawrence, Kansas and whose branch campuses are in the Kansas City metropolitan area?"
-    # question = "What year did Guns N Roses perform a promo for a movie starring Arnold Schwarzenegger as a former New York Police detective?"
-
-    config = {
-        "chunk_size": 300,
-        "prompt": 'NERP',
-        "example_chunk_size": 200,
-        "max_llm_calls": 3,
-        "model": "gpt-4",
-    }
-
-    answer, prompt = get_answer(question, config)
-    print(prompt)

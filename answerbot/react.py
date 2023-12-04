@@ -3,11 +3,12 @@ import json
 import time
 import logging
 
-from .prompt_builder import FunctionalPrompt, Assistant, System, FunctionCall, FunctionResult
+from .prompt_builder import FunctionalPrompt, PromptMessage, Assistant, System, FunctionCall, FunctionResult
 from .get_wikipedia import WikipediaApi
 
 from .react_prompt import FunctionalReactPrompt, NewFunctionalReactPrompt, TextReactPrompt, NoExamplesReactPrompt
-from .toolbox import WikipediaSearch
+from .toolbox import ToolBox, WikipediaSearch
+
 # Configure basic logging
 logging.basicConfig(level=logging.INFO)
 
@@ -16,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 class LLMReactor:
-    def __init__(self, model, toolbox, prompt, summarize_prompt, max_llm_calls):
+    def __init__(self, model: str, toolbox: ToolBox, prompt: FunctionalPrompt, summarize_prompt: PromptMessage, max_llm_calls: int):
         self.model = model
         self.toolbox = toolbox
         self.prompt = prompt
@@ -76,6 +77,7 @@ class LLMReactor:
 
     def set_finished(self):
         self.finished = True
+
     def process_prompt(self):
         logger.debug(f"Processing prompt: {self.prompt}")
         self.step += 1
@@ -109,8 +111,8 @@ class LLMReactor:
                 result = self.toolbox.process(tool_name, function_args)
                 message = FunctionResult(tool_name, result)
                 logger.info(str(message))
-#                if len(message.content) > 500:
-#                    message.summarized_below = True
+                #                if len(message.content) > 500:
+                #                    message.summarized_below = True
                 self.prompt.push(message)
 
                 # now reflect on the observations
@@ -122,9 +124,10 @@ class LLMReactor:
                 logger.info(str(message))
                 self.prompt.push(message)
 
+
 def get_answer(question, config):
     if 'summarize_prompt' not in config:
-        #config['summarize_prompt'] = System("Please extract the relevant facts from the data above, note which sections of the current page could contain more relevant information and plan next steps.")
+        # config['summarize_prompt'] = System("Please extract the relevant facts from the data above, note which sections of the current page could contain more relevant information and plan next steps.")
         config['summarize_prompt'] = System("Reflect on the received information and plan next steps.")
     print("\n\n<<< Question:", question)
     # Check that config contains the required fields
@@ -147,10 +150,9 @@ def get_answer(question, config):
     while True:
         print()
         print(f">>>LLM call number: {reactor.step}")
-        answer = reactor.process_prompt()
-        #print(prompt.parts[-2])
+        reactor.process_prompt()
+        # print(prompt.parts[-2])
         if reactor.finished:
             return reactor
 #        if 'gpt-4' in config['model']:
 #            time.sleep(59)
-

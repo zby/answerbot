@@ -13,7 +13,7 @@ from answerbot.react import get_answer
 # Constants
 ITERATIONS = 1
 CONFIG_KEYS = ['chunk_size', 'prompt', 'example_chunk_size', 'max_llm_calls', 'model']
-ADDITIONAL_KEYS = ['answer', 'error', 'type', 'question_index', 'correct']
+ADDITIONAL_KEYS = ['answer', 'error', 'type', 'steps', 'question_index', 'correct']
 
 def load_config_from_file(config_filename):
     with open(config_filename, 'r') as config_file:
@@ -87,21 +87,24 @@ def perform_experiments(settings, output_dir):
                 log_preamble = ('=' * 80) + f"\nQuestion: {question_text}\nConfig: {config}\n"
 
                 try:
-                    answer, prompt = get_answer(question_text, config)
+                    reactor = get_answer(question_text, config)
 
                     prompt_file = open(os.path.join(promptsdir, f"{question_index}.txt"), 'w')
-                    prompt_file.write(str(prompt))
+                    prompt_file.write(str(reactor.prompt))
                     prompt_file.close()
 
-                    correct = 1 if answer in question_data["answers"] else 0
+                    correct = 1 if reactor.answer in question_data["answers"] else 0
                     config.update({
                         'type': question_type,
                         'question_index': question_index,
-                        'answer': answer,
+                        'answer': reactor.answer,
                         'error': "",
                         'correct': correct,
+                        'steps': reactor.step,
                     })
-                    prompts_file.write(f"{log_preamble}\nPrompt:\n{str(prompt)}\n\n")
+                    # todo summarize_prompt should be named in config
+                    config.pop('summarize_prompt', None)
+                    prompts_file.write(f"{log_preamble}\nPrompt:\n{str(reactor.prompt)}\n\n")
                 except Exception as e:
                     error_trace = traceback.format_exc()
                     error_file.write(f"{log_preamble}\n{error_trace}\n\n")
@@ -111,6 +114,8 @@ def perform_experiments(settings, output_dir):
                         'error': 1,
                         'correct': 0,
                     })
+                    # todo summarize_prompt should be named in config
+                    config.pop('summarize_prompt', None)
                 writer.writerow(config)
     if os.path.getsize(errors_file_path) == 0:  # If the error file is empty, remove it.
         os.remove(errors_file_path)

@@ -24,6 +24,7 @@ class LLMReactor:
         self.max_llm_calls = max_llm_calls
         self.step = 0
         self.finished = False
+        self.answer = None
 
     @staticmethod
     def convert_to_dict(obj):
@@ -97,13 +98,13 @@ class LLMReactor:
                 answer = function_args["answer"]
                 self.set_finished()
                 if answer.lower() == 'yes' or answer.lower() == 'no':
-                    return answer.lower()
-                else:
-                    return answer
+                    answer = answer.lower()
+                self.answer = answer
+                return
             elif self.step == self.max_llm_calls:
                 self.set_finished()
                 logger.info("<<< Max LLM calls reached without finishing")
-                return None
+                return
             else:
                 result = self.toolbox.process(tool_name, function_args)
                 message = FunctionResult(tool_name, result)
@@ -113,18 +114,18 @@ class LLMReactor:
                 self.prompt.push(message)
 
                 # now reflect on the observations
-                message = System(self.summarize_prompt)
+                message = self.summarize_prompt
                 logger.info(str(message))
                 self.prompt.push(message)
                 response = self.openai_query(function_call='none')
                 message = Assistant(response.get("content"))
                 logger.info(str(message))
                 self.prompt.push(message)
-        return None
 
 def get_answer(question, config):
     if 'summarize_prompt' not in config:
-        config['summarize_prompt'] = "Please extract the relevant facts from the data above, note which sections of the current page could contain more relevant information and plan next steps."
+        #config['summarize_prompt'] = System("Please extract the relevant facts from the data above, note which sections of the current page could contain more relevant information and plan next steps.")
+        config['summarize_prompt'] = System("Reflect on the received information and plan next steps.")
     print("\n\n<<< Question:", question)
     # Check that config contains the required fields
     required_fields = ['chunk_size', 'prompt', 'example_chunk_size', 'max_llm_calls', ]
@@ -149,7 +150,7 @@ def get_answer(question, config):
         answer = reactor.process_prompt()
         #print(prompt.parts[-2])
         if reactor.finished:
-            return answer, prompt
+            return reactor
 #        if 'gpt-4' in config['model']:
 #            time.sleep(59)
 

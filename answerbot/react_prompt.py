@@ -124,12 +124,14 @@ class NewFunctionalReactPrompt(ReactPrompt, FunctionalPrompt):
 class NoExamplesReactPrompt(FunctionalPrompt):
     def __init__(self, question, examples_chunk_size):
         system_prompt = \
-"""Please answer the following question. You can use wikipedia for reference - but think carefully about what pages exist at wikipedia.
+"""
+Please answer the following question. You can use wikipedia for reference - but think carefully about what pages exist at wikipedia.
+When you look for a property of something or someone - search for that something page instead of using that property in the search.
 When you receive information from wikipedia always analyze it and check what useful informatiou have you found and what else do you need.
-Write it down in a summary note for later use.
+Extract all the relevant and only relevant information into the summary, write down what should be the next step too.
 When you know the answer call finish. Please make the answer as short as possible. If it can be answered with yes or no that is best.
-Remove all explanations from the answer and put them into the reason field.
-The search function automatically retrieves the first search result. The pages are formated in Markdown
+Remove all explanations from the answer and put them into the thought field.
+The search function automatically retrieves the first search result.
 """
         super().__init__([ System(system_prompt), Question(question) ])
 

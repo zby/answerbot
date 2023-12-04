@@ -31,7 +31,7 @@ if __name__ == "__main__":
     # question = "What government position was held by the woman who portrayed Corliss Archer in the film Kiss and Tell?"
     # question = "The director of the romantic comedy \"Big Stone Gap\" is based in what New York city?"
     #question = "When Poland became elective monarchy?"
-    question = "Were Scott Derrickson and Ed Wood of the same nationality?"
+    #question = "Were Scott Derrickson and Ed Wood of the same nationality?"
     question = "What science fantasy young adult series, told in first person, has a set of companion books narrating the stories of enslaved worlds and alien species?"
     question = "The arena where the Lewiston Maineiacs played their home games can seat how many people?"
     question = "What is the name of the fight song of the university whose main campus is in Lawrence, Kansas and whose branch campuses are in the Kansas City metropolitan area?"
@@ -45,5 +45,5 @@ if __name__ == "__main__":
         "model": "gpt-3.5-turbo-0613",
     }
 
-    answer, prompt = get_answer(question, config)
-    print(prompt)
+    reactor = get_answer(question, config)
+    print(reactor.prompt)

@@ -25,9 +25,14 @@ class TestPerformExperiments(unittest.TestCase):
     def test_perform_experiments(self, mock_get_answer):
         # Create a mock prompt and set its to_text return value
         mock_prompt = FunctionalPrompt([])
+        mock_reactor = Mock()
+        mock_reactor.prompt = mock_prompt
+        mock_reactor.answer = "Mocked Answer"
+        mock_reactor.finished = True
+        mock_reactor.steps = 1
 
         # Set the return value of get_answer to a tuple with the mocked answer and the mock prompt
-        mock_get_answer.return_value = ("Mocked Answer", mock_prompt)
+        mock_get_answer.return_value = mock_reactor
 
         # Example config for testing
         config = {
@@ -39,7 +44,7 @@ class TestPerformExperiments(unittest.TestCase):
             "model": ["gpt-3.5-turbo"]
         }
 
-        # Perform experiments with the mocked get_answer and to_text
+        # Perform experiments with the mocked reactor
         perform_experiments(config, self.output_dir)
 
         # Validate that files are created

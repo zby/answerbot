@@ -3,9 +3,9 @@ import requests
 import html2text
 import os
 
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, NavigableString
 
-from document import Document
+from .document import Document
 
 MAX_RETRIES = 3
 API_URL = 'https://en.wikipedia.org/w/api.php'
@@ -128,14 +128,31 @@ class WikipediaApi:
     @classmethod
     def clean_html_and_textify(self, html):
 
-        #with open('data/wikipedia_pages/Oxygen.html', 'w', encoding='utf-8') as file:
-        #    file.write(html)
-
         # remove table of content
         soup = BeautifulSoup(html, 'html.parser')
         toc_element = soup.find('div', {'id': 'toc'})
         if toc_element:
             toc_element.decompose()
+        # Find all <span> tags with the class 'hide-when-compact'
+        for span in soup.find_all('span', class_='hide-when-compact'):
+            span.decompose()
+
+        # Remove some metadata - we need compact information
+        search_text = "This article relies excessively on"
+        text_before_anchor = "relies excessively on"
+        required_href = "/wiki/Wikipedia:Verifiability"
+
+        # Find all <div> elements with class 'mbox-text-span'
+        for div in soup.find_all('div', class_='mbox-text-span'):
+            gtex = div.get_text().strip()
+            if search_text in div.get_text():
+                for a_tag in div.find_all('a', href=required_href):
+                    preceding_text = ''.join([str(sibling) for sibling in a_tag.previous_siblings if isinstance(sibling, NavigableString)])
+                    if text_before_anchor in preceding_text:
+                        div.decompose()
+                        break  # Stop checking this div, as we found a match
+        for div in soup.find_all('div', class_='mbox-text-span'):
+            print(div)
         modified_html = str(soup)
 
         converter = html2text.HTML2Text()
@@ -187,6 +204,13 @@ class WikipediaApi:
                 # Extract HTML content
                 if 'revisions' in page and page['revisions']:
                     html = page['revisions'][0]['*']
+                    # directory = "data/wikipedia_pages"
+                    # sanitized_title = title.replace("/", "_").replace("\\", "_")  # To ensure safe filenames
+                    # sanitized_title = sanitized_title.replace(" ", "_")
+                    # html_filename = os.path.join(directory, f"{sanitized_title}.html")
+                    # with open(html_filename, 'w', encoding='utf-8') as file:
+                    #     file.write(html)
+
                     cleaned_content = self.clean_html_and_textify(html)
 
                     document = MarkdownDocument(cleaned_content, self.chunk_size)

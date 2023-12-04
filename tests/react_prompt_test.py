@@ -3,7 +3,7 @@ import unittest
 from unittest.mock import patch
 
 
-from react_prompt import ReactPrompt, FunctionalReactPrompt, TextReactPrompt
+from answerbot.react_prompt import ReactPrompt, FunctionalReactPrompt, TextReactPrompt
 
 
 class TestReactPrompt(unittest.TestCase):
@@ -41,10 +41,10 @@ class TestFunctionalReactPrompt(unittest.TestCase):
             "content": 'bla bla bla',
             'function_call': {
                 "name": "search",
-                "arguments": json.dumps({"query": "Milhouse Simpson", "thought": "Looking for Milhouse details"})
+                "arguments": json.dumps({"query": "Milhouse Simpson", "reason": "Looking for Milhouse details"})
             }
         }
-        expected_args = json.dumps({ 'query': 'Milhouse Simpson', 'thought': "Looking for Milhouse details"})
+        expected_args = json.dumps({ 'query': 'Milhouse Simpson', 'reason': "Looking for Milhouse details"})
         output = self.instance.function_call_from_response(response)
         self.assertEqual(output['name'], 'search')
         self.assertEqual(output['arguments'], expected_args)
@@ -62,7 +62,7 @@ class TestTextReactPrompt(unittest.TestCase):
         }
         expected_output = {
             "name": "finish",
-            "arguments": json.dumps({"answer": "Correct Answer", "thought": "Final thought"})
+            "arguments": json.dumps({"answer": "Correct Answer", "reason": "Final thought"})
         }
         self.assertEqual(self.instance.function_call_from_response(response), expected_output)
 
@@ -72,7 +72,7 @@ class TestTextReactPrompt(unittest.TestCase):
         }
         expected_output = {
             "name": "search",
-            "arguments": json.dumps({"query": "Milhouse Simpson", "thought": "Looking for data"})
+            "arguments": json.dumps({"query": "Milhouse Simpson", "reason": "Looking for data"})
         }
         self.assertEqual(self.instance.function_call_from_response(response), expected_output)
 

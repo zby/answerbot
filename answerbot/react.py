@@ -17,11 +17,12 @@ logger = logging.getLogger(__name__)
 
 
 class LLMReactor:
-    def __init__(self, model: str, toolbox: ToolBox, prompt: FunctionalPrompt, summarize_prompt: PromptMessage, max_llm_calls: int):
+    def __init__(self, model: str, toolbox: ToolBox, prompt: FunctionalPrompt, summarize_prompt: PromptMessage, last_reflection: PromptMessage, max_llm_calls: int):
         self.model = model
         self.toolbox = toolbox
         self.prompt = prompt
         self.summarize_prompt = summarize_prompt
+        self.last_reflection = last_reflection
         self.max_llm_calls = max_llm_calls
         self.step = 0
         self.finished = False
@@ -116,7 +117,10 @@ class LLMReactor:
                 self.prompt.push(message)
 
                 # now reflect on the observations
-                message = self.summarize_prompt
+                if self.step == self.max_llm_calls - 1:
+                    message = self.last_reflection
+                else:
+                    message = self.summarize_prompt
                 logger.info(str(message))
                 self.prompt.push(message)
                 response = self.openai_query(function_call='none')
@@ -129,6 +133,8 @@ def get_answer(question, config):
     if 'summarize_prompt' not in config:
         # config['summarize_prompt'] = System("Please extract the relevant facts from the data above, note which sections of the current page could contain more relevant information and plan next steps.")
         config['summarize_prompt'] = System("Reflect on the received information and plan next steps.")
+    if 'last_reflection' not in config:
+        config['last_reflection'] = System("In the next call you need to formulate an answer - please reflect on the received information.")
     print("\n\n<<< Question:", question)
     # Check that config contains the required fields
     required_fields = ['chunk_size', 'prompt', 'example_chunk_size', 'max_llm_calls', ]
@@ -146,7 +152,7 @@ def get_answer(question, config):
     prompt = prompt_class(question, config['example_chunk_size'])
     wiki_api = WikipediaApi(max_retries=2, chunk_size=config['chunk_size'])
     toolbox = WikipediaSearch(wiki_api)
-    reactor = LLMReactor(config['model'], toolbox, prompt, config['summarize_prompt'], config['max_llm_calls'])
+    reactor = LLMReactor(config['model'], toolbox, prompt, config['summarize_prompt'], config['last_reflection'], config['max_llm_calls'])
     while True:
         print()
         print(f">>>LLM call number: {reactor.step}")

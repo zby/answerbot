@@ -104,6 +104,7 @@ def perform_experiments(settings, output_dir):
                     })
                     # todo summarize_prompt should be named in config
                     config.pop('summarize_prompt', None)
+                    config.pop('last_reflection', None)
                     prompts_file.write(f"{log_preamble}\nPrompt:\n{str(reactor.prompt)}\n\n")
                 except Exception as e:
                     error_trace = traceback.format_exc()

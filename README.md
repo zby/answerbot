@@ -35,8 +35,17 @@ We have our own set of questions, they are rather tricky but you can run it with
 More questions in in the same format in:
 [https://github.com/andyz245/LanguageAgentTreeSearch/blob/main/hotpot/data/](https://github.com/andyz245/LanguageAgentTreeSearch/blob/main/hotpot/data/)
 
+## Compatibility
+I currently work only on OpenAI llms.
+
+In particular I use function calls. I have some code for parsing llm answers and retrieve function calls from it - but I never used it.
+
+## Generating examples
+The current 0-shot prompts seem to work - so I have not tested the example generating code for long time.
+
 ## TODO
 * ongoing refactoring for easier use in Jupyter notebooks
+* `answerbot/react_prompt.py` contains a lot of unused code
 * working on less hallucinations in summaries
 * stats in experiments
 * better prompt testing in experiments

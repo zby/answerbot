@@ -39,7 +39,8 @@ class TestPerformExperiments(unittest.TestCase):
             "question": [{"text": "Test Question", "answers": ["Test Answer"], "type": "text"}],
             "chunk_size": [300],
             "prompt": ['FRP'],
-            "example_chunk_size": [300],
+            "reflection_prompt": ['A', ],
+            "last_reflection": ['A', ],
             "max_llm_calls": [5],
             "model": ["gpt-3.5-turbo"]
         }
@@ -62,7 +63,7 @@ class TestPerformExperiments(unittest.TestCase):
         # Validate the content of prompts.txt
         expected_prompt_fragments = [
             "Question: Test Question\n",
-            "Config: {'chunk_size': 300, 'prompt': 'FRP', 'example_chunk_size': 300, 'max_llm_calls': 5, 'model': 'gpt-3.5-turbo'}\n",
+            "Config: {'chunk_size': 300, 'prompt': 'FRP', 'max_llm_calls': 5, 'model': 'gpt-3.5-turbo', 'reflection_prompt': 'A', 'last_reflection': 'A'}\n",
         ]
         file = open(os.path.join(self.output_dir, "prompts.txt"), 'r')
         prompt_content = file.read()

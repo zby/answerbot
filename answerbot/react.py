@@ -130,29 +130,10 @@ class LLMReactor:
 
 
 def get_answer(question, config):
-    if 'summarize_prompt' not in config:
-        # config['summarize_prompt'] = System("Please extract the relevant facts from the data above, note which sections of the current page could contain more relevant information and plan next steps.")
-        config['summarize_prompt'] = System("Reflect on the received information and plan next steps.")
-    if 'last_reflection' not in config:
-        config['last_reflection'] = System("In the next call you need to formulate an answer - please reflect on the received information.")
     print("\n\n<<< Question:", question)
-    # Check that config contains the required fields
-    required_fields = ['chunk_size', 'prompt', 'example_chunk_size', 'max_llm_calls', ]
-    missing_fields = [field for field in required_fields if field not in config]
-    if missing_fields:
-        raise ValueError(f"Missing required config fields: {', '.join(missing_fields)}")
-    # A dictionary that maps class names to classes
-    CLASS_MAP = {
-        'NFRP': NewFunctionalReactPrompt,
-        'FRP': FunctionalReactPrompt,
-        'TRP': TextReactPrompt,
-        'NERP': NoExamplesReactPrompt,
-    }
-    prompt_class = CLASS_MAP[config['prompt']]
-    prompt = prompt_class(question, config['example_chunk_size'])
     wiki_api = WikipediaApi(max_retries=2, chunk_size=config['chunk_size'])
     toolbox = WikipediaSearch(wiki_api)
-    reactor = LLMReactor(config['model'], toolbox, prompt, config['summarize_prompt'], config['last_reflection'], config['max_llm_calls'])
+    reactor = LLMReactor(config['model'], toolbox, config['prompt'], config['reflection_prompt'], config['last_reflection'], config['max_llm_calls'])
     while True:
         print()
         print(f">>>LLM call number: {reactor.step}")

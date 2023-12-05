@@ -8,12 +8,30 @@ import itertools
 import traceback
 import openai
 
+from answerbot.prompt_builder import System, User, Assistant, FunctionCall, FunctionResult
 from answerbot.react import get_answer
+from answerbot.react_prompt import (NewFunctionalReactPrompt, FunctionalReactPrompt, TextReactPrompt, NoExamplesReactPrompt)
 
 # Constants
 ITERATIONS = 1
-CONFIG_KEYS = ['chunk_size', 'prompt', 'example_chunk_size', 'max_llm_calls', 'model']
+CONFIG_KEYS = ['chunk_size', 'prompt', 'max_llm_calls', 'model', 'reflection_prompt', 'last_reflection']
 ADDITIONAL_KEYS = ['answer', 'error', 'type', 'steps', 'question_index', 'correct']
+CLASS_MAP = {
+    'NFRP': { 'class': NewFunctionalReactPrompt, 'args': [200] },
+    'FRP': { 'class': FunctionalReactPrompt, 'args': [200] },
+    'TRP': { 'class': TextReactPrompt, 'args': [200] },
+    'NERP': { 'class': NoExamplesReactPrompt, 'args': [] },
+}
+
+REFLECTION_PROMPT_MAP = {
+    'A': System("Reflect on the received information and plan next steps."),
+    'B': User("Reflect on the received information and plan next steps."),
+    'D': System("Please extract the relevant facts from the data above, note which sections of the current page could contain more relevant information and plan next steps.")
+}
+
+LAST_REFLECTION_MAP = {
+    'A': System("In the next call you need to formulate an answer - please reflect on the received information.")
+}
 
 def load_config_from_file(config_filename):
     with open(config_filename, 'r') as config_file:
@@ -77,16 +95,29 @@ def perform_experiments(settings, output_dir):
 
         for combo in combinations:
             # Use dictionary unpacking to get the values by key and build the config dictionary
-            config = dict(zip(CONFIG_KEYS, combo[:-1]))
+            config_flat = dict(zip(CONFIG_KEYS, combo[:-1]))
             question_index = combo[-1]
 
             for _ in range(ITERATIONS):
                 question_data = settings["question"][question_index]
                 question_text = question_data["text"]
                 question_type = question_data["type"]
-                log_preamble = ('=' * 80) + f"\nQuestion: {question_text}\nConfig: {config}\n"
+                log_preamble = ('=' * 80) + f"\nQuestion: {question_text}\nConfig: {config_flat}\n"
 
                 try:
+                    prompt_class = CLASS_MAP[config_flat['prompt']]['class']
+                    prompt_args = CLASS_MAP[config_flat['prompt']]['args']
+                    prompt = prompt_class(question_text, *prompt_args)
+                    reflection_prompt = REFLECTION_PROMPT_MAP[config_flat["reflection_prompt"]]
+                    last_reflection = LAST_REFLECTION_MAP[config_flat["last_reflection"]]
+                    config = {
+                        "chunk_size": config_flat["chunk_size"],
+                        "prompt": prompt,
+                        "max_llm_calls": config_flat["max_llm_calls"],
+                        "model": config_flat["model"],
+                        "reflection_prompt": reflection_prompt,
+                        "last_reflection": last_reflection,
+                    }
                     reactor = get_answer(question_text, config)
 
                     prompt_file = open(os.path.join(promptsdir, f"{question_index}.txt"), 'w')
@@ -94,7 +125,7 @@ def perform_experiments(settings, output_dir):
                     prompt_file.close()
 
                     correct = 1 if reactor.answer in question_data["answers"] else 0
-                    config.update({
+                    config_flat.update({
                         'type': question_type,
                         'question_index': question_index,
                         'answer': reactor.answer,
@@ -102,22 +133,17 @@ def perform_experiments(settings, output_dir):
                         'correct': correct,
                         'steps': reactor.step,
                     })
-                    # todo summarize_prompt should be named in config
-                    config.pop('summarize_prompt', None)
-                    config.pop('last_reflection', None)
                     prompts_file.write(f"{log_preamble}\nPrompt:\n{str(reactor.prompt)}\n\n")
                 except Exception as e:
                     error_trace = traceback.format_exc()
                     error_file.write(f"{log_preamble}\n{error_trace}\n\n")
-                    config.update({
+                    config_flat.update({
                         'type': question_type,
                         'question_index': question_index,
                         'error': 1,
                         'correct': 0,
                     })
-                    # todo summarize_prompt should be named in config
-                    config.pop('summarize_prompt', None)
-                writer.writerow(config)
+                writer.writerow(config_flat)
     if os.path.getsize(errors_file_path) == 0:  # If the error file is empty, remove it.
         os.remove(errors_file_path)
 
@@ -160,13 +186,11 @@ if __name__ == "__main__":
 #            'FRP',
             'NERP',
         ],
-        "example_chunk_size": [
-#            300,
-            200,
-        ],
+        "reflection_prompt": ['A', 'B', ],
+        "last_reflection": ['A', ],
         "max_llm_calls": [5],
-        "model": ["gpt-4-1106-preview"]
-        #"model": ["gpt-3.5-turbo-1106"]
+        # "model": ["gpt-4-1106-preview"]
+        "model": ["gpt-3.5-turbo-1106"]
     }
     load_config_from_file('config.json')
     output_dir = generate_directory_name()

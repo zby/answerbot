@@ -1,4 +1,5 @@
 import json
+from string import Template
 from typing import Any, Iterable, List, Dict
 from pprint import pformat
 
@@ -10,16 +11,25 @@ class PromptMessage:
             setattr(self, key, value)
         self.content = content
 
+    def set_template_args(self, args):
+        self.template_args = args
+
     def get_content(self) -> str:
         if self.summarized_below:
             content = "This message is summarized in subsequent messages."
+        elif hasattr(self, 'template_args'):
+            template = Template(self.content)
+            content = template.substitute(self.template_args)
         else:
             content = self.content
         return content
+
     def openai_message(self) -> dict:
+        role = self.role
+        content = self.get_content()
         return {
-            "role": self.role,
-            "content": self.get_content(),
+            "role": role,
+            "content": content,
         }
 
     def plaintext(self) -> str:

@@ -24,8 +24,8 @@ CLASS_MAP = {
 }
 
 REFLECTION_PROMPT_MAP = {
-    'A': System("Reflect on the received information and plan next steps."),
-    'B': User("Reflect on the received information and plan next steps."),
+    'A': System("Reflect on the received information and plan next steps. This was a call to the Wikiepdia API number $step."),
+    'B': User("Reflect on the received information and plan next steps. This was a call to the Wikiepdia API number $step."),
     'D': System("Please extract the relevant facts from the data above, note which sections of the current page could contain more relevant information and plan next steps.")
 }
 
@@ -106,7 +106,11 @@ def perform_experiments(settings, output_dir):
 
                 try:
                     prompt_class = CLASS_MAP[config_flat['prompt']]['class']
-                    prompt_args = CLASS_MAP[config_flat['prompt']]['args']
+                    # todo this is a hack
+                    if prompt_class == NoExamplesReactPrompt:
+                        prompt_args = [config_flat['max_llm_calls']]
+                    else:
+                        prompt_args = CLASS_MAP[config_flat['prompt']]['args']
                     prompt = prompt_class(question_text, *prompt_args)
                     reflection_prompt = REFLECTION_PROMPT_MAP[config_flat["reflection_prompt"]]
                     last_reflection = LAST_REFLECTION_MAP[config_flat["last_reflection"]]

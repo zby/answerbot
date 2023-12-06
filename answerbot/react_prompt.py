@@ -122,10 +122,11 @@ class NewFunctionalReactPrompt(ReactPrompt, FunctionalPrompt):
         return response.get("function_call")
 
 class NoExamplesReactPrompt(FunctionalPrompt):
-    def __init__(self, question):
+    def __init__(self, question, max_llm_calls):
         system_prompt = \
-"""
+f"""
 Please answer the following question. You can use wikipedia for reference - but think carefully about what pages exist at wikipedia.
+You have only {max_llm_calls} calls to the wikipedia API.
 When you look for a property of something or someone - search for that something page instead of using that property in the search.
 The search function automatically retrieves the first search result. The wikipedia pages are formatted in Markdown.
 When you receive information from wikipedia always analyze it and check what useful information have you found and what else do you need.

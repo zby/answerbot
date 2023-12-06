@@ -37,14 +37,15 @@ if __name__ == "__main__":
     question = "What is the name of the fight song of the university whose main campus is in Lawrence, Kansas and whose branch campuses are in the Kansas City metropolitan area?"
     # question = "What year did Guns N Roses perform a promo for a movie starring Arnold Schwarzenegger as a former New York Police detective?"
 
+    max_llm_calls = 5
     config = {
         "chunk_size": 300,
-        "prompt": NoExamplesReactPrompt(question),
-        "max_llm_calls": 5,
+        "prompt": NoExamplesReactPrompt(question, max_llm_calls),
+        "max_llm_calls": max_llm_calls,
         "model": "gpt-3.5-turbo-0613",
-        "reflection_prompt": System("Reflect on the received information and plan next steps."),
+        "reflection_prompt": System("Reflect on the received information and plan next steps. This was a call to the Wikiepdia API number $step."),
         "last_reflection": System("In the next call you need to formulate an answer - please reflect on the received information.")
     }
 
     reactor = get_answer(question, config)
-    print(reactor.prompt)
+    print(pformat(reactor.prompt.to_messages()))

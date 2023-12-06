@@ -2,6 +2,7 @@ import openai
 import json
 import time
 import logging
+import copy
 
 from .prompt_builder import FunctionalPrompt, PromptMessage, Assistant, System, FunctionCall, FunctionResult
 from .get_wikipedia import WikipediaApi
@@ -117,10 +118,7 @@ class LLMReactor:
                 self.prompt.push(message)
 
                 # now reflect on the observations
-                if self.step == self.max_llm_calls - 1:
-                    message = self.last_reflection
-                else:
-                    message = self.summarize_prompt
+                message = self.reflection_message()
                 logger.info(str(message))
                 self.prompt.push(message)
                 response = self.openai_query(function_call='none')
@@ -128,6 +126,14 @@ class LLMReactor:
                 logger.info(str(message))
                 self.prompt.push(message)
 
+    def reflection_message(self):
+        # todo we need to make the messages immutable
+        if self.step == self.max_llm_calls - 1:
+            message = copy.copy(self.last_reflection)
+        else:
+            message = copy.copy(self.summarize_prompt)
+            message.set_template_args({'step': self.step})
+        return message
 
 def get_answer(question, config):
     print("\n\n<<< Question:", question)

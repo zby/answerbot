@@ -1,7 +1,11 @@
 import unittest
 import json
 
-from answerbot.prompt_builder import System, User, Assistant, Prompt, FunctionCall, FunctionResult, PlainTextPrompt, FunctionalPrompt
+from answerbot.prompt_builder import PromptMessage, System, User, Assistant, Prompt, FunctionCall, FunctionResult, PlainTextPrompt, FunctionalPrompt
+
+import unittest
+from string import Template
+
 
 class TestPromptMessages(unittest.TestCase):
 
@@ -11,6 +15,13 @@ class TestPromptMessages(unittest.TestCase):
         eval_system = eval(repr(system))
         self.assertEqual(system.content, eval_system.content)
         self.assertEqual(system.role, eval_system.role)
+
+        system = System("Message with a $placeholder", template_args={'placeholder': 'Template'})
+        self.assertEqual(system.openai_message(), {"role": "system", "content": "Message with a Template"})
+        eval_system = eval(repr(system))
+        self.assertEqual(system.content, eval_system.content)
+        self.assertEqual(system.role, eval_system.role)
+        self.assertEqual(system.template_args, eval_system.template_args)
 
         user = User("User Test")
         self.assertEqual(user.openai_message(), {"role": "user", "content": "User Test"})

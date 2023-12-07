@@ -7,7 +7,8 @@ import copy
 from .prompt_builder import FunctionalPrompt, PromptMessage, Assistant, System, FunctionCall, FunctionResult
 from .get_wikipedia import WikipediaApi
 
-from .react_prompt import FunctionalReactPrompt, NewFunctionalReactPrompt, TextReactPrompt, NoExamplesReactPrompt
+from .react_prompt import FunctionalReactPrompt, NewFunctionalReactPrompt, TextReactPrompt
+from .prompt_templates import NoExamplesReactPrompt
 from .toolbox import ToolBox, WikipediaSearch
 
 # Configure basic logging
@@ -18,12 +19,11 @@ logger = logging.getLogger(__name__)
 
 
 class LLMReactor:
-    def __init__(self, model: str, toolbox: ToolBox, prompt: FunctionalPrompt, summarize_prompt: PromptMessage, last_reflection: PromptMessage, max_llm_calls: int):
+    def __init__(self, model: str, toolbox: ToolBox, prompt: FunctionalPrompt, reflection_generator, max_llm_calls: int):
         self.model = model
         self.toolbox = toolbox
         self.prompt = prompt
-        self.summarize_prompt = summarize_prompt
-        self.last_reflection = last_reflection
+        self.reflection_generator = reflection_generator
         self.max_llm_calls = max_llm_calls
         self.step = 0
         self.finished = False
@@ -118,7 +118,7 @@ class LLMReactor:
                 self.prompt.push(message)
 
                 # now reflect on the observations
-                message = self.reflection_message()
+                message = self.reflection_generator.generate(self.step, self.max_llm_calls)
                 logger.info(str(message))
                 self.prompt.push(message)
                 response = self.openai_query(function_call='none')
@@ -126,20 +126,11 @@ class LLMReactor:
                 logger.info(str(message))
                 self.prompt.push(message)
 
-    def reflection_message(self):
-        # todo we need to make the messages immutable
-        if self.step == self.max_llm_calls - 1:
-            message = copy.copy(self.last_reflection)
-        else:
-            message = copy.copy(self.summarize_prompt)
-            message.set_template_args({'step': self.step})
-        return message
-
 def get_answer(question, config):
     print("\n\n<<< Question:", question)
     wiki_api = WikipediaApi(max_retries=2, chunk_size=config['chunk_size'])
     toolbox = WikipediaSearch(wiki_api)
-    reactor = LLMReactor(config['model'], toolbox, config['prompt'], config['reflection_prompt'], config['last_reflection'], config['max_llm_calls'])
+    reactor = LLMReactor(config['model'], toolbox, config['prompt'], config['reflection_generator'], config['max_llm_calls'])
     while True:
         print()
         print(f">>>LLM call number: {reactor.step}")

@@ -10,7 +10,8 @@ import openai
 
 from answerbot.prompt_builder import System, User, Assistant, FunctionCall, FunctionResult
 from answerbot.react import get_answer
-from answerbot.react_prompt import (NewFunctionalReactPrompt, FunctionalReactPrompt, TextReactPrompt, NoExamplesReactPrompt)
+from answerbot.react_prompt import NewFunctionalReactPrompt, FunctionalReactPrompt, TextReactPrompt
+from answerbot.prompt_templates import NoExamplesReactPrompt, ReflectionMessageGenerator
 
 # Constants
 ITERATIONS = 1
@@ -23,14 +24,13 @@ CLASS_MAP = {
     'NERP': { 'class': NoExamplesReactPrompt, 'args': [] },
 }
 
-REFLECTION_PROMPT_MAP = {
-    'A': System("Reflect on the received information and plan next steps. This was a call to the Wikiepdia API number $step."),
-    'B': User("Reflect on the received information and plan next steps. This was a call to the Wikiepdia API number $step."),
-    'D': System("Please extract the relevant facts from the data above, note which sections of the current page could contain more relevant information and plan next steps.")
+REFLECTION_MESSAGE_MAP = {
+    'A': "Reflect on the received information and plan next steps. This was a call to the Wikiepdia API number $step.",
+    'B': "Please extract the relevant facts from the data above, note which sections of the current page could contain more relevant information and plan next steps."
 }
 
 LAST_REFLECTION_MAP = {
-    'A': System("In the next call you need to formulate an answer - please reflect on the received information.")
+    'A': "In the next call you need to formulate an answer - please reflect on the received information."
 }
 
 def load_config_from_file(config_filename):
@@ -112,15 +112,16 @@ def perform_experiments(settings, output_dir):
                     else:
                         prompt_args = CLASS_MAP[config_flat['prompt']]['args']
                     prompt = prompt_class(question_text, *prompt_args)
-                    reflection_prompt = REFLECTION_PROMPT_MAP[config_flat["reflection_prompt"]]
-                    last_reflection = LAST_REFLECTION_MAP[config_flat["last_reflection"]]
+                    reflection_generator = ReflectionMessageGenerator(
+                        REFLECTION_MESSAGE_MAP[config_flat["reflection_prompt"]],
+                        LAST_REFLECTION_MAP[config_flat["last_reflection"]]
+                    )
                     config = {
                         "chunk_size": config_flat["chunk_size"],
                         "prompt": prompt,
                         "max_llm_calls": config_flat["max_llm_calls"],
                         "model": config_flat["model"],
-                        "reflection_prompt": reflection_prompt,
-                        "last_reflection": last_reflection,
+                        "reflection_generator": reflection_generator,
                     }
                     reactor = get_answer(question_text, config)
 
@@ -158,7 +159,7 @@ if __name__ == "__main__":
     #filename = 'filtered_questions.json'
     if filename:
         start_index = 0
-        end_index = 10
+        end_index = 2
         questions_list = load_questions_from_file(filename, start_index, end_index)
     else:
         # Default Question
@@ -191,7 +192,7 @@ if __name__ == "__main__":
             'NERP',
         ],
         "reflection_prompt": ['A', 'B', ],
-        "last_reflection": ['A', ],
+        "last_reflection": ['A'],
         "max_llm_calls": [5],
         # "model": ["gpt-4-1106-preview"]
         "model": ["gpt-3.5-turbo-1106"]

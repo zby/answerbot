@@ -3,15 +3,10 @@ import json
 import tiktoken
 
 from .prompt_builder import FunctionalPrompt, PlainTextPrompt, User, System, FunctionCall, FunctionResult
+from .prompt_templates import Question
 from .get_wikipedia import WikipediaApi
 from .toolbox import WikipediaSearch
 
-
-class Question(User):
-    def plaintext(self) -> str:
-        return '\nQuestion: ' + self.content
-    def openai_message(self) -> dict:
-        return { "role": "user", "content": 'Question: ' + self.content }
 
 new_functional_system_message = System('''You are an expert Wikipedia editor. 
 Solve a question answering task by interacting with the Wikipedia API.
@@ -121,19 +116,6 @@ class NewFunctionalReactPrompt(ReactPrompt, FunctionalPrompt):
     def function_call_from_response(self, response):
         return response.get("function_call")
 
-class NoExamplesReactPrompt(FunctionalPrompt):
-    def __init__(self, question, max_llm_calls):
-        system_prompt = \
-f"""
-Please answer the following question. You can use wikipedia for reference - but think carefully about what pages exist at wikipedia.
-You have only {max_llm_calls} calls to the wikipedia API.
-When you look for a property of something or someone - search for that something page instead of using that property in the search.
-The search function automatically retrieves the first search result. The wikipedia pages are formatted in Markdown.
-When you receive information from wikipedia always analyze it and check what useful information have you found and what else do you need.
-When you know the answer call finish. Please make the answer as short as possible. If it can be answered with yes or no that is best.
-Remove all explanations from the answer and put them into the thought field.
-"""
-        super().__init__([ System(system_prompt), Question(question) ])
 
 class TextReactPrompt(ReactPrompt, PlainTextPrompt):
     def __init__(self, question, examples_chunk_size):

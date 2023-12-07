@@ -5,7 +5,7 @@ import logging
 
 from pprint import pformat
 from answerbot.prompt_builder import System
-from answerbot.react_prompt import NoExamplesReactPrompt
+from answerbot.prompt_templates import NoExamplesReactPrompt, ReflectionMessageGenerator
 from answerbot.react import get_answer
 
 # Configure basic logging
@@ -43,8 +43,9 @@ if __name__ == "__main__":
         "prompt": NoExamplesReactPrompt(question, max_llm_calls),
         "max_llm_calls": max_llm_calls,
         "model": "gpt-3.5-turbo-0613",
-        "reflection_prompt": System("Reflect on the received information and plan next steps. This was a call to the Wikiepdia API number $step."),
-        "last_reflection": System("In the next call you need to formulate an answer - please reflect on the received information.")
+        "reflection_generator": ReflectionMessageGenerator(
+            "Reflect on the received information and plan next steps. This was a call to the Wikiepdia API number $step.",
+            "In the next call you need to formulate an answer - please reflect on the received information.")
     }
 
     reactor = get_answer(question, config)

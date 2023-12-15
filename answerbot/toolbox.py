@@ -22,6 +22,7 @@ class WikipediaSearch(ToolBox):
             "search": self.search,
             "get": self.get,
             "lookup": self.lookup,
+            "next": self.next_lookup,
         }
 
         self.functions = [
@@ -80,6 +81,20 @@ class WikipediaSearch(ToolBox):
                 },
             },
             {
+                "name": "next",
+                "description": "returns next occurrence of the looked up keyword in the current page",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "reason": {
+                            "type": "string",
+                            "description": "The reason for checking in this particular section of the article",
+                        }
+                    },
+                    "required": ["reason"],
+                },
+            },
+            {
                 "name": "finish",
                 "description": "Finish the task and return the answer",
                 "parameters": {
@@ -125,9 +140,22 @@ class WikipediaSearch(ToolBox):
             text = self.document.lookup(keyword)
             observations = 'Keyword "' + keyword + '" '
             if text:
-                observations = observations + "found  in: \n" + text
+                num_of_results = len(self.document.lookup_results)
+                observations = observations + f"found on current page in in {num_of_results} places. The first occurence:\n" + text
             else:
                 observations = observations + "not found in current page"
+        return observations
+
+    def next_lookup(self, function_args):
+        if self.document is None:
+            observations = "No document defined, cannot lookup"
+        elif not self.document.lookup_results:
+            observations = "No lookup results found"
+        else:
+            text = self.document.next_lookup()
+            observations = 'Keyword "' + self.document.lookup_word + '" found in: \n' + text
+            num_of_results = len(self.document.lookup_results)
+            observations = observations + f"\n{self.document.lookup_position} of {num_of_results} places"
         return observations
 
     def retrieval_observations(self, search_record, limit_sections=None):

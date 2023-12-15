@@ -31,15 +31,17 @@ if __name__ == "__main__":
     #question = "Were Scott Derrickson and Ed Wood of the same nationality?"
     question = "What science fantasy young adult series, told in first person, has a set of companion books narrating the stories of enslaved worlds and alien species?"
     question = "The arena where the Lewiston Maineiacs played their home games can seat how many people?"
-    question = "What is the name of the fight song of the university whose main campus is in Lawrence, Kansas and whose branch campuses are in the Kansas City metropolitan area?"
+    #question = "What is the name of the fight song of the university whose main campus is in Lawrence, Kansas and whose branch campuses are in the Kansas City metropolitan area?"
     # question = "What year did Guns N Roses perform a promo for a movie starring Arnold Schwarzenegger as a former New York Police detective?"
+    question = "What is the weight proportion of oxygen in water?"
 
-    max_llm_calls = 5
+    max_llm_calls = 7
     config = {
-        "chunk_size": 300,
+        "chunk_size": 500,
         "prompt": NoExamplesReactPrompt(question, max_llm_calls),
         "max_llm_calls": max_llm_calls,
-        "model": "gpt-3.5-turbo-0613",
+        #"model": "gpt-3.5-turbo-0613",
+        "model": "gpt-4-1106-preview",
         "reflection_generator": ReflectionMessageGenerator(
             "Reflect on the received information and plan next steps. This was a call to the Wikiepdia API number $step.",
             "In the next call you need to formulate an answer - please reflect on the received information.")

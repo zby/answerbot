@@ -6,12 +6,15 @@ import subprocess
 from datetime import datetime
 import itertools
 import traceback
-import openai
+from dotenv import load_dotenv
 
 from answerbot.prompt_builder import System, User, Assistant, FunctionCall, FunctionResult
 from answerbot.react import get_answer
 from answerbot.react_prompt import NewFunctionalReactPrompt, FunctionalReactPrompt, TextReactPrompt
 from answerbot.prompt_templates import NoExamplesReactPrompt, ReflectionMessageGenerator
+
+# load OpenAI api key
+load_dotenv()
 
 # Constants
 ITERATIONS = 1
@@ -32,11 +35,6 @@ REFLECTION_MESSAGE_MAP = {
 LAST_REFLECTION_MAP = {
     'A': "In the next call you need to formulate an answer - please reflect on the received information."
 }
-
-def load_config_from_file(config_filename):
-    with open(config_filename, 'r') as config_file:
-        json_config = json.load(config_file)
-        openai.api_key = json_config["api_key"]
 
 def load_questions_from_file(filename, start_index, end_index):
     with open(filename, 'r') as f:
@@ -191,13 +189,15 @@ if __name__ == "__main__":
 #            'FRP',
             'NERP',
         ],
-        "reflection_prompt": ['A', 'B', ],
+        "reflection_prompt": [
+            'A',
+            #'B',
+        ],
         "last_reflection": ['A'],
-        "max_llm_calls": [5],
+        "max_llm_calls": [3],
         # "model": ["gpt-4-1106-preview"]
         "model": ["gpt-3.5-turbo-1106"]
     }
-    load_config_from_file('config.json')
     output_dir = generate_directory_name()
     save_constants_to_file(os.path.join(output_dir, "params.py"), settings)
     save_git_version_and_diff(os.path.join(output_dir, "version.txt"))

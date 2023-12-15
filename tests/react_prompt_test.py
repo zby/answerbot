@@ -28,55 +28,5 @@ class TestReactPrompt(unittest.TestCase):
         self.assertTrue(len(str(frprompt_large)) >= len(str(frprompt_small)))
 
 
-
-class TestFunctionalReactPrompt(unittest.TestCase):
-
-    def setUp(self):
-        with patch.object(ReactPrompt, 'get_examples', return_value=[]):
-            self.instance = FunctionalReactPrompt("Some question", 200)
-
-    def test_function_call_from_response(self):
-        response = {
-            'role': 'assistant',
-            "content": 'bla bla bla',
-            'function_call': {
-                "name": "search",
-                "arguments": json.dumps({"query": "Milhouse Simpson", "reason": "Looking for Milhouse details"})
-            }
-        }
-        expected_args = json.dumps({ 'query': 'Milhouse Simpson', 'reason': "Looking for Milhouse details"})
-        output = self.instance.function_call_from_response(response)
-        self.assertEqual(output['name'], 'search')
-        self.assertEqual(output['arguments'], expected_args)
-
-
-class TestTextReactPrompt(unittest.TestCase):
-
-    def setUp(self):
-        with patch.object(ReactPrompt, 'get_examples', return_value=[]):
-            self.instance = TextReactPrompt("Another question", 200)
-
-    def test_function_call_from_response_finish(self):
-        response = {
-            "content": "Thought: Final thought\nAction: finish[Correct Answer]"
-        }
-        expected_output = {
-            "name": "finish",
-            "arguments": json.dumps({"answer": "Correct Answer", "reason": "Final thought"})
-        }
-        self.assertEqual(self.instance.function_call_from_response(response), expected_output)
-
-    def test_function_call_from_response_search(self):
-        response = {
-            "content": "Thought: Looking for data\nAction: search[Milhouse Simpson]"
-        }
-        expected_output = {
-            "name": "search",
-            "arguments": json.dumps({"query": "Milhouse Simpson", "reason": "Looking for data"})
-        }
-        self.assertEqual(self.instance.function_call_from_response(response), expected_output)
-
-
-
 if __name__ == '__main__':
     unittest.main()

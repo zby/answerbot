@@ -154,7 +154,7 @@ class FunctionalPrompt(Prompt):
         return [part.openai_message() for part in self.parts]
 
     def function_call_from_response(self, response):
-        return response.get("function_call")
+        return response.function_call
 
 
 class PlainTextPrompt(Prompt):

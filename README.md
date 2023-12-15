@@ -2,7 +2,7 @@
 
 ## Installation
 
-Copy `config.json_` to `config.json` and fill in the blanks.
+Copy `.env_` to `.env` and fill in the blanks.
 
 Install the requirements with `pip install -r requirements.txt`
 

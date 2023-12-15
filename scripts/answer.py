@@ -1,9 +1,8 @@
-import openai
-import json
-import time
 import logging
 
 from pprint import pformat
+from dotenv import load_dotenv
+
 from answerbot.prompt_builder import System
 from answerbot.prompt_templates import NoExamplesReactPrompt, ReflectionMessageGenerator
 from answerbot.react import get_answer
@@ -14,12 +13,10 @@ logging.basicConfig(level=logging.INFO)
 # Get a logger for the current module
 logger = logging.getLogger(__name__)
 
+# load OpenAI api key
+load_dotenv()
 
 if __name__ == "__main__":
-    # load the api key from a file
-    with open("config.json", "r") as f:
-        json_config = json.load(f)
-    openai.api_key = json_config["api_key"]
 
     # question = "What was the first major battle in the Ukrainian War?"
     # question = "What were the main publications by the Nobel Prize winner in economics in 2023?"

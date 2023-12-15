@@ -52,3 +52,4 @@ The current 0-shot prompts seem to work - so I have not tested the example gener
 * better prompt testing in experiments
 * better prompts
 * detecting loops
+* following links

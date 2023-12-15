@@ -5,12 +5,18 @@ CHUNK_SIZE = 1024
 
 
 class Document(ABC):
-    def __init__(self, content, chunk_size=CHUNK_SIZE, retrival_obs=[], summary=None):
+    def __init__(self, content, chunk_size=CHUNK_SIZE, retrival_obs=[], summary=None, lookup_word=None, lookup_results=None, lookup_position=0):
         self.content = content
         self.chunk_size = chunk_size
         self.text = self.extract_text()
         self.summary = summary
         self.retrival_obs = retrival_obs
+        if lookup_results is None:
+            self.lookup_results = []
+        else:
+            self.lookup_results = lookup_results
+        self.lookup_word = lookup_word
+        self.lookup_position = lookup_position
 
     @abstractmethod
     def extract_text(self):
@@ -29,6 +35,8 @@ class Document(ABC):
                 chunk += sentence + " "
             else:
                 break
+        chunk = chunk.strip()
+        self.position = len(chunk)
         return chunk.strip()
 
     @abstractmethod
@@ -39,6 +47,26 @@ class Document(ABC):
     def lookup(self, keyword):
         pass
 
+    def next_lookup(self):
+        if not self.lookup_results:
+            return None
+
+        # Retrieve the current match
+        current_match = self.lookup_results[self.lookup_position]
+
+        # Move to the next position, loop back if at the end
+        self.lookup_position = (self.lookup_position + 1) % len(self.lookup_results)
+
+        return current_match
+
+class LookupResults:
+    def __init__(self, keyword, results, position=0):
+        self.keyword = keyword
+        self.results = results
+        self.position = position
+
+    def __repr__(self):
+        return f"LookupResults({self.keyword!r}, {self.results!r})"
 
 from bs4 import BeautifulSoup, Tag
 
@@ -65,6 +93,8 @@ class SimpleHtmlDocument(Document):
             nonlocal first_occurrence_node
             if first_occurrence_node:  # If we have already found the keyword, we can skip further processing
                 return True
+
+            #todo position
 
             text = node.text.strip()
 

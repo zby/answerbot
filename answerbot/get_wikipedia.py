@@ -58,22 +58,30 @@ class MarkdownDocument(Document):
     def lookup(self, keyword):
         text = self.content
         keyword_escaped = re.escape(keyword)
-        match = re.search(keyword_escaped, text, re.IGNORECASE)
-        if match is None:  # Keyword not found
+        matches = list(re.finditer(keyword_escaped, text, re.IGNORECASE))
+
+        if not matches:  # No matches found
             return None
-        index = match.span()[0]
 
-        # Determine the start and end points for the extraction
-        start = max(index - self.chunk_size // 1, 0)
-        end = min(index + len(keyword) + self.chunk_size // 1, len(text))
-        surrounding_text = text[start:end]
+        self.lookup_results = []
+        for match in matches:
+            index = match.span()[0]
 
-        # Adjust start point to make sure it doesn't extend past a section boundary
-        prev_section_boundary = text.rfind('\n##', start, index + 3)
-        if prev_section_boundary != -1:  # Found a previous section boundary
-            start = prev_section_boundary + 1
+            # Determine the start and end points for the extraction
+            start = max(index - self.chunk_size // 2, 0)
+            end = min(index + len(keyword) + self.chunk_size // 2, len(text))
 
-        return text[start:end].strip()
+            # Adjust start point for section boundary
+            prev_section_boundary = text.rfind('\n##', start, index + 3)
+            if prev_section_boundary != -1:
+                start = prev_section_boundary + 1
+
+            chunk = text[start:end].strip()
+            self.lookup_results.append(chunk)
+
+        self.lookup_word = keyword
+        self.lookup_position = 0
+        return self.next_lookup()
 
 
 class ContentRecord:

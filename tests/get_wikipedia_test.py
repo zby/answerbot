@@ -163,6 +163,16 @@ Paragraph with a new_keyword.
         #print(doc.lookup("Section 2"))
         self.assertIsNone(doc.lookup("nonexistent"))
 
+        # Test next_lookup method
+        first_result = doc.lookup("keyword")
+        second_result = doc.next_lookup()
+        self.assertIn("Another paragraph with the keyword.", second_result)
+        third_result = doc.next_lookup()
+        self.assertIn("Paragraph with a new_keyword.", third_result)
+        # Check if it loops back to the first result
+        looped_result = doc.next_lookup()
+        self.assertEqual(first_result, looped_result)
+
         # more lookup tests
         wiki_content = "A (b)"
         doc = MarkdownDocument(wiki_content)

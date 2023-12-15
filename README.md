@@ -9,7 +9,7 @@ Install the requirements with `pip install -r requirements.txt`
 Install the library package. I am installing it in an editable form: `pip install -e .`
 
 Run tests:
-`python -m unittest discover -p '*_test.py' -s tests/`
+`pytest tests/`
 
 
 ## Scripts
@@ -46,7 +46,6 @@ The current 0-shot prompts seem to work - so I have not tested the example gener
 ## TODO
 * ongoing refactoring for easier use in Jupyter notebooks
 * `answerbot/react_prompt.py` contains a lot of unused code
-* I still don't like unittests - I'll probably switch to pytest
 * working on less hallucinations in summaries
 * stats in experiments
 * better prompt testing in experiments

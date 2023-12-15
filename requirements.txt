@@ -14,3 +14,4 @@ numpy~=1.26.1
 setuptools~=65.5.1
 httpx~=0.25.0
 python-dotenv~=1.0.0
+pytest~=7.4.0

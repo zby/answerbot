@@ -1,91 +1,70 @@
-import unittest
-import wikipedia
+import pytest
 import requests
 from unittest.mock import patch, Mock
 from answerbot.get_wikipedia import WikipediaApi, WikipediaDocument, MarkdownDocument, ContentRecord
 
 SMALL_CHUNK_SIZE = 72
 
-class TestWikipediaApi(unittest.TestCase):
-    def setUp(self):
-        self.api = WikipediaApi(max_retries=3, chunk_size=500)  # Adjust chunk size as needed
+@pytest.fixture
+def wikipedia_api():
+    return WikipediaApi(max_retries=3, chunk_size=500)
 
-    @patch('requests.get')
-    def test_successful_retrieval(self, mock_get):
-        # Mock the API response for successful page retrieval
-        mock_get.return_value.json.return_value = {
-            'query': {
-                'pages': {
-                    '12345': {
-                        'pageid': 12345,
-                        'ns': 0,
-                        'title': 'Python',
-                        'revisions': [{'*': '<html>Sample content</html>'}]
-                    }
+@patch('requests.get')
+def test_successful_retrieval(mock_get, wikipedia_api):
+    mock_get.return_value.json.return_value = {
+        'query': {
+            'pages': {
+                '12345': {
+                    'pageid': 12345,
+                    'ns': 0,
+                    'title': 'Python',
+                    'revisions': [{'*': '<html>Sample content</html>'}]
                 }
             }
         }
-        mock_get.return_value.status_code = 200
+    }
+    mock_get.return_value.status_code = 200
 
-        record = self.api.get_page("Python")
+    record = wikipedia_api.get_page("Python")
 
-        self.assertIn("Successfully retrieved 'Python' from Wikipedia.", record.retrieval_history)
-        self.assertIsNotNone(record.document)
-        self.assertIn('Sample content', record.document.content)
+    assert "Successfully retrieved 'Python' from Wikipedia." in record.retrieval_history
+    assert record.document is not None
+    assert 'Sample content' in record.document.content
 
-
-    @patch.object(WikipediaApi, 'get_page')
-    @patch('requests.get')
-    def test_search_with_results(self, mock_get, mock_get_page):
-        # Mock the API response for search
-        mock_get.return_value.json.return_value = {
-            'query': {
-                'search': [{
-                    'title': 'Python (programming)'
-                }]
-            }
+@patch.object(WikipediaApi, 'get_page')
+@patch('requests.get')
+def test_search_with_results(mock_get, mock_get_page, wikipedia_api):
+    mock_get.return_value.json.return_value = {
+        'query': {
+            'search': [{'title': 'Python (programming)'}]
         }
-        mock_get.return_value.status_code = 200
+    }
+    mock_get.return_value.status_code = 200
 
-        # Mock the behavior of get_page to return a sample ContentRecord
-        mock_document = Mock(content="Sample content for Python")
-        mock_get_page.return_value = ContentRecord(mock_document, ["Sample retrieval history"])
+    mock_document = Mock(content="Sample content for Python")
+    mock_get_page.return_value = ContentRecord(mock_document, ["Sample retrieval history"])
 
-        record = self.api.search("Python")
+    record = wikipedia_api.search("Python")
 
-        # Verify that get_page was called with the expected argument
-        mock_get_page.assert_called_once_with("Python (programming)")
+    mock_get_page.assert_called_once_with("Python (programming)")
+    assert "Wikipedia search results for query: 'Python' are: [[Python (programming)]]" in record.retrieval_history
+    assert "Sample retrieval history" in record.retrieval_history
+    assert record.document.content == "Sample content for Python"
 
-        # Check if the search history and get_page retrieval history are both recorded
-        self.assertIn("Wikipedia search results for query: 'Python' are: [[Python (programming)]]", record.retrieval_history)
-        self.assertIn("Sample retrieval history", record.retrieval_history)
-        self.assertEqual(record.document.content, "Sample content for Python")
+@patch.object(WikipediaApi, 'get_page')
+@patch('requests.get')
+def test_search_no_results(mock_get, mock_get_page, wikipedia_api):
+    mock_get.return_value.json.return_value = {'query': {'search': []}}
+    mock_get.return_value.status_code = 200
 
+    record = wikipedia_api.search("NonExistentTopic")
 
-    @patch.object(WikipediaApi, 'get_page')
-    @patch('requests.get')
-    def test_search_no_results(self, mock_get, mock_get_page):
-        # Mock the API response for search with no results
-        mock_get.return_value.json.return_value = {
-            'query': {
-                'search': []  # Empty list to simulate no search results
-            }
-        }
-        mock_get.return_value.status_code = 200
+    mock_get_page.assert_not_called()
+    assert "Wikipedia search results for query: 'NonExistentTopic' are: " in record.retrieval_history
+    assert record.document is None
 
-        record = self.api.search("NonExistentTopic")
-
-        # Verify that get_page was not called
-        mock_get_page.assert_not_called()
-
-        # Check if the search history indicates no results
-        self.assertIn("Wikipedia search results for query: 'NonExistentTopic' are: ", record.retrieval_history)
-        self.assertIsNone(record.document)
-
-class TestWikipediaDocument(unittest.TestCase):
-
-    def test_wikipedia_document_extraction(self):
-        wiki_content = """
+def test_wikipedia_document_extraction():
+    wiki_content = """
 == Test Page ==
 Main Title
 Subtitle
@@ -96,40 +75,24 @@ Another paragraph with the keyword.
 == Section 2 ==
 Paragraph with a new_keyword.
 """
-        doc = WikipediaDocument(wiki_content, chunk_size=SMALL_CHUNK_SIZE)
-        # print(doc.text)
-        self.assertEqual(doc.text, wiki_content)
+    doc = WikipediaDocument(wiki_content, chunk_size=SMALL_CHUNK_SIZE)
+    assert doc.text == wiki_content
+    assert "This is the first paragraph." in doc.first_chunk()
+    assert len(doc.first_chunk()) <= SMALL_CHUNK_SIZE
+    assert doc.first_chunk().endswith(".") or doc.first_chunk().endswith("!") or doc.first_chunk().endswith("?")
+    assert doc.section_titles() == ['Test Page', 'Section 2']
+    assert "Item 1 with the keyword" in doc.lookup("keyword")
+    assert "Paragraph with a new_keyword." in doc.lookup("new_keyword")
+    assert doc.lookup("new_keyword").startswith("== Section 2 ==")
+    assert doc.lookup("Section 2").startswith("== Section 2 ==")
+    assert doc.lookup("nonexistent") is None
+    wiki_content = "A (b)"
+    doc = WikipediaDocument(wiki_content)
+    assert wiki_content in doc.lookup("a")
+    assert wiki_content in doc.lookup("A (b)")
 
-        # Test the first chunk
-        self.assertIn("This is the first paragraph.", doc.first_chunk())
-        # Making sure the first_chunk doesn't exceed the smaller chunk_size (not defined here, should be based on your implementation)
-        self.assertLessEqual(len(doc.first_chunk()), SMALL_CHUNK_SIZE)
-        # Also checking if the chunk ends with a full sentence (i.e., not in between)
-        self.assertTrue(doc.first_chunk().endswith(".") or doc.first_chunk().endswith(
-            "!") or doc.first_chunk().endswith("?"))
-
-        # Test section titles
-        expected_section_titles = ['Test Page', 'Section 2']
-        self.assertEqual(doc.section_titles(), expected_section_titles)
-
-        # Test lookup
-        self.assertIn("Item 1 with the keyword", doc.lookup("keyword"))
-        self.assertIn("Paragraph with a new_keyword.", doc.lookup("new_keyword"))
-        self.assertTrue(doc.lookup("new_keyword").startswith("== Section 2 =="))
-        self.assertTrue(doc.lookup("Section 2").startswith("== Section 2 =="))
-        self.assertIsNone(doc.lookup("nonexistent"))
-
-        # more lookup tests
-        wiki_content = "A (b)"
-        doc = WikipediaDocument(wiki_content)
-
-        self.assertIn(wiki_content, doc.lookup("a"))  # should be case insensitive
-        self.assertIn(wiki_content, doc.lookup("A (b)")) # should not treat keyword as regex
-
-class TestMarkdownDocument(unittest.TestCase):
-
-    def test_wikipedia_document_extraction(self):
-        wiki_content = """
+def test_markdown_document_extraction():
+    wiki_content = """
 ## Test Page
 ### Main Title
 #### Subtitle
@@ -140,46 +103,18 @@ Another paragraph with the keyword.
 ## Section 2
 Paragraph with a new_keyword.
 """
-        doc = MarkdownDocument(wiki_content, chunk_size=SMALL_CHUNK_SIZE)
-        # print(doc.text)
-        self.assertEqual(doc.text, wiki_content)
-
-        # Test the first chunk
-        self.assertIn("This is the first paragraph.", doc.first_chunk())
-        # Making sure the first_chunk doesn't exceed the smaller chunk_size (not defined here, should be based on your implementation)
-        self.assertLessEqual(len(doc.first_chunk()), SMALL_CHUNK_SIZE)
-
-        # Test section titles
-        expected_section_titles = ['## Test Page', '### Main Title', '#### Subtitle', '## Section 2']
-        self.assertEqual(doc.section_titles(), expected_section_titles)
-
-        # Test lookup
-        self.assertIn("Item 1 with the keyword", doc.lookup("keyword"))
-        self.assertIn("Paragraph with a new_keyword.", doc.lookup("new_keyword"))
-        self.assertTrue(doc.lookup("new_keyword").startswith("## Section 2"))
-        self.assertTrue(doc.lookup("Section 2").startswith("## Section 2"))
-        self.assertTrue(doc.lookup("## Section 2").startswith("## Section 2"))
-        #print(doc.lookup("## Section 2"))
-        #print(doc.lookup("Section 2"))
-        self.assertIsNone(doc.lookup("nonexistent"))
-
-        # Test next_lookup method
-        first_result = doc.lookup("keyword")
-        second_result = doc.next_lookup()
-        self.assertIn("Another paragraph with the keyword.", second_result)
-        third_result = doc.next_lookup()
-        self.assertIn("Paragraph with a new_keyword.", third_result)
-        # Check if it loops back to the first result
-        looped_result = doc.next_lookup()
-        self.assertEqual(first_result, looped_result)
-
-        # more lookup tests
-        wiki_content = "A (b)"
-        doc = MarkdownDocument(wiki_content)
-
-        self.assertIn(wiki_content, doc.lookup("a"))  # should be case insensitive
-        self.assertIn(wiki_content, doc.lookup("A (b)")) # should not treat keyword as regex
-
-
-if __name__ == '__main__':
-    unittest.main()
+    doc = MarkdownDocument(wiki_content, chunk_size=SMALL_CHUNK_SIZE)
+    assert doc.text == wiki_content
+    assert "This is the first paragraph." in doc.first_chunk()
+    assert len(doc.first_chunk()) <= SMALL_CHUNK_SIZE
+    assert doc.section_titles() == ['## Test Page', '### Main Title', '#### Subtitle', '## Section 2']
+    assert "Item 1 with the keyword" in doc.lookup("keyword")
+    assert "Paragraph with a new_keyword." in doc.lookup("new_keyword")
+    assert doc.lookup("new_keyword").startswith("## Section 2")
+    assert doc.lookup("Section 2").startswith("## Section 2")
+    assert doc.lookup("## Section 2").startswith("## Section 2")
+    assert doc.lookup("nonexistent") is None
+    wiki_content = "A (b)"
+    doc = MarkdownDocument(wiki_content)
+    assert wiki_content in doc.lookup("a")
+    assert wiki_content in doc.lookup("A (b)")

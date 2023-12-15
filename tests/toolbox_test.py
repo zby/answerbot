@@ -49,12 +49,13 @@ class TestWikipediaSearch(unittest.TestCase):
 
     def test_lookup_with_document(self):
         mock_document = MagicMock(spec=Document)
+        mock_document.lookup_results = ["Mock text"]
         mock_document.lookup.return_value = "Mock text"
         self.wiki_search.process('search', {'query': 'Python', 'reason': 'Test search'})
         self.wiki_search.document = mock_document
         function_args = {'keyword': 'Python', 'reason': 'Test lookup'}
         test_response = self.wiki_search.process('lookup', function_args)
-        self.assertEqual(test_response, 'Keyword "Python" found  in: \nMock text')
+        self.assertEqual(test_response, 'Keyword "Python" found on current page in 1 places. The first occurence:\nMock text')
 
 
 if __name__ == '__main__':

@@ -141,7 +141,7 @@ class WikipediaSearch(ToolBox):
             observations = 'Keyword "' + keyword + '" '
             if text:
                 num_of_results = len(self.document.lookup_results)
-                observations = observations + f"found on current page in in {num_of_results} places. The first occurence:\n" + text
+                observations = observations + f"found on current page in {num_of_results} places. The first occurence:\n" + text
             else:
                 observations = observations + "not found in current page"
         return observations

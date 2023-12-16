@@ -5,7 +5,7 @@ import os
 
 from bs4 import BeautifulSoup, NavigableString
 
-from .document import Document, MarkdownDocument
+from answerbot.document import Document, MarkdownDocument
 
 MAX_RETRIES = 3
 API_URL = 'https://en.wikipedia.org/w/api.php'

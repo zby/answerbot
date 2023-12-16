@@ -35,6 +35,10 @@ We have our own set of questions, they are rather tricky but you can run it with
 More questions in in the same format in:
 [https://github.com/andyz245/LanguageAgentTreeSearch/blob/main/hotpot/data/](https://github.com/andyz245/LanguageAgentTreeSearch/blob/main/hotpot/data/)
 
+### Example code in `if __name__ == "__main__"` blocks
+- `answerbot/get_wikipedia.py`
+- `answerbot/document.py`
+
 ## Compatibility
 I currently work only on OpenAI llms.
 

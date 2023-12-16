@@ -5,7 +5,7 @@ import os
 
 from bs4 import BeautifulSoup, NavigableString
 
-from .document import Document
+from .document import Document, MarkdownDocument
 
 MAX_RETRIES = 3
 API_URL = 'https://en.wikipedia.org/w/api.php'
@@ -46,42 +46,6 @@ class WikipediaDocument(Document):
             start = first_dot_index + 1
 
         return text[start:end].strip()
-
-class MarkdownDocument(Document):
-    def extract_text(self):
-        return self.content
-
-    def section_titles(self):
-        headings = re.findall(r'^(###? *.*)', self.content, re.MULTILINE)
-        return headings
-
-    def lookup(self, keyword):
-        text = self.content
-        keyword_escaped = re.escape(keyword)
-        matches = list(re.finditer(keyword_escaped, text, re.IGNORECASE))
-
-        if not matches:  # No matches found
-            return None
-
-        self.lookup_results = []
-        for match in matches:
-            index = match.span()[0]
-
-            # Determine the start and end points for the extraction
-            start = max(index - self.chunk_size // 2, 0)
-            end = min(index + len(keyword) + self.chunk_size // 2, len(text))
-
-            # Adjust start point for section boundary
-            prev_section_boundary = text.rfind('\n##', start, index + 3)
-            if prev_section_boundary != -1:
-                start = prev_section_boundary + 1
-
-            chunk = text[start:end].strip()
-            self.lookup_results.append(chunk)
-
-        self.lookup_word = keyword
-        self.lookup_position = 0
-        return self.next_lookup()
 
 
 class ContentRecord:

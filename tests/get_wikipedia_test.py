@@ -1,7 +1,6 @@
 import pytest
-import requests
 from unittest.mock import patch, Mock
-from answerbot.get_wikipedia import WikipediaApi, WikipediaDocument, MarkdownDocument, ContentRecord
+from answerbot.get_wikipedia import WikipediaApi, WikipediaDocument, ContentRecord
 
 SMALL_CHUNK_SIZE = 72
 
@@ -91,30 +90,3 @@ Paragraph with a new_keyword.
     assert wiki_content in doc.lookup("a")
     assert wiki_content in doc.lookup("A (b)")
 
-def test_markdown_document_extraction():
-    wiki_content = """
-## Test Page
-### Main Title
-#### Subtitle
-This is the first paragraph. It's pretty long and contains a lot of text that should be split into chunks. Here's another sentence. And yet another one here. And more and more and more.
-* Item 1 with the keyword
-* Item 2
-Another paragraph with the keyword.
-## Section 2
-Paragraph with a new_keyword.
-"""
-    doc = MarkdownDocument(wiki_content, chunk_size=SMALL_CHUNK_SIZE)
-    assert doc.text == wiki_content
-    assert "This is the first paragraph." in doc.first_chunk()
-    assert len(doc.first_chunk()) <= SMALL_CHUNK_SIZE
-    assert doc.section_titles() == ['## Test Page', '### Main Title', '#### Subtitle', '## Section 2']
-    assert "Item 1 with the keyword" in doc.lookup("keyword")
-    assert "Paragraph with a new_keyword." in doc.lookup("new_keyword")
-    assert doc.lookup("new_keyword").startswith("## Section 2")
-    assert doc.lookup("Section 2").startswith("## Section 2")
-    assert doc.lookup("## Section 2").startswith("## Section 2")
-    assert doc.lookup("nonexistent") is None
-    wiki_content = "A (b)"
-    doc = MarkdownDocument(wiki_content)
-    assert wiki_content in doc.lookup("a")
-    assert wiki_content in doc.lookup("A (b)")

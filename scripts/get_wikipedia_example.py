@@ -1,4 +1,4 @@
-from get_wikipedia import WikipediaApi, ContentRecord
+from answerbot.get_wikipedia import WikipediaApi, ContentRecord
 
 wiki_api = WikipediaApi(max_retries=3)
 

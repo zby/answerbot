@@ -59,14 +59,42 @@ class Document(ABC):
 
         return current_match
 
-class LookupResults:
-    def __init__(self, keyword, results, position=0):
-        self.keyword = keyword
-        self.results = results
-        self.position = position
+class MarkdownDocument(Document):
+    def extract_text(self):
+        return self.content
 
-    def __repr__(self):
-        return f"LookupResults({self.keyword!r}, {self.results!r})"
+    def section_titles(self):
+        headings = re.findall(r'^(###? *.*)', self.content, re.MULTILINE)
+        return headings
+
+    def lookup(self, keyword):
+        text = self.content
+        keyword_escaped = re.escape(keyword)
+        matches = list(re.finditer(keyword_escaped, text, re.IGNORECASE))
+
+        if not matches:  # No matches found
+            return None
+
+        self.lookup_results = []
+        for match in matches:
+            index = match.span()[0]
+
+            # Determine the start and end points for the extraction
+            start = max(index - self.chunk_size // 2, 0)
+            end = min(index + len(keyword) + self.chunk_size // 2, len(text))
+
+            # Adjust start point for section boundary
+            prev_section_boundary = text.rfind('\n##', start, index + 3)
+            if prev_section_boundary != -1:
+                start = prev_section_boundary + 1
+
+            chunk = text[start:end].strip()
+            self.lookup_results.append(chunk)
+
+        self.lookup_word = keyword
+        self.lookup_position = 0
+        return self.next_lookup()
+
 
 from bs4 import BeautifulSoup, Tag
 

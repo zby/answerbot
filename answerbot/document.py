@@ -152,6 +152,8 @@ class SimpleHtmlDocument(Document):
 
 if __name__ == '__main__':
     CHUNK_SIZE = 300
+
+    print("Example for SimpleHtmlDocument (as of now it does not really work)\n")
     file_path = 'data/wikipedia_pages/Oxygen.html'
 
     with open(file_path, 'r', encoding='utf-8') as file:
@@ -162,3 +164,17 @@ if __name__ == '__main__':
 
     print(doc.first_chunk())
     print(doc.lookup('atomic weight'))
+
+    print()
+    print('=' * 80)
+    print("Example for MarkdownDocument\n")
+
+    file_path = 'data/wikipedia_pages/Oxygen.md'
+
+    with open(file_path, 'r', encoding='utf-8') as file:
+        md_content = file.read()
+
+    doc = MarkdownDocument(md_content, chunk_size=CHUNK_SIZE)
+    print(doc.first_chunk())
+    print(doc.lookup('atomic weight'))
+

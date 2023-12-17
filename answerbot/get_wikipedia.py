@@ -8,6 +8,9 @@ from bs4 import BeautifulSoup, NavigableString
 from answerbot.document import Document, MarkdownDocument
 
 MAX_RETRIES = 3
+# BASE_URL = 'https://pl.wikipedia.org/wiki/'
+# API_URL = 'https://pl.wikipedia.org/w/api.php'
+BASE_URL = 'https://en.wikipedia.org/wiki/'
 API_URL = 'https://en.wikipedia.org/w/api.php'
 
 class WikipediaDocument(Document):
@@ -81,9 +84,10 @@ class ContentRecord:
         return ContentRecord(document, retrieval_history)
 
 class WikipediaApi:
-    def __init__(self, max_retries=MAX_RETRIES, chunk_size=1024, api_url=API_URL):
+    def __init__(self, max_retries=MAX_RETRIES, chunk_size=1024, base_url=BASE_URL, api_url=API_URL):
         self.max_retries = max_retries
         self.chunk_size = chunk_size
+        self.base_url = base_url
         self.api_url = api_url
 
     def bracket_links_in_content(self, content, links):
@@ -102,12 +106,23 @@ class WikipediaApi:
 
         # remove table of content
         soup = BeautifulSoup(html, 'html.parser')
-        toc_element = soup.find('div', {'id': 'toc'})
-        if toc_element:
-            toc_element.decompose()
-        # Find all <span> tags with the class 'hide-when-compact'
-        for span in soup.find_all('span', class_='hide-when-compact'):
-            span.decompose()
+        content = soup.find('div', id='bodyContent')
+
+        for tag in content.find_all():
+            if tag.name == 'a' and 'action=edit' in tag.get('href', ''):
+                tag.decompose()
+            if tag.name == 'div' and tag.get('id') == 'toc':
+                tag.decompose()
+            if tag.name == 'div' and 'vector-body-before-content' in tag.get('class', []):
+                tag.decompose()
+            if tag.name == 'div' and 'infobox-caption' in tag.get('class', []):
+                tag.decompose()
+            if tag.name == 'img':
+                tag.decompose()
+            if tag.name == 'span' and 'hide-when-compact' in tag.get('class', []):
+                tag.decompose()
+            if tag.name == 'span' and 'mw-editsection' in tag.get('class', []):
+                tag.decompose()
 
         # Remove some metadata - we need compact information
         search_text = "This article relies excessively on"
@@ -115,7 +130,7 @@ class WikipediaApi:
         required_href = "/wiki/Wikipedia:Verifiability"
 
         # Find all <div> elements with class 'mbox-text-span'
-        for div in soup.find_all('div', class_='mbox-text-span'):
+        for div in content.find_all('div', class_='mbox-text-span'):
             gtex = div.get_text().strip()
             if search_text in div.get_text():
                 for a_tag in div.find_all('a', href=required_href):
@@ -123,25 +138,16 @@ class WikipediaApi:
                     if text_before_anchor in preceding_text:
                         div.decompose()
                         break  # Stop checking this div, as we found a match
-        for div in soup.find_all('div', class_='mbox-text-span'):
+        for div in content.find_all('div', class_='mbox-text-span'):
             print(div)
-        modified_html = str(soup)
+        modified_html = str(content)
 
         converter = html2text.HTML2Text()
         # Avoid breaking links into newlines
         converter.body_width = 0
         # converter.protect_links = True # this does not seem to work
         markdown = converter.handle(modified_html)
-        # replace the edit links with an empty string
-        # __TODO__: move that to MarkdownDocument
-        edit_link_pattern = r'\[\[edit\]\(/w/index\.php\?title=.*?\)]'
-        cleaned_content = re.sub(edit_link_pattern, '', markdown)
-        # Regex pattern to match the image links
-        pattern = r'\[!\[.*?\]\((?:.*?[^\\]|.*?)\)\]\((?:.*?[^\\]|.*?)\)'
-        # sometimes urls have escaped parenthesis inside them:
-        # /wiki/File:Glasto2023_Guns_%27N%27_Roses_\(sans_Dave_Grohl\).jpg
-        # !!!
-        cleaned_content = re.sub(pattern, '', cleaned_content)
+        cleaned_content = markdown.strip()
         return cleaned_content
 
     def get_page(self, title):
@@ -149,60 +155,24 @@ class WikipediaApi:
         retries = 0
 
         while retries < self.max_retries:
-            params = {
-                'action': 'query',
-                'format': 'json',
-                'titles': title,
-                'prop': 'revisions',
-                'rvprop': 'content',
-                'rvparse': True,  # Get parsed HTML content
-                'redirects': True,
-            }
-
-            try:
-                response = requests.get(self.api_url, params=params)
+            url = self.base_url + title
+            response = requests.get(url)
+            if response.status_code == 404:
+                retrieval_history.append(f"Page '{title}' does not exist.")
+                break
+            elif response.status_code == 200:
                 response.raise_for_status()
-                data = response.json()
-                pages = data['query']['pages']
+                html = response.text
+                cleaned_content = self.clean_html_and_textify(html)
 
-                if '-1' in pages:  # Page does not exist
-                    retrieval_history.append(f"Page '{title}' does not exist.")
-                    break
-
-                page = next(iter(pages.values()))
-
-                # Check for disambiguation and redirect (handle as before)
-
-                # Extract HTML content
-                if 'revisions' in page and page['revisions']:
-                    html = page['revisions'][0]['*']
-                    # directory = "data/wikipedia_pages"
-                    # sanitized_title = title.replace("/", "_").replace("\\", "_")  # To ensure safe filenames
-                    # sanitized_title = sanitized_title.replace(" ", "_")
-                    # html_filename = os.path.join(directory, f"{sanitized_title}.html")
-                    # with open(html_filename, 'w', encoding='utf-8') as file:
-                    #     file.write(html)
-
-                    cleaned_content = self.clean_html_and_textify(html)
-
-                    document = MarkdownDocument(cleaned_content, self.chunk_size)
-                    retrieval_history.append(f"Successfully retrieved '{title}' from Wikipedia.")
-                else:
-                    document = None
-                    retrieval_history.append(f"No content found for '{title}'.")
-                    break
+                document = MarkdownDocument(cleaned_content, self.chunk_size)
+                retrieval_history.append(f"Successfully retrieved '{title}' from Wikipedia.")
 
                 return ContentRecord(document, retrieval_history)
-
-            except requests.exceptions.HTTPError as e:
-                retrieval_history.append(f"HTTP error occurred: {e}")
+            else:
+                retrieval_history.append(f"HTTP error occurred: {response.status_code}")
                 break
-            except Exception as e:
-                retrieval_history.append(str(e))
-                break
-
             retries += 1
-
         retrieval_history.append(f"Retries exhausted. No options available.")
         return ContentRecord(None, retrieval_history)
 

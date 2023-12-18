@@ -30,9 +30,10 @@ class ToolBox:
 
 
 class WikipediaSearch(ToolBox):
-    def __init__(self, wiki_api):
+    def __init__(self, wiki_api, cached=False):
         super().__init__()
         self.wiki_api = wiki_api
+        self.cached = cached
         self.document = None
         self.function_mapping.update({
             "search": self.search,
@@ -130,8 +131,8 @@ class WikipediaSearch(ToolBox):
             },
         ]
 
-    def search(self, function_args, cached=False):
-        if not cached:
+    def search(self, function_args):
+        if not self.cached:
             search_query = function_args["query"]
             search_record = self.wiki_api.search(search_query)
         else:
@@ -141,8 +142,8 @@ class WikipediaSearch(ToolBox):
         self.document = search_record.document
         return self.retrieval_observations(search_record)
 
-    def get(self, function_args, cached=False):
-        if cached:
+    def get(self, function_args):
+        if self.cached:
             raise Exception("Cached get not implemented")
         search_record = self.wiki_api.get_page(function_args["title"])
         self.document = search_record.document

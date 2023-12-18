@@ -57,7 +57,7 @@ class ReactPrompt:
         self.question = question
         self.initial_system_message = initial_system_message
         wiki_api = WikipediaApi(max_retries=3, chunk_size=examples_chunk_size)
-        self.toolbox = WikipediaSearch(wiki_api)
+        self.toolbox = WikipediaSearch(wiki_api, cached=True)
         examples = self.get_examples()
         super().__init__([self.initial_system_message, *examples, Question(self.question)])
 
@@ -67,7 +67,7 @@ class ReactPrompt:
         if name == 'finish':
             return [fcall]
         if name == 'search':
-            result = self.toolbox.function_mapping[name](args, cached=True)
+            result = self.toolbox.function_mapping[name](args)
         else:
             result = self.toolbox.function_mapping[name](args)
         return [fcall, FunctionResult(name, result)]

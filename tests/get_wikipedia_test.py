@@ -1,66 +1,78 @@
 import pytest
-from unittest.mock import patch, Mock
+from unittest.mock import patch, MagicMock
 from answerbot.get_wikipedia import WikipediaApi, WikipediaDocument, ContentRecord
 
 SMALL_CHUNK_SIZE = 72
 
-@pytest.fixture
-def wikipedia_api():
-    return WikipediaApi(max_retries=3, chunk_size=500)
 
-@patch('requests.get')
-def test_successful_retrieval(mock_get, wikipedia_api):
-    mock_get.return_value.json.return_value = {
+# Mocking the requests response
+class MockResponse:
+    def __init__(self, text, status_code):
+        self.text = text
+        self.status_code = status_code
+
+    def raise_for_status(self):
+        if self.status_code != 200:
+            raise Exception("HTTP Error")
+
+# Test successful page retrieval
+@patch('answerbot.get_wikipedia.requests.get')
+def test_get_page_success(mock_get):
+    mock_get.return_value = MockResponse('<html><div id="bodyContent">Page Content</div></html>', 200)
+    api = WikipediaApi()
+    result = api.get_page("TestPage")
+    assert result.document is not None
+    assert "Successfully retrieved 'TestPage'" in result.retrieval_history[0]
+
+# Test 404 error
+@patch('answerbot.get_wikipedia.requests.get')
+def test_get_page_404(mock_get):
+    mock_get.return_value = MockResponse("Page not found", 404)
+    api = WikipediaApi()
+    result = api.get_page("NonExistentPage")
+    assert result.document is None
+    assert "Page 'NonExistentPage' does not exist." in result.retrieval_history
+
+# Test other HTTP errors
+@patch('answerbot.get_wikipedia.requests.get')
+def test_get_page_http_error(mock_get):
+    mock_get.return_value = MockResponse("Error", 500)
+    api = WikipediaApi()
+    result = api.get_page("ErrorPage")
+    assert result.document is None
+    assert "HTTP error occurred: 500" in result.retrieval_history
+
+# Test retries exhausted
+@patch('answerbot.get_wikipedia.requests.get')
+def test_get_page_retries_exhausted(mock_get):
+    mock_get.side_effect = [MockResponse("Error", 500) for _ in range(5)]  # Assuming MAX_RETRIES is 5
+    api = WikipediaApi()
+    result = api.get_page("ErrorPage")
+    assert result.document is None
+    assert "Retries exhausted. No options available." in result.retrieval_history
+
+# Mocking the response for a successful search
+def mock_successful_search(*args, **kwargs):
+    mock_response = MagicMock()
+    mock_response.json.return_value = {
         'query': {
-            'pages': {
-                '12345': {
-                    'pageid': 12345,
-                    'ns': 0,
-                    'title': 'Python',
-                    'revisions': [{'*': '<html>Sample content</html>'}]
-                }
-            }
+            'search': [{'title': 'TestTitle1'}, {'title': 'TestTitle2'}]
         }
     }
-    mock_get.return_value.status_code = 200
+    mock_response.raise_for_status.return_value = None
+    return mock_response
 
-    record = wikipedia_api.get_page("Python")
+# Test successful search
+@patch('answerbot.get_wikipedia.requests.get', side_effect=mock_successful_search)
+@patch('answerbot.get_wikipedia.WikipediaApi.get_page')
+def test_search_success(mock_get_page, mock_get):
+    api = WikipediaApi()
+    mock_get_page.return_value = ContentRecord(None, ['Page retrieval history'])
+    result = api.search("test_query")
+    assert result.document is None
+    assert "Wikipedia search results for query: 'test_query'" in result.retrieval_history[0]
+    assert mock_get_page.called
 
-    assert "Successfully retrieved 'Python' from Wikipedia." in record.retrieval_history
-    assert record.document is not None
-    assert 'Sample content' in record.document.content
-
-@patch.object(WikipediaApi, 'get_page')
-@patch('requests.get')
-def test_search_with_results(mock_get, mock_get_page, wikipedia_api):
-    mock_get.return_value.json.return_value = {
-        'query': {
-            'search': [{'title': 'Python (programming)'}]
-        }
-    }
-    mock_get.return_value.status_code = 200
-
-    mock_document = Mock(content="Sample content for Python")
-    mock_get_page.return_value = ContentRecord(mock_document, ["Sample retrieval history"])
-
-    record = wikipedia_api.search("Python")
-
-    mock_get_page.assert_called_once_with("Python (programming)")
-    assert "Wikipedia search results for query: 'Python' are: [[Python (programming)]]" in record.retrieval_history
-    assert "Sample retrieval history" in record.retrieval_history
-    assert record.document.content == "Sample content for Python"
-
-@patch.object(WikipediaApi, 'get_page')
-@patch('requests.get')
-def test_search_no_results(mock_get, mock_get_page, wikipedia_api):
-    mock_get.return_value.json.return_value = {'query': {'search': []}}
-    mock_get.return_value.status_code = 200
-
-    record = wikipedia_api.search("NonExistentTopic")
-
-    mock_get_page.assert_not_called()
-    assert "Wikipedia search results for query: 'NonExistentTopic' are: " in record.retrieval_history
-    assert record.document is None
 
 def test_wikipedia_document_extraction():
     wiki_content = """

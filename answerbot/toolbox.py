@@ -1,16 +1,32 @@
+import json
 from .get_wikipedia import ContentRecord
 
+class ToolResult:
+    def __init__(self, tool_name=None, tool_args=None, observations=None, error=None):
+        self.tool_name = tool_name
+        self.tool_args = tool_args
+        self.observations = observations
+        self.error = error
 
 class ToolBox:
+
     def __init__(self):
-        self.function_mapping = {}
+        self.function_mapping = { "finish": self.finish }
         self.functions = []
 
-    def process(self, function_name, function_args, **kwargs):
-        if function_name not in self.function_mapping:
-            print(f"<<< Unknown function name: {function_name}")
-            raise Exception(f"Unknown function name: {function_name}")
-        return self.function_mapping[function_name](function_args, **kwargs)
+    def finish(self, tool_args):
+        answer = tool_args["answer"]
+        if answer.lower() == 'yes' or answer.lower() == 'no':
+            answer = answer.lower()
+        return answer
+
+    def process(self, function_call, **kwargs):
+        tool_args = json.loads(function_call.arguments)
+        tool_name = function_call.name
+        if tool_name not in self.function_mapping:
+            return ToolResult(tool_name=tool_name, tool_args=tool_args, error=f"Unknown tool name: {tool_name}")
+        observations = self.function_mapping[tool_name](tool_args, **kwargs)
+        return ToolResult(tool_name=tool_name, tool_args=tool_args, observations=observations)
 
 
 class WikipediaSearch(ToolBox):
@@ -18,12 +34,12 @@ class WikipediaSearch(ToolBox):
         super().__init__()
         self.wiki_api = wiki_api
         self.document = None
-        self.function_mapping = {
+        self.function_mapping.update({
             "search": self.search,
             "get": self.get,
             "lookup": self.lookup,
             "next": self.next_lookup,
-        }
+        })
 
         self.functions = [
             {

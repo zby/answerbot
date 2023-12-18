@@ -63,42 +63,35 @@ class LLMReactor:
             response = self.openai_query()
         function_call = self.prompt.function_call_from_response(response)
         if function_call:
-            message = FunctionCall(function_call.name, **json.loads(function_call.arguments))
-        else:
-            message = Assistant(response.content)
-        logger.info(str(message))
-        self.prompt.push(message)
-
-        if function_call:
-            function_args = json.loads(function_call.arguments)
-            tool_name = function_call.name
-            if tool_name == "finish":
-                answer = function_args["answer"]
+            result = self.toolbox.process(function_call)
+            message = FunctionCall(result.tool_name, **result.tool_args)
+            logger.info(str(message))
+            self.prompt.push(message)
+            if result.tool_name == 'finish':
+                self.answer = result.observations
                 self.set_finished()
-                if answer.lower() == 'yes' or answer.lower() == 'no':
-                    answer = answer.lower()
-                self.answer = answer
                 return
             elif self.step == self.max_llm_calls:
                 self.set_finished()
                 logger.info("<<< Max LLM calls reached without finishing")
                 return
-            else:
-                result = self.toolbox.process(tool_name, function_args)
-                message = FunctionResult(tool_name, result)
-                logger.info(str(message))
-                #                if len(message.content) > 500:
-                #                    message.summarized_below = True
-                self.prompt.push(message)
 
-                # now reflect on the observations
-                message = self.reflection_generator.generate(self.step, self.max_llm_calls)
-                logger.info(str(message))
-                self.prompt.push(message)
-                response = self.openai_query(function_call='none')
-                message = Assistant(response.content)
-                logger.info(str(message))
-                self.prompt.push(message)
+            message = FunctionResult(result.tool_name, result.observations)
+            logger.info(str(message))
+            self.prompt.push(message)
+
+            message = self.reflection_generator.generate(self.step, self.max_llm_calls)
+            logger.info(str(message))
+            self.prompt.push(message)
+            response = self.openai_query(function_call='none')
+            message = Assistant(response.content)
+            logger.info(str(message))
+            self.prompt.push(message)
+        else:
+            message = Assistant(response.content)
+            logger.info(str(message))
+            self.prompt.push(message)
+
 
 def get_answer(question, config):
     print("\n\n<<< Question:", question)

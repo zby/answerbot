@@ -25,7 +25,7 @@ class ToolBox:
         for function_info in self._generate_function_data(self.reverse_function_mapping):
             self.functions.append(function_info)
 
-    def finish(self, tool_args):
+    def finish(self, answer, reason):
         """
         Finish the task and return the answer.
 
@@ -34,17 +34,17 @@ class ToolBox:
         :param reason: The reasoning behind the answer.
         :type reason: str
         """
-        answer = tool_args["answer"]
+        answer = answer
         if answer.lower() == 'yes' or answer.lower() == 'no':
             answer = answer.lower()
         return answer
 
-    def process(self, function_call, **kwargs):
+    def process(self, function_call):
         tool_args = json.loads(function_call.arguments)
         tool_name = function_call.name
         if tool_name not in self.function_mapping:
             return ToolResult(tool_name=tool_name, tool_args=tool_args, error=f"Unknown tool name: {tool_name}")
-        observations = self.function_mapping[tool_name](tool_args, **kwargs)
+        observations = self.function_mapping[tool_name](**tool_args)
         return ToolResult(tool_name=tool_name, tool_args=tool_args, observations=observations)
 
     def _generate_function_data(self, reverse_function_mapping, docstring_type='reStructuredText'):
@@ -165,7 +165,7 @@ class WikipediaSearch(ToolBox):
 
 
 
-    def search(self, function_args):
+    def search(self, query, reason):
         """
         Searches Wikipedia, saves the first result page, and informs about the content of that page.
 
@@ -175,16 +175,16 @@ class WikipediaSearch(ToolBox):
         :type reason: str
         """
         if not self.cached:
-            search_query = function_args["query"]
+            search_query = query
             search_record = self.wiki_api.search(search_query)
         else:
-            title = function_args["query"]
+            title = query
             chunk_size = self.wiki_api.chunk_size
             search_record = ContentRecord.load_from_disk(title, chunk_size)
         self.document = search_record.document
         return self._retrieval_observations(search_record)
 
-    def get(self, function_args):
+    def get(self, title, reason):
         """
         Retrieves a Wikipedia page, saves the result, and informs about the content of that page.
 
@@ -196,11 +196,11 @@ class WikipediaSearch(ToolBox):
 
         if self.cached:
             raise Exception("Cached get not implemented")
-        search_record = self.wiki_api.get_page(function_args["title"])
+        search_record = self.wiki_api.get_page(title)
         self.document = search_record.document
         return self._retrieval_observations(search_record)
 
-    def lookup(self, function_args):
+    def lookup(self, keyword, reason):
         """
         Looks up a word on the current page.
 
@@ -209,7 +209,6 @@ class WikipediaSearch(ToolBox):
         :param reason: The reason for searching.
         :type reason: str
         """
-        keyword = function_args["keyword"]
         if self.document is None:
             observations = "No document defined, cannot lookup"
         else:
@@ -222,7 +221,7 @@ class WikipediaSearch(ToolBox):
                 observations = observations + "not found in current page"
         return observations
 
-    def next_lookup(self, function_args):
+    def next_lookup(self, reason):
         """
         Jumps to the next occurrence of the word searched previously.
 

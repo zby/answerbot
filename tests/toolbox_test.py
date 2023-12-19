@@ -62,3 +62,25 @@ def test_lookup_with_document(wiki_search):
     test_response = wiki_search.lookup(function_args)
     assert test_response == 'Keyword "Python" found on current page in 1 places. The first occurence:\nMock text'
 
+def test_functions(wiki_search):
+    function_dict = {}
+    for function in wiki_search.functions:
+        assert function["name"] in ["search", "get", "lookup", "next", "finish"]
+        function_dict[function["name"]] = function
+
+    assert function_dict["finish"]["description"] == "Finish the task and return the answer."
+    assert function_dict["finish"]["parameters"]["type"] == "object"
+    assert function_dict["finish"]["parameters"]["properties"]["answer"]["type"] == "string"
+    assert function_dict["finish"]["parameters"]["properties"]["answer"]["description"] == "The answer to the user's question."
+    assert function_dict["finish"]["parameters"]["properties"]["reason"]["type"] == "string"
+    assert function_dict["finish"]["parameters"]["properties"]["reason"]["description"] == "The reasoning behind the answer."
+
+    assert function_dict["search"]["description"] == "Searches Wikipedia, saves the first result page, and informs about the content of that page."
+    assert function_dict["search"]["parameters"]["type"] == "object"
+    assert function_dict["search"]["parameters"]["properties"]["query"]["type"] == "string"
+    assert function_dict["search"]["parameters"]["properties"]["query"]["description"] == "The query to search for on Wikipedia."
+    assert function_dict["search"]["parameters"]["properties"]["reason"]["type"] == "string"
+    assert function_dict["search"]["parameters"]["properties"]["reason"]["description"] == "The reason for searching."
+
+    assert function_dict["search"]["parameters"]["required"] == ["query", "reason"]
+

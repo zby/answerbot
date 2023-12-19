@@ -1,4 +1,10 @@
 import json
+import inspect
+import docutils
+from sphinx.ext.napoleon import Config, GoogleDocstring, NumpyDocstring
+from docutils.parsers.rst import Parser
+from docutils.utils import new_document
+
 from .get_wikipedia import ContentRecord
 
 class ToolResult:
@@ -10,11 +16,24 @@ class ToolResult:
 
 class ToolBox:
 
-    def __init__(self):
+    def __init__(self, reverse_function_mapping=None):
         self.function_mapping = { "finish": self.finish }
+        if reverse_function_mapping is None:
+            reverse_function_mapping = { "finish": "finish" }
+        self.reverse_function_mapping = reverse_function_mapping
         self.functions = []
+        for function_info in self._generate_function_data(self.reverse_function_mapping):
+            self.functions.append(function_info)
 
     def finish(self, tool_args):
+        """
+        Finish the task and return the answer.
+
+        :param answer: The answer to the user's question.
+        :type answer: str
+        :param reason: The reasoning behind the answer.
+        :type reason: str
+        """
         answer = tool_args["answer"]
         if answer.lower() == 'yes' or answer.lower() == 'no':
             answer = answer.lower()
@@ -28,10 +47,112 @@ class ToolBox:
         observations = self.function_mapping[tool_name](tool_args, **kwargs)
         return ToolResult(tool_name=tool_name, tool_args=tool_args, observations=observations)
 
+    def _generate_function_data(self, reverse_function_mapping, docstring_type='reStructuredText'):
+        functions_data = []
+        methods = inspect.getmembers(self, predicate=inspect.ismethod)
+        for name, method in methods:
+            if name.startswith('_') or name == 'process':
+                continue
+
+            docstring = method.__doc__
+            if not docstring:
+                continue
+
+            try:
+                description, parameters, required = self._parse_docstring(docstring, docstring_type)
+            except ValueError as e:
+                raise ValueError(f"Validation error in method '{name}': {e}")
+
+            function_info = {
+                "name": reverse_function_mapping[name],
+                "description": description,
+                "parameters": {
+                    "type": "object",
+                    "properties": parameters,
+                    "required": required
+                }
+            }
+            functions_data.append(function_info)
+
+        return functions_data
+
+    def _parse_rtc_docstring(self, docstring):
+        # Create a new document for parsing
+        settings = docutils.frontend.get_default_settings(Parser)
+        document = new_document('<docstring>', settings)
+
+        # Parse the docstring
+        parser = Parser()
+        parser.parse(docstring, document)
+
+        params_dict = {}
+        required_params = []
+        description = ''
+        # Traverse the document to find parameter descriptions
+        for node in document.findall():
+            # Extract method description from the first paragraph
+            if isinstance(node, docutils.nodes.paragraph) and not description:
+                description = node.astext()
+
+            # Extract parameters from field lists
+            if isinstance(node, docutils.nodes.field_list):
+                for field_node in node:
+                    if isinstance(field_node, docutils.nodes.field):
+                        name_node, body_node = field_node.children
+                        if isinstance(name_node, docutils.nodes.field_name) and isinstance(body_node, docutils.nodes.field_body):
+                            (field_type, param_name) = name_node.astext().split()
+                            if field_type == 'param':
+                                param_desc = body_node.astext()
+                                params_dict[param_name] = {'description': param_desc}
+                                required_params.append(param_name)
+                            elif field_type == 'type':
+                                param_type = body_node.astext()
+                                if param_type == 'str':
+                                    param_type = 'string'
+                                params_dict[param_name]['type'] = param_type
+                continue
+        return description, params_dict, required_params
+
+    def _parse_docstring(self, docstring, style):
+        if not docstring:
+            raise ValueError("Missing docstring.")
+
+        napoleon_config = Config(napoleon_use_param=True, napoleon_use_rtype=True)
+
+        if style == 'google':
+            parsed_docstring = GoogleDocstring(docstring, napoleon_config)
+        elif style == 'numpy':
+            parsed_docstring = NumpyDocstring(docstring, napoleon_config)
+        else:  # reStructuredText
+            return self._parse_rtc_docstring(docstring)
+
+        # Extracting the description
+        description = str(parsed_docstring).strip().split('\n')[0]
+
+        # Extracting parameters
+        params_desc = {}
+        required_params = []
+        if 'Parameters' in parsed_docstring._sections:
+            params = parsed_docstring._sections['Parameters']
+            for param in params:
+                if param:
+                    param_name = param[0]
+                    param_desc = ' '.join(param[1])
+                    params_desc[param_name] = {'type': 'string', 'description': param_desc}
+                    required_params.append(param_name)
+
+        return description, params_desc, required_params
 
 class WikipediaSearch(ToolBox):
     def __init__(self, wiki_api, cached=False):
-        super().__init__()
+        reverse_function_mapping = {
+            "finish": "finish",
+            "search": "search",
+            "get": "get",
+            "lookup": "lookup",
+            "next_lookup": "next",
+        }
+        super().__init__(reverse_function_mapping=reverse_function_mapping)
         self.wiki_api = wiki_api
         self.cached = cached
         self.document = None
@@ -42,96 +163,17 @@ class WikipediaSearch(ToolBox):
             "next": self.next_lookup,
         })
 
-        self.functions = [
-            {
-                "name": "search",
-                "description": "searches Wikipedia saves the first result page and informs about the content of that page",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "query": {
-                            "type": "string",
-                            "description": "The query to search for on Wikipedia",
-                        },
-                        "reason": {
-                            "type": "string",
-                            "description": "The reason for searching",
-                        }
-                    },
-                    "required": ["query", "reason"],
-                },
-            },
-            {
-                "name": "get",
-                "description": "gets the Wikipedia page with the given title, saves it and informs about the content of that page",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "title": {
-                            "type": "string",
-                            "description": "The title of the Wikipedia page to get",
-                        },
-                        "reason": {
-                            "type": "string",
-                            "description": "The reason for retrieving this particular article",
-                        }
-                    },
-                    "required": ["title", "reason"],
-                },
-            },
-            {
-                "name": "lookup",
-                "description": "returns text surrounding the keyword in the current page",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "keyword": {
-                            "type": "string",
-                            "description": "The keyword or section to lookup within the retrieved content",
-                        },
-                        "reason": {
-                            "type": "string",
-                            "description": "The reason for checking in this particular section of the article",
-                        }
-                    },
-                    "required": ["keyword", "reason"],
-                },
-            },
-            {
-                "name": "next",
-                "description": "returns next occurrence of the looked up keyword in the current page",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "reason": {
-                            "type": "string",
-                            "description": "The reason for checking in this particular section of the article",
-                        }
-                    },
-                    "required": ["reason"],
-                },
-            },
-            {
-                "name": "finish",
-                "description": "Finish the task and return the answer",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "answer": {
-                            "type": "string",
-                            "description": "The answer to the user's question",
-                        },
-                        "reason": {
-                            "type": "string",
-                            "description": "The reasoning behind the answer",
-                        }
-                    },
-                    "required": ["answer", "reason"],
-                },
-            },
-        ]
+
 
     def search(self, function_args):
+        """
+        Searches Wikipedia, saves the first result page, and informs about the content of that page.
+
+        :param query: The query to search for on Wikipedia.
+        :type query: str
+        :param reason: The reason for searching.
+        :type reason: str
+        """
         if not self.cached:
             search_query = function_args["query"]
             search_record = self.wiki_api.search(search_query)
@@ -140,16 +182,33 @@ class WikipediaSearch(ToolBox):
             chunk_size = self.wiki_api.chunk_size
             search_record = ContentRecord.load_from_disk(title, chunk_size)
         self.document = search_record.document
-        return self.retrieval_observations(search_record)
+        return self._retrieval_observations(search_record)
 
     def get(self, function_args):
+        """
+        Retrieves a Wikipedia page, saves the result, and informs about the content of that page.
+
+        :param title: The query to search for on Wikipedia.
+        :type title: str
+        :param reason: The reason for getting the page.
+        :type reason: str
+        """
+
         if self.cached:
             raise Exception("Cached get not implemented")
         search_record = self.wiki_api.get_page(function_args["title"])
         self.document = search_record.document
-        return self.retrieval_observations(search_record)
+        return self._retrieval_observations(search_record)
 
     def lookup(self, function_args):
+        """
+        Looks up a word on the current page.
+
+        :param keyword: The keyword to search for on current page.
+        :type keyword: str
+        :param reason: The reason for searching.
+        :type reason: str
+        """
         keyword = function_args["keyword"]
         if self.document is None:
             observations = "No document defined, cannot lookup"
@@ -164,6 +223,12 @@ class WikipediaSearch(ToolBox):
         return observations
 
     def next_lookup(self, function_args):
+        """
+        Jumps to the next occurrence of the word searched previously.
+
+        :param reason: The reason for searching.
+        :type reason: str
+        """
         if self.document is None:
             observations = "No document defined, cannot lookup"
         elif not self.document.lookup_results:
@@ -175,7 +240,7 @@ class WikipediaSearch(ToolBox):
             observations = observations + f"\n{self.document.lookup_position} of {num_of_results} places"
         return observations
 
-    def retrieval_observations(self, search_record, limit_sections=None):
+    def _retrieval_observations(self, search_record, limit_sections=None):
         observations = ""
         document = search_record.document
         for record in search_record.retrieval_history:

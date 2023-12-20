@@ -59,22 +59,53 @@ class ToolBox:
                 continue
 
             try:
-                description, parameters, required = self._parse_docstring(docstring, docstring_type)
+                api_name = reverse_function_mapping[name]
+                function_info = self._parse_docstring(api_name, docstring, docstring_type)
             except ValueError as e:
                 raise ValueError(f"Validation error in method '{name}': {e}")
 
-            function_info = {
-                "name": reverse_function_mapping[name],
-                "description": description,
-                "parameters": {
-                    "type": "object",
-                    "properties": parameters,
-                    "required": required
-                }
-            }
             functions_data.append(function_info)
 
         return functions_data
+
+    def _parse_docstring(self, api_name, docstring, style):
+        if not docstring:
+            raise ValueError("Missing docstring.")
+        if not style in ['reStructuredText', 'rest', 'google', 'eval']:
+            raise ValueError(f"Invalid docstring style: {style}")
+
+        napoleon_config = Config(napoleon_use_param=True, napoleon_use_rtype=True)
+
+        # Convert Google and NumPy docstrings to reST format
+        if style == 'eval':
+            if not docstring.startswith('{'):
+                docstring = '{\n' + docstring + '\n}'
+            function_info = eval(docstring)
+            return function_info
+        elif style in ['google', 'numpy']:
+            if style == 'google':
+                parsed_docstring = GoogleDocstring(docstring, napoleon_config)
+            else:  # numpy
+                parsed_docstring = NumpyDocstring(docstring, napoleon_config)
+
+            # Convert to reST format
+            rest_docstring = str(parsed_docstring)
+        else:
+            rest_docstring = str(docstring)
+
+        description, parameters, required = self._parse_rtc_docstring(rest_docstring)
+        function_info = {
+            "name": api_name,
+            "description": description,
+            "parameters": {
+                "type": "object",
+                "properties": parameters,
+                "required": required
+            }
+        }
+        return function_info
+
+
 
     def _parse_rtc_docstring(self, docstring):
         # Create a new document for parsing
@@ -88,6 +119,7 @@ class ToolBox:
         params_dict = {}
         required_params = []
         description = ''
+
         # Traverse the document to find parameter descriptions
         for node in document.findall():
             # Extract method description from the first paragraph
@@ -110,38 +142,32 @@ class ToolBox:
                                 if param_type == 'str':
                                     param_type = 'string'
                                 params_dict[param_name]['type'] = param_type
-                continue
+
+            # Extract parameters from definition lists
+            elif isinstance(node, docutils.nodes.definition_list):
+                for definition_item in node:
+                    if isinstance(definition_item, docutils.nodes.definition_list_item):
+                        term, definition = definition_item.children
+                        term_text = term.astext()
+                        # Check if the term is about parameters (e.g., "Args:")
+                        if term_text.lower() in ['args', 'args:', 'parameters', 'parameters:']:
+                            for params_node in definition.findall(docutils.nodes.paragraph):
+                                print(params_node)
+                                param_text = params_node.children[0].astext()
+                                params_lines = param_text.splitlines()
+                                for param_line in params_lines:
+                                    param_term, param_desc = param_line.split(':', 1)
+                                    param_desc = param_desc.strip()
+                                    param_name, param_type = param_term.split()
+                                    param_name = param_name.strip()
+                                    param_type = param_type.strip('()')
+                                    if param_type == 'str':
+                                        param_type = 'string'
+                                    params_dict[param_name] = {'description': param_desc, 'type': param_type}
+                                    required_params.append(param_name)
+
         return description, params_dict, required_params
 
-    def _parse_docstring(self, docstring, style):
-        if not docstring:
-            raise ValueError("Missing docstring.")
-
-        napoleon_config = Config(napoleon_use_param=True, napoleon_use_rtype=True)
-
-        if style == 'google':
-            parsed_docstring = GoogleDocstring(docstring, napoleon_config)
-        elif style == 'numpy':
-            parsed_docstring = NumpyDocstring(docstring, napoleon_config)
-        else:  # reStructuredText
-            return self._parse_rtc_docstring(docstring)
-
-        # Extracting the description
-        description = str(parsed_docstring).strip().split('\n')[0]
-
-        # Extracting parameters
-        params_desc = {}
-        required_params = []
-        if 'Parameters' in parsed_docstring._sections:
-            params = parsed_docstring._sections['Parameters']
-            for param in params:
-                if param:
-                    param_name = param[0]
-                    param_desc = ' '.join(param[1])
-                    params_desc[param_name] = {'type': 'string', 'description': param_desc}
-                    required_params.append(param_name)
-
-        return description, params_desc, required_params
 
 class WikipediaSearch(ToolBox):
     def __init__(self, wiki_api, cached=False):

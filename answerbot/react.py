@@ -36,9 +36,9 @@ class LLMReactor:
         if isinstance(self.prompt, FunctionalPrompt):
             # todo - we might optimize and only send the functions that are relevant
             # in particular not send the functions if function_call = 'none'
-            args["functions"] = self.toolbox.functions
-            if not "function_call" in args:
-                args["function_call"] = "auto"
+            args["tools"] = self.toolbox.tools
+            if not "tool_choice" in args:
+                args["tool_choice"] = "auto"
         else:
             args["stop"] = ["\nObservation:"]
 
@@ -58,7 +58,7 @@ class LLMReactor:
         logger.debug(f"Processing prompt: {self.prompt}")
         self.step += 1
         if self.step == self.max_llm_calls:
-            response = self.openai_query(function_call={'name': 'finish'})
+            response = self.openai_query(tool_choice={'type': 'function', 'function': {'name': 'finish'}})
         else:
             response = self.openai_query()
         function_call = self.prompt.function_call_from_response(response)
@@ -83,7 +83,7 @@ class LLMReactor:
             message = self.reflection_generator.generate(self.step, self.max_llm_calls)
             logger.info(str(message))
             self.prompt.push(message)
-            response = self.openai_query(function_call='none')
+            response = self.openai_query(tool_choice='none')
             message = Assistant(response.content)
             logger.info(str(message))
             self.prompt.push(message)

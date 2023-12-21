@@ -9,116 +9,6 @@ def api_instance():
     return ToolBox()
 
 
-def test_eval_format(api_instance):
-    docstring = """
-    "name": "search",
-    "description": "This function does something.",
-    "parameters": {
-        "type": "object",
-        "properties": {
-            "param1": {
-                "type": "string",
-                "description": "The first parameter.",
-            },
-            "param2": {
-                "type": "string",
-                "description": "The second parameter.",
-            }
-        },
-        "required": ["param1", "param2"],
-    },
-    
-    """
-    function_info = api_instance._parse_docstring('search', docstring, 'eval')
-    description = function_info['description']
-    params = function_info['parameters']['properties']
-    required = function_info['parameters']['required']
-    assert description == "This function does something."
-    assert 'param1' in params
-    assert params['param1']['description'] == "The first parameter."
-    assert params['param1']['type'] == "string"
-    assert 'param2' in params
-    assert params['param2']['description'] == "The second parameter."
-    assert params['param2']['type'] == "string"
-    assert 'param1' in required
-    assert 'param2' in required
-
-
-def test_rest_format(api_instance):
-    docstring = """
-    This function does something.
-    
-    Args:
-        param1 (str): The first parameter.
-        param2 (str): The second parameter.
-
-    Returns:
-        bool: The return value. True for success, False otherwise.
-    """
-    function_info = api_instance._parse_docstring('search', docstring, 'rest')
-    description = function_info['description']
-    params = function_info['parameters']['properties']
-    required = function_info['parameters']['required']
-    assert description == "This function does something."
-    assert 'param1' in params
-    assert params['param1']['description'] == "The first parameter."
-    assert params['param1']['type'] == "string"
-    assert 'param2' in params
-    assert params['param2']['description'] == "The second parameter."
-    assert params['param2']['type'] == "string"
-    assert 'param1' in required
-    assert 'param2' in required
-
-def test_google_format(api_instance):
-    docstring = """
-    This function does something.
-
-    Args:
-        param1 (str): The first parameter.
-        param2 (str): The second parameter.
-
-    Returns:
-        bool: The return value. True for success, False otherwise.
-    """
-    function_info = api_instance._parse_docstring('search', docstring, 'google')
-    description = function_info['description']
-    params = function_info['parameters']['properties']
-    required = function_info['parameters']['required']
-    assert description == "This function does something."
-    assert 'param1' in params
-    assert params['param1']['description'] == "The first parameter."
-    assert params['param1']['type'] == "string"
-    assert 'param2' in params
-    assert params['param2']['description'] == "The second parameter."
-    assert params['param2']['type'] == "string"
-    assert 'param1' in required
-    assert 'param2' in required
-
-#def test_numpy_format(api_instance):
-#    docstring = """
-#    This function does something.
-#
-#    Parameters
-#    ----------
-#    param1 : int
-#        The first parameter.
-#    param2 : str
-#        The second parameter.
-#
-#    Returns
-#    -------
-#    bool
-#        The return value. True for success, False otherwise.
-#    """
-#    description, params, required = api_instance._parse_docstring(docstring, 'numpy')
-#    assert description == "This function does something."
-#    assert 'param1' in params
-#    assert params['param1']['description'] == "The first parameter."
-#    assert 'param2' in params
-#    assert params['param2']['description'] == "The second parameter."
-#    assert 'param1' in required
-#    assert 'param2' in required
-
 
 # Mock function to simulate a tool
 def mock_tool_function(**tool_args):
@@ -182,23 +72,24 @@ def test_lookup_with_document(wiki_search):
 
 def test_functions(wiki_search):
     function_dict = {}
-    for function in wiki_search.functions:
+    for tool in wiki_search.tools:
+        function = tool["function"]
         assert function["name"] in ["search", "get", "lookup", "next", "finish"]
         function_dict[function["name"]] = function
 
     assert function_dict["finish"]["description"] == "Finish the task and return the answer."
     assert function_dict["finish"]["parameters"]["type"] == "object"
     assert function_dict["finish"]["parameters"]["properties"]["answer"]["type"] == "string"
-    assert function_dict["finish"]["parameters"]["properties"]["answer"]["description"] == "The answer to the user's question."
+    assert function_dict["finish"]["parameters"]["properties"]["answer"]["description"] == "The answer to the user's question"
     assert function_dict["finish"]["parameters"]["properties"]["reason"]["type"] == "string"
-    assert function_dict["finish"]["parameters"]["properties"]["reason"]["description"] == "The reasoning behind the answer."
+    assert function_dict["finish"]["parameters"]["properties"]["reason"]["description"] == "The reasoning behind the answer"
 
     assert function_dict["search"]["description"] == "Searches Wikipedia, saves the first result page, and informs about the content of that page."
     assert function_dict["search"]["parameters"]["type"] == "object"
     assert function_dict["search"]["parameters"]["properties"]["query"]["type"] == "string"
-    assert function_dict["search"]["parameters"]["properties"]["query"]["description"] == "The query to search for on Wikipedia."
+    assert function_dict["search"]["parameters"]["properties"]["query"]["description"] == "The query to search for on Wikipedia"
     assert function_dict["search"]["parameters"]["properties"]["reason"]["type"] == "string"
-    assert function_dict["search"]["parameters"]["properties"]["reason"]["description"] == "The reason for searching."
+    assert function_dict["search"]["parameters"]["properties"]["reason"]["description"] == "The reason for searching"
 
     assert function_dict["search"]["parameters"]["required"] == ["query", "reason"]
 

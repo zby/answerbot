@@ -4,8 +4,12 @@ import docutils
 from sphinx.ext.napoleon import Config, GoogleDocstring, NumpyDocstring
 from docutils.parsers.rst import Parser
 from docutils.utils import new_document
+from typing import Annotated
 
-from .get_wikipedia import ContentRecord
+from tool_def_generator import ToolDefGenerator
+
+
+from answerbot.get_wikipedia import ContentRecord
 
 class ToolResult:
     def __init__(self, tool_name=None, tool_args=None, observations=None, error=None):
@@ -21,18 +25,26 @@ class ToolBox:
         if reverse_function_mapping is None:
             reverse_function_mapping = { "finish": "finish" }
         self.reverse_function_mapping = reverse_function_mapping
-        self.functions = []
-        for function_info in self._generate_function_data(self.reverse_function_mapping):
-            self.functions.append(function_info)
+        self.tools = self._generate_tools()
 
-    def finish(self, answer, reason):
+    def _generate_tools(self):
+        functions = []
+        methods = inspect.getmembers(self, predicate=inspect.ismethod)
+        generator_mapping = []
+        for name, mapped_name in self.reverse_function_mapping.items():
+            generator_mapping.append((name, mapped_name))
+
+        for name, method in methods:
+            if name.startswith('_') or name == 'process':
+                continue
+            functions.append(method)
+        generator = ToolDefGenerator(name_mappings=generator_mapping)
+        tools = generator.generate(*functions)
+        return tools
+
+    def finish(self, answer: Annotated[str, "The answer to the user's question"], reason: Annotated[str, "The reasoning behind the answer"]):
         """
         Finish the task and return the answer.
-
-        :param answer: The answer to the user's question.
-        :type answer: str
-        :param reason: The reasoning behind the answer.
-        :type reason: str
         """
         answer = answer
         if answer.lower() == 'yes' or answer.lower() == 'no':
@@ -46,127 +58,6 @@ class ToolBox:
             return ToolResult(tool_name=tool_name, tool_args=tool_args, error=f"Unknown tool name: {tool_name}")
         observations = self.function_mapping[tool_name](**tool_args)
         return ToolResult(tool_name=tool_name, tool_args=tool_args, observations=observations)
-
-    def _generate_function_data(self, reverse_function_mapping, docstring_type='reStructuredText'):
-        functions_data = []
-        methods = inspect.getmembers(self, predicate=inspect.ismethod)
-        for name, method in methods:
-            if name.startswith('_') or name == 'process':
-                continue
-
-            docstring = method.__doc__
-            if not docstring:
-                continue
-
-            try:
-                api_name = reverse_function_mapping[name]
-                function_info = self._parse_docstring(api_name, docstring, docstring_type)
-            except ValueError as e:
-                raise ValueError(f"Validation error in method '{name}': {e}")
-
-            functions_data.append(function_info)
-
-        return functions_data
-
-    def _parse_docstring(self, api_name, docstring, style):
-        if not docstring:
-            raise ValueError("Missing docstring.")
-        if not style in ['reStructuredText', 'rest', 'google', 'eval']:
-            raise ValueError(f"Invalid docstring style: {style}")
-
-        napoleon_config = Config(napoleon_use_param=True, napoleon_use_rtype=True)
-
-        # Convert Google and NumPy docstrings to reST format
-        if style == 'eval':
-            if not docstring.startswith('{'):
-                docstring = '{\n' + docstring + '\n}'
-            function_info = eval(docstring)
-            return function_info
-        elif style in ['google', 'numpy']:
-            if style == 'google':
-                parsed_docstring = GoogleDocstring(docstring, napoleon_config)
-            else:  # numpy
-                parsed_docstring = NumpyDocstring(docstring, napoleon_config)
-
-            # Convert to reST format
-            rest_docstring = str(parsed_docstring)
-        else:
-            rest_docstring = str(docstring)
-
-        description, parameters, required = self._parse_rtc_docstring(rest_docstring)
-        function_info = {
-            "name": api_name,
-            "description": description,
-            "parameters": {
-                "type": "object",
-                "properties": parameters,
-                "required": required
-            }
-        }
-        return function_info
-
-
-
-    def _parse_rtc_docstring(self, docstring):
-        # Create a new document for parsing
-        settings = docutils.frontend.get_default_settings(Parser)
-        document = new_document('<docstring>', settings)
-
-        # Parse the docstring
-        parser = Parser()
-        parser.parse(docstring, document)
-
-        params_dict = {}
-        required_params = []
-        description = ''
-
-        # Traverse the document to find parameter descriptions
-        for node in document.findall():
-            # Extract method description from the first paragraph
-            if isinstance(node, docutils.nodes.paragraph) and not description:
-                description = node.astext()
-
-            # Extract parameters from field lists
-            if isinstance(node, docutils.nodes.field_list):
-                for field_node in node:
-                    if isinstance(field_node, docutils.nodes.field):
-                        name_node, body_node = field_node.children
-                        if isinstance(name_node, docutils.nodes.field_name) and isinstance(body_node, docutils.nodes.field_body):
-                            (field_type, param_name) = name_node.astext().split()
-                            if field_type == 'param':
-                                param_desc = body_node.astext()
-                                params_dict[param_name] = {'description': param_desc}
-                                required_params.append(param_name)
-                            elif field_type == 'type':
-                                param_type = body_node.astext()
-                                if param_type == 'str':
-                                    param_type = 'string'
-                                params_dict[param_name]['type'] = param_type
-
-            # Extract parameters from definition lists
-            elif isinstance(node, docutils.nodes.definition_list):
-                for definition_item in node:
-                    if isinstance(definition_item, docutils.nodes.definition_list_item):
-                        term, definition = definition_item.children
-                        term_text = term.astext()
-                        # Check if the term is about parameters (e.g., "Args:")
-                        if term_text.lower() in ['args', 'args:', 'parameters', 'parameters:']:
-                            for params_node in definition.findall(docutils.nodes.paragraph):
-                                print(params_node)
-                                param_text = params_node.children[0].astext()
-                                params_lines = param_text.splitlines()
-                                for param_line in params_lines:
-                                    param_term, param_desc = param_line.split(':', 1)
-                                    param_desc = param_desc.strip()
-                                    param_name, param_type = param_term.split()
-                                    param_name = param_name.strip()
-                                    param_type = param_type.strip('()')
-                                    if param_type == 'str':
-                                        param_type = 'string'
-                                    params_dict[param_name] = {'description': param_desc, 'type': param_type}
-                                    required_params.append(param_name)
-
-        return description, params_dict, required_params
 
 
 class WikipediaSearch(ToolBox):
@@ -190,15 +81,9 @@ class WikipediaSearch(ToolBox):
         })
 
 
-
-    def search(self, query, reason):
+    def search(self, query: Annotated[str, "The query to search for on Wikipedia"], reason: Annotated[str, "The reason for searching"]):
         """
         Searches Wikipedia, saves the first result page, and informs about the content of that page.
-
-        :param query: The query to search for on Wikipedia.
-        :type query: str
-        :param reason: The reason for searching.
-        :type reason: str
         """
         if not self.cached:
             search_query = query
@@ -210,14 +95,9 @@ class WikipediaSearch(ToolBox):
         self.document = search_record.document
         return self._retrieval_observations(search_record)
 
-    def get(self, title, reason):
+    def get(self, title: Annotated[str, "The page title"], reason: Annotated[str, "The reason for retrieving the page"]):
         """
         Retrieves a Wikipedia page, saves the result, and informs about the content of that page.
-
-        :param title: The query to search for on Wikipedia.
-        :type title: str
-        :param reason: The reason for getting the page.
-        :type reason: str
         """
 
         if self.cached:
@@ -226,14 +106,9 @@ class WikipediaSearch(ToolBox):
         self.document = search_record.document
         return self._retrieval_observations(search_record)
 
-    def lookup(self, keyword, reason):
+    def lookup(self, keyword: Annotated[str, "The keyword to search"], reason: Annotated[str, "The reason for searching"]):
         """
         Looks up a word on the current page.
-
-        :param keyword: The keyword to search for on current page.
-        :type keyword: str
-        :param reason: The reason for searching.
-        :type reason: str
         """
         if self.document is None:
             observations = "No document defined, cannot lookup"
@@ -247,12 +122,9 @@ class WikipediaSearch(ToolBox):
                 observations = observations + "not found in current page"
         return observations
 
-    def next_lookup(self, reason):
+    def next_lookup(self, reason: Annotated[str, "The reason for searching"]):
         """
         Jumps to the next occurrence of the word searched previously.
-
-        :param reason: The reason for searching.
-        :type reason: str
         """
         if self.document is None:
             observations = "No document defined, cannot lookup"

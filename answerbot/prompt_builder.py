@@ -154,7 +154,11 @@ class FunctionalPrompt(Prompt):
         return [part.openai_message() for part in self.parts]
 
     def function_call_from_response(self, response):
-        return response.function_call
+        if hasattr(response, 'tool_calls'):
+            return response.tool_calls[0].function
+        if hasattr(response, 'function_call'):
+            return response.function_call
+        return None
 
 
 class PlainTextPrompt(Prompt):

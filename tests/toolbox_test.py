@@ -39,8 +39,13 @@ def test_unknown_tool_name():
 
 # Test a known tool name
 def test_known_tool_name():
-    toolbox = ToolBox()
-    toolbox.function_mapping["mock_tool"] = mock_tool_function
+    class MyToolBox(ToolBox):
+        def mock_tool(self):
+            """
+            Mock tool description
+            """
+            return {"mocked_data": "test"}
+    toolbox = MyToolBox()
     function_call = create_mock_function_call("mock_tool", {})
     result = toolbox.process(function_call)
     assert result.tool_name == "mock_tool"

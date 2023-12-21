@@ -20,25 +20,30 @@ class ToolResult:
 
 class ToolBox:
 
-    def __init__(self, reverse_function_mapping=None):
-        self.function_mapping = { "finish": self.finish }
-        if reverse_function_mapping is None:
-            reverse_function_mapping = { "finish": "finish" }
-        self.reverse_function_mapping = reverse_function_mapping
+    def __init__(self, name_mappings=None):
+        if name_mappings is None:
+            name_mappings = []
+        self.name_mappings = name_mappings
         self.tools = self._generate_tools()
+
+    def _method_from_tool(self, tool):
+        method_name = tool
+        for m, t in self.name_mappings:
+            if t == tool:
+                method_name = m
+        method = getattr(self, method_name, None)
+        # if not callable(method):
+        #    raise TypeError(f"Attribute '{method_name}' is not callable.")
+        return method
 
     def _generate_tools(self):
         functions = []
         methods = inspect.getmembers(self, predicate=inspect.ismethod)
-        generator_mapping = []
-        for name, mapped_name in self.reverse_function_mapping.items():
-            generator_mapping.append((name, mapped_name))
-
         for name, method in methods:
             if name.startswith('_') or name == 'process':
                 continue
             functions.append(method)
-        generator = ToolDefGenerator(name_mappings=generator_mapping)
+        generator = ToolDefGenerator(name_mappings=self.name_mappings)
         tools = generator.generate(*functions)
         return tools
 
@@ -54,32 +59,20 @@ class ToolBox:
     def process(self, function_call):
         tool_args = json.loads(function_call.arguments)
         tool_name = function_call.name
-        if tool_name not in self.function_mapping:
+        method = self._method_from_tool(tool_name)
+        if method is None:
             return ToolResult(tool_name=tool_name, tool_args=tool_args, error=f"Unknown tool name: {tool_name}")
-        observations = self.function_mapping[tool_name](**tool_args)
+        observations = method(**tool_args)
         return ToolResult(tool_name=tool_name, tool_args=tool_args, observations=observations)
 
 
 class WikipediaSearch(ToolBox):
     def __init__(self, wiki_api, cached=False):
-        reverse_function_mapping = {
-            "finish": "finish",
-            "search": "search",
-            "get": "get",
-            "lookup": "lookup",
-            "next_lookup": "next",
-        }
-        super().__init__(reverse_function_mapping=reverse_function_mapping)
         self.wiki_api = wiki_api
         self.cached = cached
         self.document = None
-        self.function_mapping.update({
-            "search": self.search,
-            "get": self.get,
-            "lookup": self.lookup,
-            "next": self.next_lookup,
-        })
-
+        name_mappings = [("next_lookup", "next")]
+        super().__init__(name_mappings=name_mappings)
 
     def search(self, query: Annotated[str, "The query to search for on Wikipedia"], reason: Annotated[str, "The reason for searching"]):
         """

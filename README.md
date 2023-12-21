@@ -4,9 +4,11 @@
 
 Copy `.env_` to `.env` and fill in the blanks.
 
+Install https://github.com/zby/ToolDefGenerator
+
 Install the requirements with `pip install -r requirements.txt`
 
-Install the library package. I am installing it in an editable form: `pip install -e .`
+Install the package. I am installing it in an editable form: `pip install -e .`
 
 Run tests:
 `pytest tests/`

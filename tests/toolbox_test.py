@@ -53,6 +53,10 @@ def test_known_tool_name():
     assert result.observations["mocked_data"] == "test"
 
 
+def test_subclass():
+    wiki_api = MagicMock()
+    ws = WikipediaSearch(wiki_api)
+    assert isinstance(ws, WikipediaSearch)
 
 @pytest.fixture
 def wiki_search():
@@ -61,18 +65,19 @@ def wiki_search():
 
 
 def test_lookup_with_no_document(wiki_search):
-    function_args = {"keyword": "Python", "reason": "Test lookup"}
-    test_response = wiki_search.lookup(**function_args)
+    param = WikipediaSearch.Search(query="Python", reason="Test lookup")
+    test_response = wiki_search.lookup(param)
     assert test_response == "No document defined, cannot lookup"
 
 def test_lookup_with_document(wiki_search):
     mock_document = MagicMock(spec=Document)
     mock_document.lookup_results = ["Mock text"]
     mock_document.lookup.return_value = "Mock text"
-    wiki_search.search(query='Python', reason='Test search')
+    param = WikipediaSearch.Search(query='Python', reason='Test search')
+    wiki_search.search(param)
     wiki_search.document = mock_document
-    function_args = {'keyword': 'Python', 'reason': 'Test lookup'}
-    test_response = wiki_search.lookup(**function_args)
+    param = WikipediaSearch.Lookup(keyword='Python', reason='Test lookup')
+    test_response = wiki_search.lookup(param)
     assert test_response == 'Keyword "Python" found on current page in 1 places. The first occurence:\nMock text'
 
 def test_functions(wiki_search):
@@ -96,5 +101,5 @@ def test_functions(wiki_search):
     assert function_dict["search"]["parameters"]["properties"]["reason"]["type"] == "string"
     assert function_dict["search"]["parameters"]["properties"]["reason"]["description"] == "The reason for searching"
 
-    assert function_dict["search"]["parameters"]["required"] == ["query", "reason"]
+    assert function_dict["search"]["parameters"]["required"] == ["reason", "query"]
 

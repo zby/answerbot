@@ -1,13 +1,9 @@
 import json
 import inspect
-import docutils
-from sphinx.ext.napoleon import Config, GoogleDocstring, NumpyDocstring
-from docutils.parsers.rst import Parser
-from docutils.utils import new_document
+
 from typing import Annotated
-
-from tool_def_generator import ToolDefGenerator
-
+from llm_schemas import SchemaGenerator
+from pydantic import BaseModel, Field
 
 from answerbot.get_wikipedia import ContentRecord
 
@@ -43,15 +39,20 @@ class ToolBox:
             if name.startswith('_') or name == 'process':
                 continue
             functions.append(method)
-        generator = ToolDefGenerator(name_mappings=self.name_mappings)
-        tools = generator.generate(*functions)
+        generator = SchemaGenerator(name_mappings=self.name_mappings)
+        tools = generator.generate_tools(*functions)
         return tools
 
-    def finish(self, answer: Annotated[str, "The answer to the user's question"], reason: Annotated[str, "The reasoning behind the answer"]):
+
+    class Finish(BaseModel):
+        reason: str = Field(description="The reasoning behind the answer")
+        answer: str = Field(description="The answer to the user's question")
+
+    def finish(self, param: Finish):
         """
         Finish the task and return the answer.
         """
-        answer = answer
+        answer = param.answer
         if answer.lower() == 'yes' or answer.lower() == 'no':
             answer = answer.lower()
         return answer
@@ -59,10 +60,24 @@ class ToolBox:
     def process(self, function_call):
         tool_args = json.loads(function_call.arguments)
         tool_name = function_call.name
+        return self._process_unpacked(tool_name, tool_args)
+
+    def _process_unpacked(self, tool_name, tool_args):
         method = self._method_from_tool(tool_name)
         if method is None:
             return ToolResult(tool_name=tool_name, tool_args=tool_args, error=f"Unknown tool name: {tool_name}")
-        observations = method(**tool_args)
+        parameters = inspect.signature(method).parameters
+        if len(parameters) > 1:
+            raise TypeError(f"Function {method.__name__} has more than one parameter")
+        if len(parameters) == 1:
+            for name, param in parameters.items():
+                param_class = param.annotation
+            if not issubclass(param_class, BaseModel):
+                raise TypeError(f"The only parameter of method {method.__name__} is not a subclass of pydantic BaseModel")
+            param = param_class(**tool_args)
+            observations = method(param)
+        else:
+            observations = method()
         return ToolResult(tool_name=tool_name, tool_args=tool_args, observations=observations)
 
 
@@ -74,40 +89,51 @@ class WikipediaSearch(ToolBox):
         name_mappings = [("next_lookup", "next")]
         super().__init__(name_mappings=name_mappings)
 
-    def search(self, query: Annotated[str, "The query to search for on Wikipedia"], reason: Annotated[str, "The reason for searching"]):
+    class Search(BaseModel):
+        reason: str = Field(description="The reason for searching")
+        query: str = Field(description="The query to search for on Wikipedia")
+
+    def search(self, param: Search):
         """
         Searches Wikipedia, saves the first result page, and informs about the content of that page.
         """
         if not self.cached:
-            search_query = query
+            search_query = param.query
             search_record = self.wiki_api.search(search_query)
         else:
-            title = query
+            title = param.query
             chunk_size = self.wiki_api.chunk_size
             search_record = ContentRecord.load_from_disk(title, chunk_size)
         self.document = search_record.document
         return self._retrieval_observations(search_record)
 
-    def get(self, title: Annotated[str, "The page title"], reason: Annotated[str, "The reason for retrieving the page"]):
+    class Get(BaseModel):
+        reason: str = Field(description="The reason for retrieving the page")
+        query: str = Field(description="The wikipedia page title")
+    def get(self, param: Get):
         """
         Retrieves a Wikipedia page, saves the result, and informs about the content of that page.
         """
 
         if self.cached:
             raise Exception("Cached get not implemented")
-        search_record = self.wiki_api.get_page(title)
+        search_record = self.wiki_api.get_page(param.title)
         self.document = search_record.document
         return self._retrieval_observations(search_record)
 
-    def lookup(self, keyword: Annotated[str, "The keyword to search"], reason: Annotated[str, "The reason for searching"]):
+    class Lookup(BaseModel):
+        reason: str = Field(description="The reason for searching")
+        keyword: str = Field(description="The keyword to search")
+
+    def lookup(self, param: Lookup):
         """
         Looks up a word on the current page.
         """
         if self.document is None:
             observations = "No document defined, cannot lookup"
         else:
-            text = self.document.lookup(keyword)
-            observations = 'Keyword "' + keyword + '" '
+            text = self.document.lookup(param.keyword)
+            observations = 'Keyword "' + param.keyword + '" '
             if text:
                 num_of_results = len(self.document.lookup_results)
                 observations = observations + f"found on current page in {num_of_results} places. The first occurence:\n" + text
@@ -115,7 +141,9 @@ class WikipediaSearch(ToolBox):
                 observations = observations + "not found in current page"
         return observations
 
-    def next_lookup(self, reason: Annotated[str, "The reason for searching"]):
+    class Next_Lookup(BaseModel):
+        reason: str = Field(description="The reason for searching")
+    def next_lookup(self, param: Next_Lookup):
         """
         Jumps to the next occurrence of the word searched previously.
         """

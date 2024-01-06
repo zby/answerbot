@@ -66,8 +66,7 @@ class ReactPrompt:
         fcall = FunctionCall(name, **args)
         if name == 'finish':
             return [fcall]
-        method = self.toolbox._method_from_tool(name)
-        result = method(**args)
+        result = self.toolbox._process_unpacked(name, args)
         return [fcall, FunctionResult(name, result)]
 
     def mk_additional_lookup_if_needed(self, keyword):

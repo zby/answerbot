@@ -33,7 +33,7 @@ if __name__ == "__main__":
     question = "The arena where the Lewiston Maineiacs played their home games can seat how many people?"
     #question = "What is the name of the fight song of the university whose main campus is in Lawrence, Kansas and whose branch campuses are in the Kansas City metropolitan area?"
     # question = "What year did Guns N Roses perform a promo for a movie starring Arnold Schwarzenegger as a former New York Police detective?"
-    question = "What is the weight proportion of oxygen in water?"
+    #question = "What is the weight proportion of oxygen in water?"
     #question = "Czy dane kardy kredytowej są danymi osobowymi w Polsce"
 
     max_llm_calls = 7

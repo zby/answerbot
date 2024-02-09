@@ -10,7 +10,9 @@ from .get_wikipedia import WikipediaApi
 
 from .react_prompt import FunctionalReactPrompt, NewFunctionalReactPrompt, TextReactPrompt
 from .prompt_templates import NoExamplesReactPrompt
-from .toolbox import ToolBox, WikipediaSearch
+from .toolbox import WikipediaSearch
+
+from llm_easy_tools import ToolBox
 
 # Configure basic logging
 logging.basicConfig(level=logging.INFO)
@@ -36,7 +38,7 @@ class LLMReactor:
         if isinstance(self.prompt, FunctionalPrompt):
             # todo - we might optimize and only send the functions that are relevant
             # in particular not send the functions if function_call = 'none'
-            args["tools"] = self.toolbox.tools
+            args["tools"] = self.toolbox.tool_schemas
             if not "tool_choice" in args:
                 args["tool_choice"] = "auto"
         else:
@@ -63,12 +65,13 @@ class LLMReactor:
             response = self.openai_query()
         function_call = self.prompt.function_call_from_response(response)
         if function_call:
-            result = self.toolbox.process(function_call)
-            message = FunctionCall(result.tool_name, **result.tool_args)
+            result = self.toolbox.process_function(function_call)
+            tool_args = json.loads(function_call.arguments)
+            message = FunctionCall(function_call.name, **tool_args)
             logger.info(str(message))
             self.prompt.push(message)
-            if result.tool_name == 'finish':
-                self.answer = result.observations
+            if function_call.name == 'finish':
+                self.answer = result
                 self.set_finished()
                 return
             elif self.step == self.max_llm_calls:
@@ -76,7 +79,7 @@ class LLMReactor:
                 logger.info("<<< Max LLM calls reached without finishing")
                 return
 
-            message = FunctionResult(result.tool_name, result.observations)
+            message = FunctionResult(function_call.name, result)
             logger.info(str(message))
             self.prompt.push(message)
 
@@ -96,7 +99,9 @@ class LLMReactor:
 def get_answer(question, config):
     print("\n\n<<< Question:", question)
     wiki_api = WikipediaApi(max_retries=2, chunk_size=config['chunk_size'])
-    toolbox = WikipediaSearch(wiki_api)
+    wiki_search = WikipediaSearch(wiki_api)
+    toolbox = ToolBox()
+    toolbox.register_tools_from_object(wiki_search)
     client = openai.OpenAI(timeout=httpx.Timeout(20.0, read=10.0, write=15.0, connect=4.0))
     reactor = LLMReactor(config['model'], toolbox, config['prompt'], config['reflection_generator'], config['max_llm_calls'], client=client)
     while True:

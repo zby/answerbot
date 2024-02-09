@@ -10,7 +10,7 @@ from .get_wikipedia import WikipediaApi
 
 from .react_prompt import FunctionalReactPrompt, NewFunctionalReactPrompt, TextReactPrompt
 from .prompt_templates import NoExamplesReactPrompt
-from .toolbox import WikipediaSearch
+from .wikipedia_tool import WikipediaSearch
 
 from llm_easy_tools import ToolBox
 

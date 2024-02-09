@@ -5,7 +5,7 @@ import tiktoken
 from .prompt_builder import FunctionalPrompt, PlainTextPrompt, User, System, FunctionCall, FunctionResult
 from .prompt_templates import Question
 from .get_wikipedia import WikipediaApi
-from .toolbox import WikipediaSearch
+from .wikipedia_tool import WikipediaSearch
 
 
 new_functional_system_message = System('''You are an expert Wikipedia editor. 

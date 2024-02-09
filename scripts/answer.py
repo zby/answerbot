@@ -36,13 +36,13 @@ if __name__ == "__main__":
     #question = "What is the weight proportion of oxygen in water?"
     #question = "Czy dane kardy kredytowej są danymi osobowymi w Polsce"
 
-    max_llm_calls = 7
+    max_llm_calls = 5
     config = {
         "chunk_size": 500,
         "prompt": NoExamplesReactPrompt(question, max_llm_calls),
         "max_llm_calls": max_llm_calls,
-        "model": "gpt-3.5-turbo-0613",
-        #"model": "gpt-4-1106-preview",
+        #"model": "gpt-3.5-turbo-0613",
+        "model": "gpt-4-1106-preview",
         "reflection_generator": ReflectionMessageGenerator(
             "Reflect on the received information and plan next steps. This was a call to the Wikiepdia API number $step.",
             "In the next call you need to formulate an answer - please reflect on the received information.")

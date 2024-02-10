@@ -101,7 +101,7 @@ def get_answer(question, config):
     wiki_api = WikipediaApi(max_retries=2, chunk_size=config['chunk_size'])
     wiki_search = WikipediaSearch(wiki_api)
     toolbox = ToolBox()
-    toolbox.register_tools_from_object(wiki_search)
+    toolbox.register_toolset(wiki_search)
     client = openai.OpenAI(timeout=httpx.Timeout(20.0, read=10.0, write=15.0, connect=4.0))
     reactor = LLMReactor(config['model'], toolbox, config['prompt'], config['reflection_generator'], config['max_llm_calls'], client=client)
     while True:

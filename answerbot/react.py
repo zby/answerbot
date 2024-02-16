@@ -4,6 +4,8 @@ import json
 import time
 import logging
 import copy
+from pydantic import BaseModel, Field, validator
+from typing import Literal
 
 from .prompt_builder import FunctionalPrompt, PromptMessage, Assistant, System, FunctionCall, FunctionResult
 from .get_wikipedia import WikipediaApi
@@ -34,15 +36,10 @@ class LLMReactor:
         self.finished = False
         self.answer = None
 
-    def openai_query(self, **args):
-        if isinstance(self.prompt, FunctionalPrompt):
-            # todo - we might optimize and only send the functions that are relevant
-            # in particular not send the functions if function_call = 'none'
-            args["tools"] = self.toolbox.tool_schemas
-            if not "tool_choice" in args:
-                args["tool_choice"] = "auto"
-        else:
-            args["stop"] = ["\nObservation:"]
+    def openai_query(self, tool_schemas, tool_choice="auto"):
+        args = {}
+        args["tools"] = tool_schemas
+        args["tool_choice"] = tool_choice
 
         response = None
         completion = self.client.chat.completions.create(
@@ -50,19 +47,23 @@ class LLMReactor:
             messages=self.prompt.to_messages(),
             **args
         )
-        response_message = completion.choices[0].message
-        return response_message
+        return completion
 
     def set_finished(self):
         self.finished = True
 
+
     def process_prompt(self):
         logger.debug(f"Processing prompt: {self.prompt}")
         self.step += 1
+        finish_schema = self.toolbox.tool_registry["finish"]["tool_schema"]
+        all_schemas = self.toolbox.tool_schemas
         if self.step == self.max_llm_calls:
-            response = self.openai_query(tool_choice={'type': 'function', 'function': {'name': 'finish'}})
+            response = self.openai_query([finish_schema],
+                                         tool_choice={'type': 'function', 'function': {'name': 'finish'}})
         else:
-            response = self.openai_query()
+            response = self.openai_query(all_schemas)
+        response = response.choices[0].message
         function_call = self.prompt.function_call_from_response(response)
         if function_call:
             result = self.toolbox.process_function(function_call)
@@ -83,11 +84,17 @@ class LLMReactor:
             logger.info(str(message))
             self.prompt.push(message)
 
+
             message = self.reflection_generator.generate(self.step, self.max_llm_calls)
             logger.info(str(message))
             self.prompt.push(message)
-            response = self.openai_query(tool_choice='none')
-            message = Assistant(response.content)
+            reflection_schema = self.toolbox.tool_registry["Reflection"]["tool_schema"]
+            response = self.openai_query([reflection_schema],tool_choice={'type': 'function', 'function': {'name': 'Reflection'}})
+            reflections = self.toolbox.process_response(response)
+            relevant_score = reflections[0].how_relevant
+            relevant_justification = reflections[0].why_relevant
+            plan = reflections[0].next_actions_plan
+            message = Assistant(f"On scale from 1 to 5 the last retrieved information revancy score is {relevant_score}.\n{relevant_justification}.\nNext action plan: {plan} ")
             logger.info(str(message))
             self.prompt.push(message)
         else:
@@ -96,12 +103,28 @@ class LLMReactor:
             self.prompt.push(message)
 
 
+class Reflection(BaseModel):
+    how_relevant: Literal[1, 2, 3, 4, 5] = Field(
+        ...,
+        description="Was the last retrieved information relevant for answering this question? Choose 1, 2, 3, 4, or 5."
+    )
+    @validator('how_relevant', pre=True)
+    def ensure_int(cls, v):
+        if isinstance(v, str) and v in {'1', '2', '3', '4', '5'}:
+            return int(v)  # Convert to int
+        return v
+
+    why_relevant: str = Field(..., description="Why the retrieved information was relevant?")
+    next_actions_plan: str = Field(..., description="")
+
+
 def get_answer(question, config):
     print("\n\n<<< Question:", question)
     wiki_api = WikipediaApi(max_retries=2, chunk_size=config['chunk_size'])
     wiki_search = WikipediaSearch(wiki_api)
     toolbox = ToolBox()
     toolbox.register_toolset(wiki_search)
+    toolbox.register_tool(Reflection)
     client = openai.OpenAI(timeout=httpx.Timeout(20.0, read=10.0, write=15.0, connect=4.0))
     reactor = LLMReactor(config['model'], toolbox, config['prompt'], config['reflection_generator'], config['max_llm_calls'], client=client)
     while True:

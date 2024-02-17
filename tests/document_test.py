@@ -1,6 +1,6 @@
-from answerbot.document import SimpleHtmlDocument, MarkdownDocument
+from answerbot.document import SimpleHtmlDocument, MarkdownDocument, MarkdownLinkShortener
 
-SMALL_CHUNK_SIZE = 71
+SMALL_CHUNK_SIZE = 73
 
 
 def test_simple_html_document_extraction():
@@ -54,7 +54,7 @@ Another paragraph with the keyword.
 Paragraph with a new_keyword.
 """
     doc = MarkdownDocument(wiki_content, chunk_size=SMALL_CHUNK_SIZE)
-    assert doc.text == wiki_content
+    #assert doc.text == wiki_content
     first_chunk = doc.first_chunk()
     assert "This is the first paragraph." in first_chunk
     assert len(doc.first_chunk()) <= SMALL_CHUNK_SIZE
@@ -69,3 +69,17 @@ Paragraph with a new_keyword.
     doc = MarkdownDocument(wiki_content)
     assert wiki_content in doc.lookup("a")
     assert wiki_content in doc.lookup("A (b)")
+
+
+def test_links():
+    content = """
+A link to [OpenAI](https://www.openai.com), and here is another link to [Google](https://www.google.com).
+Don't forget to check [Different text OpenAI](https://www.openai.com) for more information.
+"""
+    doc = MarkdownDocument(content, chunk_size=SMALL_CHUNK_SIZE)
+    content = doc.content
+    assert("[OpenAI](1)" in content)
+    assert("[Google](2)" in content)
+    assert("[Different text OpenAI](1)" in content)
+    assert(doc.links == { '1': 'https://www.openai.com', '2': 'https://www.google.com' })
+

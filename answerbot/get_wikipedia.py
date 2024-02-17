@@ -2,6 +2,7 @@ import re
 import requests
 import html2text
 import os
+import traceback
 
 from bs4 import BeautifulSoup, NavigableString
 
@@ -123,6 +124,10 @@ class WikipediaApi:
                 tag.decompose()
             if tag.name == 'span' and 'mw-editsection' in tag.get('class', []):
                 tag.decompose()
+            if tag.name == 'div' and tag.get('id') == 'mw-fr-revisiondetails-wrapper':
+                tag.decompose()
+            if tag.name == 'figure':
+                tag.decompose()
 
         # Remove some metadata - we need compact information
         search_text = "This article relies excessively on"
@@ -165,7 +170,7 @@ class WikipediaApi:
                 html = response.text
                 cleaned_content = self.clean_html_and_textify(html)
 
-                document = MarkdownDocument(cleaned_content, self.chunk_size)
+                document = MarkdownDocument(cleaned_content, chunk_size=self.chunk_size)
                 retrieval_history.append(f"Successfully retrieved '{title}' from Wikipedia.")
 
                 return ContentRecord(document, retrieval_history)
@@ -205,14 +210,29 @@ class WikipediaApi:
             search_history = [f"HTTP error occurred during search: {e}"]
             return ContentRecord(None, search_history)
         except Exception as e:
-            search_history = [str(e)]
-            return ContentRecord(None, search_history)
+            stack_trace = traceback.format_exc()
+            return ContentRecord(None, [stack_trace])
 
 
 
 # Example usage
 if __name__ == "__main__":
-    scraper = WikipediaApi(chunk_size=300)
+    scraper = WikipediaApi(chunk_size=800)
+    title = "Shirley Temple"
+    content_record = scraper.search(title)
+    if content_record.document:
+        print(f"Searching for {title}:\n")
+        document = content_record.document
+        print(document.first_chunk())
+        print('\nLooking up ## Diplomatic career:\n')
+        print(document.lookup('## Diplomatic career'))
+    else:
+        print("No document found")
+
+    print('\n')
+    print('------------------\n')
+    exit()
+
     title = "Oxygen"
     content_record = scraper.search(title)
     if content_record.document:

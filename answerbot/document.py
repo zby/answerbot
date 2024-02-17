@@ -1,16 +1,24 @@
 import re
 from abc import ABC, abstractmethod
 
+import mistune
+from mistune.renderers.markdown import MarkdownRenderer
+
 CHUNK_SIZE = 1024
 
 
 class Document(ABC):
-    def __init__(self, content, chunk_size=CHUNK_SIZE, retrival_obs=[], summary=None, lookup_word=None, lookup_results=None, lookup_position=0):
+    def __init__(self, content, chunk_size=CHUNK_SIZE, retrival_obs=[], summary=None, lookup_word=None, lookup_results=None, lookup_position=0, links=None):
         self.content = content
         self.chunk_size = chunk_size
         self.text = self.extract_text()
         self.summary = summary
+        if retrival_obs is None:
+            retrival_obs = []
         self.retrival_obs = retrival_obs
+        if links is None:
+            links = {}
+        self.links = links
         if lookup_results is None:
             self.lookup_results = []
         else:
@@ -59,7 +67,46 @@ class Document(ABC):
 
         return current_match
 
+class MarkdownLinkShortener(MarkdownRenderer):
+    def __init__(self):
+        super().__init__()
+        self.url_to_ref = {}  # Map from URL to reference
+        self.ref_to_url = {}  # Map from reference to URL
+        self.ref_counter = 1
+
+    def link(self, link, title=None, text=None):
+        url = link['attrs']['url']
+        # Check if the link is already shortened
+        if url not in self.url_to_ref:
+            ref = str(self.ref_counter)  # Convert the counter to string to use as reference
+            self.url_to_ref[url] = ref
+            self.ref_to_url[ref] = url # Add the link to the ref_to_url map
+            self.ref_counter += 1
+        else:
+            ref = self.url_to_ref[url]
+
+        link['attrs']['ref'] = ref
+
+        # Extracting the text of the link from the 'children' attribute
+        link_text = ''.join(child['raw'] for child in link['children'] if child['type'] == 'text')
+
+        return f'[{link_text}]({ref})'
+
+
 class MarkdownDocument(Document):
+
+    # __init__ runs shorten_urls_in_markdown on content and initializes links dictionary from its output
+    def __init__(self, content, **kwargs):
+
+        renderer = MarkdownLinkShortener()
+        markdown = mistune.create_markdown(renderer=renderer)
+
+        kwargs['content'] = markdown(content)
+        kwargs['links'] = renderer.ref_to_url
+
+        # Use kwargs in call to super().__init__
+        super().__init__(**kwargs)
+
     def extract_text(self):
         return self.content
 

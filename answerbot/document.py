@@ -8,11 +8,12 @@ CHUNK_SIZE = 1024
 
 
 class Document(ABC):
-    def __init__(self, content, chunk_size=CHUNK_SIZE, retrival_obs=[], summary=None, lookup_word=None, lookup_results=None, lookup_position=0, links=None):
+    def __init__(self, content, chunk_size=CHUNK_SIZE, retrival_obs=[], summary=None, position=0, lookup_word=None, lookup_results=None, lookup_position=0, links=None):
         self.content = content
         self.chunk_size = chunk_size
         self.text = self.extract_text()
         self.summary = summary
+        self.position = position
         if retrival_obs is None:
             retrival_obs = []
         self.retrival_obs = retrival_obs
@@ -30,12 +31,12 @@ class Document(ABC):
     def extract_text(self):
         pass
 
-    def first_chunk(self):
-        if self.summary:
-            text = self.summary
-        else:
-            text = self.text
-        sentences = re.split(r'(?<=[.!?])\s+', text)
+    def read_chunk(self):
+        text = self.text
+        text = text[self.position:]
+
+
+        sentences = re.split(r'(?<=[.!?]\s)', text)
         sentence = sentences[0]
         chunk = sentence[:self.chunk_size]
         for sentence in sentences[1:]:
@@ -43,8 +44,8 @@ class Document(ABC):
                 chunk += sentence + " "
             else:
                 break
+        self.position = self.position + len(chunk)
         chunk = chunk.strip()
-        self.position = len(chunk)
         return chunk
 
     @abstractmethod
@@ -59,13 +60,14 @@ class Document(ABC):
         if not self.lookup_results:
             return None
 
-        # Retrieve the current match
         current_match = self.lookup_results[self.lookup_position]
+        a = self.content[current_match:]
+        self.position = current_match
 
         # Move to the next position, loop back if at the end
         self.lookup_position = (self.lookup_position + 1) % len(self.lookup_results)
 
-        return current_match
+        return self.read_chunk()
 
 class MarkdownLinkShortener(MarkdownRenderer):
     def __init__(self):
@@ -114,6 +116,7 @@ class MarkdownDocument(Document):
         headings = re.findall(r'^(###? *.*)', self.content, re.MULTILINE)
         return headings
 
+
     def lookup(self, keyword):
         text = self.content
         keyword_escaped = re.escape(keyword)
@@ -124,19 +127,26 @@ class MarkdownDocument(Document):
 
         self.lookup_results = []
         for match in matches:
-            index = match.span()[0]
+            index = match.start()
+            start = int(index + len(keyword) / 2 - self.chunk_size / 2)
 
-            # Determine the start and end points for the extraction
-            start = max(index - self.chunk_size // 2, 0)
-            end = min(index + len(keyword) + self.chunk_size // 2, len(text))
+            slice_text = text[start:index + len(keyword)]
 
-            # Adjust start point for section boundary
-            prev_section_boundary = text.rfind('\n##', start, index + 3)
-            if prev_section_boundary != -1:
-                start = prev_section_boundary + 1
+            pattern = r'(?:^|\n)(#(?:#*)\s*.+)'
+            match = re.search(pattern, slice_text)
+            if match:
+                # there is a section boundary between the possible chunk start and the end of the keyword
+                start = start + match.start(1)
+            else:
+                pattern = r'\.\s+([^\s])'
+                match = re.search(pattern, slice_text)
+                if match:
+                    # there is a sentence boundary between the possible chunk start and the end of the keyword
+                    start = start + match.start(1)
 
-            chunk = text[start:end].strip()
-            self.lookup_results.append(chunk)
+            slice_text = text[start:index]
+
+            self.lookup_results.append(start)
 
         self.lookup_word = keyword
         self.lookup_position = 0
@@ -168,8 +178,6 @@ class SimpleHtmlDocument(Document):
             nonlocal first_occurrence_node
             if first_occurrence_node:  # If we have already found the keyword, we can skip further processing
                 return True
-
-            #todo position
 
             text = node.text.strip()
 
@@ -209,7 +217,7 @@ if __name__ == '__main__':
 
     doc = SimpleHtmlDocument(html_content, chunk_size=CHUNK_SIZE)
 
-    print(doc.first_chunk())
+    print(doc.read_chunk())
     print(doc.lookup('atomic weight'))
 
     print()
@@ -222,6 +230,6 @@ if __name__ == '__main__':
         md_content = file.read()
 
     doc = MarkdownDocument(md_content, chunk_size=CHUNK_SIZE)
-    print(doc.first_chunk())
+    print(doc.read_chunk())
     print(doc.lookup('atomic weight'))
 

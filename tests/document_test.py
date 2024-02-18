@@ -27,18 +27,15 @@ def test_simple_html_document_extraction():
         "And more and more and more. Item 1 with the keyword Item 2 Another paragraph with the keyword.")
 
     assert doc.text == expected_text
-    assert "This is the first paragraph." in doc.first_chunk()
-    assert len(doc.first_chunk()) <= SMALL_CHUNK_SIZE
-    assert doc.first_chunk().endswith(".") or doc.first_chunk().endswith("!") or doc.first_chunk().endswith("?")
+    assert "This is the first paragraph." in doc.read_chunk()
+    assert len(doc.read_chunk()) <= SMALL_CHUNK_SIZE
+    assert doc.read_chunk().endswith(".") or doc.read_chunk().endswith("!") or doc.read_chunk().endswith("?")
 
     assert len(doc.lookup("keyword")) <= SMALL_CHUNK_SIZE
     assert "Item 1 with the keyword" in doc.lookup("keyword")
     assert doc.lookup("nonexistent") is None
 
     assert doc.section_titles() == ['Main Title', 'Subtitle']
-
-if __name__ == "__main__":
-    test_simple_html_document_extraction()
 
 
 def test_markdown_document_extraction():
@@ -55,9 +52,9 @@ Paragraph with a new_keyword.
 """
     doc = MarkdownDocument(wiki_content, chunk_size=SMALL_CHUNK_SIZE)
     #assert doc.text == wiki_content
-    first_chunk = doc.first_chunk()
+    first_chunk = doc.read_chunk()
     assert "This is the first paragraph." in first_chunk
-    assert len(doc.first_chunk()) <= SMALL_CHUNK_SIZE
+    assert len(doc.read_chunk()) <= SMALL_CHUNK_SIZE
     assert doc.section_titles() == ['## Test Page', '### Main Title', '#### Subtitle', '## Section 2']
     assert "Item 1 with the keyword" in doc.lookup("keyword")
     assert "Paragraph with a new_keyword." in doc.lookup("new_keyword")
@@ -70,6 +67,45 @@ Paragraph with a new_keyword.
     assert wiki_content in doc.lookup("a")
     assert wiki_content in doc.lookup("A (b)")
 
+
+def test_lookup():
+    content = "This is the first paragraph. This is the second paragraph."
+    doc = MarkdownDocument(content, chunk_size=SMALL_CHUNK_SIZE)
+    keyword = 'second'
+    result = doc.lookup(keyword)
+    assert result == "This is the second paragraph."
+
+    content = "This is the first paragraph. \n## This is a section.\n\nThis is the second paragraph."
+    doc = MarkdownDocument(content, chunk_size=100)
+    keyword = 'second'
+    result = doc.lookup(keyword)
+    assert result == "## This is a section.\n\nThis is the second paragraph."
+
+    content = "## This is the first section."
+    doc = MarkdownDocument(content, chunk_size=100)
+    keyword = 'first'
+    result = doc.lookup(keyword)
+    assert result == "## This is the first section."
+
+    content = "Some text\n## This is the first section."
+    doc = MarkdownDocument(content, chunk_size=100)
+    keyword = '## This'
+    result = doc.lookup(keyword)
+    assert result == "## This is the first section."
+
+
+def test_position():
+    content = """123456789
+a23456789
+b23456789
+c23456789
+"""
+    doc = MarkdownDocument(content, chunk_size=10)
+    first_chunk = doc.read_chunk()
+    assert first_chunk == "123456789"
+    assert doc.read_chunk() == "a23456789"
+    assert doc.lookup("b23456789") == "b23456789"
+    assert doc.read_chunk() == "c23456789"
 
 def test_links():
     content = """

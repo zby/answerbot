@@ -71,7 +71,7 @@ class ReactPrompt:
         return [fcall, FunctionResult(name, result)]
 
     def mk_additional_lookup_if_needed(self, keyword):
-        if not keyword in self.toolbox.document.first_chunk():
+        if not keyword in self.toolbox.document.read_chunk():
             name = 'lookup'
             args = {"keyword": keyword, "reason": f'This is the right page - but it does not mention "f{keyword}". I need to look up "{keyword}".'}
             return self.mk_example_call(name, **args)

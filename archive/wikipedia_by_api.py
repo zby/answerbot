@@ -34,6 +34,6 @@ for result in wikipages:
 #print(page)
 document = WikipediaDocument(page)
 
-print(document.first_chunk())
+print(document.read_chunk())
 #section_list = "\n".join(list(map(lambda section: f' - {section}', sections)))
 

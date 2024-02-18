@@ -7,5 +7,5 @@ with open(file_path, 'r', encoding='utf-8') as file:
 
 document = WikipediaDocument(content)
 
-print(document.first_chunk())
+print(document.read_chunk())
 

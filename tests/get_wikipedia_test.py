@@ -88,9 +88,9 @@ Paragraph with a new_keyword.
 """
     doc = WikipediaDocument(wiki_content, chunk_size=SMALL_CHUNK_SIZE)
     assert doc.text == wiki_content
-    assert "This is the first paragraph." in doc.first_chunk()
-    assert len(doc.first_chunk()) <= SMALL_CHUNK_SIZE
-    assert doc.first_chunk().endswith(".") or doc.first_chunk().endswith("!") or doc.first_chunk().endswith("?")
+    assert "This is the first paragraph." in doc.read_chunk()
+    assert len(doc.read_chunk()) <= SMALL_CHUNK_SIZE
+    assert doc.read_chunk().endswith(".") or doc.read_chunk().endswith("!") or doc.read_chunk().endswith("?")
     assert doc.section_titles() == ['Test Page', 'Section 2']
     assert "Item 1 with the keyword" in doc.lookup("keyword")
     assert "Paragraph with a new_keyword." in doc.lookup("new_keyword")

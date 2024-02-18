@@ -107,5 +107,5 @@ class WikipediaSearch:
                 sections = sections[:limit_sections]
             sections_list_md = "\n".join(sections)
             observations = observations + f'The retrieved page contains the following sections:\n{sections_list_md}\n'
-            observations = observations + "The retrieved page summary starts with:\n" + document.first_chunk() + "\n"
+            observations = observations + "The retrieved page summary starts with:\n" + document.read_chunk() + "\n"
         return observations

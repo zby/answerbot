@@ -223,7 +223,7 @@ if __name__ == "__main__":
     if content_record.document:
         print(f"Searching for {title}:\n")
         document = content_record.document
-        print(document.first_chunk())
+        print(document.read_chunk())
         print('\nLooking up ## Diplomatic career:\n')
         print(document.lookup('## Diplomatic career'))
     else:
@@ -238,7 +238,7 @@ if __name__ == "__main__":
     if content_record.document:
         print(f"Searching for {title}:\n")
         document = content_record.document
-        print(document.first_chunk())
+        print(document.read_chunk())
         print('\nLooking up atomic weight:\n')
         print(document.lookup('atomic weight'))
         print('\nSection titles:\n')

@@ -45,7 +45,7 @@ class Document(ABC):
                 break
         chunk = chunk.strip()
         self.position = len(chunk)
-        return chunk.strip()
+        return chunk
 
     @abstractmethod
     def section_titles(self):

@@ -43,9 +43,7 @@ if __name__ == "__main__":
         "max_llm_calls": max_llm_calls,
         #"model": "gpt-3.5-turbo-0613",
         "model": "gpt-4-1106-preview",
-        "reflection_generator": ReflectionMessageGenerator(
-            "Reflect on the received information and plan next steps. This was a call to the Wikiepdia API number $step.",
-            "In the next call you need to formulate an answer - please reflect on the received information.")
+        "reflection_generator": ReflectionMessageGenerator(),
     }
 
     reactor = get_answer(question, config)

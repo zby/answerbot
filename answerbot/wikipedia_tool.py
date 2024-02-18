@@ -10,17 +10,17 @@ class WikipediaSearch:
         self.document = None
 
     class Finish(BaseModel):
-        reason: str = Field(description="The reasoning behind the answer")
-        answer: str = Field(description="The answer to the user's question")
-
-    def finish(self, param: Finish):
         """
         Finish the task and return the answer.
         """
-        answer = param.answer
-        if answer.lower() == 'yes' or answer.lower() == 'no':
-            answer = answer.lower()
-        return answer
+        reason: str = Field(description="The reasoning behind the answer")
+        answer: str = Field(description="The answer to the user's question")
+
+        def normalized_answer(self):
+            answer = self.answer
+            if answer.lower() == 'yes' or answer.lower() == 'no':
+                answer = answer.lower()
+            return answer
 
 
     class Search(BaseModel):

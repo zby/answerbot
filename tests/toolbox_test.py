@@ -2,7 +2,7 @@ import pytest
 import json
 from unittest.mock import MagicMock, Mock
 from answerbot.get_wikipedia import ContentRecord, Document
-from answerbot.wikipedia_tool import WikipediaSearch, ToolBox, ToolResult
+from answerbot.wikipedia_tool import WikipediaSearch, ToolBox
 
 @pytest.fixture
 def api_instance():

@@ -219,13 +219,15 @@ class WikipediaApi:
 if __name__ == "__main__":
     scraper = WikipediaApi(chunk_size=800)
     title = "Shirley Temple"
+    title = "Kiss and Tell 1945 film"
     content_record = scraper.search(title)
     if content_record.document:
         print(f"Searching for {title}:\n")
         document = content_record.document
         print(document.read_chunk())
-        print('\nLooking up ## Diplomatic career:\n')
-        print(document.lookup('## Diplomatic career'))
+        keyword = 'Shirley Temple'
+        print(f'\nLooking up {keyword}:\n')
+        print(document.lookup(keyword))
     else:
         print("No document found")
 

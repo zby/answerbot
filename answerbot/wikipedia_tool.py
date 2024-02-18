@@ -94,6 +94,19 @@ class WikipediaSearch:
             observations = observations + f"\n{self.document.lookup_position} of {num_of_results} places"
         return observations
 
+    class ReadChunk(BaseModel):
+        reason: str = Field(description="The reason for continuing reading in the current place")
+
+    def read_chunk(self, param: ReadChunk):
+        """
+        Reads the next chunk of text from the current location in the current document.
+        """
+        if self.document is None:
+            observations = "No document defined, cannot read"
+        else:
+            observations = self.document.next_chunk()
+        return observations
+
     def _retrieval_observations(self, search_record, limit_sections=None):
         observations = ""
         document = search_record.document

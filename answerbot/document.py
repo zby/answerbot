@@ -128,21 +128,21 @@ class MarkdownDocument(Document):
         self.lookup_results = []
         for match in matches:
             index = match.start()
-            start = int(index + len(keyword) / 2 - self.chunk_size / 2)
+            start = max(int(index + len(keyword) / 2 - self.chunk_size / 2), 0)
 
             slice_text = text[start:index + len(keyword)]
 
             pattern = r'(?:^|\n)(#(?:#*)\s*.+)'
-            match = re.search(pattern, slice_text)
-            if match:
+            boundary_match = re.search(pattern, slice_text)
+            if boundary_match:
                 # there is a section boundary between the possible chunk start and the end of the keyword
-                start = start + match.start(1)
+                start = start + boundary_match.start(1)
             else:
                 pattern = r'\.\s+([^\s])'
-                match = re.search(pattern, slice_text)
-                if match:
+                boundary_match = re.search(pattern, slice_text)
+                if boundary_match:
                     # there is a sentence boundary between the possible chunk start and the end of the keyword
-                    start = start + match.start(1)
+                    start = start + boundary_match.start(1)
 
             slice_text = text[start:index]
 

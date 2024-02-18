@@ -107,6 +107,10 @@ c23456789
     assert doc.lookup("b23456789") == "b23456789"
     assert doc.read_chunk() == "c23456789"
 
+    doc.position = 0
+    assert doc.lookup("123") == "123456789"
+
+
 def test_links():
     content = """
 A link to [OpenAI](https://www.openai.com), and here is another link to [Google](https://www.google.com).

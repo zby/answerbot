@@ -116,10 +116,22 @@ def test_links():
 A link to [OpenAI](https://www.openai.com), and here is another link to [Google](https://www.google.com).
 Don't forget to check [Different text OpenAI](https://www.openai.com) for more information.
 """
-    doc = MarkdownDocument(content, chunk_size=SMALL_CHUNK_SIZE)
+    doc = MarkdownDocument(content)
     content = doc.content
     assert("[OpenAI](1)" in content)
     assert("[Google](2)" in content)
     assert("[Different text OpenAI](1)" in content)
     assert(doc.links == { '1': 'https://www.openai.com', '2': 'https://www.google.com' })
 
+
+def test_something():
+    content = """# Some Page
+
+    A link to [test](http://www.test.test), and here is another link to [Google](https://www.google.com).
+    Don't forget to check [Different text OpenAI](https://www.openai.com) for more information.
+"""
+
+    doc = MarkdownDocument(content)
+    content = doc.content
+    assert ("[test](1)" in content)
+    assert("[Google](2)" in content)

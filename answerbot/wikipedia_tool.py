@@ -107,6 +107,23 @@ class WikipediaSearch:
             observations = self.document.next_chunk()
         return observations
 
+    class FollowLink(BaseModel):
+        reason: str = Field(description="The reason for following a link")
+        link: str = Field(description="The link to follow")
+
+    def follow_link(self, param: FollowLink):
+        """
+        Follows a link from the current page and saves the retrieved page as the next current page
+        """
+        if self.document is None:
+            observations = "No current page, cannot follow "
+        else:
+            url = self.document.links[param.link]
+            search_record = self.wiki_api.get_page(url)
+            self.document = search_record.document
+            observations = self._retrieval_observations(search_record)
+        return observations
+
     def _retrieval_observations(self, search_record, limit_sections=None):
         observations = ""
         document = search_record.document

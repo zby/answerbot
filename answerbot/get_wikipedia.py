@@ -155,12 +155,11 @@ class WikipediaApi:
         cleaned_content = markdown.strip()
         return cleaned_content
 
-    def get_page(self, title):
-        retrieval_history = []
-        retries = 0
 
+    def get_url(self, url, title=None):
+        retries = 0
+        retrieval_history = []
         while retries < self.max_retries:
-            url = self.base_url + title
             response = requests.get(url)
             if response.status_code == 404:
                 retrieval_history.append(f"Page '{title}' does not exist.")
@@ -171,8 +170,10 @@ class WikipediaApi:
                 cleaned_content = self.clean_html_and_textify(html)
 
                 document = MarkdownDocument(cleaned_content, chunk_size=self.chunk_size)
-                retrieval_history.append(f"Successfully retrieved '{title}' from Wikipedia.")
-
+                if title is not None:
+                    retrieval_history.append(f"Successfully retrieved '{title}' from Wikipedia.")
+                else:
+                    retrieval_history.append(f"Successfully retrieved '{url}'")
                 return ContentRecord(document, retrieval_history)
             else:
                 retrieval_history.append(f"HTTP error occurred: {response.status_code}")
@@ -180,6 +181,11 @@ class WikipediaApi:
             retries += 1
         retrieval_history.append(f"Retries exhausted. No options available.")
         return ContentRecord(None, retrieval_history)
+
+    def get_page(self, title):
+        url = self.base_url + title
+        return self.get_url(url, title)
+
 
     def search(self, search_query):
         params = {

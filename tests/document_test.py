@@ -124,14 +124,3 @@ Don't forget to check [Different text OpenAI](https://www.openai.com) for more i
     assert(doc.links == { '1': 'https://www.openai.com', '2': 'https://www.google.com' })
 
 
-def test_something():
-    content = """# Some Page
-
-    A link to [test](http://www.test.test), and here is another link to [Google](https://www.google.com).
-    Don't forget to check [Different text OpenAI](https://www.openai.com) for more information.
-"""
-
-    doc = MarkdownDocument(content)
-    content = doc.content
-    assert ("[test](1)" in content)
-    assert("[Google](2)" in content)

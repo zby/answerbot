@@ -4,7 +4,7 @@ import json
 import time
 import logging
 import copy
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 from typing import Literal
 
 from .prompt_builder import FunctionalPrompt, PromptMessage, Assistant, System, FunctionCall, FunctionResult
@@ -107,7 +107,8 @@ class Reflection(BaseModel):
         ...,
         description="Was the last retrieved information relevant for answering this question? Choose 1, 2, 3, 4, or 5."
     )
-    @validator('how_relevant', pre=True)
+    @field_validator('how_relevant')
+    @classmethod
     def ensure_int(cls, v):
         if isinstance(v, str) and v in {'1', '2', '3', '4', '5'}:
             return int(v)  # Convert to int

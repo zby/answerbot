@@ -35,8 +35,9 @@ if __name__ == "__main__":
     # question = "What year did Guns N Roses perform a promo for a movie starring Arnold Schwarzenegger as a former New York Police detective?"
     #question = "What is the weight proportion of oxygen in water?"
     #question = "Czy dane kardy kredytowej są danymi osobowymi w Polsce"
+    #question = "How much is two plus two"
 
-    max_llm_calls = 6
+    max_llm_calls = 7
     config = {
         "chunk_size": 500,
         "prompt": NoExamplesReactPrompt(question, max_llm_calls),

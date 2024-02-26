@@ -15,6 +15,8 @@ class NoExamplesReactPrompt(FunctionalPrompt):
 f"""
 Please answer the following question. You can use wikipedia for reference - but think carefully about what pages exist at wikipedia.
 You have only {max_llm_calls} calls to the wikipedia API.
+Every time you can retrieve only a small fragment of the wikipedia page, if the retrieved information looks promising - but is cut short
+you can call 'read_chunk' to retrieve a consecutive chunk of the page.
 When you need to know a property of something or someone - search for that something page instead of using that property in the search.
 The search function automatically retrieves the first search result you don't need to call get for it.
 When a page is retrieved only a part of it is displayed, you can jump to different parts of the page by using the lookup function.

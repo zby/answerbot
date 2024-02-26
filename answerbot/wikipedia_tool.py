@@ -108,7 +108,7 @@ class WikipediaSearch:
         if self.document is None:
             observations = "No document defined, cannot read"
         else:
-            observations = self.document.next_chunk()
+            observations = self.document.read_chunk()
         return observations
 
     class FollowLink(BaseModel):

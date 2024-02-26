@@ -9,9 +9,6 @@ from typing import Literal
 
 from .prompt_builder import FunctionalPrompt, PromptMessage, Assistant, System, FunctionCall, FunctionResult
 from .get_wikipedia import WikipediaApi
-
-from .react_prompt import FunctionalReactPrompt, NewFunctionalReactPrompt, TextReactPrompt
-from .prompt_templates import NoExamplesReactPrompt
 from .wikipedia_tool import WikipediaSearch
 
 from llm_easy_tools import ToolBox
@@ -126,8 +123,8 @@ def get_answer(question, config):
     wiki_search = WikipediaSearch(wiki_api)
     toolbox = ToolBox()
     toolbox.register_toolset(wiki_search)
-    toolbox.register_tool(Reflection)
-    toolbox.register_tool(WikipediaSearch.Finish)
+    toolbox.register_model(Reflection)
+    toolbox.register_model(WikipediaSearch.Finish)
     client = openai.OpenAI(timeout=httpx.Timeout(20.0, read=10.0, write=15.0, connect=4.0))
     reactor = LLMReactor(config['model'], toolbox, config['prompt'], config['reflection_generator'], config['max_llm_calls'], client=client)
     while True:

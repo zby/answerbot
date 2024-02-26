@@ -7,9 +7,9 @@ class MockWikiApi:
     def get_page(self, title):
         content = f"""# {title}
         
-        A link to [test](https://www.test.test), and here is another link to [Google](https://www.google.com).
-        Don't forget to check [Different text OpenAI](https://www.openai.com) for more information.
-        """
+A link to [test](https://www.test.test), and here is another link to [Google](https://www.google.com).
+Don't forget to check [Different text OpenAI](https://www.openai.com) for more information.
+"""
         doc = MarkdownDocument(content)
 
         return ContentRecord(doc, [f"Successfully retrieved '{title}'"])
@@ -28,7 +28,8 @@ def test_follow_link():
     follow_object = WikipediaSearch.FollowLink(link='1', reason="because")
 
     wiki_search.follow_link(follow_object)
-    assert wiki_search.document.content.startswith("# http://www.test.test")
+    new_content = wiki_search.document.content
+    assert new_content.startswith("# https://www.test.test")
 
 
 

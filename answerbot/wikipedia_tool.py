@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field
 
 from answerbot.get_wikipedia import ContentRecord
-from llm_easy_tools import ToolBox, SchemaGenerator, schema_name
+from llm_easy_tools import ToolBox, SchemaGenerator, external_function
 
 class WikipediaSearch:
     def __init__(self, wiki_api, cached=False):
@@ -27,6 +27,7 @@ class WikipediaSearch:
         reason: str = Field(description="The reason for searching")
         query: str = Field(description="The query to search for on Wikipedia")
 
+    @external_function()
     def search(self, param: Search):
         """
         Searches Wikipedia, saves the first result page, and informs about the content of that page.
@@ -44,6 +45,7 @@ class WikipediaSearch:
     class Get(BaseModel):
         reason: str = Field(description="The reason for retrieving the page")
         title: str = Field(description="The wikipedia page title")
+    @external_function()
     def get(self, param: Get):
         """
         Retrieves a Wikipedia page, saves the result, and informs about the content of that page.
@@ -59,6 +61,7 @@ class WikipediaSearch:
         reason: str = Field(description="The reason for searching")
         keyword: str = Field(description="The keyword to search")
 
+    @external_function()
     def lookup(self, param: Lookup):
         """
         Looks up a word on the current page.
@@ -78,7 +81,7 @@ class WikipediaSearch:
     class Next_Lookup(BaseModel):
         reason: str = Field(description="The reason for searching")
 
-    @schema_name('next')
+    @external_function('next')
     def next_lookup(self, param: Next_Lookup):
         """
         Jumps to the next occurrence of the word searched previously.
@@ -97,6 +100,7 @@ class WikipediaSearch:
     class ReadChunk(BaseModel):
         reason: str = Field(description="The reason for continuing reading in the current place")
 
+    @external_function()
     def read_chunk(self, param: ReadChunk):
         """
         Reads the next chunk of text from the current location in the current document.
@@ -111,6 +115,7 @@ class WikipediaSearch:
         reason: str = Field(description="The reason for following a link")
         link: str = Field(description="The link to follow")
 
+    @external_function()
     def follow_link(self, param: FollowLink):
         """
         Follows a link from the current page and saves the retrieved page as the next current page

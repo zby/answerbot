@@ -91,6 +91,15 @@ class WikipediaSearch:
         self.document = search_record.document
         return self._retrieval_observations(search_record)
 
+    def search_result_to_text(self, query, items):
+        text = f"Wikipedia search results for query: '{query}' are: "
+        results = []
+        for item in items:
+            results.append(f"[[{item['title']}]]")
+
+        search_results = ", ".join(results)
+        return text + search_results
+
     def wiki_api_search(self, search_query):
         params = {
             'action': 'query',
@@ -105,12 +114,12 @@ class WikipediaSearch:
             response.raise_for_status()
             data = response.json()
 
-            search_results = [item['title'] for item in data['query']['search']]
-            squared_results = [f"[[{result}]]" for result in search_results]
-            search_history = [f"Wikipedia search results for query: '{search_query}' are: " + ", ".join(squared_results)]
+            search_results = data['query']['search']
+            search_history = [self.search_result_to_text(search_query, search_results)]
 
             if search_results:
-                content_record = self.wiki_api_get_page(search_results[0])
+                first_title = search_results[0]['title']
+                content_record = self.wiki_api_get_page(first_title)
                 combined_history = search_history + content_record.retrieval_history
                 return ContentRecord(content_record.document, combined_history)
             else:

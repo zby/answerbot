@@ -119,7 +119,7 @@ class WikipediaSearch:
 
             if search_results:
                 first_title = search_results[0]['title']
-                content_record = self.wiki_api_get_page(first_title)
+                content_record = self.get_page(first_title)
                 combined_history = search_history + content_record.retrieval_history
                 return ContentRecord(content_record.document, combined_history)
             else:
@@ -210,7 +210,7 @@ class WikipediaSearch:
         retrieval_history.append(f"Retries exhausted. No options available.")
         return ContentRecord(None, retrieval_history)
 
-    def wiki_api_get_page(self, title):
+    def get_page(self, title):
         url = self.base_url + title
         return self.get_url(url, title)
 
@@ -225,7 +225,7 @@ class WikipediaSearch:
 
         if self.cached:
             raise Exception("Cached get not implemented")
-        search_record = self.wiki_api_get_page(param.title)
+        search_record = self.get_page(param.title)
         self.document = search_record.document
         return self._retrieval_observations(search_record)
 
@@ -296,7 +296,7 @@ class WikipediaSearch:
             observations = "No current page, cannot follow "
         else:
             url = self.document.links[param.link]
-            search_record = self.wiki_api_get_page(url)
+            search_record = self.get_page(url)
             self.document = search_record.document
             observations = self._retrieval_observations(search_record)
         return observations

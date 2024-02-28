@@ -26,7 +26,7 @@ Don't forget to check [Different text OpenAI](https://www.openai.com) for more i
 
     new_document = MarkdownDocument("New Page")
     content_record = ContentRecord(new_document, ['Page retrieval history'])
-    wiki_search.wiki_api_get_page = MagicMock(return_value=content_record)
+    wiki_search.get_page = MagicMock(return_value=content_record)
     follow_object = WikipediaSearch.FollowLink(link='1', reason="because")
 
     wiki_search.follow_link(follow_object)
@@ -38,7 +38,7 @@ Don't forget to check [Different text OpenAI](https://www.openai.com) for more i
 def test_get_page_success(mock_get):
     mock_get.return_value = MockHttpResponse('<html><div id="bodyContent">Page Content</div></html>', 200)
     wiki_search = WikipediaSearch()
-    result = wiki_search.wiki_api_get_page("TestPage")
+    result = wiki_search.get_page("TestPage")
     assert result.document is not None
     assert "Page Content" in result.document.content
     assert "Successfully retrieved 'TestPage'" in result.retrieval_history[0]
@@ -47,7 +47,7 @@ def test_get_page_success(mock_get):
 def test_get_page_404(mock_get):
     mock_get.return_value = MockHttpResponse("Page not found", 404)
     wiki_search = WikipediaSearch()
-    result = wiki_search.wiki_api_get_page("NonExistentPage")
+    result = wiki_search.get_page("NonExistentPage")
     assert result.document is None
     assert "Page 'NonExistentPage' does not exist." in result.retrieval_history
 
@@ -56,7 +56,7 @@ def test_get_page_404(mock_get):
 def test_get_page_http_error(mock_get):
     mock_get.return_value = MockHttpResponse("Error", 500)
     wiki_search = WikipediaSearch()
-    result = wiki_search.wiki_api_get_page("ErrorPage")
+    result = wiki_search.get_page("ErrorPage")
     assert result.document is None
     assert "HTTP error occurred: 500" in result.retrieval_history
 
@@ -65,7 +65,7 @@ def test_get_page_http_error(mock_get):
 def test_get_page_retries_exhausted(mock_get):
     mock_get.side_effect = [MockHttpResponse("Error", 500) for _ in range(5)]  # Assuming MAX_RETRIES is 5
     wiki_search = WikipediaSearch()
-    result = wiki_search.wiki_api_get_page("ErrorPage")
+    result = wiki_search.get_page("ErrorPage")
     assert result.document is None
     assert "Retries exhausted. No options available." in result.retrieval_history
 
@@ -82,7 +82,7 @@ def mock_successful_search(*args, **kwargs):
 
 # Test successful search
 @patch('answerbot.wikipedia_tool.requests.get')
-@patch('answerbot.wikipedia_tool.WikipediaSearch.wiki_api_get_page')
+@patch('answerbot.wikipedia_tool.WikipediaSearch.get_page')
 def test_search_success(mock_get_page, mock_get):
     mock_http_response = MagicMock()
     mock_http_response.json.return_value = {

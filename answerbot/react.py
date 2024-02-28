@@ -8,7 +8,6 @@ from pydantic import BaseModel, Field, field_validator
 from typing import Literal
 
 from .prompt_builder import FunctionalPrompt, PromptMessage, Assistant, System, FunctionCall, FunctionResult
-from .get_wikipedia import WikipediaApi
 from .wikipedia_tool import WikipediaSearch
 
 from llm_easy_tools import ToolBox
@@ -120,8 +119,7 @@ class Reflection(BaseModel):
 
 def get_answer(question, config):
     print("\n\n<<< Question:", question)
-    wiki_api = WikipediaApi(max_retries=2, chunk_size=config['chunk_size'])
-    wiki_search = WikipediaSearch(wiki_api)
+    wiki_search = WikipediaSearch(max_retries=2, chunk_size=config['chunk_size'])
     toolbox = ToolBox()
     toolbox.register_toolset(wiki_search)
     toolbox.register_model(Reflection)

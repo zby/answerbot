@@ -73,7 +73,7 @@ class LLMReactor:
         result = results[0]
         logger.info(str(message))
         self.prompt.push(message)
-        if result is WikipediaSearch.Finish:
+        if isinstance(result, WikipediaSearch.Finish):
             self.answer = result.normalized_answer
             self.set_finished()
             return
@@ -123,7 +123,6 @@ def get_answer(question, config):
     toolbox = ToolBox()
     toolbox.register_toolset(wiki_search)
     toolbox.register_model(Reflection)
-    toolbox.register_model(WikipediaSearch.Finish)
     client = openai.OpenAI(timeout=httpx.Timeout(20.0, read=10.0, write=15.0, connect=4.0))
     reactor = LLMReactor(config['model'], toolbox, config['prompt'], config['reflection_generator'], config['max_llm_calls'], client=client)
     while True:

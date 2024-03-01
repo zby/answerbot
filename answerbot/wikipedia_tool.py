@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field
 from bs4 import BeautifulSoup, NavigableString
 
 from answerbot.document import MarkdownDocument
-from llm_easy_tools import external_function
+from llm_easy_tools import external_function, extraction_model
 
 MAX_RETRIES = 3
 # BASE_URL = 'https://pl.wikipedia.org/wiki/'
@@ -58,6 +58,7 @@ class WikipediaSearch:
         self.base_url = base_url
         self.api_url = api_url
 
+    @extraction_model()
     class Finish(BaseModel):
         """
         Finish the task and return the answer.

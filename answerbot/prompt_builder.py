@@ -70,32 +70,28 @@ class Assistant(PromptMessage):
 
 
 class FunctionCall(PromptMessage):
-    def __init__(self, name: str, reason: str = None, summarized_below=False, **args):
+    def __init__(self, name: str, summarized_below=False, **args):
         # ATTENTION functions cannot have arguments with the same name as the
         # __init__ arguments.
-        # That is 'name', 'reason' and 'summarized_below'
+        # That is 'name' and 'summarized_below'
         super().__init__('',
-            role='assistant', name=name, reason=reason, summarized_below=summarized_below, args=args)
+            role='assistant', name=name, summarized_below=summarized_below, args=args)
 
     def __repr__(self):
         args = self.args.copy()
         if self.summarized_below:
             args['summarized_below'] = True
         positional_args = [f"'{self.name}'"]
-        if self.reason is not None:
-            positional_args.append(f'{self.reason!r}')
         named_args = [f'{key}={args[key]!r}' for key in args]
         attr_str = ', '.join(positional_args + named_args)
         return f'{self.__class__.__name__}({attr_str})'
 
     def plaintext(self) -> str:
         arguments = ", ".join(str(value) for value in self.args.values())
-        reason = f"Reason: {self.reason}\n" if self.reason else ""
-        return f"{reason}Action: {self.name}[{arguments}]"
+        return f"Action: {self.name}[{arguments}]"
 
     def openai_message(self) -> dict:
         arguments = dict(self.args)
-        arguments["reason"] = self.reason
         return {
             "role": "assistant",
             "content": '',
@@ -178,10 +174,10 @@ if __name__ == "__main__":
     fprompt = FunctionalPrompt([
         System("Solve a question answering task with interleaving Thought, Action and Observation steps."),
         User("\nQuestion: What is the terminal velocity of an unleaded swallow?"),
-        FunctionCall('Search', "I need to search through my book of Monty Python jokes.", query="Monty Python"),
+        FunctionCall('Search', reason="I need to search through my book of Monty Python jokes.", query="Monty Python"),
         FunctionResult('Search', "Here are all the Monty Python jokes you know: ..."),
         FunctionResult('Search', "Here are all the Monty Python jokes you know: ...", summarized_below=True),
-        FunctionCall('Lookup', "Lookup the Swallow joke", keyword="Unleaded swallow"),
+        FunctionCall('Lookup', reason="Lookup the Swallow joke", keyword="Unleaded swallow"),
         User("Observation: Did you mean Unladen Swallow?"),
         FunctionCall('Finish', query='Oh you!'),
     ])
@@ -197,9 +193,9 @@ if __name__ == "__main__":
     pprompt = PlainTextPrompt([
         System("Solve a question answering task with interleaving Thought, Action and Observation steps."),
         User("\nQuestion: What is the terminal velocity of an unleaded swallow?"),
-        FunctionCall('Search', "I need to search through my book of Monty Python jokes.", query="Monty Python"),
+        FunctionCall('Search', reason="I need to search through my book of Monty Python jokes.", query="Monty Python"),
         FunctionResult('Search', "Here are all the Monty Python jokes you know: ..."),
-        FunctionResult('Search', "Here are all the Monty Python jokes you know: ...", summarized_below=True),
+        FunctionResult('Search', reason="Here are all the Monty Python jokes you know: ...", summarized_below=True),
         Assistant("Lookup[Unleaded swallow]"),
         User("Observation: Did you mean Unladen Swallow?"),
         FunctionCall('Finish', query='Oh you!'),

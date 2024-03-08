@@ -63,7 +63,6 @@ class WikipediaSearch:
         """
         Finish the task and return the answer.
         """
-        reason: str = Field(description="The reasoning behind the answer")
         answer: str = Field(description="The answer to the user's question")
 
         def normalized_answer(self):
@@ -74,7 +73,6 @@ class WikipediaSearch:
 
 
     class Search(BaseModel):
-        reason: str = Field(description="The reason for searching")
         query: str = Field(description="The query to search for on Wikipedia")
 
     @external_function()
@@ -216,7 +214,6 @@ class WikipediaSearch:
         return self.get_url(url, title)
 
     class Get(BaseModel):
-        reason: str = Field(description="The reason for retrieving the page")
         title: str = Field(description="The wikipedia page title")
     @external_function()
     def get(self, param: Get):
@@ -231,7 +228,6 @@ class WikipediaSearch:
         return self._retrieval_observations(search_record)
 
     class Lookup(BaseModel):
-        reason: str = Field(description="The reason for searching")
         keyword: str = Field(description="The keyword to search")
 
     @external_function()
@@ -252,7 +248,7 @@ class WikipediaSearch:
         return observations
 
     class Next_Lookup(BaseModel):
-        reason: str = Field(description="The reason for searching")
+        pass
 
     @external_function('next')
     def next_lookup(self, param: Next_Lookup):
@@ -271,7 +267,7 @@ class WikipediaSearch:
         return observations
 
     class ReadChunk(BaseModel):
-        reason: str = Field(description="The reason for continuing reading in the current place")
+        pass
 
     @external_function()
     def read_chunk(self, param: ReadChunk):
@@ -285,7 +281,6 @@ class WikipediaSearch:
         return observations
 
     class FollowLink(BaseModel):
-        reason: str = Field(description="The reason for following a link")
         link: str = Field(description="The link to follow")
 
     @external_function()

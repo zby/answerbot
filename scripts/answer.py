@@ -44,7 +44,6 @@ if __name__ == "__main__":
         "max_llm_calls": max_llm_calls,
         #"model": "gpt-3.5-turbo-0613",
         "model": "gpt-4-1106-preview",
-        "reflection_generator": ReflectionMessageGenerator(),
     }
 
     reactor = get_answer(question, config)

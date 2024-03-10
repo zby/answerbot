@@ -24,21 +24,19 @@ def test_basic_prompt_messages():
 def test_function_call():
     function_call = FunctionCall("Test Function", reason="For testing", param1="value1", param2="value2")
     assert function_call.name == "Test Function"
-    assert function_call.reason == "For testing"
-    assert function_call.args == {"param1": "value1", "param2": "value2"}
+    assert function_call.args == {"reason": "For testing", "param1": "value1", "param2": "value2"}
     expected = {
         "role": "assistant",
         "content": '',
         "function_call": {
             "name": "Test Function",
-            "arguments": json.dumps({"param1": "value1", "param2": "value2", "reason": "For testing"}),
+            "arguments": json.dumps({"reason": "For testing", "param1": "value1", "param2": "value2"}),
         },
     }
     assert function_call.openai_message() == expected
 
     eval_function_call = eval(repr(function_call))
     assert function_call.name == eval_function_call.name
-    assert function_call.reason == eval_function_call.reason
     assert function_call.args == eval_function_call.args
 
 def test_function_result():

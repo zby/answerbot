@@ -41,10 +41,11 @@ class Document(ABC):
         chunk = sentence[:self.chunk_size]
         for sentence in sentences[1:]:
             if len(chunk) + len(sentence) <= self.chunk_size:
-                chunk += sentence + " "
+                chunk += sentence
             else:
                 break
         self.position = self.position + len(chunk)
+        a = self.text[self.position:]
         chunk = chunk.strip()
         return chunk
 
@@ -61,7 +62,6 @@ class Document(ABC):
             return None
 
         current_match = self.lookup_results[self.lookup_position]
-        a = self.content[current_match:]
         self.position = current_match
 
         # Move to the next position, loop back if at the end

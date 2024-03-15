@@ -5,7 +5,7 @@ import time
 import logging
 import copy
 from pydantic import BaseModel, Field, field_validator
-from typing import Literal
+from typing import Literal, Union
 from pprint import pprint
 
 from .prompt_builder import FunctionalPrompt, PromptMessage, Assistant, System, FunctionCall, FunctionResult
@@ -54,7 +54,7 @@ class LLMReactor:
         elif response.choices[choice_num].message.tool_calls:
             function_call = response.choices[choice_num].message.tool_calls[tool_num].function
         function_args = json.loads(function_call.arguments)
-        pprint(function_args)
+        #pprint(function_args)
         message = FunctionCall(function_call.name, **function_args)
         return message, function_call
 
@@ -100,7 +100,7 @@ class LLMReactor:
 
 
 class Reflection(BaseModel):
-    how_relevant: Literal[1, 2, 3, 4, 5] = Field(
+    how_relevant: Union[Literal[1, 2, 3, 4, 5], Literal['1', '2', '3', '4', '5']] = Field(
         ...,
         description="Was the last retrieved information relevant for answering this question? Choose 1, 2, 3, 4, or 5."
     )

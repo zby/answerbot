@@ -8,7 +8,8 @@ CHUNK_SIZE = 1024
 
 
 class Document(ABC):
-    def __init__(self, content, chunk_size=CHUNK_SIZE, retrival_obs=[], summary=None, position=0, lookup_word=None, lookup_results=None, lookup_position=0, links=None):
+    def __init__(self, content, chunk_size=CHUNK_SIZE, retrival_obs=[], summary=None, position=0, lookup_word=None, lookup_results=None, lookup_position=0,
+                 ref_to_url=None, text_to_url=None):
         self.content = content
         self.chunk_size = chunk_size
         self.text = self.extract_text()
@@ -17,15 +18,18 @@ class Document(ABC):
         if retrival_obs is None:
             retrival_obs = []
         self.retrival_obs = retrival_obs
-        if links is None:
-            links = {}
-        self.links = links
         if lookup_results is None:
             self.lookup_results = []
         else:
             self.lookup_results = lookup_results
         self.lookup_word = lookup_word
         self.lookup_position = lookup_position
+        if ref_to_url is None:
+            ref_to_url = {}
+        self.ref_to_url= ref_to_url
+        if text_to_url is None:
+            text_to_url = {}
+        self.text_to_url = text_to_url
 
     @abstractmethod
     def extract_text(self):
@@ -69,11 +73,21 @@ class Document(ABC):
 
         return self.read_chunk()
 
+    def resolve_link(self, ref_or_text, chunk_start=None, chunk_end=None):
+        if ref_or_text in self.url_to_ref:
+            return self.url_to_ref[ref_or_text]
+        if ref_or_text in self.text_to_url:
+            return self.text_to_url[ref_or_text]
+        raise KeyError(ref_or_text)
+
+
+
 class MarkdownLinkShortener(MarkdownRenderer):
     def __init__(self):
         super().__init__()
         self.url_to_ref = {}  # Map from URL to reference
         self.ref_to_url = {}  # Map from reference to URL
+        self.text_to_url = {}
         self.ref_counter = 1
 
     def link(self, link, title=None, text=None):
@@ -91,20 +105,22 @@ class MarkdownLinkShortener(MarkdownRenderer):
 
         # Extracting the text of the link from the 'children' attribute
         link_text = ''.join(child['raw'] for child in link['children'] if child['type'] == 'text')
+        self.text_to_url[link_text] = url
 
         return f'[{link_text}]({ref})'
 
 
 class MarkdownDocument(Document):
 
-    # __init__ runs shorten_urls_in_markdown on content and initializes links dictionary from its output
+    # __init__ runs shorten_urls_in_markdown on content and initializes links dictionaries from its output
     def __init__(self, content, **kwargs):
 
         renderer = MarkdownLinkShortener()
         markdown = mistune.create_markdown(renderer=renderer)
 
         kwargs['content'] = markdown(content)
-        kwargs['links'] = renderer.ref_to_url
+        kwargs['ref_to_url'] = renderer.ref_to_url
+        kwargs['text_to_url'] = renderer.text_to_url
 
         # Use kwargs in call to super().__init__
         super().__init__(**kwargs)

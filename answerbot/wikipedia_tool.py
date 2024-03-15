@@ -291,7 +291,7 @@ class WikipediaSearch:
         if self.document is None:
             observations = "No current page, cannot follow "
         else:
-            url = self.document.links[param.link]
+            url = self.document.resolve_link(param.link)
             search_record = self.get_page(url)
             self.document = search_record.document
             observations = self._retrieval_observations(search_record)

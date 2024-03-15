@@ -25,7 +25,7 @@ next occurence of that keyword.
 If a lookup does not return meaningful information you can lookup synonyms of the word you are looking for.
 The wikipedia pages are formatted in Markdown.
 When you receive information from wikipedia always analyze it and check what useful information have you found and what else do you need.
-When you know the answer call finish. Please make the answer as short as possible. If it can be answered with yes or no that is best.
+When you know the answer call finish or reflect_and_finish. Please make the answer as short as possible. If it can be answered with yes or no that is best.
 Remove all explanations from the answer and put them into the thought field.
 """
         super().__init__([ System(system_prompt), Question(question) ])

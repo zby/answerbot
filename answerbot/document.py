@@ -74,8 +74,8 @@ class Document(ABC):
         return self.read_chunk()
 
     def resolve_link(self, ref_or_text, chunk_start=None, chunk_end=None):
-        if ref_or_text in self.url_to_ref:
-            return self.url_to_ref[ref_or_text]
+        if ref_or_text in self.ref_to_url:
+            return self.ref_to_url[ref_or_text]
         if ref_or_text in self.text_to_url:
             return self.text_to_url[ref_or_text]
         raise KeyError(ref_or_text)

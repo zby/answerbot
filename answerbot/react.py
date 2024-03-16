@@ -4,7 +4,7 @@ import json
 import time
 import logging
 import copy
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ValidationError
 from typing import Literal, Union
 from pprint import pprint
 
@@ -22,12 +22,14 @@ logger = logging.getLogger(__name__)
 
 class LLMReactor:
     def __init__(self, model: str, toolbox: ToolBox, prompt: FunctionalPrompt,
-                 max_llm_calls: int, client):
+                 max_llm_calls: int, client, soft_reflection_validation=True):
         self.model = model
         self.toolbox = toolbox
         self.prompt = prompt
         self.max_llm_calls = max_llm_calls
         self.client = client
+        self.soft_reflection_validation = soft_reflection_validation
+
         self.step = 0
         self.finished = False
         self.answer = None
@@ -36,6 +38,7 @@ class LLMReactor:
         args = {}
         args["tools"] = tool_schemas
         args["tool_choice"] = tool_choice
+        pprint(tool_schemas)
 
         response = None
         completion = self.client.chat.completions.create(
@@ -67,15 +70,22 @@ class LLMReactor:
         else:
             prefix_class = Reflection
         if self.step == self.max_llm_calls:
-            finish_schema = self.toolbox.get_tool_schema('Finish', prefix_class)
+            finish_schema = self.toolbox.get_tool_schema('Finish', prefix_class)  # Finish is registered
             response = self.openai_query([finish_schema],
-                                         tool_choice={'type': 'function', 'function': {'name': 'Finish'}})
+                                         tool_choice={'type': 'function', 'function': {'name': finish_schema['function']['name']}})
+            # but externally it is reflection_and_finish
         else:
             all_schemas = self.toolbox.tool_schemas(prefix_class=prefix_class)
             response = self.openai_query(all_schemas)
         message, function_call = self.message_from_response(response)
         logger.info(str(message))
-        result = self.toolbox.process_function(function_call, prefix_class=prefix_class)
+        try:
+            result = self.toolbox.process_function(function_call, prefix_class=prefix_class)
+        except ValidationError as e:
+            if prefix_class is not None and self.soft_reflection_validation:
+                result = self.toolbox.process_function(function_call)
+            else:
+                raise e
         self.prompt.push(message)
         if isinstance(result, WikipediaSearch.Finish):
             self.answer = result.normalized_answer

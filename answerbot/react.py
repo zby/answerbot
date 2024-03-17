@@ -58,6 +58,8 @@ class LLMReactor:
             function_call = response.choices[choice_num].message.function_call
         elif response.choices[choice_num].message.tool_calls:
             function_call = response.choices[choice_num].message.tool_calls[tool_num].function
+        else:
+            raise ValueError(f"Choice number {choice_num} in response is not a function nor tool call")
         function_args = json.loads(function_call.arguments)
         #pprint(function_args)
         message = FunctionCall(function_call.name, **function_args)
@@ -83,7 +85,7 @@ class LLMReactor:
             result = self.toolbox.process_function(function_call, prefix_class=prefix_class)
         except ValidationError as e:
             if prefix_class is not None and self.soft_reflection_validation:
-                result = self.toolbox.process_function(function_call)
+                result = self.toolbox.process_function(function_call, prefix_class=prefix_class, ignore_prefix=True)
                 self.reflection_errors.append({"message": e.message, "errors": e.errors})
             else:
                 raise e

@@ -3,11 +3,14 @@ import html2text
 import traceback
 import os
 
+from pprint import pprint
+
 from pydantic import BaseModel, Field
 from bs4 import BeautifulSoup, NavigableString
 
 from answerbot.document import MarkdownDocument
 from llm_easy_tools import external_function, extraction_model
+from urllib.parse import urlparse, urljoin
 
 MAX_RETRIES = 3
 # BASE_URL = 'https://pl.wikipedia.org/wiki/'
@@ -187,6 +190,7 @@ class WikipediaSearch:
     def get_url(self, url, title=None):
         retries = 0
         retrieval_history = []
+        print(f"Getting {url}")
         while retries < self.max_retries:
             response = requests.get(url)
             if response.status_code == 404:
@@ -280,6 +284,22 @@ class WikipediaSearch:
             observations = self.document.read_chunk()
         return observations
 
+    def make_absolute_url(self, link_address):
+        # Check if the link address is already an absolute URL
+        parsed_link = urlparse(link_address)
+        if parsed_link.scheme:
+            return link_address
+
+        # Check if the link address starts with '/'
+        if link_address.startswith('/'):
+            # Extract the host part of the base URL
+            parsed_base = urlparse(self.base_url)
+            base_host = parsed_base.scheme + '://' + parsed_base.netloc
+            return urljoin(base_host, link_address)
+
+        # Concatenate the base URL with the link address
+        return urljoin(self.base_url, link_address)
+
     class FollowLink(BaseModel):
         link: str = Field(description="The link to follow")
 
@@ -292,7 +312,8 @@ class WikipediaSearch:
             observations = "No current page, cannot follow "
         else:
             url = self.document.resolve_link(param.link)
-            search_record = self.get_page(url)
+            url = self.make_absolute_url(url)
+            search_record = self.get_url(url)
             self.document = search_record.document
             observations = self._retrieval_observations(search_record)
         return observations
@@ -316,6 +337,17 @@ class WikipediaSearch:
 
 if __name__ == "__main__":
     scraper = WikipediaSearch(chunk_size=800)
+    title = "Lewiston Maineiacs"
+    getparam = WikipediaSearch.Get(title=title)
+    scraper.get(getparam)
+    if scraper.document:
+        print(f"{title} found\n")
+        flink = scraper.FollowLink(link='Androscoggin Bank Colisée')
+        print(scraper.follow_link(flink))
+
+
+
+    exit()
     title = "Shirley Temple"
     title = "Kiss and Tell 1945 film"
     content_record = scraper.wiki_api_search(title)

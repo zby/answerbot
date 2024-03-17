@@ -33,18 +33,20 @@ class LLMReactor:
         self.step = 0
         self.finished = False
         self.answer = None
+        self.reflection_errors = []
 
-    def openai_query(self, tool_schemas, tool_choice="auto"):
-        args = {}
-        args["tools"] = tool_schemas
-        args["tool_choice"] = tool_choice
-        pprint(tool_schemas)
+    def openai_query(self, tool_schemas, force_auto_tool_choice=False):
 
-        response = None
+        if len(tool_schemas) == 1 and not force_auto_tool_choice:
+            tool_choice = tool_choice={'type': 'function', 'function': {'name': tool_schemas[0]['function']['name']}}
+        else:
+            tool_choice = "auto"
+
         completion = self.client.chat.completions.create(
             model=self.model,
             messages=self.prompt.to_messages(),
-            **args
+            tools=tool_schemas,
+            tool_choice=tool_choice
         )
         return completion
 
@@ -71,9 +73,7 @@ class LLMReactor:
             prefix_class = Reflection
         if self.step == self.max_llm_calls:
             finish_schema = self.toolbox.get_tool_schema('Finish', prefix_class)  # Finish is registered
-            response = self.openai_query([finish_schema],
-                                         tool_choice={'type': 'function', 'function': {'name': finish_schema['function']['name']}})
-            # but externally it is reflection_and_finish
+            response = self.openai_query([finish_schema])
         else:
             all_schemas = self.toolbox.tool_schemas(prefix_class=prefix_class)
             response = self.openai_query(all_schemas)
@@ -84,6 +84,7 @@ class LLMReactor:
         except ValidationError as e:
             if prefix_class is not None and self.soft_reflection_validation:
                 result = self.toolbox.process_function(function_call)
+                self.reflection_errors.append({"message": e.message, "errors": e.errors})
             else:
                 raise e
         self.prompt.push(message)

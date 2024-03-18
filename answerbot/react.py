@@ -86,12 +86,12 @@ class LLMReactor:
         except ValidationError as e:
             if prefix_class is not None and self.soft_reflection_validation:
                 result = self.toolbox.process_function(function_call, prefix_class=prefix_class, ignore_prefix=True)
-                self.reflection_errors.append({"message": e.message, "errors": e.errors})
+                self.reflection_errors.append(repr(e))
             else:
                 raise e
         self.prompt.push(message)
         if isinstance(result, WikipediaSearch.Finish):
-            self.answer = result.normalized_answer
+            self.answer = result.normalized_answer()
             self.set_finished()
             return
         elif self.step == self.max_llm_calls:

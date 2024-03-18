@@ -15,20 +15,22 @@ class NoExamplesReactPrompt(FunctionalPrompt):
 f"""
 Please answer the following question. You can use wikipedia for reference - but think carefully about what pages exist at wikipedia.
 You have only {max_llm_calls} calls to the wikipedia API.
-After the first call to wikipedia you need to always reflect on the data retrieven in the previous call and fill in all the fields
+After the first call to wikipedia you need to always reflect on the data retrieved in the previous call and fill in all the fields
 related to that in the next call.
 Every time you can retrieve only a small fragment of the wikipedia page, if the retrieved information looks promising - but is cut short
-you can call 'reflection_and_read_chunk' to retrieve a consecutive chunk of the page.
+you can call reflection_and_read_chunk to retrieve a consecutive chunk of the page.
+You can also jump to different parts of the page using the reflection_and_lookup function. In particular you can jump to 
+page sections by looking up the section headers in the MarkDown syntax.
+If the the lookup function return indicates that a given keyword is found in multiple places you can use the reflection_and_next
+function to retrieve the next occurence of that keyword.
+If a lookup does not return meaningful information you can lookup synonyms of the word you are looking for.
+
 When you need to know a property of something or someone - search for that something page instead of using that property in the search.
 The search function automatically retrieves the first search result you don't need to call get for it.
-When a page is retrieved only a part of it is displayed, you can jump to different parts of the page by using the lookup function.
-If the the lookup function return indicates that a given keyword is found in multiple places you can use the next function to retrieve the
-next occurence of that keyword.
-If a lookup does not return meaningful information you can lookup synonyms of the word you are looking for.
+
 The wikipedia pages are formatted in Markdown.
-When you receive information from wikipedia always analyze it and check what useful information have you found and what else do you need.
 When you know the answer call finish or reflect_and_finish. Please make the answer as short as possible. If it can be answered with yes or no that is best.
-Remove all explanations from the answer and put them into the thought field.
+Remove all explanations from the answer and put them into the next_actions_plan field.
 """
         super().__init__([ System(system_prompt), Question(question) ])
 

@@ -52,7 +52,9 @@ class ContentRecord:
 
 class WikipediaSearch:
     def __init__(self, cached=False, document=None,
-                 max_retries=MAX_RETRIES, chunk_size=1024, base_url=BASE_URL, api_url=API_URL):
+                 max_retries=MAX_RETRIES, chunk_size=1024, base_url=BASE_URL, api_url=API_URL,
+                 extra_links=None
+                 ):
         self.cached = cached
         self.document = document
 
@@ -60,6 +62,9 @@ class WikipediaSearch:
         self.chunk_size = chunk_size
         self.base_url = base_url
         self.api_url = api_url
+        if extra_links is None:
+            extra_links = []
+        self.extra_links = extra_links
 
     @extraction_model()
     class Finish(BaseModel):
@@ -98,6 +103,7 @@ class WikipediaSearch:
         results = []
         for item in items:
             results.append(f"[[{item['title']}]]")
+            self.extra_links.append(item['title'])
 
         search_results = ", ".join(results)
         return text + search_results
@@ -311,11 +317,17 @@ class WikipediaSearch:
         if self.document is None:
             observations = "No current page, cannot follow "
         else:
-            url = self.document.resolve_link(param.link)
-            url = self.make_absolute_url(url)
-            search_record = self.get_url(url)
-            self.document = search_record.document
-            observations = self._retrieval_observations(search_record)
+            if param.link in self.extra_links:
+                url = param.link
+            else:
+                url = self.document.resolve_link(param.link)
+            if url is None:
+                observations = "There is not such link on current page"
+            else:
+                url = self.make_absolute_url(url)
+                search_record = self.get_url(url)
+                self.document = search_record.document
+                observations = self._retrieval_observations(search_record)
         return observations
 
     def _retrieval_observations(self, search_record, limit_sections=None):
@@ -330,24 +342,35 @@ class WikipediaSearch:
             if limit_sections is not None:
                 sections = sections[:limit_sections]
             sections_list_md = "\n".join(sections)
-            observations = observations + f'The retrieved page contains the following sections:\n{sections_list_md}\n'
+            if len(sections) > 0:
+                observations = observations + f'The retrieved page contains the following sections:\n{sections_list_md}\n'
             observations = observations + "The retrieved page summary starts with:\n" + document.read_chunk() + "\n"
         return observations
 
 
 if __name__ == "__main__":
     scraper = WikipediaSearch(chunk_size=800)
-    title = "Lewiston Maineiacs"
-    getparam = WikipediaSearch.Get(title=title)
-    scraper.get(getparam)
-    if scraper.document:
-        print(f"{title} found\n")
-        flink = scraper.FollowLink(link='Androscoggin Bank Colisée')
-        print(scraper.follow_link(flink))
 
-
-
-    exit()
+#    title = 'Eileen Heckart'
+#    getparam = WikipediaSearch.Get(title=title)
+#    scraper.get(getparam)
+#    if scraper.document:
+#        print(f"{title} found\n")
+#        pprint(scraper.document.text_to_url)
+#
+#    exit()
+#
+#    title = "Lewiston Maineiacs"
+#    getparam = WikipediaSearch.Get(title=title)
+#    scraper.get(getparam)
+#    if scraper.document:
+#        print(f"{title} found\n")
+#        flink = scraper.FollowLink(link='Androscoggin Bank Colisée')
+#        print(scraper.follow_link(flink))
+#
+#
+#
+#    exit()
     title = "Shirley Temple"
     title = "Kiss and Tell 1945 film"
     content_record = scraper.wiki_api_search(title)

@@ -78,7 +78,7 @@ class Document(ABC):
             return self.ref_to_url[ref_or_text]
         if ref_or_text in self.text_to_url:
             return self.text_to_url[ref_or_text]
-        raise KeyError(ref_or_text)
+        return None
 
 
 

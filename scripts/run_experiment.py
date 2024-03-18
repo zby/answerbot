@@ -10,7 +10,6 @@ from dotenv import load_dotenv
 
 from answerbot.prompt_builder import System, User, Assistant, FunctionCall, FunctionResult
 from answerbot.react import get_answer
-from answerbot.react_prompt import NewFunctionalReactPrompt, FunctionalReactPrompt, TextReactPrompt
 from answerbot.prompt_templates import NoExamplesReactPrompt, ReflectionMessageGenerator
 
 # load OpenAI api key
@@ -18,23 +17,15 @@ load_dotenv()
 
 # Constants
 ITERATIONS = 1
-CONFIG_KEYS = ['chunk_size', 'prompt', 'max_llm_calls', 'model', 'reflection_prompt', 'last_reflection']
+CONFIG_KEYS = ['chunk_size', 'prompt', 'max_llm_calls', 'model' ]
 ADDITIONAL_KEYS = ['answer', 'error', 'type', 'steps', 'question_index', 'correct']
 CLASS_MAP = {
-    'NFRP': { 'class': NewFunctionalReactPrompt, 'args': [200] },
-    'FRP': { 'class': FunctionalReactPrompt, 'args': [200] },
-    'TRP': { 'class': TextReactPrompt, 'args': [200] },
+#    'NFRP': { 'class': NewFunctionalReactPrompt, 'args': [200] },
+#    'FRP': { 'class': FunctionalReactPrompt, 'args': [200] },
+#    'TRP': { 'class': TextReactPrompt, 'args': [200] },
     'NERP': { 'class': NoExamplesReactPrompt, 'args': [] },
 }
 
-REFLECTION_MESSAGE_MAP = {
-    'A': "Reflect on the received information and plan next steps. This was a call to the Wikiepdia API number $step.",
-    'B': "Please extract the relevant facts from the data above, note which sections of the current page could contain more relevant information and plan next steps."
-}
-
-LAST_REFLECTION_MAP = {
-    'A': "In the next call you need to formulate an answer - please reflect on the received information."
-}
 
 def load_questions_from_file(filename, start_index, end_index):
     with open(filename, 'r') as f:
@@ -110,16 +101,11 @@ def perform_experiments(settings, output_dir):
                     else:
                         prompt_args = CLASS_MAP[config_flat['prompt']]['args']
                     prompt = prompt_class(question_text, *prompt_args)
-                    reflection_generator = ReflectionMessageGenerator(
-                        REFLECTION_MESSAGE_MAP[config_flat["reflection_prompt"]],
-                        LAST_REFLECTION_MAP[config_flat["last_reflection"]]
-                    )
                     config = {
                         "chunk_size": config_flat["chunk_size"],
                         "prompt": prompt,
                         "max_llm_calls": config_flat["max_llm_calls"],
                         "model": config_flat["model"],
-                        "reflection_generator": reflection_generator,
                     }
                     reactor = get_answer(question_text, config)
 
@@ -157,7 +143,7 @@ if __name__ == "__main__":
     #filename = 'filtered_questions.json'
     if filename:
         start_index = 0
-        end_index = 2
+        end_index = 10
         questions_list = load_questions_from_file(filename, start_index, end_index)
     else:
         # Default Question
@@ -189,13 +175,8 @@ if __name__ == "__main__":
 #            'FRP',
             'NERP',
         ],
-        "reflection_prompt": [
-            'A',
-            #'B',
-        ],
-        "last_reflection": ['A'],
-        "max_llm_calls": [3],
-        # "model": ["gpt-4-1106-preview"]
+        "max_llm_calls": [5, 7],
+        #"model": ["gpt-4-1106-preview"]
         "model": ["gpt-3.5-turbo-1106"]
     }
     output_dir = generate_directory_name()

@@ -53,7 +53,7 @@ class LLMReactor:
     def set_finished(self):
         self.finished = True
 
-    def message_from_response(self, response, choice_num=0, tool_num=0):
+    def message_from_response(self, response, tool_num=0, choice_num=0):
         if response.choices[choice_num].message.function_call:
             function_call = response.choices[choice_num].message.function_call
         elif response.choices[choice_num].message.tool_calls:
@@ -69,27 +69,22 @@ class LLMReactor:
     def process_prompt(self):
         logger.debug(f"Processing prompt: {self.prompt}")
         self.step += 1
-        if self.step == 1:
-            prefix_class = None
-        else:
-            prefix_class = Reflection
+        prefix_class = Reflection
         if self.step == self.max_llm_calls:
-            finish_schema = self.toolbox.get_tool_schema('Finish', prefix_class)  # Finish is registered
+            finish_schema = self.toolbox.get_tool_schema('Finish')  # Finish is registered
             response = self.openai_query([finish_schema])
         else:
-            all_schemas = self.toolbox.tool_schemas(prefix_class=prefix_class)
+            all_schemas = self.toolbox.tool_schemas()
             response = self.openai_query(all_schemas)
-        message, function_call = self.message_from_response(response)
-        logger.info(str(message))
-        try:
-            result = self.toolbox.process_function(function_call, prefix_class=prefix_class)
-        except ValidationError as e:
-            if prefix_class is not None and self.soft_reflection_validation:
-                result = self.toolbox.process_function(function_call, prefix_class=prefix_class, ignore_prefix=True)
-                self.reflection_errors.append(repr(e))
-            else:
-                raise e
+        message, function_call = self.message_from_response(response, tool_num=0)
         self.prompt.push(message)
+        logger.info(str(message))
+        result = self.toolbox.process_function(function_call)
+        message1, function_call1 = self.message_from_response(response, tool_num=1)
+        self.prompt.push(message1)
+        logger.info(str(message1))
+        if isinstance(result, Reflection):
+            result = self.toolbox.process_function(function_call1)
         if isinstance(result, WikipediaSearch.Finish):
             self.answer = result.normalized_answer()
             self.set_finished()
@@ -133,6 +128,7 @@ def get_answer(question, config):
     wiki_search = WikipediaSearch(max_retries=2, chunk_size=config['chunk_size'])
     toolbox = ToolBox()
     toolbox.register_toolset(wiki_search)
+    toolbox.register_model(Reflection)
     client = openai.OpenAI(timeout=httpx.Timeout(20.0, read=10.0, write=15.0, connect=4.0))
     reactor = LLMReactor(config['model'], toolbox, config['prompt'], config['max_llm_calls'], client=client)
     while True:

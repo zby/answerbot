@@ -15,8 +15,8 @@ class NoExamplesReactPrompt(FunctionalPrompt):
 f"""
 Please answer the following question. You can use wikipedia for reference - but think carefully about what pages exist at wikipedia.
 You have only {max_llm_calls} calls to the wikipedia API.
-After the first call to wikipedia you need to always reflect on the data retrieved in the previous call and fill in all the fields
-related to that in the next call.
+After any call to wikipedia you need to always reflect on the data retrieved and call the reflection function 
+and the next call to wikipedia in parallel.
 Every time you can retrieve only a small fragment of the wikipedia page, if the retrieved information looks promising - but is cut short
 you can call reflection_and_read_chunk to retrieve a consecutive chunk of the page.
 You can also jump to different parts of the page using the reflection_and_lookup function. In particular you can jump to 

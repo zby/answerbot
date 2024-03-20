@@ -74,11 +74,10 @@ class LLMReactor:
         else:
             prefix_class = Reflection
         if self.step == self.max_llm_calls:
-            finish_schema = self.toolbox.get_tool_schema('Finish', prefix_class)  # Finish is registered
-            response = self.openai_query([finish_schema])
+            schemas = [self.toolbox.get_tool_schema('Finish', prefix_class)]  # Finish is registered
         else:
-            all_schemas = self.toolbox.tool_schemas(prefix_class=prefix_class)
-            response = self.openai_query(all_schemas)
+            schemas = self.toolbox.tool_schemas(prefix_class=prefix_class)
+        response = self.openai_query(schemas)
         message, function_call = self.message_from_response(response)
         logger.info(str(message))
         try:

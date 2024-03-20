@@ -65,31 +65,25 @@ class LLMReactor:
         message = FunctionCall(function_call.name, **function_args)
         return message, function_call
 
+    def dispatch(self, param_object):
+        for function_info in self.toolbox.tool_registry.values():
+            if isinstance(param_object, function_info['param_class']):
+                return function_info['function'](param_object)
+        raise ValueError(f"{param_object.__class__.__name__} not found in tool registry")
 
     def process_prompt(self):
         logger.debug(f"Processing prompt: {self.prompt}")
         self.step += 1
-        if self.step == 1:
-            prefix_class = None
-        else:
-            prefix_class = Reflection
         if self.step == self.max_llm_calls:
-            finish_schema = self.toolbox.get_tool_schema('Finish', prefix_class)  # Finish is registered
-            response = self.openai_query([finish_schema])
+            schema = self.toolbox.get_tool_schema('Reflection_and_Finish')
         else:
-            all_schemas = self.toolbox.tool_schemas(prefix_class=prefix_class)
-            response = self.openai_query(all_schemas)
+            schema = self.toolbox.get_tool_schema('Reflection_and_WikipediaCall')
+        response = self.openai_query([schema])
         message, function_call = self.message_from_response(response)
         logger.info(str(message))
-        try:
-            result = self.toolbox.process_function(function_call, prefix_class=prefix_class)
-        except ValidationError as e:
-            if prefix_class is not None and self.soft_reflection_validation:
-                result = self.toolbox.process_function(function_call, prefix_class=prefix_class, ignore_prefix=True)
-                self.reflection_errors.append(repr(e))
-            else:
-                raise e
         self.prompt.push(message)
+        result = self.toolbox.process_function(function_call)
+        result = self.dispatch(result.action)
         if isinstance(result, WikipediaSearch.Finish):
             self.answer = result.normalized_answer()
             self.set_finished()
@@ -127,12 +121,22 @@ class Reflection(BaseModel):
     why_relevant: str = Field(..., description="Why the retrieved information was relevant?")
     next_actions_plan: str = Field(..., description="")
 
+class Reflection_and_WikipediaCall(BaseModel):
+    reflection: Reflection = Field(..., description="Please evaluate the retrieved information and plan next action")
+    action: Union[WikipediaSearch.Get, WikipediaSearch.Search, WikipediaSearch.Finish, WikipediaSearch.FollowLink, WikipediaSearch.ReadChunk, WikipediaSearch.Lookup, WikipediaSearch.Next_Lookup] = Field(..., description="Next wikipedia action")
+
+class Reflection_and_Finish(BaseModel):
+    reflection: Reflection = Field(..., description="Please evaluate the retrieved information and plan next action")
+    action: WikipediaSearch.Finish = Field(..., description="Next wikipedia action")
+
 
 def get_answer(question, config):
     print("\n\n<<< Question:", question)
     wiki_search = WikipediaSearch(max_retries=2, chunk_size=config['chunk_size'])
     toolbox = ToolBox()
     toolbox.register_toolset(wiki_search)
+    toolbox.register_model(Reflection_and_WikipediaCall)
+    toolbox.register_model(Reflection_and_Finish)
     client = openai.OpenAI(timeout=httpx.Timeout(20.0, read=10.0, write=15.0, connect=4.0))
     reactor = LLMReactor(config['model'], toolbox, config['prompt'], config['max_llm_calls'], client=client)
     while True:

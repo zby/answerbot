@@ -18,7 +18,7 @@ load_dotenv()
 # Constants
 ITERATIONS = 1
 CONFIG_KEYS = ['chunk_size', 'prompt', 'max_llm_calls', 'model' ]
-ADDITIONAL_KEYS = ['answer', 'error', 'type', 'steps', 'question_index', 'correct']
+ADDITIONAL_KEYS = ['answer', 'error', 'soft_errors', 'type', 'steps', 'question_index', 'correct']
 CLASS_MAP = {
 #    'NFRP': { 'class': NewFunctionalReactPrompt, 'args': [200] },
 #    'FRP': { 'class': FunctionalReactPrompt, 'args': [200] },

@@ -119,6 +119,7 @@ def perform_experiments(settings, output_dir):
                         'question_index': question_index,
                         'answer': reactor.answer,
                         'error': "",
+                        'soft_errors': len(reactor.reflection_errors),
                         'correct': correct,
                         'steps': reactor.step,
                     })
@@ -168,15 +169,15 @@ if __name__ == "__main__":
     settings = {
         "question": questions_list,
         "chunk_size": [
-            300
+            400
         ],
         "prompt": [
 #            'TRP',
 #            'FRP',
             'NERP',
         ],
-        "max_llm_calls": [5, 7],
-        #"model": ["gpt-4-1106-preview"]
+        "max_llm_calls": [5],
+        "model": ["gpt-4-1106-preview"]
         "model": ["gpt-3.5-turbo-1106"]
     }
     output_dir = generate_directory_name()

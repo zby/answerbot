@@ -74,10 +74,12 @@ class LLMReactor:
     def process_prompt(self):
         logger.debug(f"Processing prompt: {self.prompt}")
         self.step += 1
+        schema = self.toolbox.get_tool_schema('Reflection_and_WikipediaCall')
+        if self.step == 1:
+            pass
+            #schema = self.toolbox.get_tool_schema('WikipediaCall')
         if self.step == self.max_llm_calls:
             schema = self.toolbox.get_tool_schema('Reflection_and_Finish')
-        else:
-            schema = self.toolbox.get_tool_schema('Reflection_and_WikipediaCall')
         response = self.openai_query([schema])
         message, function_call = self.message_from_response(response)
         logger.info(str(message))
@@ -121,6 +123,8 @@ class Reflection(BaseModel):
     why_relevant: str = Field(..., description="Why the retrieved information was relevant?")
     next_actions_plan: str = Field(..., description="")
 
+class WikipediaCall(BaseModel):
+    action: Union[WikipediaSearch.Get, WikipediaSearch.Search, WikipediaSearch.Finish, WikipediaSearch.FollowLink, WikipediaSearch.ReadChunk, WikipediaSearch.Lookup, WikipediaSearch.Next_Lookup] = Field(..., description="Next wikipedia action")
 class Reflection_and_WikipediaCall(BaseModel):
     reflection: Reflection = Field(..., description="Please evaluate the retrieved information and plan next action")
     action: Union[WikipediaSearch.Get, WikipediaSearch.Search, WikipediaSearch.Finish, WikipediaSearch.FollowLink, WikipediaSearch.ReadChunk, WikipediaSearch.Lookup, WikipediaSearch.Next_Lookup] = Field(..., description="Next wikipedia action")
@@ -135,6 +139,7 @@ def get_answer(question, config):
     wiki_search = WikipediaSearch(max_retries=2, chunk_size=config['chunk_size'])
     toolbox = ToolBox()
     toolbox.register_toolset(wiki_search)
+    toolbox.register_model(WikipediaCall)
     toolbox.register_model(Reflection_and_WikipediaCall)
     toolbox.register_model(Reflection_and_Finish)
     client = openai.OpenAI(timeout=httpx.Timeout(20.0, read=10.0, write=15.0, connect=4.0))

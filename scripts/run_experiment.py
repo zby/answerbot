@@ -177,8 +177,7 @@ if __name__ == "__main__":
             'NERP',
         ],
         "max_llm_calls": [5],
-        "model": ["gpt-4-1106-preview"]
-        "model": ["gpt-3.5-turbo-1106"]
+        "model": ["gpt-4-1106-preview", "gpt-3.5-turbo-1106"]
     }
     output_dir = generate_directory_name()
     save_constants_to_file(os.path.join(output_dir, "params.py"), settings)

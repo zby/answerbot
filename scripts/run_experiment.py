@@ -10,14 +10,14 @@ from dotenv import load_dotenv
 
 from answerbot.prompt_builder import System, User, Assistant, FunctionCall, FunctionResult
 from answerbot.react import get_answer
-from answerbot.prompt_templates import NoExamplesReactPrompt, ReflectionMessageGenerator
+from answerbot.prompt_templates import NoExamplesReactPrompt, Reflection
 
 # load OpenAI api key
 load_dotenv()
 
 # Constants
 ITERATIONS = 1
-CONFIG_KEYS = ['chunk_size', 'prompt', 'max_llm_calls', 'model' ]
+CONFIG_KEYS = ['chunk_size', 'prompt', 'max_llm_calls', 'model', 'reflection_class' ]
 ADDITIONAL_KEYS = ['answer', 'error', 'soft_errors', 'type', 'steps', 'question_index', 'correct']
 CLASS_MAP = {
 #    'NFRP': { 'class': NewFunctionalReactPrompt, 'args': [200] },
@@ -176,8 +176,9 @@ if __name__ == "__main__":
 #            'FRP',
             'NERP',
         ],
-        "max_llm_calls": [5],
-        "model": ["gpt-4-1106-preview", "gpt-3.5-turbo-1106"]
+        "max_llm_calls": [5, 7],
+        "model": ["gpt-4-1106-preview", "gpt-3.5-turbo-1106"],
+        "reflection_class": [Reflection, None]
     }
     output_dir = generate_directory_name()
     save_constants_to_file(os.path.join(output_dir, "params.py"), settings)

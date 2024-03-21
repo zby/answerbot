@@ -1,4 +1,5 @@
 from string import Template
+from pydantic import BaseModel, Field
 
 from .prompt_builder import FunctionalPrompt, System, User
 
@@ -29,21 +30,18 @@ When you need to know a property of something or someone - search for that somet
 The search function automatically retrieves the first search result you don't need to call get for it.
 
 The wikipedia pages are formatted in Markdown.
-When you know the answer call finish or reflect_and_finish. Please make the answer as short as possible. If it can be answered with yes or no that is best.
+When you know the answer call reflect_and_finish. Please make the answer as short as possible. If it can be answered with yes or no that is best.
 Remove all explanations from the answer and put them into the next_actions_plan field.
 """
         super().__init__([ System(system_prompt), Question(question) ])
 
 
-class ReflectionMessageGenerator:
-    def __init__(self):
-        self.reflection_message = "Reflect on the received information and plan next steps. This was a call to the Wikiepdia API number $step."
-        self.last_reflection = "In the next call you need to formulate an answer - please reflect on the received information."
+class Reflection(BaseModel):
+    how_relevant: int = Field(
+        ...,
+        description="Was the last retrieved information relevant for answering this question? Choose 1, 2, 3, 4, or 5. If no information was retrieved yet please choose 0"
+    )
+    why_relevant: str = Field(..., description="Why the retrieved information was relevant? If no information was retrieved yet please answer with empty string")
+    next_actions_plan: str = Field(..., description="")
 
-    def generate(self, step, max_llm_calls):
-        if step == max_llm_calls - 1:
-            content = self.last_reflection
-        else:
-            template = Template(self.reflection_message)
-            content = template.substitute({'step': step})
-        return System(content)
+

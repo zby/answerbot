@@ -6,7 +6,12 @@
     },
     {
         "question": "What government position was held by the woman who portrayed Corliss Archer in the film Kiss and Tell?",
-        "answer": ["Chief of Protocol", "United Nations General Assembly representative", "United States Ambassador to Ghana from 1974 to 1976, and the first female Chief of Protocol of the United States from 1976 to 1977, later serving as the United States Ambassador to Czechoslovakia from 1989 to 1992."],
+        "answer": [
+            "Chief of Protocol", 
+            "United Nations General Assembly representative", 
+            "United States Ambassador to Ghana from 1974 to 1976, and the first female Chief of Protocol of the United States from 1976 to 1977, later serving as the United States Ambassador to Czechoslovakia from 1989 to 1992.",
+            "U.S. Ambassador to Ghana and U.S. Chief of Protocol",
+            "United States Ambassador to the United Nations"],
         "type": "bridge"
     },
     {
@@ -26,17 +31,17 @@
     },
     {
         "question": "2014 S/S is the debut album of a South Korean boy group that was formed by who?",
-        "answer": ["YG Entertainment"],
+        "answer": ["YG Entertainment", "YGE"],
         "type": "bridge"
     },
     {
         "question": "The arena where the Lewiston Maineiacs played their home games can seat how many people?",
-        "answer": ["3,677 seated", "3,677", "3677"],
+        "answer": ["3,677 seated", "3,677", "3677", "3,677 (2,634 for hockey)", "3677 for general events, and 2634 for hockey games"],
         "type": "bridge"
     },
     {
         "question": "Who is older, Annie Morton or Terry Richardson?",
-        "answer": ["Terry Richardson"],
+        "answer": ["Terry Richardson", "Terry Richardson is older"],
         "type": "bridge"
     },
     {
@@ -46,7 +51,7 @@
     },
     {
         "question": "What is the name of the fight song of the university whose main campus is in Lawrence, Kansas and whose branch campuses are in the Kansas City metropolitan area?",
-        "answer": ["Kansas Song", "Kansas Song (We're From Kansas)", "I'm a Jayhawk"],
+        "answer": ["Kansas Song", "Kansas Song (We're From Kansas)", "Kansas Song (We’re From Kansas)", "I'm a Jayhawk"],
         "type": "bridge"
     }
 ]

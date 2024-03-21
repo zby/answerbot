@@ -106,6 +106,7 @@ def perform_experiments(settings, output_dir):
                         "prompt": prompt,
                         "max_llm_calls": config_flat["max_llm_calls"],
                         "model": config_flat["model"],
+                        "reflection_class": config_flat["reflection_class"]
                     }
                     reactor = get_answer(question_text, config)
 

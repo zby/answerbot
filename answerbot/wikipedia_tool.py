@@ -75,6 +75,9 @@ class WikipediaSearch:
 
         def normalized_answer(self):
             answer = self.answer
+            answer = answer.strip(' \n.\'"')
+            answer = answer.replace('’', "'")  # Replace all curly apostrophes with straight single quotes
+            answer = answer.replace('"', "'")  # Replace all double quotes with straight single quotes
             if answer.lower() == 'yes' or answer.lower() == 'no':
                 answer = answer.lower()
             return answer

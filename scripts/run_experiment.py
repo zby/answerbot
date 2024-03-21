@@ -25,7 +25,11 @@ CLASS_MAP = {
 #    'TRP': { 'class': TextReactPrompt, 'args': [200] },
     'NERP': { 'class': NoExamplesReactPrompt, 'args': [] },
 }
-
+REFLECTION_CLASS_MAP = {
+    'Reflection': Reflection,
+    'ShortReflection': ShortReflection,
+    'None': None
+}
 
 def load_questions_from_file(filename, start_index, end_index):
     with open(filename, 'r') as f:
@@ -100,13 +104,14 @@ def perform_experiments(settings, output_dir):
                         prompt_args = [config_flat['max_llm_calls']]
                     else:
                         prompt_args = CLASS_MAP[config_flat['prompt']]['args']
+                    reflection_class = REFLECTION_CLASS_MAP[config_flat['reflection_class']]
                     prompt = prompt_class(question_text, *prompt_args)
                     config = {
                         "chunk_size": config_flat["chunk_size"],
                         "prompt": prompt,
                         "max_llm_calls": config_flat["max_llm_calls"],
                         "model": config_flat["model"],
-                        "reflection_class": config_flat["reflection_class"]
+                        "reflection_class": reflection_class,
                     }
                     reactor = get_answer(question_text, config)
 
@@ -114,7 +119,10 @@ def perform_experiments(settings, output_dir):
                     prompt_file.write(str(reactor.prompt))
                     prompt_file.close()
 
-                    correct = 1 if reactor.answer in question_data["answers"] else 0
+                    correct = 0
+                    for answer in reactor.answer:
+                        if answer in question_data["answers"]:
+                            correct = 1
                     config_flat.update({
                         'type': question_type,
                         'question_index': question_index,
@@ -179,7 +187,7 @@ if __name__ == "__main__":
         ],
         "max_llm_calls": [5, 7],
         "model": ["gpt-4-1106-preview", "gpt-3.5-turbo-1106"],
-        "reflection_class": [Reflection, ShortReflection, None]
+        "reflection_class": ['Reflection', 'ShortReflection', 'None']
     }
     output_dir = generate_directory_name()
     save_constants_to_file(os.path.join(output_dir, "params.py"), settings)

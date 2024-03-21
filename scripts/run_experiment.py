@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 
 from answerbot.prompt_builder import System, User, Assistant, FunctionCall, FunctionResult
 from answerbot.react import get_answer
-from answerbot.prompt_templates import NoExamplesReactPrompt, Reflection
+from answerbot.prompt_templates import NoExamplesReactPrompt, Reflection, ShortReflection
 
 # load OpenAI api key
 load_dotenv()
@@ -178,7 +178,7 @@ if __name__ == "__main__":
         ],
         "max_llm_calls": [5, 7],
         "model": ["gpt-4-1106-preview", "gpt-3.5-turbo-1106"],
-        "reflection_class": [Reflection, None]
+        "reflection_class": [Reflection, ShortReflection, None]
     }
     output_dir = generate_directory_name()
     save_constants_to_file(os.path.join(output_dir, "params.py"), settings)

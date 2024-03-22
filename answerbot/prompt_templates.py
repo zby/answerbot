@@ -32,12 +32,15 @@ The search function automatically retrieves the first search result you don't ne
 
 The wikipedia pages are formatted in Markdown.
 When you know the answer call reflect_and_finish. Please make the answer as short as possible. If it can be answered with yes or no that is best.
-Remove all explanations from the answer and put them into the next_actions_plan field.
+Remove all explanations from the answer and put them into the reasoning field.
+Always try to answer the question even if it is ambiguous, just note the necessary assumptions.
 """
         #question_analysis =  "Think about ways in which the question might be ambiguous. How could it be made more precise? Can you guess the answer without consulting wikipedia? Think step by step."
         super().__init__([ System(system_prompt), Question(question) ])
 
-question_check =  User("Think about ways in which the question might be ambiguous. How could it be made more precise?")
+think =  User("Think about ways in which the question might be ambiguous. How could it be made more precise?")
+
+think_and_plan = User("Think about ways in which the question might be ambiguous. How could it be made more precise? Then think about what information do you need to get from wikipedia to answer it. Think step by step")
 
 class Reflection(BaseModel):
     how_relevant: int = Field(

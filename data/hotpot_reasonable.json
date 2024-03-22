@@ -25,11 +25,6 @@
         "type": "comparison"
     },
     {
-        "question": "The director of the romantic comedy \"Big Stone Gap\" is based in what New York city?",
-        "answer": ["Greenwich Village, New York City"],
-        "type": "bridge"
-    },
-    {
         "question": "2014 S/S is the debut album of a South Korean boy group that was formed by who?",
         "answer": ["YG Entertainment", "YGE"],
         "type": "bridge"

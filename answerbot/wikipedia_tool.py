@@ -73,11 +73,9 @@ class WikipediaSearch:
         Finish the task and return the answer.
         """
         answer: str = Field(description="The answer to the user's question")
-        answer_short: str = Field(description="The shortest reasonable version of the answer")
-        answer_alt: str = Field(description="An alternative formulation of a shorter version of the answer")
-        reasoning: str = Field(description="The reasoning behind the answer")
-        ambiguity: Optional[str] = Field(description="After discovering the addional information - did you change your mind about the question ambiguity")
-
+        answer_short: str = Field(description="A short version of the answer")
+        reasoning: str = Field(description="The reasoning behind the answer. The assumptions you made.")
+#        ambiguity: Optional[str] = Field(description="Have you found anything in the retrieved information that makes the question ambiguous? For example a search for some name can show that there are many different entities with the same name.")
 
         def normalize_answer(self, answer):
             answer = answer.strip(' \n.\'"')
@@ -91,7 +89,6 @@ class WikipediaSearch:
             return (
                 self.normalize_answer(self.answer),
                 self.normalize_answer(self.answer_short),
-                self.normalize_answer(self.answer_alt),
             )
 
 

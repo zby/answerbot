@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 
 from answerbot.prompt_builder import System, User, Assistant, FunctionCall, FunctionResult
 from answerbot.react import get_answer
-from answerbot.prompt_templates import NoExamplesReactPrompt, Reflection, ShortReflection, question_check
+from answerbot.prompt_templates import NoExamplesReactPrompt, Reflection, ShortReflection, think, think_and_plan
 
 # load OpenAI api key
 load_dotenv()
@@ -32,7 +32,8 @@ REFLECTION_CLASS_MAP = {
 }
 
 QUESTION_CHECK_MAP = {
-    'think': question_check,
+    'think': think,
+    'think_and_plan': think_and_plan,
     'None': None
 }
 
@@ -155,7 +156,7 @@ def perform_experiments(settings, output_dir):
 
 if __name__ == "__main__":
     filename = sys.argv[1] if len(sys.argv) > 1 else None
-    filename = 'data/hotpot_reasonable.json'
+#    filename = 'data/hotpot_reasonable.json'
     #filename = 'filtered_questions.json'
     if filename:
         start_index = 0
@@ -174,10 +175,15 @@ if __name__ == "__main__":
 #                "answers": ["YG Entertainment"],
 #                "type": "bridge"
 #            },
+#            {
+#                "text": "Are Random House Tower and 888 7th Avenue both used for real estate?",
+#                "answers": ["no"],
+#                "type": "comparison"
+#            }
             {
-                "text": "Are Random House Tower and 888 7th Avenue both used for real estate?",
-                "answers": ["no"],
-                "type": "comparison"
+                "text": "Who is older, Annie Morton or Terry Richardson?",
+                "answers": ["Terry Richardson", "Terry Richardson is older"],
+                "type": "bridge"
             }
         ]
 
@@ -192,9 +198,12 @@ if __name__ == "__main__":
             'NERP',
         ],
         "max_llm_calls": [7],
-        "model": ["gpt-3.5-turbo-1106"],
-        "reflection_class": ['Reflection', 'ShortReflection', 'None'],
-        "question_check": ['think', 'None'],
+        "model": [
+       #     "gpt-4-1106-preview",
+            "gpt-3.5-turbo-1106"
+        ],
+        "reflection_class": ['ShortReflection', 'None'],
+        "question_check": ['think', 'think_and_plan', 'None'],
     }
     output_dir = generate_directory_name()
     save_constants_to_file(os.path.join(output_dir, "params.py"), settings)

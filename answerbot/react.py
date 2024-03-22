@@ -101,6 +101,7 @@ class LLMReactor:
                 raise e
         self.prompt.push(message)
         if isinstance(result, WikipediaSearch.Finish):
+            #self.are_you_sure()
             self.answer = result.normalized_answer()
             self.set_finished()
             return
@@ -124,6 +125,15 @@ class LLMReactor:
     def analyze_question(self, question_check):
         self.prompt.push(question_check)
         logger.debug(f"Processing prompt: {self.prompt}")
+        response = self.openai_query([])
+        message, _ = self.message_from_response(response)
+        self.prompt.push(message)
+        logger.info(str(message))
+
+    def are_you_sure(self):
+        are_you_sure = User("Are you sure that the answer follows from the reasoning?")
+        logger.info(str(are_you_sure))
+        self.prompt.push(are_you_sure)
         response = self.openai_query([])
         message, _ = self.message_from_response(response)
         self.prompt.push(message)

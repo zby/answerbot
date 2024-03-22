@@ -18,3 +18,5 @@ pytest~=7.4.3
 
 docutils~=0.20.1
 sphinx~=7.2.6
+
+LLMEasyTools~=0.5

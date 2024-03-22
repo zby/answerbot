@@ -15,7 +15,8 @@ class MockHttpResponse:
 
 
 
-def test_follow_link():
+@patch('answerbot.wikipedia_tool.requests.get')
+def test_follow_link(mock_get):
     content = """# Some Title
 
 A link to [test](https://www.test.test), and here is another link to [Google](https://www.google.com).
@@ -29,9 +30,10 @@ Don't forget to check [Different text OpenAI](https://www.openai.com) for more i
     wiki_search.get_page = MagicMock(return_value=content_record)
     follow_object = WikipediaSearch.FollowLink(link='1', reason="because")
 
+    mock_get.return_value = MockHttpResponse('<html><div id="bodyContent">Page Content</div></html>', 200)
     wiki_search.follow_link(follow_object)
     new_content = wiki_search.document.content
-    assert new_content.startswith("New Page")
+    assert new_content.startswith("Page Content")
 
 # Test successful page retrieval
 @patch('answerbot.wikipedia_tool.requests.get')

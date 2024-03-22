@@ -121,6 +121,4 @@ Don't forget to check [Different text OpenAI](https://www.openai.com) for more i
     assert("[OpenAI](1)" in content)
     assert("[Google](2)" in content)
     assert("[Different text OpenAI](1)" in content)
-    assert(doc.links == { '1': 'https://www.openai.com', '2': 'https://www.google.com' })
-
-
+    assert(doc.ref_to_url == { '1': 'https://www.openai.com', '2': 'https://www.google.com' })

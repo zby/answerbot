@@ -6,6 +6,7 @@ import os
 from pprint import pprint
 
 from pydantic import BaseModel, Field
+from typing import Optional
 from bs4 import BeautifulSoup, NavigableString
 
 from answerbot.document import MarkdownDocument
@@ -72,8 +73,10 @@ class WikipediaSearch:
         Finish the task and return the answer.
         """
         answer: str = Field(description="The answer to the user's question")
-        answer_short: str = Field(description="A shorter version of the answer")
+        answer_short: str = Field(description="The shortest reasonable version of the answer")
         answer_alt: str = Field(description="An alternative formulation of a shorter version of the answer")
+        reasoning: str = Field(description="The reasoning behind the answer")
+        ambiguity: Optional[str] = Field(description="After discovering the addional information - did you change your mind about the question ambiguity")
 
 
         def normalize_answer(self, answer):

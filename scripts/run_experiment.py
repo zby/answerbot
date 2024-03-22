@@ -10,14 +10,14 @@ from dotenv import load_dotenv
 
 from answerbot.prompt_builder import System, User, Assistant, FunctionCall, FunctionResult
 from answerbot.react import get_answer
-from answerbot.prompt_templates import NoExamplesReactPrompt, Reflection, ShortReflection
+from answerbot.prompt_templates import NoExamplesReactPrompt, Reflection, ShortReflection, question_check
 
 # load OpenAI api key
 load_dotenv()
 
 # Constants
 ITERATIONS = 1
-CONFIG_KEYS = ['chunk_size', 'prompt', 'max_llm_calls', 'model', 'reflection_class' ]
+CONFIG_KEYS = ['chunk_size', 'prompt', 'max_llm_calls', 'model', 'reflection_class', 'question_check', ]
 ADDITIONAL_KEYS = ['answer', 'error', 'soft_errors', 'type', 'steps', 'question_index', 'correct']
 CLASS_MAP = {
 #    'NFRP': { 'class': NewFunctionalReactPrompt, 'args': [200] },
@@ -28,6 +28,11 @@ CLASS_MAP = {
 REFLECTION_CLASS_MAP = {
     'Reflection': Reflection,
     'ShortReflection': ShortReflection,
+    'None': None
+}
+
+QUESTION_CHECK_MAP = {
+    'think': question_check,
     'None': None
 }
 
@@ -112,6 +117,7 @@ def perform_experiments(settings, output_dir):
                         "max_llm_calls": config_flat["max_llm_calls"],
                         "model": config_flat["model"],
                         "reflection_class": reflection_class,
+                        "question_check": QUESTION_CHECK_MAP[config_flat["question_check"]],
                     }
                     reactor = get_answer(question_text, config)
 
@@ -185,9 +191,10 @@ if __name__ == "__main__":
 #            'FRP',
             'NERP',
         ],
-        "max_llm_calls": [5, 7],
-        "model": ["gpt-4-1106-preview", "gpt-3.5-turbo-1106"],
-        "reflection_class": ['Reflection', 'ShortReflection', 'None']
+        "max_llm_calls": [7],
+        "model": ["gpt-3.5-turbo-1106"],
+        "reflection_class": ['Reflection', 'ShortReflection', 'None'],
+        "question_check": ['think', 'None'],
     }
     output_dir = generate_directory_name()
     save_constants_to_file(os.path.join(output_dir, "params.py"), settings)

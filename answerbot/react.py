@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field, field_validator, ValidationError
 from typing import Literal, Union
 from pprint import pprint
 
-from .prompt_builder import FunctionalPrompt, PromptMessage, Assistant, System, FunctionCall, FunctionResult
+from .prompt_builder import FunctionalPrompt, PromptMessage, Assistant, System, User, FunctionCall, FunctionResult
 from .wikipedia_tool import WikipediaSearch
 
 from llm_easy_tools import ToolBox
@@ -21,9 +21,10 @@ logger = logging.getLogger(__name__)
 
 
 class LLMReactor:
-    def __init__(self, model: str, toolbox: ToolBox, prompt: FunctionalPrompt,
+    def __init__(self, model: str, toolbox: ToolBox,
+                 prompt: FunctionalPrompt,
                  max_llm_calls: int, client, soft_reflection_validation=True,
-                 reflection_class=None
+                 reflection_class=None,
                  ):
         self.model = model
         self.toolbox = toolbox
@@ -39,18 +40,21 @@ class LLMReactor:
         self.reflection_errors = []
 
     def openai_query(self, tool_schemas, force_auto_tool_choice=False):
-
-        if len(tool_schemas) == 1 and not force_auto_tool_choice:
-            tool_choice = tool_choice={'type': 'function', 'function': {'name': tool_schemas[0]['function']['name']}}
+        args = {
+            'model': self.model,
+            'messages': self.prompt.to_messages()
+        }
+        if len(tool_schemas) == 0:
+            pass
+        elif len(tool_schemas) == 1 and not force_auto_tool_choice:
+            args['tool_choice'] = {'type': 'function', 'function': {'name': tool_schemas[0]['function']['name']}}
+            args['tools'] = tool_schemas
         else:
-            tool_choice = "auto"
+            args['tool_choice'] = "auto"
+            args['tools'] = tool_schemas
 
-        completion = self.client.chat.completions.create(
-            model=self.model,
-            messages=self.prompt.to_messages(),
-            tools=tool_schemas,
-            tool_choice=tool_choice
-        )
+
+        completion = self.client.chat.completions.create( **args )
         return completion
 
     def set_finished(self):
@@ -62,16 +66,17 @@ class LLMReactor:
         elif response.choices[choice_num].message.tool_calls:
             function_call = response.choices[choice_num].message.tool_calls[tool_num].function
         else:
-            raise ValueError(f"Choice number {choice_num} in response is not a function nor tool call")
-        print(function_call.arguments)
-        function_args = json.loads(function_call.arguments)
-        #pprint(function_args)
-        message = FunctionCall(function_call.name, **function_args)
+            function_call = None
+        if function_call:
+            print(function_call.arguments)
+            function_args = json.loads(function_call.arguments)
+            message = FunctionCall(function_call.name, **function_args)
+        else:
+            message = Assistant(response.choices[choice_num].message.content)
         return message, function_call
 
 
     def process_prompt(self):
-        logger.debug(f"Processing prompt: {self.prompt}")
         self.step += 1
         if self.step == 1:
             prefix_class = None
@@ -116,6 +121,13 @@ class LLMReactor:
         self.prompt.push(message)
 
 
+    def analyze_question(self, question_check):
+        self.prompt.push(question_check)
+        logger.debug(f"Processing prompt: {self.prompt}")
+        response = self.openai_query([])
+        message, _ = self.message_from_response(response)
+        self.prompt.push(message)
+        logger.info(str(message))
 
 
 def get_answer(question, config):
@@ -125,6 +137,8 @@ def get_answer(question, config):
     toolbox.register_toolset(wiki_search)
     client = openai.OpenAI(timeout=httpx.Timeout(20.0, read=10.0, write=15.0, connect=4.0))
     reactor = LLMReactor(config['model'], toolbox, config['prompt'], config['max_llm_calls'], reflection_class=config['reflection_class'], client=client)
+    if config['question_check'] is not None:
+        reactor.analyze_question(config['question_check'])
     while True:
         print()
         print(f">>>LLM call number: {reactor.step}")

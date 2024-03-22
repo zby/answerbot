@@ -4,7 +4,7 @@ from pprint import pformat, pprint
 from dotenv import load_dotenv
 
 from answerbot.prompt_builder import System
-from answerbot.prompt_templates import NoExamplesReactPrompt, Reflection, ShortReflection
+from answerbot.prompt_templates import NoExamplesReactPrompt, Reflection, ShortReflection, question_check
 from answerbot.react import get_answer
 
 # Configure basic logging
@@ -45,6 +45,7 @@ if __name__ == "__main__":
         "max_llm_calls": max_llm_calls,
         "model": "gpt-3.5-turbo-0613",
         #"model": "gpt-4-1106-preview",
+        "question_check": None,
     }
 
     reactor = get_answer(question, config)

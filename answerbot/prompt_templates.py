@@ -41,7 +41,11 @@ Always try to answer the question even if it is ambiguous, just note the necessa
         #question_analysis =  "Think about ways in which the question might be ambiguous. How could it be made more precise? Can you guess the answer without consulting wikipedia? Think step by step."
         super().__init__([ System(system_prompt), Question(question) ])
 
-QUESTION_CHECK = {
+PROMPTS = {
+    'NERP': NoExamplesReactPrompt
+}
+
+QUESTION_CHECKS = {
     "category_and_amb": ["What kind of question you got? Is it a Yes/No question? What should be the answer to the question?", "Think about ways in which the question might be ambiguous. How could it be made more precise?"],
     "None": [],
     "amb":  ["Think about ways in which the question might be ambiguous. How could it be made more precise?"],
@@ -62,4 +66,8 @@ class Reflection(BaseModel):
 class ShortReflection(BaseModel):
     reflection: str = Field(..., description="Reflect on the information you have gathered so far. Was the last retrieved information relevant for answering the question? What additional information you need and why?")
 
-
+REFLECTIONS = {
+    'None': None,
+    'Reflection': Reflection,
+    'ShortReflection': ShortReflection,
+}

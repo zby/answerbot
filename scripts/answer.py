@@ -4,7 +4,7 @@ from pprint import pformat, pprint
 from dotenv import load_dotenv
 
 from answerbot.prompt_builder import System
-from answerbot.prompt_templates import NoExamplesReactPrompt, Reflection, ShortReflection, QUESTION_CHECK
+from answerbot.prompt_templates import NoExamplesReactPrompt, Reflection, ShortReflection, QUESTION_CHECKS
 from answerbot.react import get_answer
 
 # Configure basic logging
@@ -38,13 +38,11 @@ if __name__ == "__main__":
     #question = "How much is two plus two"
     #question = "Who is older, Annie Morton or Terry Richardson?"
 
-    max_llm_calls = 7
-    reflection_class = ShortReflection
     config = {
         "chunk_size": 400,
-        "prompt": NoExamplesReactPrompt(question, max_llm_calls, reflection_class),
-        "reflection_class": reflection_class,
-        "max_llm_calls": max_llm_calls,
+        "prompt_class": 'NERP',
+        "reflection_class": 'ShortReflection',
+        "max_llm_calls": 3,
         "model": "gpt-3.5-turbo-0613",
         #"model": "gpt-4-1106-preview",
         "question_check": 'category_and_amb',

@@ -9,7 +9,7 @@ from typing import Literal, Union
 from pprint import pprint
 
 from .prompt_builder import FunctionalPrompt, PromptMessage, Assistant, System, User, FunctionCall, FunctionResult
-from .prompt_templates import QUESTION_CHECK
+from .prompt_templates import QUESTION_CHECKS, PROMPTS, REFLECTIONS
 from .wikipedia_tool import WikipediaSearch
 
 from llm_easy_tools import ToolBox
@@ -78,53 +78,54 @@ class LLMReactor:
 
 
     def process_prompt(self):
-        self.step += 1
-        if self.step == 1:
-            prefix_class = None
-        else:
+        while True:
+            self.step += 1
+            if self.step == 1:
+                prefix_class = None
+            else:
+                prefix_class = self.reflection_class
             prefix_class = self.reflection_class
-        prefix_class = self.reflection_class
-        if self.step == self.max_llm_calls:
-            schemas = [self.toolbox.get_tool_schema('Finish', prefix_class)]  # Finish is registered
-        else:
-            schemas = self.toolbox.tool_schemas(prefix_class=prefix_class)
-        #pprint(schemas)
-        response = self.openai_query(schemas)
-        message, function_call = self.message_from_response(response)
-        logger.info(str(message))
-        self.prompt.push(message)
-        if function_call is None:
-            self.reflection_errors.append("No function call")
-        else:
-            try:
-                result = self.toolbox.process_function(function_call, prefix_class=prefix_class)
-            except ValidationError as e:
-                if prefix_class is not None and self.soft_reflection_validation:
-                    result = self.toolbox.process_function(function_call, prefix_class=prefix_class, ignore_prefix=True)
-                    self.reflection_errors.append(repr(e))
-                else:
-                    raise e
-            if isinstance(result, WikipediaSearch.Finish):
-                #self.are_you_sure()
-                self.answer = result.normalized_answer()
+            if self.step == self.max_llm_calls:
+                schemas = [self.toolbox.get_tool_schema('Finish', prefix_class)]  # Finish is registered
+            else:
+                schemas = self.toolbox.tool_schemas(prefix_class=prefix_class)
+            #pprint(schemas)
+            response = self.openai_query(schemas)
+            message, function_call = self.message_from_response(response)
+            logger.info(str(message))
+            self.prompt.push(message)
+            if function_call is None:
+                self.reflection_errors.append("No function call")
+            else:
+                try:
+                    result = self.toolbox.process_function(function_call, prefix_class=prefix_class)
+                except ValidationError as e:
+                    if prefix_class is not None and self.soft_reflection_validation:
+                        result = self.toolbox.process_function(function_call, prefix_class=prefix_class, ignore_prefix=True)
+                        self.reflection_errors.append(repr(e))
+                    else:
+                        raise e
+                if isinstance(result, WikipediaSearch.Finish):
+                    #self.are_you_sure()
+                    self.answer = result.normalized_answer()
+                    self.set_finished()
+                    return
+            if self.step == self.max_llm_calls:
                 self.set_finished()
+                logger.info("<<< Max LLM calls reached without finishing")
                 return
-        if self.step == self.max_llm_calls:
-            self.set_finished()
-            logger.info("<<< Max LLM calls reached without finishing")
-            return
 
-        if self.step == self.max_llm_calls - 1:
-            step_info = "This was the last wikipedia result you can get - in the next step you need to formulate your answer"
-        else:
-            step_info = f"This was {self.step} out of {self.max_llm_calls} wikipedia calls."
+            if self.step == self.max_llm_calls - 1:
+                step_info = "This was the last wikipedia result you can get - in the next step you need to formulate your answer"
+            else:
+                step_info = f"This was {self.step} out of {self.max_llm_calls} wikipedia calls."
 
-        if function_call is not None:
-            message = FunctionResult(function_call.name, result + f"\n\n{step_info}")
-        else:
-            message = Assistant("You did not call wikipedia this time - but it still counts. " + step_info)
-        logger.info(str(message))
-        self.prompt.push(message)
+            if function_call is not None:
+                message = FunctionResult(function_call.name, result + f"\n\n{step_info}")
+            else:
+                message = Assistant("You did not call wikipedia this time - but it still counts. " + step_info)
+            logger.info(str(message))
+            self.prompt.push(message)
 
 
     def analyze_question(self, queries):
@@ -143,14 +144,10 @@ def get_answer(question, config):
     toolbox = ToolBox()
     toolbox.register_toolset(wiki_search)
     client = openai.OpenAI(timeout=httpx.Timeout(20.0, read=10.0, write=15.0, connect=4.0))
-    reactor = LLMReactor(config['model'], toolbox, config['prompt'], config['max_llm_calls'], reflection_class=config['reflection_class'], client=client)
-    reactor.analyze_question(QUESTION_CHECK[config['question_check']])
-    while True:
-        print()
-        print(f">>>LLM call number: {reactor.step}")
-        reactor.process_prompt()
-        # print(prompt.parts[-2])
-        if reactor.finished:
-            return reactor
-#        if 'gpt-4' in config['model']:
-#            time.sleep(59)
+    prompt_class = PROMPTS[config['prompt_class']]
+    reflection_class = REFLECTIONS[config['reflection_class']]
+    prompt = prompt_class(question, config['max_llm_calls'], reflection_class)
+    reactor = LLMReactor(config['model'], toolbox, prompt, config['max_llm_calls'], reflection_class=reflection_class, client=client)
+    reactor.analyze_question(QUESTION_CHECKS[config['question_check']])
+    reactor.process_prompt()
+    return reactor

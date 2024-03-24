@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 
 from answerbot.prompt_builder import System, User, Assistant, FunctionCall, FunctionResult
 from answerbot.react import get_answer
-from answerbot.prompt_templates import NoExamplesReactPrompt, Reflection, ShortReflection, QUESTION_CHECK
+from answerbot.prompt_templates import PROMPTS, QUESTION_CHECKS, REFLECTIONS
 
 # load OpenAI api key
 load_dotenv()
@@ -19,17 +19,6 @@ load_dotenv()
 ITERATIONS = 1
 CONFIG_KEYS = ['chunk_size', 'prompt', 'max_llm_calls', 'model', 'reflection_class', 'question_check', ]
 ADDITIONAL_KEYS = ['answer', 'error', 'soft_errors', 'type', 'steps', 'question_index', 'correct']
-CLASS_MAP = {
-#    'NFRP': { 'class': NewFunctionalReactPrompt, 'args': [200] },
-#    'FRP': { 'class': FunctionalReactPrompt, 'args': [200] },
-#    'TRP': { 'class': TextReactPrompt, 'args': [200] },
-    'NERP': { 'class': NoExamplesReactPrompt, 'args': [] },
-}
-REFLECTION_CLASS_MAP = {
-    'Reflection': Reflection,
-    'ShortReflection': ShortReflection,
-    'None': None
-}
 
 def load_questions_from_file(filename, start_index, end_index):
     with open(filename, 'r') as f:
@@ -90,7 +79,7 @@ def perform_experiments(settings, output_dir):
 
         for combo in combinations:
             # Use dictionary unpacking to get the values by key and build the config dictionary
-            config_flat = dict(zip(CONFIG_KEYS, combo[:-1]))
+            config = dict(zip(CONFIG_KEYS, combo[:-1]))
             question_index = combo[-1]
 
             for _ in range(ITERATIONS):
@@ -100,22 +89,6 @@ def perform_experiments(settings, output_dir):
                 log_preamble = ('=' * 80) + f"\nQuestion: {question_text}\nConfig: {config_flat}\n"
 
                 try:
-                    prompt_class = CLASS_MAP[config_flat['prompt']]['class']
-                    # todo this is a hack
-                    reflection_class = REFLECTION_CLASS_MAP[config_flat['reflection_class']]
-                    if prompt_class == NoExamplesReactPrompt:
-                        prompt_args = [config_flat['max_llm_calls'], reflection_class]
-                    else:
-                        prompt_args = CLASS_MAP[config_flat['prompt']]['args']
-                    prompt = prompt_class(question_text, *prompt_args)
-                    config = {
-                        "chunk_size": config_flat["chunk_size"],
-                        "prompt": prompt,
-                        "max_llm_calls": config_flat["max_llm_calls"],
-                        "model": config_flat["model"],
-                        "reflection_class": reflection_class,
-                        "question_check": config_flat["question_check"],
-                    }
                     reactor = get_answer(question_text, config)
 
                     prompt_file = open(os.path.join(promptsdir, f"{question_index}.txt"), 'w')
@@ -126,7 +99,7 @@ def perform_experiments(settings, output_dir):
                     for answer in reactor.answer:
                         if answer in question_data["answers"]:
                             correct = 1
-                    config_flat.update({
+                    config.update({
                         'type': question_type,
                         'question_index': question_index,
                         'answer': reactor.answer,
@@ -139,13 +112,13 @@ def perform_experiments(settings, output_dir):
                 except Exception as e:
                     error_trace = traceback.format_exc()
                     error_file.write(f"{log_preamble}\n{error_trace}\n\n")
-                    config_flat.update({
+                    config.update({
                         'type': question_type,
                         'question_index': question_index,
                         'error': 1,
                         'correct': 0,
                     })
-                writer.writerow(config_flat)
+                writer.writerow(config)
     if os.path.getsize(errors_file_path) == 0:  # If the error file is empty, remove it.
         os.remove(errors_file_path)
 
@@ -199,7 +172,7 @@ if __name__ == "__main__":
             "gpt-3.5-turbo-1106"
         ],
         "reflection_class": ['ShortReflection', 'None'],
-        "question_check": QUESTION_CHECK.keys(),
+        "question_check": QUESTION_CHECKS.keys(),
     }
     output_dir = generate_directory_name()
     save_constants_to_file(os.path.join(output_dir, "params.py"), settings)

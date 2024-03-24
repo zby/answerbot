@@ -1,4 +1,4 @@
-from answerbot.prompt_templates import NoExamplesReactPrompt, Reflection, ShortReflection, QUESTION_CHECK
+from answerbot.prompt_templates import NoExamplesReactPrompt, Reflection, ShortReflection, QUESTION_CHECKS
 
 def test_prompt():
     question = "What is your name?"

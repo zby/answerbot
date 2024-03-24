@@ -4,7 +4,7 @@ from pprint import pformat, pprint
 from dotenv import load_dotenv
 
 from answerbot.prompt_builder import System
-from answerbot.prompt_templates import NoExamplesReactPrompt, Reflection, ShortReflection, think, think_and_plan
+from answerbot.prompt_templates import NoExamplesReactPrompt, Reflection, ShortReflection, QUESTION_CHECK
 from answerbot.react import get_answer
 
 # Configure basic logging
@@ -28,7 +28,7 @@ if __name__ == "__main__":
     #question = "What government position was held by the woman who portrayed Corliss Archer in the film Kiss and Tell?"
     # question = "The director of the romantic comedy \"Big Stone Gap\" is based in what New York city?"
     #question = "When Poland became elective monarchy?"
-    #question = "Were Scott Derrickson and Ed Wood of the same nationality?"
+    question = "Were Scott Derrickson and Ed Wood of the same nationality?"
     #question = "What science fantasy young adult series, told in first person, has a set of companion books narrating the stories of enslaved worlds and alien species?"
     #question = "The arena where the Lewiston Maineiacs played their home games can seat how many people?"
     #question = "What is the name of the fight song of the university whose main campus is in Lawrence, Kansas and whose branch campuses are in the Kansas City metropolitan area?"
@@ -36,17 +36,18 @@ if __name__ == "__main__":
     #question = "What is the weight proportion of oxygen in water?"
     #question = "Czy dane kardy kredytowej są danymi osobowymi w Polsce"
     #question = "How much is two plus two"
-    question = "Who is older, Annie Morton or Terry Richardson?"
+    #question = "Who is older, Annie Morton or Terry Richardson?"
 
     max_llm_calls = 7
+    reflection_class = ShortReflection
     config = {
         "chunk_size": 400,
-        "prompt": NoExamplesReactPrompt(question, max_llm_calls),
-        "reflection_class": ShortReflection,
+        "prompt": NoExamplesReactPrompt(question, max_llm_calls, reflection_class),
+        "reflection_class": reflection_class,
         "max_llm_calls": max_llm_calls,
         "model": "gpt-3.5-turbo-0613",
         #"model": "gpt-4-1106-preview",
-        "question_check": None,
+        "question_check": 'category_and_amb',
     }
 
     reactor = get_answer(question, config)

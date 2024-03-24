@@ -2,6 +2,7 @@ import requests
 import html2text
 import traceback
 import os
+import time
 
 from pprint import pprint
 
@@ -134,9 +135,17 @@ class WikipediaSearch:
             response.raise_for_status()
             data = response.json()
 
+            if 'error' in data and data['error']['code'] == 'cirrussearch-too-busy-error':
+                time.sleep(10)
+                response = requests.get(self.api_url, params=params)
+                response.raise_for_status()
+                data = response.json()
+
+            if 'error' in data:
+                raise RuntimeError(data['error']['info'])
+
             search_results = data['query']['search']
             search_history = [self.search_result_to_text(search_query, search_results)]
-
             if search_results:
                 first_title = search_results[0]['title']
                 content_record = self.get_page(first_title)
@@ -237,7 +246,7 @@ class WikipediaSearch:
 
     class Get(BaseModel):
         title: str = Field(description="The wikipedia page title")
-    @external_function()
+#    @external_function()
     def get(self, param: Get):
         """
         Retrieves a Wikipedia page, saves the result, and informs about the content of that page.
@@ -329,7 +338,10 @@ class WikipediaSearch:
         if self.document is None:
             observations = "No current page, cannot follow "
         else:
+            link_with_spaces_restituted = param.link.replace('_', ' ') # sometimes the LLM tries to replace spaces in links
             if param.link in self.extra_links:
+                url = param.link
+            if link_with_spaces_restituted in self.extra_links:
                 url = param.link
             else:
                 url = self.document.resolve_link(param.link)
@@ -362,6 +374,13 @@ class WikipediaSearch:
 
 if __name__ == "__main__":
     scraper = WikipediaSearch(chunk_size=800)
+
+    query='Kansas Jayhawks fight song'
+    searchparam = WikipediaSearch.Search(query=query)
+    print(scraper.search(searchparam))
+    linkparam = WikipediaSearch.FollowLink(link='Rock Chalk,_Jayhawk')
+    print(scraper.follow_link(linkparam))
+    exit()
 
 #    title = 'Eileen Heckart'
 #    getparam = WikipediaSearch.Get(title=title)

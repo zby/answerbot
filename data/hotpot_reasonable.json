@@ -17,7 +17,8 @@
     {
         "question": "What science fantasy young adult series, told in first person, has a set of companion books narrating the stories of enslaved worlds and alien species?",
         "answer": ["Animorphs"],
-        "type": "bridge"
+        "type": "bridge",
+        "guess": 1
     },
     {
         "question": "Are the Laleli Mosque and Esma Sultan Mansion located in the same neighborhood?",
@@ -31,7 +32,7 @@
     },
     {
         "question": "The arena where the Lewiston Maineiacs played their home games can seat how many people?",
-        "answer": ["3,677 seated", "3,677", "3677", "3,677 (2,634 for hockey)", "3677 for general events, and 2634 for hockey games"],
+        "answer": ["3,677 people", "3,677 seated", "3,677", "3677", "3,677 (2,634 for hockey)", "3677 for general events, and 2634 for hockey games", "2,634 for hockey games and 3,677 for general events", "2,634", "2634", "2,634 people"],
         "type": "bridge"
     },
     {

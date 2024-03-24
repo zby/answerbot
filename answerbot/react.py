@@ -9,6 +9,7 @@ from typing import Literal, Union
 from pprint import pprint
 
 from .prompt_builder import FunctionalPrompt, PromptMessage, Assistant, System, User, FunctionCall, FunctionResult
+from .prompt_templates import QUESTION_CHECK
 from .wikipedia_tool import WikipediaSearch
 
 from llm_easy_tools import ToolBox
@@ -91,21 +92,24 @@ class LLMReactor:
         response = self.openai_query(schemas)
         message, function_call = self.message_from_response(response)
         logger.info(str(message))
-        try:
-            result = self.toolbox.process_function(function_call, prefix_class=prefix_class)
-        except ValidationError as e:
-            if prefix_class is not None and self.soft_reflection_validation:
-                result = self.toolbox.process_function(function_call, prefix_class=prefix_class, ignore_prefix=True)
-                self.reflection_errors.append(repr(e))
-            else:
-                raise e
         self.prompt.push(message)
-        if isinstance(result, WikipediaSearch.Finish):
-            #self.are_you_sure()
-            self.answer = result.normalized_answer()
-            self.set_finished()
-            return
-        elif self.step == self.max_llm_calls:
+        if function_call is None:
+            self.reflection_errors.append("No function call")
+        else:
+            try:
+                result = self.toolbox.process_function(function_call, prefix_class=prefix_class)
+            except ValidationError as e:
+                if prefix_class is not None and self.soft_reflection_validation:
+                    result = self.toolbox.process_function(function_call, prefix_class=prefix_class, ignore_prefix=True)
+                    self.reflection_errors.append(repr(e))
+                else:
+                    raise e
+            if isinstance(result, WikipediaSearch.Finish):
+                #self.are_you_sure()
+                self.answer = result.normalized_answer()
+                self.set_finished()
+                return
+        if self.step == self.max_llm_calls:
             self.set_finished()
             logger.info("<<< Max LLM calls reached without finishing")
             return
@@ -115,30 +119,23 @@ class LLMReactor:
         else:
             step_info = f"This was {self.step} out of {self.max_llm_calls} wikipedia calls."
 
-        result = result + "\n\n" + step_info
-
-        message = FunctionResult(function_call.name, result)
+        if function_call is not None:
+            message = FunctionResult(function_call.name, result + f"\n\n{step_info}")
+        else:
+            message = Assistant("You did not call wikipedia this time - but it still counts. " + step_info)
         logger.info(str(message))
         self.prompt.push(message)
 
 
-    def analyze_question(self, question_check):
-        self.prompt.push(question_check)
-        logger.debug(f"Processing prompt: {self.prompt}")
-        response = self.openai_query([])
-        message, _ = self.message_from_response(response)
-        self.prompt.push(message)
-        logger.info(str(message))
-
-    def are_you_sure(self):
-        are_you_sure = User("Are you sure that the answer follows from the reasoning?")
-        logger.info(str(are_you_sure))
-        self.prompt.push(are_you_sure)
-        response = self.openai_query([])
-        message, _ = self.message_from_response(response)
-        self.prompt.push(message)
-        logger.info(str(message))
-
+    def analyze_question(self, queries):
+        for query in queries:
+            question_check = User(query)
+            logger.info(str(question_check))
+            self.prompt.push(question_check)
+            response = self.openai_query([])
+            message, _ = self.message_from_response(response)
+            self.prompt.push(message)
+            logger.info(str(message))
 
 def get_answer(question, config):
     print("\n\n<<< Question:", question)
@@ -147,8 +144,7 @@ def get_answer(question, config):
     toolbox.register_toolset(wiki_search)
     client = openai.OpenAI(timeout=httpx.Timeout(20.0, read=10.0, write=15.0, connect=4.0))
     reactor = LLMReactor(config['model'], toolbox, config['prompt'], config['max_llm_calls'], reflection_class=config['reflection_class'], client=client)
-    if config['question_check'] is not None:
-        reactor.analyze_question(config['question_check'])
+    reactor.analyze_question(QUESTION_CHECK[config['question_check']])
     while True:
         print()
         print(f">>>LLM call number: {reactor.step}")

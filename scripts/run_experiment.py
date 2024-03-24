@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 
 from answerbot.prompt_builder import System, User, Assistant, FunctionCall, FunctionResult
 from answerbot.react import get_answer
-from answerbot.prompt_templates import NoExamplesReactPrompt, Reflection, ShortReflection, think, think_and_plan
+from answerbot.prompt_templates import NoExamplesReactPrompt, Reflection, ShortReflection, QUESTION_CHECK
 
 # load OpenAI api key
 load_dotenv()
@@ -31,17 +31,13 @@ REFLECTION_CLASS_MAP = {
     'None': None
 }
 
-QUESTION_CHECK_MAP = {
-    'think': think,
-    'think_and_plan': think_and_plan,
-    'None': None
-}
-
 def load_questions_from_file(filename, start_index, end_index):
     with open(filename, 'r') as f:
         data = json.load(f)
     result = []
     for item in data[start_index:end_index]:
+        if 'guess' in item:
+            continue
         if 'answers' in item.keys():
             answers = item['answers']
         else:
@@ -106,11 +102,11 @@ def perform_experiments(settings, output_dir):
                 try:
                     prompt_class = CLASS_MAP[config_flat['prompt']]['class']
                     # todo this is a hack
+                    reflection_class = REFLECTION_CLASS_MAP[config_flat['reflection_class']]
                     if prompt_class == NoExamplesReactPrompt:
-                        prompt_args = [config_flat['max_llm_calls']]
+                        prompt_args = [config_flat['max_llm_calls'], reflection_class]
                     else:
                         prompt_args = CLASS_MAP[config_flat['prompt']]['args']
-                    reflection_class = REFLECTION_CLASS_MAP[config_flat['reflection_class']]
                     prompt = prompt_class(question_text, *prompt_args)
                     config = {
                         "chunk_size": config_flat["chunk_size"],
@@ -118,7 +114,7 @@ def perform_experiments(settings, output_dir):
                         "max_llm_calls": config_flat["max_llm_calls"],
                         "model": config_flat["model"],
                         "reflection_class": reflection_class,
-                        "question_check": QUESTION_CHECK_MAP[config_flat["question_check"]],
+                        "question_check": config_flat["question_check"],
                     }
                     reactor = get_answer(question_text, config)
 
@@ -156,7 +152,7 @@ def perform_experiments(settings, output_dir):
 
 if __name__ == "__main__":
     filename = sys.argv[1] if len(sys.argv) > 1 else None
-#    filename = 'data/hotpot_reasonable.json'
+    filename = 'data/hotpot_reasonable.json'
     #filename = 'filtered_questions.json'
     if filename:
         start_index = 0
@@ -199,11 +195,11 @@ if __name__ == "__main__":
         ],
         "max_llm_calls": [7],
         "model": [
-       #     "gpt-4-1106-preview",
+            #"gpt-4-1106-preview",
             "gpt-3.5-turbo-1106"
         ],
         "reflection_class": ['ShortReflection', 'None'],
-        "question_check": ['think', 'think_and_plan', 'None'],
+        "question_check": QUESTION_CHECK.keys(),
     }
     output_dir = generate_directory_name()
     save_constants_to_file(os.path.join(output_dir, "params.py"), settings)

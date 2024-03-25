@@ -75,7 +75,7 @@ class WikipediaSearch:
         """
         answer: str = Field(description="The answer to the user's question")
         answer_short: str = Field(description="A short version of the answer")
-        reasoning: str = Field(description="The reasoning behind the answer. The assumptions you made.")
+        reasoning: str = Field(description="The reasoning behind the answer. Think step by step. Mention all assumptions you make.")
 #        ambiguity: Optional[str] = Field(description="Have you found anything in the retrieved information that makes the question ambiguous? For example a search for some name can show that there are many different entities with the same name.")
 
         def normalize_answer(self, answer):

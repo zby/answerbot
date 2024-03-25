@@ -17,7 +17,7 @@ load_dotenv()
 
 # Constants
 ITERATIONS = 1
-CONFIG_KEYS = ['chunk_size', 'prompt', 'max_llm_calls', 'model', 'reflection_class', 'question_check', ]
+CONFIG_KEYS = ['chunk_size', 'prompt_class', 'max_llm_calls', 'model', 'reflection', 'question_check', ]
 ADDITIONAL_KEYS = ['answer', 'error', 'soft_errors', 'type', 'steps', 'question_index', 'correct']
 
 def load_questions_from_file(filename, start_index, end_index):
@@ -86,7 +86,7 @@ def perform_experiments(settings, output_dir):
                 question_data = settings["question"][question_index]
                 question_text = question_data["text"]
                 question_type = question_data["type"]
-                log_preamble = ('=' * 80) + f"\nQuestion: {question_text}\nConfig: {config_flat}\n"
+                log_preamble = ('=' * 80) + f"\nQuestion: {question_text}\nConfig: {config}\n"
 
                 try:
                     reactor = get_answer(question_text, config)
@@ -161,18 +161,18 @@ if __name__ == "__main__":
         "chunk_size": [
             400
         ],
-        "prompt": [
+        "prompt_class": [
 #            'TRP',
 #            'FRP',
             'NERP',
         ],
         "max_llm_calls": [7],
         "model": [
-            #"gpt-4-1106-preview",
+            "gpt-4-1106-preview",
             "gpt-3.5-turbo-1106"
         ],
-        "reflection_class": ['ShortReflection', 'None'],
-        "question_check": QUESTION_CHECKS.keys(),
+        "reflection": ['ShortReflection', 'None', 'separate', 'separate_cot'],
+        "question_check": ['None', 'category', 'amb'],
     }
     output_dir = generate_directory_name()
     save_constants_to_file(os.path.join(output_dir, "params.py"), settings)

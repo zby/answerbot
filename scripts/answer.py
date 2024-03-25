@@ -36,12 +36,12 @@ if __name__ == "__main__":
     #question = "What is the weight proportion of oxygen in water?"
     #question = "Czy dane kardy kredytowej są danymi osobowymi w Polsce"
     #question = "How much is two plus two"
-    #question = "Who is older, Annie Morton or Terry Richardson?"
+    question = "Who is older, Annie Morton or Terry Richardson?"
 
     config = {
         "chunk_size": 400,
         "prompt_class": 'NERP',
-        "reflection_class": 'ShortReflection',
+        "reflection": 'None',
         "max_llm_calls": 3,
         "model": "gpt-3.5-turbo-0613",
         #"model": "gpt-4-1106-preview",

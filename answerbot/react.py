@@ -24,8 +24,9 @@ logger = logging.getLogger(__name__)
 class LLMReactor:
     def __init__(self, model: str, toolbox: ToolBox,
                  prompt: FunctionalPrompt,
-                 max_llm_calls: int, client, soft_reflection_validation=True,
-                 reflection_class=None,
+                 max_llm_calls: int, client,
+                 reflection_class, reflection_message: str,
+                 soft_reflection_validation=True,
                  ):
         self.model = model
         self.toolbox = toolbox
@@ -34,6 +35,10 @@ class LLMReactor:
         self.client = client
         self.soft_reflection_validation = soft_reflection_validation
         self.reflection_class = reflection_class
+        self.reflection_message = reflection_message
+
+        if self.reflection_message is not None and self.reflection_class is not None:
+            raise ValueError("reflection message and class cannot be used simultaneously")
 
         self.step = 0
         self.finished = False
@@ -76,15 +81,25 @@ class LLMReactor:
             message = Assistant(response.choices[choice_num].message.content)
         return message, function_call
 
+    def get_reflection(self):
+        message = User(self.reflection_message)
+        logger.info(str(message))
+        self.prompt.push(message)
+        response = self.openai_query([])
+
+        message, _ = self.message_from_response(response)
+        self.prompt.push(message)
+        logger.info(str(message))
 
     def process_prompt(self):
         while True:
             self.step += 1
-            if self.step == 1:
+            if self.reflection_message:
+                self.get_reflection()
                 prefix_class = None
             else:
                 prefix_class = self.reflection_class
-            prefix_class = self.reflection_class
+
             if self.step == self.max_llm_calls:
                 schemas = [self.toolbox.get_tool_schema('Finish', prefix_class)]  # Finish is registered
             else:
@@ -145,9 +160,15 @@ def get_answer(question, config):
     toolbox.register_toolset(wiki_search)
     client = openai.OpenAI(timeout=httpx.Timeout(20.0, read=10.0, write=15.0, connect=4.0))
     prompt_class = PROMPTS[config['prompt_class']]
-    reflection_class = REFLECTIONS[config['reflection_class']]
+    reflection = REFLECTIONS[config['reflection']]
+    reflection_class = None
+    if 'class' in reflection:
+        reflection_class = reflection['class']
+    reflection_message = None
+    if 'message' in reflection:
+        reflection_message = reflection['message']
     prompt = prompt_class(question, config['max_llm_calls'], reflection_class)
-    reactor = LLMReactor(config['model'], toolbox, prompt, config['max_llm_calls'], reflection_class=reflection_class, client=client)
+    reactor = LLMReactor(config['model'], toolbox, prompt, config['max_llm_calls'], reflection_class=reflection_class, reflection_message=reflection_message, client=client)
     reactor.analyze_question(QUESTION_CHECKS[config['question_check']])
     reactor.process_prompt()
     return reactor

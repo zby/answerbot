@@ -64,10 +64,12 @@ class Reflection(BaseModel):
     next_actions_plan: str = Field(..., description="")
 
 class ShortReflection(BaseModel):
-    reflection: str = Field(..., description="Reflect on the information you have gathered so far. Was the last retrieved information relevant for answering the question? What additional information you need and why?")
+    reflection: str = Field(..., description="Reflect on the information you have gathered so far. Was the last retrieved information relevant for answering the question? What additional information you need, why and how you can get it? Think step by step")
 
 REFLECTIONS = {
-    'None': None,
-    'Reflection': Reflection,
-    'ShortReflection': ShortReflection,
+    'None': {},
+    'Reflection': { "class": Reflection },
+    'ShortReflection': { "class": ShortReflection },
+    'separate': { "message": "Reflect on the information you have gathered so far. Was the last retrieved information relevant for answering the question? What additional information you need, why and how you can get it?" },
+    'separate_cot': { "message": "Reflect on the information you have gathered so far. Was the last retrieved information relevant for answering the question? What additional information you need, why and how you can get it? Think step by step"}
 }

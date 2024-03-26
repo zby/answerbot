@@ -17,8 +17,8 @@ load_dotenv()
 
 # Constants
 ITERATIONS = 1
-CONFIG_KEYS = ['chunk_size', 'prompt_class', 'max_llm_calls', 'model', 'reflection', 'question_check', ]
-ADDITIONAL_KEYS = ['answer', 'error', 'soft_errors', 'type', 'steps', 'question_index', 'correct']
+CONFIG_KEYS = ['chunk_size', 'prompt_class', 'max_llm_calls', 'model', 'reflection', 'question_check']
+ADDITIONAL_KEYS = ['question_id', 'answer', 'error', 'soft_errors', 'type', 'steps', ]
 
 def load_questions_from_file(filename, start_index, end_index):
     with open(filename, 'r') as f:
@@ -27,14 +27,7 @@ def load_questions_from_file(filename, start_index, end_index):
     for item in data[start_index:end_index]:
         if 'guess' in item:
             continue
-        if 'answers' in item.keys():
-            answers = item['answers']
-        else:
-            if isinstance(item['answer'], list):
-                answers = item['answer']
-            else:
-                answers = [item['answer']]
-        result.append({"text": item["question"], "answers": answers, "type": item["type"]})
+        result.append(item)
     return result
 
 def generate_directory_name():
@@ -55,18 +48,38 @@ def save_git_version_and_diff(version_file_path):
 
 
 def save_constants_to_file(params_file_path, settings):
-    with open(params_file_path, 'w') as params_file:
-        for key, value in settings.items():
-            params_file.write(f"{key} = {value}\n")
+    with open(params_file_path, "w") as file:
+        json.dump(settings, file, indent=4)
 
+
+def eval_question(combo, results_writer, prompts_file, error_file):
+    question = combo[-1]
+    config = dict(zip(CONFIG_KEYS, combo[:-1]))
+    config['question_id'] = question['id']
+
+    question_text = question["text"]
+    log_preamble = ('=' * 80) + f"\nQuestion: {question_text}\nConfig: {config}\n"
+    try:
+        reactor = get_answer(question_text, config)
+        config.update({
+            'answer': reactor.answer,
+            'error': 0,
+            'soft_errors': len(reactor.reflection_errors),
+            'steps': reactor.step,
+        })
+        prompts_file.write(f"{log_preamble}\nPrompt:\n{str(reactor.prompt)}\n\n")
+    except Exception as e:
+        error_trace = traceback.format_exc()
+        error_file.write(f"{log_preamble}\n{error_trace}\n\n")
+        config.update({
+            'error': 1,
+        })
+    results_writer.writerow(config)
 
 def perform_experiments(settings, output_dir):
     prompts_file_path = os.path.join(output_dir, "prompts.txt")
     file_path = os.path.join(output_dir, "results.csv")
     errors_file_path = os.path.join(output_dir, "errors.txt")
-
-    promptsdir = os.path.join(output_dir, "prompts")
-    os.makedirs(promptsdir, exist_ok=True)
 
     with open(file_path, 'w', newline='') as csvfile, open(errors_file_path, 'w') as error_file, open(prompts_file_path,
                                                                                                       'w') as prompts_file:
@@ -75,50 +88,12 @@ def perform_experiments(settings, output_dir):
 
         # Produce combinations using the defined settings keys
         combinations = list(
-            itertools.product(*[settings[key] for key in CONFIG_KEYS], range(len(settings["question"]))))
+            itertools.product(*[settings[key] for key in CONFIG_KEYS + ['question'] ]))
 
         for combo in combinations:
-            # Use dictionary unpacking to get the values by key and build the config dictionary
-            config = dict(zip(CONFIG_KEYS, combo[:-1]))
-            question_index = combo[-1]
-
             for _ in range(ITERATIONS):
-                question_data = settings["question"][question_index]
-                question_text = question_data["text"]
-                question_type = question_data["type"]
-                log_preamble = ('=' * 80) + f"\nQuestion: {question_text}\nConfig: {config}\n"
+                eval_question(combo, writer, prompts_file, error_file)
 
-                try:
-                    reactor = get_answer(question_text, config)
-
-                    prompt_file = open(os.path.join(promptsdir, f"{question_index}.txt"), 'w')
-                    prompt_file.write(str(reactor.prompt))
-                    prompt_file.close()
-
-                    correct = 0
-                    for answer in reactor.answer:
-                        if answer in question_data["answers"]:
-                            correct = 1
-                    config.update({
-                        'type': question_type,
-                        'question_index': question_index,
-                        'answer': reactor.answer,
-                        'error': "",
-                        'soft_errors': len(reactor.reflection_errors),
-                        'correct': correct,
-                        'steps': reactor.step,
-                    })
-                    prompts_file.write(f"{log_preamble}\nPrompt:\n{str(reactor.prompt)}\n\n")
-                except Exception as e:
-                    error_trace = traceback.format_exc()
-                    error_file.write(f"{log_preamble}\n{error_trace}\n\n")
-                    config.update({
-                        'type': question_type,
-                        'question_index': question_index,
-                        'error': 1,
-                        'correct': 0,
-                    })
-                writer.writerow(config)
     if os.path.getsize(errors_file_path) == 0:  # If the error file is empty, remove it.
         os.remove(errors_file_path)
 
@@ -129,7 +104,7 @@ if __name__ == "__main__":
     #filename = 'filtered_questions.json'
     if filename:
         start_index = 0
-        end_index = 10
+        end_index = 1
         questions_list = load_questions_from_file(filename, start_index, end_index)
     else:
         # Default Question
@@ -166,7 +141,7 @@ if __name__ == "__main__":
 #            'FRP',
             'NERP',
         ],
-        "max_llm_calls": [7],
+        "max_llm_calls": [3],
         "model": [
             "gpt-4-1106-preview",
             "gpt-3.5-turbo-1106"
@@ -175,7 +150,7 @@ if __name__ == "__main__":
         "question_check": ['None', 'category', 'amb'],
     }
     output_dir = generate_directory_name()
-    save_constants_to_file(os.path.join(output_dir, "params.py"), settings)
+    save_constants_to_file(os.path.join(output_dir, "params.json"), settings)
     save_git_version_and_diff(os.path.join(output_dir, "version.txt"))
     perform_experiments(settings, output_dir)
     for file, what in [

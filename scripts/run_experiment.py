@@ -3,6 +3,8 @@ import sys
 import csv
 import json
 import subprocess
+import time
+
 from datetime import datetime
 import itertools
 import traceback
@@ -18,7 +20,7 @@ load_dotenv()
 # Constants
 ITERATIONS = 1
 CONFIG_KEYS = ['chunk_size', 'prompt_class', 'max_llm_calls', 'model', 'reflection', 'question_check']
-ADDITIONAL_KEYS = ['question_id', 'answer', 'error', 'soft_errors', 'type', 'steps', ]
+ADDITIONAL_KEYS = ['question_id', 'answer', 'error', 'error_type', 'soft_errors', 'type', 'steps', ]
 
 def load_questions_from_file(filename, start_index, end_index):
     with open(filename, 'r') as f:
@@ -52,29 +54,50 @@ def save_constants_to_file(params_file_path, settings):
         json.dump(settings, file, indent=4)
 
 
-def eval_question(combo, results_writer, prompts_file, error_file):
+def eval_question(combo, results_writer, csvfile, prompts_file, error_file):
     question = combo[-1]
     config = dict(zip(CONFIG_KEYS, combo[:-1]))
     config['question_id'] = question['id']
 
     question_text = question["text"]
     log_preamble = ('=' * 80) + f"\nQuestion: {question_text}\nConfig: {config}\n"
-    try:
-        reactor = get_answer(question_text, config)
-        config.update({
-            'answer': reactor.answer,
-            'error': 0,
-            'soft_errors': len(reactor.reflection_errors),
-            'steps': reactor.step,
-        })
-        prompts_file.write(f"{log_preamble}\nPrompt:\n{str(reactor.prompt)}\n\n")
-    except Exception as e:
-        error_trace = traceback.format_exc()
-        error_file.write(f"{log_preamble}\n{error_trace}\n\n")
-        config.update({
-            'error': 1,
-        })
-    results_writer.writerow(config)
+    retry_delay = [120, 360]
+    for delay in retry_delay + [0]:  # After last failure we don't wait because we don't repeat
+        try:
+            reactor = get_answer(question_text, config)
+            config.update({
+                'answer': reactor.answer,
+                'error': 0,
+                'error_type': '',
+                'soft_errors': len(reactor.reflection_errors),
+                'steps': reactor.step,
+            })
+            prompts_file.write(f"{log_preamble}\nPrompt:\n{str(reactor.prompt)}\n\n")
+            prompts_file.flush()
+            os.fsync(prompts_file.fileno())
+            results_writer.writerow(config)
+            csvfile.flush()
+            os.fsync(csvfile.fileno())
+            break
+        except Exception as e:
+            error_trace = traceback.format_exc()
+            error_file.write(f"{log_preamble}\n{error_trace}\n\n")
+            error_file.flush()
+            error_type = type(e).__name__
+            config.update({
+                'error': 1,
+                'error_type': error_type
+            })
+            results_writer.writerow(config)
+            csvfile.flush()
+            os.fsync(csvfile.fileno())
+            if error_type == 'APITimeoutError':
+                print(f"APITimeoutError occurred. Retrying in {delay} seconds...")
+                time.sleep(delay)
+            else:
+                break
+
+
 
 def perform_experiments(settings, output_dir):
     prompts_file_path = os.path.join(output_dir, "prompts.txt")
@@ -92,7 +115,7 @@ def perform_experiments(settings, output_dir):
 
         for combo in combinations:
             for _ in range(ITERATIONS):
-                eval_question(combo, writer, prompts_file, error_file)
+                eval_question(combo, writer, csvfile ,prompts_file, error_file)
 
     if os.path.getsize(errors_file_path) == 0:  # If the error file is empty, remove it.
         os.remove(errors_file_path)
@@ -100,7 +123,7 @@ def perform_experiments(settings, output_dir):
 
 if __name__ == "__main__":
     filename = sys.argv[1] if len(sys.argv) > 1 else None
-    filename = 'data/hotpot_reasonable.json'
+    #filename = 'data/hotpot_reasonable.json'
     #filename = 'filtered_questions.json'
     if filename:
         start_index = 0
@@ -124,10 +147,16 @@ if __name__ == "__main__":
 #                "answers": ["no"],
 #                "type": "comparison"
 #            }
+#            {
+#                "text": "Who is older, Annie Morton or Terry Richardson?",
+#                "answers": ["Terry Richardson", "Terry Richardson is older"],
+#                "type": "bridge"
+#            }
             {
-                "text": "Who is older, Annie Morton or Terry Richardson?",
-                "answers": ["Terry Richardson", "Terry Richardson is older"],
-                "type": "bridge"
+                "id": 0,
+                "text": "What is the weight proportion of oxygen in water?",
+                "answer": ["88.8%", "approximately 88.8%"],
+                "type": "1"
             }
         ]
 
@@ -141,7 +170,7 @@ if __name__ == "__main__":
 #            'FRP',
             'NERP',
         ],
-        "max_llm_calls": [3],
+        "max_llm_calls": [5],
         "model": [
             "gpt-4-1106-preview",
             "gpt-3.5-turbo-1106"

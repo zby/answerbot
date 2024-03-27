@@ -32,6 +32,9 @@ class LLMReactor:
         self.toolbox = toolbox
         self.prompt = prompt
         self.max_llm_calls = max_llm_calls
+        if client is None:
+            client = openai.OpenAI(timeout=httpx.Timeout(20.0, read=10.0, write=15.0, connect=4.0))
+
         self.client = client
         self.soft_reflection_validation = soft_reflection_validation
         self.reflection_class = reflection_class
@@ -153,12 +156,11 @@ class LLMReactor:
             self.prompt.push(message)
             logger.info(str(message))
 
-def get_answer(question, config):
+def get_answer(question, config, client=None):
     print("\n\n<<< Question:", question)
     wiki_search = WikipediaSearch(max_retries=2, chunk_size=config['chunk_size'])
     toolbox = ToolBox()
     toolbox.register_toolset(wiki_search)
-    client = openai.OpenAI(timeout=httpx.Timeout(20.0, read=10.0, write=15.0, connect=4.0))
     prompt_class = PROMPTS[config['prompt_class']]
     reflection = REFLECTIONS[config['reflection']]
     reflection_class = None

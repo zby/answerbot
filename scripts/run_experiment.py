@@ -8,14 +8,9 @@ import time
 from datetime import datetime
 import itertools
 import traceback
-from dotenv import load_dotenv
 
-from answerbot.prompt_builder import System, User, Assistant, FunctionCall, FunctionResult
 from answerbot.react import get_answer
-from answerbot.prompt_templates import PROMPTS, QUESTION_CHECKS, REFLECTIONS
 
-# load OpenAI api key
-load_dotenv()
 
 # Constants
 ITERATIONS = 1
@@ -61,7 +56,7 @@ def eval_question(combo, results_writer, csvfile, prompts_file, error_file):
 
     question_text = question["text"]
     log_preamble = ('=' * 80) + f"\nQuestion: {question_text}\nConfig: {config}\n"
-    retry_delay = [120, 360]
+    retry_delay = [360]
     for delay in retry_delay + [0]:  # After last failure we don't wait because we don't repeat
         try:
             reactor = get_answer(question_text, config)
@@ -121,6 +116,23 @@ def perform_experiments(settings, output_dir):
         os.remove(errors_file_path)
 
 
+def record_experiment(settings, output_dir=None):
+    if output_dir is None:
+        output_dir = generate_directory_name()
+    save_constants_to_file(os.path.join(output_dir, "params.json"), settings)
+    save_git_version_and_diff(os.path.join(output_dir, "version.txt"))
+    perform_experiments(settings, output_dir)
+    for file, what in [
+        ('results.csv', 'Results'), ('errors.txt', 'Errors'),
+        ('params.py', 'Tested parameters'), ('prompts.txt', 'Prompts'),
+        ('version.txt', 'Git Version and Diff')]:
+        if os.path.exists(os.path.join(output_dir, file)):
+            print(f"{what} saved to {os.path.join(output_dir, file)}")
+    print("Results:\n")
+    with open(os.path.join(output_dir, 'results.csv'), 'r') as file:
+        content = file.read()
+        print(content)
+
 if __name__ == "__main__":
     filename = sys.argv[1] if len(sys.argv) > 1 else None
     #filename = 'data/hotpot_reasonable.json'
@@ -178,17 +190,6 @@ if __name__ == "__main__":
         "reflection": ['ShortReflection', 'None', 'separate', 'separate_cot'],
         "question_check": ['None', 'category', 'amb'],
     }
-    output_dir = generate_directory_name()
-    save_constants_to_file(os.path.join(output_dir, "params.json"), settings)
-    save_git_version_and_diff(os.path.join(output_dir, "version.txt"))
-    perform_experiments(settings, output_dir)
-    for file, what in [
-        ('results.csv', 'Results'), ('errors.txt', 'Errors'),
-        ('params.py', 'Tested parameters'), ('prompts.txt', 'Prompts'),
-        ('version.txt', 'Git Version and Diff')]:
-        if os.path.exists(os.path.join(output_dir, file)):
-            print(f"{what} saved to {os.path.join(output_dir, file)}")
-    print("Results:\n")
-    with open(os.path.join(output_dir, 'results.csv'), 'r') as file:
-        content = file.read()
-        print(content)
+
+    record_experiment(settings)
+

@@ -8,6 +8,7 @@ from pydantic import BaseModel, Field, field_validator, ValidationError
 from typing import Literal, Union
 from pprint import pprint
 
+from dotenv import load_dotenv
 from .prompt_builder import FunctionalPrompt, PromptMessage, Assistant, System, User, FunctionCall, FunctionResult
 from .prompt_templates import QUESTION_CHECKS, PROMPTS, REFLECTIONS
 from .wikipedia_tool import WikipediaSearch
@@ -20,6 +21,8 @@ logging.basicConfig(level=logging.INFO)
 # Get a logger for the current module
 logger = logging.getLogger(__name__)
 
+# load OpenAI api key
+load_dotenv()
 
 class LLMReactor:
     def __init__(self, model: str, toolbox: ToolBox,
@@ -33,7 +36,7 @@ class LLMReactor:
         self.prompt = prompt
         self.max_llm_calls = max_llm_calls
         if client is None:
-            client = openai.OpenAI(timeout=httpx.Timeout(20.0, read=10.0, write=15.0, connect=4.0))
+            client = openai.OpenAI(timeout=httpx.Timeout(70.0, read=60.0, write=20.0, connect=6.0))
 
         self.client = client
         self.soft_reflection_validation = soft_reflection_validation
@@ -144,6 +147,8 @@ class LLMReactor:
                 message = Assistant("You did not call wikipedia this time - but it still counts. " + step_info)
             logger.info(str(message))
             self.prompt.push(message)
+#            if 'gpt-4' in self.model:
+#                time.sleep(20)
 
 
     def analyze_question(self, queries):

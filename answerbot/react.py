@@ -9,9 +9,12 @@ from typing import Literal, Union
 from pprint import pprint
 
 from dotenv import load_dotenv
+
 from .prompt_builder import FunctionalPrompt, PromptMessage, Assistant, System, User, FunctionCall, FunctionResult
-from .prompt_templates import QUESTION_CHECKS, PROMPTS, REFLECTIONS
+from .prompt_templates import QUESTION_CHECKS, PROMPTS, REFLECTIONS, AAEPrompt
+from .models import Finish
 from .wikipedia_tool import WikipediaSearch
+from .aae_tool import AAESearch
 
 from llm_easy_tools import ToolBox
 
@@ -126,7 +129,7 @@ class LLMReactor:
                         self.reflection_errors.append(repr(e))
                     else:
                         raise e
-                if isinstance(result, WikipediaSearch.Finish):
+                if isinstance(result, Finish):
                     #self.are_you_sure()
                     self.answer = result.normalized_answer()
                     self.set_finished()
@@ -137,14 +140,14 @@ class LLMReactor:
                 return
 
             if self.step == self.max_llm_calls - 1:
-                step_info = "This was the last wikipedia result you can get - in the next step you need to formulate your answer"
+                step_info = "This was the last data you can get - in the next step you need to formulate your answer"
             else:
-                step_info = f"This was {self.step} out of {self.max_llm_calls} wikipedia calls."
+                step_info = f"This was {self.step} out of {self.max_llm_calls} calls for data."
 
             if function_call is not None:
                 message = FunctionResult(function_call.name, result + f"\n\n{step_info}")
             else:
-                message = Assistant("You did not call wikipedia this time - but it still counts. " + step_info)
+                message = Assistant("You did not ask for any data this time - but it still counts. " + step_info)
             logger.info(str(message))
             self.prompt.push(message)
 #            if 'gpt-4' in self.model:
@@ -161,9 +164,30 @@ class LLMReactor:
             self.prompt.push(message)
             logger.info(str(message))
 
-def get_answer(question, config, client=None):
+
+def get_answer_wiki(question, config, client=None):
     print("\n\n<<< Question:", question)
     wiki_search = WikipediaSearch(max_retries=2, chunk_size=config['chunk_size'])
+    toolbox = ToolBox()
+    toolbox.register_toolset(wiki_search)
+    prompt_class = PROMPTS[config['prompt_class']]
+    reflection = REFLECTIONS[config['reflection']]
+    reflection_class = None
+    if 'class' in reflection:
+        reflection_class = reflection['class']
+    reflection_message = None
+    if 'message' in reflection:
+        reflection_message = reflection['message']
+    prompt = prompt_class(question, config['max_llm_calls'], reflection_class)
+    reactor = LLMReactor(config['model'], toolbox, prompt, config['max_llm_calls'], reflection_class=reflection_class, reflection_message=reflection_message, client=client)
+    reactor.analyze_question(QUESTION_CHECKS[config['question_check']])
+    reactor.process_prompt()
+    return reactor
+
+
+def get_answer_aae(question, config, client=None):
+    print("\n\n<<< Question:", question)
+    wiki_search = AAESearch()
     toolbox = ToolBox()
     toolbox.register_toolset(wiki_search)
     prompt_class = PROMPTS[config['prompt_class']]

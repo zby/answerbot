@@ -13,6 +13,7 @@ from bs4 import BeautifulSoup, NavigableString
 from answerbot.document import MarkdownDocument
 from llm_easy_tools import external_function, extraction_model
 from urllib.parse import urlparse, urljoin
+from .models import Finish
 
 MAX_RETRIES = 3
 # BASE_URL = 'https://pl.wikipedia.org/wiki/'
@@ -53,6 +54,9 @@ class ContentRecord:
         return ContentRecord(document, retrieval_history)
 
 class WikipediaSearch:
+    Finish = Finish
+
+
     def __init__(self, cached=False, document=None,
                  max_retries=MAX_RETRIES, chunk_size=1024, base_url=BASE_URL, api_url=API_URL,
                  extra_links=None
@@ -67,31 +71,6 @@ class WikipediaSearch:
         if extra_links is None:
             extra_links = []
         self.extra_links = extra_links
-
-    @extraction_model()
-    class Finish(BaseModel):
-        """
-        Finish the task and return the answer.
-        """
-        answer: str = Field(description="The answer to the user's question")
-        answer_short: str = Field(description="A short version of the answer")
-        reasoning: str = Field(description="The reasoning behind the answer. Think step by step. Mention all assumptions you make.")
-#        ambiguity: Optional[str] = Field(description="Have you found anything in the retrieved information that makes the question ambiguous? For example a search for some name can show that there are many different entities with the same name.")
-
-        def normalize_answer(self, answer):
-            answer = answer.strip(' \n.\'"')
-            answer = answer.replace('’', "'")  # Replace all curly apostrophes with straight single quotes
-            answer = answer.replace('"', "'")  # Replace all double quotes with straight single quotes
-            if answer.lower() == 'yes' or answer.lower() == 'no':
-                answer = answer.lower()
-            return answer
-
-        def normalized_answer(self):
-            return (
-                self.normalize_answer(self.answer),
-                self.normalize_answer(self.answer_short),
-            )
-
 
     class Search(BaseModel):
         query: str = Field(description="The query to search for on Wikipedia")

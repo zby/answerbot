@@ -35,10 +35,7 @@ class AAESearch:
         Searches Artificial Intelligence Act EU website, and return a list of documents
         matching the query, with short blocks of texts containing the query
         """
-        result_tuples = retry(stop=stop_after_attempt(self._max_retries))(_aae_search)(query.query, self._base_url)
-        result = '\n\n'.join(f'Title: {title}\nUrl: {url}\n Excerpt: {excerpt}'
-                             for url, title, excerpt in result_tuples)
-        return result
+        return retry(stop=stop_after_attempt(self._max_retries))(_aae_search)(query.query, self._base_url)
 
     @external_function()
     def lookup(self, param: Lookup):
@@ -100,7 +97,7 @@ class AAESearch:
 
 
 
-def _aae_search(query: str, base_url: str = BASE_URL) -> list[tuple[str, str, str]]:
+def _aae_search(query: str, base_url: str = BASE_URL) -> str:
     params = {
             's': query,
             'et_pb_searchform_submit': 'et_search_proccess',
@@ -108,8 +105,13 @@ def _aae_search(query: str, base_url: str = BASE_URL) -> list[tuple[str, str, st
             'et_pb_include_pages': 'yes',
             }
     response = requests.get(base_url, params=params)
+    if response.status_code == 404:
+        return 'page not found'
     response.raise_for_status()
-    return _aae_search_parse(response.text)
+    parsed = _aae_search_parse(response.text)
+    result = '\n\n'.join(f'Title: {title}\nUrl: {url}\n Excerpt: {excerpt}'
+                         for url, title, excerpt in parsed)
+    return result
 
 
 def _aae_search_parse(html: str):

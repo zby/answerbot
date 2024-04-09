@@ -88,7 +88,10 @@ class AAESearch:
         response = requests.get(param.url)
         if response.status_code == 404:
             return 'Page does not exist'
-        response.raise_for_status()
+        try:
+            response.raise_for_status()
+        except:
+            return 'Could not open the page'
         html = response.text
         cleaned_content = clean_html_and_textify(html)
         document = MarkdownDocument(cleaned_content, chunk_size=self._chunk_size)

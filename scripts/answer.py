@@ -2,6 +2,7 @@ import logging
 
 from pprint import pformat, pprint
 from dotenv import load_dotenv
+from answerbot.formatter import format_markdown
 
 from answerbot.prompt_builder import System
 from answerbot.prompt_templates import NoExamplesReactPrompt, Reflection, ShortReflection, QUESTION_CHECKS
@@ -46,8 +47,10 @@ if __name__ == "__main__":
         "model": "gpt-3.5-turbo-0613",
         #"model": "gpt-4-1106-preview",
         "question_check": 'category_and_amb',
+        'reflection': 'SimpleReflection',
     }
 
     reactor = get_answer_wiki(question, config)
     print(pformat(reactor.prompt.to_messages()))
     pprint(reactor.reflection_errors)
+    print(format_markdown(reactor.prompt))

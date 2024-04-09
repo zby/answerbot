@@ -84,7 +84,11 @@ class LLMReactor:
             function_call = None
         if function_call:
             print(function_call.arguments)
-            function_args = json.loads(function_call.arguments)
+            function_args = json.loads(
+                    function_call.arguments
+                    .replace(', }', '}')
+                    .replace(',}','}')
+                    )
             message = FunctionCall(function_call.name, **function_args)
         else:
             message = Assistant(response.choices[choice_num].message.content)

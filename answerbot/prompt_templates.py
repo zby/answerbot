@@ -83,6 +83,10 @@ QUESTION_CHECKS = {
 }
 
 
+class SimpleReflection(BaseModel):
+    is_relevant: bool = Field(..., description='Did you find any relevant information in that last response?')
+    summary: str = Field(..., description='Provide a short summary of the relevant data')    
+
 
 class Reflection(BaseModel):
     how_relevant: int = Field(
@@ -98,6 +102,7 @@ class ShortReflection(BaseModel):
 REFLECTIONS = {
     'None': {},
     'Reflection': { "class": Reflection },
+    'SimpleReflection': {'class': SimpleReflection},
     'ShortReflection': { "class": ShortReflection },
     'separate': { "message": "Reflect on the information you have gathered so far. Was the last retrieved information relevant for answering the question? What additional information you need, why and how you can get it?" },
     'separate_cot': { "message": "Reflect on the information you have gathered so far. Was the last retrieved information relevant for answering the question? What additional information you need, why and how you can get it? Think step by step"}

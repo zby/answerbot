@@ -203,3 +203,6 @@ def get_answer_aae(question, config, client=None):
     reactor.analyze_question(QUESTION_CHECKS[config['question_check']])
     reactor.process_prompt()
     return reactor
+
+
+get_answer = get_answer_wiki

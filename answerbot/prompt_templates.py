@@ -10,6 +10,34 @@ class Question(User):
     def openai_message(self) -> dict:
         return { "role": "user", "content": 'Question: ' + self.content }
 
+
+class AAEPrompt(FunctionalPrompt):
+    def __init__(self, question: str, max_llm_calls: int, reflection_class):
+        prefix = f'{reflection_class.__name__.lower()}_and_' if reflection_class else ''
+        system_prompt = f'''
+You are to take a role of a specialist in the new 
+EU artificial intelligence act. Please answer the 
+following question. You can use a EU artificial intelligence
+act website to find the information. 
+You can use {prefix}search_aae to make a search. You have only
+{max_llm_calls} search attempts. Every time you do a search,
+you will be given a list of articles where the search querry 
+is found: url, title, and a short excerpt. 
+
+You can then use {prefix}goto_url to go to a found article that
+you think is relevant. 
+
+After you go to a page you need to always reflect on the data retrieved in the previous call.
+you can call {prefix}read_chunk to retrieve a consecutive chunk of the page.
+The pages are formatted in Markdown.
+
+When you know the answer call {prefix}finish. Please make the answer as short as possible. If it can be answered with yes or no that is best.
+Remove all explanations from the answer and put them into the reasoning field.
+Always try to answer the question even if it is ambiguous, just note the necessary assumptions.
+        '''
+        super().__init__([ System(system_prompt), Question(question) ])
+
+
 class NoExamplesReactPrompt(FunctionalPrompt):
     def __init__(self, question, max_llm_calls, reflection_class):
         if reflection_class is not None:
@@ -42,7 +70,8 @@ Always try to answer the question even if it is ambiguous, just note the necessa
         super().__init__([ System(system_prompt), Question(question) ])
 
 PROMPTS = {
-    'NERP': NoExamplesReactPrompt
+    'NERP': NoExamplesReactPrompt,
+    'AAE': AAEPrompt,
 }
 
 QUESTION_CHECKS = {

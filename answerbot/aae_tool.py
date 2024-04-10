@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup, PageElement, Tag
 from answerbot.document import MarkdownDocument
 
 from answerbot.wikipedia_tool import BASE_URL
-from .models import SearchQuery, Lookup, URL, NoArgs, Finish
+from .tools_base import SearchQuery, Lookup, URL, NoArgs, Finish
 from tenacity import retry, stop_after_attempt
 
 

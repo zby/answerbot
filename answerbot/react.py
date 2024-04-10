@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 
 from .prompt_builder import FunctionalPrompt, PromptMessage, Assistant, System, User, FunctionCall, FunctionResult
 from .prompt_templates import QUESTION_CHECKS, PROMPTS, REFLECTIONS, AAEPrompt
-from .models import Finish
+from .tools_base import Finish
 from .wikipedia_tool import WikipediaSearch
 from .aae_tool import AAESearch
 

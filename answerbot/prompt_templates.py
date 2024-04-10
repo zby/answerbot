@@ -21,7 +21,7 @@ following question. You can use a EU artificial intelligence
 act website to find the information. 
 You can use {prefix}search_aae to make a search. You have only
 {max_llm_calls} search attempts. Every time you do a search,
-you will be given a list of articles where the search querry 
+you will be given a list of articles where the search query 
 is found: url, title, and a short excerpt. 
 
 You can then use {prefix}goto_url to go to a found article that

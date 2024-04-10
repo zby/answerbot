@@ -10,7 +10,7 @@ from pprint import pprint
 
 from dotenv import load_dotenv
 from .prompt_builder import FunctionalPrompt, PromptMessage, Assistant, System, User, FunctionCall, FunctionResult
-from .prompt_templates import QUESTION_CHECKS, PROMPTS, REFLECTIONS
+from .prompt_templates import QUESTION_CHECKS, PROMPTS, REFLECTIONS, DetachedReflection
 from .wikipedia_tool import WikipediaSearch
 
 from llm_easy_tools import ToolBox
@@ -30,6 +30,7 @@ class LLMReactor:
                  max_llm_calls: int, client,
                  reflection_class, reflection_message: str,
                  soft_reflection_validation=True,
+                 reflection_detached=False,
                  ):
         self.model = model
         self.toolbox = toolbox
@@ -50,6 +51,8 @@ class LLMReactor:
         self.finished = False
         self.answer = None
         self.reflection_errors = []
+        self.reflection_detached = reflection_detached
+        self.toolbox.register_model(reflection_class)
 
     def openai_query(self, tool_schemas, force_auto_tool_choice=False):
         args = {
@@ -103,8 +106,19 @@ class LLMReactor:
             if self.reflection_message:
                 self.get_reflection()
                 prefix_class = None
+            elif self.reflection_detached:
+                prefix_class = None
             else:
                 prefix_class = self.reflection_class
+
+            if self.reflection_detached:
+                schema = self.toolbox.get_tool_schema(self.reflection_class.__name__)
+                schemas = [schema]
+                response = self.openai_query(schemas)
+                message, fc = self.message_from_response(response)
+                logger.info(str(message))                
+                self.prompt.push(message)
+                result = self.toolbox.process_function(fc)
 
             if self.step == self.max_llm_calls:
                 schemas = [self.toolbox.get_tool_schema('Finish', prefix_class)]  # Finish is registered
@@ -175,7 +189,7 @@ def get_answer(question, config, client=None):
     if 'message' in reflection:
         reflection_message = reflection['message']
     prompt = prompt_class(question, config['max_llm_calls'], reflection_class)
-    reactor = LLMReactor(config['model'], toolbox, prompt, config['max_llm_calls'], reflection_class=reflection_class, reflection_message=reflection_message, client=client)
+    reactor = LLMReactor(config['model'], toolbox, prompt, config['max_llm_calls'], reflection_class=reflection_class, reflection_message=reflection_message, client=client, reflection_detached=config.get('reflection_detached'))
     reactor.analyze_question(QUESTION_CHECKS[config['question_check']])
     reactor.process_prompt()
     return reactor

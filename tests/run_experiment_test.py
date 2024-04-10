@@ -24,19 +24,28 @@ def test_perform_experiments(mock_get_answer, setup_and_teardown):
     mock_reactor = Mock()
     mock_reactor.prompt = mock_prompt
     mock_reactor.answer = "Mocked Answer"
-    mock_reactor.finished = True
+    mock_reactor.reflection_errors = []
     mock_reactor.steps = 0
     mock_get_answer.return_value = mock_reactor
 
+    question = {
+        "id": 0,
+        "text": "Test Question",
+        "answer": ["88.8%", "approximately 88.8%"],
+        "type": "1"
+    }
+
+
     # Example config for testing
     config = {
-        "question": [{"text": "Test Question", "answers": ["Test Answer"], "type": "text"}],
-        "chunk_size": [299],
-        "prompt": ['FRP'],
-        "reflection_prompt": ['A', ],
-        "last_reflection": ['A', ],
-        "max_llm_calls": [4],
-        "model": ["gpt-3.5-turbo"]
+        "question": [question],
+        "chunk_size": [400, 800],
+        "prompt_class": ['AAE'],
+        "reflection": ['None'],
+        "max_llm_calls": [8, 12],
+        "model": ["gpt-3.5-turbo-0613"],
+        "question_check": ['category_and_amb'],
+        'reflection': ['SimpleReflection'],
     }
 
     # Perform experiments with the mocked reactor
@@ -46,21 +55,17 @@ def test_perform_experiments(mock_get_answer, setup_and_teardown):
     assert os.path.exists(os.path.join(output_dir, "results.csv"))
     assert os.path.exists(os.path.join(output_dir, "prompts.txt"))
 
-    prompt_file = os.path.join(output_dir, "prompts", '0.txt')
-    assert os.path.exists(prompt_file)
-    with open(prompt_file, 'r') as file:
-        file_content = file.read()
-    prompt = eval(file_content)
-    assert isinstance(prompt, FunctionalPrompt)
-
     # Validate the content of prompts.txt
     expected_prompt_fragments = [
         "Question: Test Question\n",
-        "Config: {'chunk_size': 299, 'prompt': 'FRP', 'max_llm_calls': 4,",
-        "'model': 'gpt-3.5-turbo', 'reflection_prompt': 'A', 'last_reflection': 'A'}\n",
+#        "Config: {'chunk_size': 400, 'prompt': 'AAE', 'max_llm_calls': 8,",
+        "Config: {'chunk_size': 400, 'prompt_class': 'AAE', 'max_llm_calls': 8,",
+        "Config: {'chunk_size': 400, 'prompt_class': 'AAE', 'max_llm_calls': 12,",
+        "Config: {'chunk_size': 800, 'prompt_class': 'AAE', 'max_llm_calls': 8,",
+        "Config: {'chunk_size': 800, 'prompt_class': 'AAE', 'max_llm_calls': 12,",
     ]
     with open(os.path.join(output_dir, "prompts.txt"), 'r') as file:
         prompt_content = file.read()
-    print(prompt_content)
+    #print(prompt_content)
     for i in expected_prompt_fragments:
         assert i in prompt_content

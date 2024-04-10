@@ -33,5 +33,9 @@ more generic tools?
 I want the system to be multilingual. It should be able to read documentation in one language and answer
 question in a different one.
 
+# For later after we discover a good use case
+
 ## Add more tools
+
+## Work on evaluation
 

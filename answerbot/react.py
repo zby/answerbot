@@ -10,7 +10,7 @@ from pprint import pprint
 
 from dotenv import load_dotenv
 from .prompt_builder import FunctionalPrompt, PromptMessage, Assistant, System, User, FunctionCall, FunctionResult
-from .prompt_templates import QUESTION_CHECKS, PROMPTS, REFLECTIONS, DetachedReflection
+from .prompt_templates import QUESTION_CHECKS, PROMPTS, REFLECTIONS
 from .wikipedia_tool import WikipediaSearch
 
 from llm_easy_tools import ToolBox
@@ -188,8 +188,9 @@ def get_answer(question, config, client=None):
     reflection_message = None
     if 'message' in reflection:
         reflection_message = reflection['message']
+    reflection_detached = reflection.get('detached', False)
     prompt = prompt_class(question, config['max_llm_calls'], reflection_class)
-    reactor = LLMReactor(config['model'], toolbox, prompt, config['max_llm_calls'], reflection_class=reflection_class, reflection_message=reflection_message, client=client, reflection_detached=config.get('reflection_detached'))
+    reactor = LLMReactor(config['model'], toolbox, prompt, config['max_llm_calls'], reflection_class=reflection_class, reflection_message=reflection_message, client=client, reflection_detached=reflection_detached)
     reactor.analyze_question(QUESTION_CHECKS[config['question_check']])
     reactor.process_prompt()
     return reactor

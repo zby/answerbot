@@ -71,6 +71,8 @@ REFLECTIONS = {
     'None': {},
     'Reflection': { "class": Reflection },
     'ShortReflection': { "class": ShortReflection },
+    'ReflectionDetached': {'class': Reflection, 'detached': True},
+    'ShortReflectionDetached': {'class': ShortReflection, 'detached': True},
     'separate': { "message": "Reflect on the information you have gathered so far. Was the last retrieved information relevant for answering the question? What additional information you need, why and how you can get it?" },
     'separate_cot': { "message": "Reflect on the information you have gathered so far. Was the last retrieved information relevant for answering the question? What additional information you need, why and how you can get it? Think step by step"}
 }

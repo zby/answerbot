@@ -46,8 +46,7 @@ if __name__ == "__main__":
         "model": "gpt-3.5-turbo-0613",
         #"model": "gpt-4-1106-preview",
         "question_check": 'category_and_amb',
-        'reflection': 'Reflection',
-        'reflection_detached': True,
+        'reflection': 'ReflectionDetached',
     }
 
     reactor = get_answer(question, config)

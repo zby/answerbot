@@ -111,7 +111,7 @@ class LLMReactor:
             else:
                 prefix_class = self.reflection_class
 
-            if self.reflection_detached:
+            if self.reflection_detached and self.reflection_class:
                 schema = self.toolbox.get_tool_schema(self.reflection_class.__name__)
                 schemas = [schema]
                 response = self.openai_query(schemas)

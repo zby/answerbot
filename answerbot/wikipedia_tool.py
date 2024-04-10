@@ -13,7 +13,7 @@ from bs4 import BeautifulSoup, NavigableString
 from answerbot.document import MarkdownDocument
 from llm_easy_tools import external_function, extraction_model
 from urllib.parse import urlparse, urljoin
-from .models import Finish
+from .tools_base import Finish
 
 MAX_RETRIES = 3
 # BASE_URL = 'https://pl.wikipedia.org/wiki/'

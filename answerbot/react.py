@@ -144,9 +144,9 @@ class LLMReactor:
                 return
 
             if self.step == self.max_llm_calls - 1:
-                step_info = "This was the last data you can get - in the next step you need to formulate your answer"
+                step_info = "\n\nThis was the last data you can get - in the next step you need to formulate your answer"
             else:
-                step_info = f"This was {self.step} out of {self.max_llm_calls} calls for data."
+                step_info = f"\n\nThis was {self.step} out of {self.max_llm_calls} calls for data."
 
             if function_call is not None:
                 message = FunctionResult(function_call.name, result + f"\n\n{step_info}")

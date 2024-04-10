@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field
 
 
 class SearchQuery(BaseModel):
-    query: str = Field(description='The query to search for')
+    query: str = Field(description='The keyword')
 
 
 class Lookup(BaseModel):
@@ -23,7 +23,7 @@ class Finish(BaseModel):
     """
     Finish the task and return the answer.
     """
-    answer: str = Field(description="The answer to the user's question")
+    answer: str = Field(description="The answer to the user's original question")
     answer_short: str = Field(description="A short version of the answer")
     reasoning: str = Field(description="The reasoning behind the answer. Think step by step. Mention all assumptions you make.")
     ambiguity: str|None = Field(description="Have you found anything in the retrieved information that makes the question ambiguous? For example a search for some name can show that there are many different entities with the same name.")

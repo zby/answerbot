@@ -19,8 +19,8 @@ You are to take a role of a specialist in the new
 EU artificial intelligence act. Please answer the 
 following question. You can use a EU artificial intelligence
 act website to find the information. 
-You can use {prefix}search_aae to make a search. You have only
-{max_llm_calls} search attempts. Every time you do a search,
+You can use {prefix}search_aae to make a search.  
+You have only {max_llm_calls} search attempts. Every time you do a search,
 you will be given a list of articles where the search querry 
 is found: url, title, and a short excerpt. 
 
@@ -84,8 +84,7 @@ QUESTION_CHECKS = {
 
 
 class SimpleReflection(BaseModel):
-    is_relevant: bool = Field(..., description='Did you find any relevant information in that last response?')
-    summary: str = Field(..., description='Provide a short summary of the relevant data')    
+    is_relevant: bool = Field(..., description='True if you found any useful information in the last response')
 
 
 class Reflection(BaseModel):

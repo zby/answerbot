@@ -29,3 +29,9 @@ We currently try to find the best chunk that contains a position
 in the document (for example after searching for a word) - maybe we need to go back to static chunking and use
 more generic tools?
 
+## Internationalisation
+I want the system to be multilingual. It should be able to read documentation in one language and answer
+question in a different one.
+
+## Add more tools
+

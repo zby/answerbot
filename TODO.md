@@ -1,3 +1,6 @@
+## Redesing react.py
+I want to have just one answer_question. Maybe tools should go in config?
+
 ## URL or links
 We can give to the LLM urls and let it retrieve it if it thinks it is useful, or give it links. When
 presented with Markdown formatted links the LLM usually tries to follow the link text - this 

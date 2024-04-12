@@ -112,6 +112,12 @@ def _aae_search(query: str, base_url: str = BASE_URL) -> str:
         return 'page not found'
     response.raise_for_status()
     parsed = _aae_search_parse(response.text)
+    if len(parsed) == 0:
+        # This error message is copied from the page
+        # when we make it more generic we'll need to extract the error message from the page dynamically
+        return 'No Results Found\n\nThe page you requested could not be found. Try refining your search, or use the navigation above to locate the post.'
+
+
     result = '\n\n'.join(f'Title: {title}\nUrl: {url}\n Excerpt: {excerpt}'
                          for url, title, excerpt in parsed)
     return result

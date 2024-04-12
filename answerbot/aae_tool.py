@@ -165,6 +165,8 @@ def clean_html_and_textify(html):
 if __name__ == "__main__":
     scraper = AAESearch()
 
+    query="training generative AI"
     query="generative AI training steps"
+
     searchparam = SearchQuery(query=query)
     print(scraper.search_aae(searchparam))

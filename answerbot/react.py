@@ -13,8 +13,6 @@ from dotenv import load_dotenv
 from .prompt_builder import FunctionalPrompt, PromptMessage, Assistant, System, User, FunctionCall, FunctionResult
 from .prompt_templates import QUESTION_CHECKS, PROMPTS, REFLECTIONS, AAEPrompt
 from .tools_base import Finish
-from .wikipedia_tool import WikipediaSearch
-from .aae_tool import AAESearch
 
 from llm_easy_tools import ToolBox
 
@@ -183,12 +181,12 @@ class LLMReactor:
             self.prompt.push(message)
             logger.info(str(message))
 
-
 def get_answer_wiki(question, config, client=None):
     print("\n\n<<< Question:", question)
-    wiki_search = WikipediaSearch(max_retries=2, chunk_size=config['chunk_size'])
+    tool_class = config['tool']
+    tool = tool_class(chunk_size=config['chunk_size'])
     toolbox = ToolBox()
-    toolbox.register_toolset(wiki_search)
+    toolbox.register_toolset(tool)
     prompt_class = PROMPTS[config['prompt_class']]
     reflection = REFLECTIONS[config['reflection']]
     reflection_class = None
@@ -200,26 +198,6 @@ def get_answer_wiki(question, config, client=None):
     reflection_detached = reflection.get('detached', False)
     prompt = prompt_class(question, config['max_llm_calls'], reflection_class)
     reactor = LLMReactor(config['model'], toolbox, prompt, config['max_llm_calls'], reflection_class=reflection_class, reflection_message=reflection_message, client=client, reflection_detached=reflection_detached)
-    reactor.analyze_question(QUESTION_CHECKS[config['question_check']])
-    reactor.process_prompt()
-    return reactor
-
-
-def get_answer_aae(question, config, client=None):
-    print("\n\n<<< Question:", question)
-    wiki_search = AAESearch()
-    toolbox = ToolBox()
-    toolbox.register_toolset(wiki_search)
-    prompt_class = PROMPTS[config['prompt_class']]
-    reflection = REFLECTIONS[config['reflection']]
-    reflection_class = None
-    if 'class' in reflection:
-        reflection_class = reflection['class']
-    reflection_message = None
-    if 'message' in reflection:
-        reflection_message = reflection['message']
-    prompt = prompt_class(question, config['max_llm_calls'], reflection_class)
-    reactor = LLMReactor(config['model'], toolbox, prompt, config['max_llm_calls'], reflection_class=reflection_class, reflection_message=reflection_message, client=client)
     reactor.analyze_question(QUESTION_CHECKS[config['question_check']])
     reactor.process_prompt()
     return reactor

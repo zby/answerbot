@@ -8,6 +8,9 @@ from answerbot.prompt_builder import System
 from answerbot.prompt_templates import NoExamplesReactPrompt, Reflection, ShortReflection, QUESTION_CHECKS
 from answerbot.react import get_answer_wiki
 
+from answerbot.wikipedia_tool import WikipediaSearch
+from answerbot.aae_tool import AAESearch
+
 # Configure basic logging
 logging.basicConfig(level=logging.INFO)
 
@@ -39,17 +42,23 @@ if __name__ == "__main__":
     #question = "How much is two plus two"
     question = "Who is older, Annie Morton or Terry Richardson?"
 
+    question = "What are the concrete steps proposed to ensure AI safety?"
+    question = 'What are the steps required to authorize the training of generative AI?'
+
+
     config = {
         "chunk_size": 400,
-        "prompt_class": 'NERP',
-        "reflection": 'None',
+        #"prompt_class": 'NERP',
+        "prompt_class": 'AAE',
         "max_llm_calls": 8,
         "model": "gpt-3.5-turbo-0613",
         #"model": "gpt-4-1106-preview",
         "question_check": 'category_and_amb',
-        'reflection': 'ReflectionDetached',
+        'reflection': 'ShortReflectionDetached',
+        'tool': AAESearch,
     }
 
     reactor = get_answer_wiki(question, config)
     print(pformat(reactor.prompt.to_messages()))
     pprint(reactor.reflection_errors)
+    print(format_markdown(reactor.prompt))

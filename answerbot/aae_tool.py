@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup, PageElement, Tag
 from answerbot.document import MarkdownDocument
 
 from answerbot.wikipedia_tool import BASE_URL
-from .tools_base import SearchQuery, Lookup, URL, NoArgs, Finish
+from answerbot.tools_base import SearchQuery, Lookup, URL, NoArgs, Finish
 from tenacity import retry, stop_after_attempt
 
 
@@ -140,8 +140,7 @@ def _aae_search_parse(html: str):
 
     return result
     
-        
-        
+
 def clean_html_and_textify(html):
     # remove table of content
     soup = BeautifulSoup(html, 'html.parser')
@@ -155,3 +154,11 @@ def clean_html_and_textify(html):
     markdown = converter.handle(content.text)
     cleaned_content = markdown.strip()
     return cleaned_content
+
+
+if __name__ == "__main__":
+    scraper = AAESearch()
+
+    query="generative AI training steps"
+    searchparam = SearchQuery(query=query)
+    print(scraper.search_aae(searchparam))

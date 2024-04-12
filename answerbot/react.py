@@ -55,7 +55,8 @@ class LLMReactor:
         self.answer = None
         self.reflection_errors = []
         self.reflection_detached = reflection_detached
-        self.toolbox.register_model(reflection_class)
+        if reflection_detached:
+            self.toolbox.register_model(reflection_class)
 
     def openai_query(self, tool_schemas, force_auto_tool_choice=False):
         args = {

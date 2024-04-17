@@ -1,0 +1,2186 @@
+{
+    "table_of_contents": [
+        [
+            "https://artificialintelligenceact.eu/aia-title/1/",
+            "Chapter I: General Provisions",
+            [
+                [
+                    "https://artificialintelligenceact.eu/article/1/",
+                    "Article 1: Subject Matter",
+                    []
+                ],
+                [
+                    "https://artificialintelligenceact.eu/article/2/",
+                    "Article 2: Scope",
+                    []
+                ],
+                [
+                    "https://artificialintelligenceact.eu/article/3/",
+                    "Article 3: Definitions",
+                    []
+                ],
+                [
+                    "https://artificialintelligenceact.eu/article/4/",
+                    "Article 4: AI literacy",
+                    []
+                ]
+            ]
+        ],
+        [
+            "https://artificialintelligenceact.eu/aia-title/2/",
+            "Chapter II:\nProhibited Artificial Intelligence Practices",
+            [
+                [
+                    "https://artificialintelligenceact.eu/article/5/",
+                    "Article 5: Prohibited Artificial Intelligence Practices",
+                    []
+                ]
+            ]
+        ],
+        [
+            "https://artificialintelligenceact.eu/aia-title/3/",
+            "Chapter III:\nHigh-Risk AI System",
+            [
+                [
+                    "https://artificialintelligenceact.eu/chapter/3-1/",
+                    "Section 1: Classification of AI Systems as High-Risk",
+                    [
+                        [
+                            "https://artificialintelligenceact.eu/article/6/",
+                            "Article 6: Classification Rules for High-Risk AI Systems",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/7/",
+                            "Article 7: Amendments to Annex III",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/8/",
+                            "Article 8: Compliance with the Requirements",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/9/",
+                            "Article 9: Risk Management System",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/10/",
+                            "Article 10: Data and Data Governance",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/11/",
+                            "Article 11: Technical Documentation",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/12/",
+                            "Article 12: Record-Keeping",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/13/",
+                            "Article 13: Transparency and Provision of Information to Deployers",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/14/",
+                            "Article 14: Human Oversight",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/15/",
+                            "Article 15: Accuracy, Robustness and Cybersecurity",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/16/",
+                            "Article 16: Obligations of Providers of High-Risk AI Systems",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/17/",
+                            "Article 17: Quality Management System",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/18/",
+                            "Article 18: Documentation Keeping",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/19/",
+                            "Article 19: Automatically Generated Logs",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/20/",
+                            "Article 20: Corrective Actions and Duty of Information",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/21/",
+                            "Article 21: Cooperation with Competent Authorities",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/22/",
+                            "Article 22: Authorised Representatives of providers of high-risk AI systems",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/23/",
+                            "Article 23: Obligations of Importers",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/24/",
+                            "Article 24: Obligations of Distributors",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/25/",
+                            "Article 25: Responsibilities Along the AI Value Chain",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/26/",
+                            "Article 26: Obligations of Deployers of High-Risk AI Systems",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/27/",
+                            "Article 27: Fundamental Rights Impact Assessment for High-Risk AI Systems",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/28/",
+                            "Article 28: Notifying Authorities",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/29/",
+                            "Article 29: Application of a Conformity Assessment Body for Notification",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/30/",
+                            "Article 30: Notification Procedure",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/31/",
+                            "Article 31: Requirements Relating to Notified Bodies",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/32/",
+                            "Article 32: Presumption of Conformity with Requirements Relating to Notified Bodies",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/33/",
+                            "Article 33: Subsidiaries of and Subcontracting by Notified Bodies",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/34/",
+                            "Article 34: Operational Obligations of Notified Bodies",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/35/",
+                            "Article 35: Identification Numbers and Lists of Notified Bodies Designated Under this Regulation",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/36/",
+                            "Article 36: Changes to Notifications",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/37/",
+                            "Article 37: Challenge to the Competence of Notified Bodies",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/38/",
+                            "Article 38: Coordination of Notified Bodies",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/39/",
+                            "Article 39: Conformity Assessment Bodies of Third Countries",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/40/",
+                            "Article 40: Harmonised Standards and Standardisation Deliverables",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/41/",
+                            "Article 41: Common Specifications",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/42/",
+                            "Article 42: Presumption of Conformity with Certain Requirements",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/43/",
+                            "Article 43: Conformity Assessment",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/44/",
+                            "Article 44: Certificates",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/45/",
+                            "Article 45: Information Obligations of Notified Bodies",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/46/",
+                            "Article 46: Derogation from Conformity Assessment Procedure",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/47/",
+                            "Article 47: EU Declaration of Conformity",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/48/",
+                            "Article 48: CE Marking",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/49/",
+                            "Article 49: Registration",
+                            []
+                        ]
+                    ]
+                ],
+                [
+                    "https://artificialintelligenceact.eu/chapter/3-2/",
+                    "Section 2: Requirements for High-Risk AI Systems",
+                    [
+                        [
+                            "https://artificialintelligenceact.eu/article/6/",
+                            "Article 6: Classification Rules for High-Risk AI Systems",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/7/",
+                            "Article 7: Amendments to Annex III",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/8/",
+                            "Article 8: Compliance with the Requirements",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/9/",
+                            "Article 9: Risk Management System",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/10/",
+                            "Article 10: Data and Data Governance",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/11/",
+                            "Article 11: Technical Documentation",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/12/",
+                            "Article 12: Record-Keeping",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/13/",
+                            "Article 13: Transparency and Provision of Information to Deployers",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/14/",
+                            "Article 14: Human Oversight",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/15/",
+                            "Article 15: Accuracy, Robustness and Cybersecurity",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/16/",
+                            "Article 16: Obligations of Providers of High-Risk AI Systems",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/17/",
+                            "Article 17: Quality Management System",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/18/",
+                            "Article 18: Documentation Keeping",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/19/",
+                            "Article 19: Automatically Generated Logs",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/20/",
+                            "Article 20: Corrective Actions and Duty of Information",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/21/",
+                            "Article 21: Cooperation with Competent Authorities",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/22/",
+                            "Article 22: Authorised Representatives of providers of high-risk AI systems",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/23/",
+                            "Article 23: Obligations of Importers",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/24/",
+                            "Article 24: Obligations of Distributors",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/25/",
+                            "Article 25: Responsibilities Along the AI Value Chain",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/26/",
+                            "Article 26: Obligations of Deployers of High-Risk AI Systems",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/27/",
+                            "Article 27: Fundamental Rights Impact Assessment for High-Risk AI Systems",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/28/",
+                            "Article 28: Notifying Authorities",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/29/",
+                            "Article 29: Application of a Conformity Assessment Body for Notification",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/30/",
+                            "Article 30: Notification Procedure",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/31/",
+                            "Article 31: Requirements Relating to Notified Bodies",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/32/",
+                            "Article 32: Presumption of Conformity with Requirements Relating to Notified Bodies",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/33/",
+                            "Article 33: Subsidiaries of and Subcontracting by Notified Bodies",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/34/",
+                            "Article 34: Operational Obligations of Notified Bodies",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/35/",
+                            "Article 35: Identification Numbers and Lists of Notified Bodies Designated Under this Regulation",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/36/",
+                            "Article 36: Changes to Notifications",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/37/",
+                            "Article 37: Challenge to the Competence of Notified Bodies",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/38/",
+                            "Article 38: Coordination of Notified Bodies",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/39/",
+                            "Article 39: Conformity Assessment Bodies of Third Countries",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/40/",
+                            "Article 40: Harmonised Standards and Standardisation Deliverables",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/41/",
+                            "Article 41: Common Specifications",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/42/",
+                            "Article 42: Presumption of Conformity with Certain Requirements",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/43/",
+                            "Article 43: Conformity Assessment",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/44/",
+                            "Article 44: Certificates",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/45/",
+                            "Article 45: Information Obligations of Notified Bodies",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/46/",
+                            "Article 46: Derogation from Conformity Assessment Procedure",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/47/",
+                            "Article 47: EU Declaration of Conformity",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/48/",
+                            "Article 48: CE Marking",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/49/",
+                            "Article 49: Registration",
+                            []
+                        ]
+                    ]
+                ],
+                [
+                    "https://artificialintelligenceact.eu/chapter/3-3/",
+                    "Section 3: Obligations of Providers and Deployers of High-Risk AI Systems and Other Parties",
+                    [
+                        [
+                            "https://artificialintelligenceact.eu/article/6/",
+                            "Article 6: Classification Rules for High-Risk AI Systems",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/7/",
+                            "Article 7: Amendments to Annex III",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/8/",
+                            "Article 8: Compliance with the Requirements",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/9/",
+                            "Article 9: Risk Management System",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/10/",
+                            "Article 10: Data and Data Governance",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/11/",
+                            "Article 11: Technical Documentation",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/12/",
+                            "Article 12: Record-Keeping",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/13/",
+                            "Article 13: Transparency and Provision of Information to Deployers",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/14/",
+                            "Article 14: Human Oversight",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/15/",
+                            "Article 15: Accuracy, Robustness and Cybersecurity",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/16/",
+                            "Article 16: Obligations of Providers of High-Risk AI Systems",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/17/",
+                            "Article 17: Quality Management System",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/18/",
+                            "Article 18: Documentation Keeping",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/19/",
+                            "Article 19: Automatically Generated Logs",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/20/",
+                            "Article 20: Corrective Actions and Duty of Information",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/21/",
+                            "Article 21: Cooperation with Competent Authorities",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/22/",
+                            "Article 22: Authorised Representatives of providers of high-risk AI systems",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/23/",
+                            "Article 23: Obligations of Importers",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/24/",
+                            "Article 24: Obligations of Distributors",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/25/",
+                            "Article 25: Responsibilities Along the AI Value Chain",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/26/",
+                            "Article 26: Obligations of Deployers of High-Risk AI Systems",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/27/",
+                            "Article 27: Fundamental Rights Impact Assessment for High-Risk AI Systems",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/28/",
+                            "Article 28: Notifying Authorities",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/29/",
+                            "Article 29: Application of a Conformity Assessment Body for Notification",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/30/",
+                            "Article 30: Notification Procedure",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/31/",
+                            "Article 31: Requirements Relating to Notified Bodies",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/32/",
+                            "Article 32: Presumption of Conformity with Requirements Relating to Notified Bodies",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/33/",
+                            "Article 33: Subsidiaries of and Subcontracting by Notified Bodies",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/34/",
+                            "Article 34: Operational Obligations of Notified Bodies",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/35/",
+                            "Article 35: Identification Numbers and Lists of Notified Bodies Designated Under this Regulation",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/36/",
+                            "Article 36: Changes to Notifications",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/37/",
+                            "Article 37: Challenge to the Competence of Notified Bodies",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/38/",
+                            "Article 38: Coordination of Notified Bodies",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/39/",
+                            "Article 39: Conformity Assessment Bodies of Third Countries",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/40/",
+                            "Article 40: Harmonised Standards and Standardisation Deliverables",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/41/",
+                            "Article 41: Common Specifications",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/42/",
+                            "Article 42: Presumption of Conformity with Certain Requirements",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/43/",
+                            "Article 43: Conformity Assessment",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/44/",
+                            "Article 44: Certificates",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/45/",
+                            "Article 45: Information Obligations of Notified Bodies",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/46/",
+                            "Article 46: Derogation from Conformity Assessment Procedure",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/47/",
+                            "Article 47: EU Declaration of Conformity",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/48/",
+                            "Article 48: CE Marking",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/49/",
+                            "Article 49: Registration",
+                            []
+                        ]
+                    ]
+                ],
+                [
+                    "https://artificialintelligenceact.eu/chapter/3-4/",
+                    "Section 4: Notifying Authorities and Notified Bodies",
+                    [
+                        [
+                            "https://artificialintelligenceact.eu/article/6/",
+                            "Article 6: Classification Rules for High-Risk AI Systems",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/7/",
+                            "Article 7: Amendments to Annex III",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/8/",
+                            "Article 8: Compliance with the Requirements",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/9/",
+                            "Article 9: Risk Management System",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/10/",
+                            "Article 10: Data and Data Governance",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/11/",
+                            "Article 11: Technical Documentation",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/12/",
+                            "Article 12: Record-Keeping",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/13/",
+                            "Article 13: Transparency and Provision of Information to Deployers",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/14/",
+                            "Article 14: Human Oversight",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/15/",
+                            "Article 15: Accuracy, Robustness and Cybersecurity",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/16/",
+                            "Article 16: Obligations of Providers of High-Risk AI Systems",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/17/",
+                            "Article 17: Quality Management System",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/18/",
+                            "Article 18: Documentation Keeping",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/19/",
+                            "Article 19: Automatically Generated Logs",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/20/",
+                            "Article 20: Corrective Actions and Duty of Information",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/21/",
+                            "Article 21: Cooperation with Competent Authorities",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/22/",
+                            "Article 22: Authorised Representatives of providers of high-risk AI systems",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/23/",
+                            "Article 23: Obligations of Importers",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/24/",
+                            "Article 24: Obligations of Distributors",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/25/",
+                            "Article 25: Responsibilities Along the AI Value Chain",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/26/",
+                            "Article 26: Obligations of Deployers of High-Risk AI Systems",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/27/",
+                            "Article 27: Fundamental Rights Impact Assessment for High-Risk AI Systems",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/28/",
+                            "Article 28: Notifying Authorities",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/29/",
+                            "Article 29: Application of a Conformity Assessment Body for Notification",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/30/",
+                            "Article 30: Notification Procedure",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/31/",
+                            "Article 31: Requirements Relating to Notified Bodies",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/32/",
+                            "Article 32: Presumption of Conformity with Requirements Relating to Notified Bodies",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/33/",
+                            "Article 33: Subsidiaries of and Subcontracting by Notified Bodies",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/34/",
+                            "Article 34: Operational Obligations of Notified Bodies",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/35/",
+                            "Article 35: Identification Numbers and Lists of Notified Bodies Designated Under this Regulation",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/36/",
+                            "Article 36: Changes to Notifications",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/37/",
+                            "Article 37: Challenge to the Competence of Notified Bodies",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/38/",
+                            "Article 38: Coordination of Notified Bodies",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/39/",
+                            "Article 39: Conformity Assessment Bodies of Third Countries",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/40/",
+                            "Article 40: Harmonised Standards and Standardisation Deliverables",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/41/",
+                            "Article 41: Common Specifications",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/42/",
+                            "Article 42: Presumption of Conformity with Certain Requirements",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/43/",
+                            "Article 43: Conformity Assessment",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/44/",
+                            "Article 44: Certificates",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/45/",
+                            "Article 45: Information Obligations of Notified Bodies",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/46/",
+                            "Article 46: Derogation from Conformity Assessment Procedure",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/47/",
+                            "Article 47: EU Declaration of Conformity",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/48/",
+                            "Article 48: CE Marking",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/49/",
+                            "Article 49: Registration",
+                            []
+                        ]
+                    ]
+                ],
+                [
+                    "https://artificialintelligenceact.eu/chapter/3-5/",
+                    "Section 5: Standards, Conformity Assessment, Certificates, Registration",
+                    [
+                        [
+                            "https://artificialintelligenceact.eu/article/6/",
+                            "Article 6: Classification Rules for High-Risk AI Systems",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/7/",
+                            "Article 7: Amendments to Annex III",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/8/",
+                            "Article 8: Compliance with the Requirements",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/9/",
+                            "Article 9: Risk Management System",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/10/",
+                            "Article 10: Data and Data Governance",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/11/",
+                            "Article 11: Technical Documentation",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/12/",
+                            "Article 12: Record-Keeping",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/13/",
+                            "Article 13: Transparency and Provision of Information to Deployers",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/14/",
+                            "Article 14: Human Oversight",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/15/",
+                            "Article 15: Accuracy, Robustness and Cybersecurity",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/16/",
+                            "Article 16: Obligations of Providers of High-Risk AI Systems",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/17/",
+                            "Article 17: Quality Management System",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/18/",
+                            "Article 18: Documentation Keeping",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/19/",
+                            "Article 19: Automatically Generated Logs",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/20/",
+                            "Article 20: Corrective Actions and Duty of Information",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/21/",
+                            "Article 21: Cooperation with Competent Authorities",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/22/",
+                            "Article 22: Authorised Representatives of providers of high-risk AI systems",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/23/",
+                            "Article 23: Obligations of Importers",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/24/",
+                            "Article 24: Obligations of Distributors",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/25/",
+                            "Article 25: Responsibilities Along the AI Value Chain",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/26/",
+                            "Article 26: Obligations of Deployers of High-Risk AI Systems",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/27/",
+                            "Article 27: Fundamental Rights Impact Assessment for High-Risk AI Systems",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/28/",
+                            "Article 28: Notifying Authorities",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/29/",
+                            "Article 29: Application of a Conformity Assessment Body for Notification",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/30/",
+                            "Article 30: Notification Procedure",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/31/",
+                            "Article 31: Requirements Relating to Notified Bodies",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/32/",
+                            "Article 32: Presumption of Conformity with Requirements Relating to Notified Bodies",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/33/",
+                            "Article 33: Subsidiaries of and Subcontracting by Notified Bodies",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/34/",
+                            "Article 34: Operational Obligations of Notified Bodies",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/35/",
+                            "Article 35: Identification Numbers and Lists of Notified Bodies Designated Under this Regulation",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/36/",
+                            "Article 36: Changes to Notifications",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/37/",
+                            "Article 37: Challenge to the Competence of Notified Bodies",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/38/",
+                            "Article 38: Coordination of Notified Bodies",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/39/",
+                            "Article 39: Conformity Assessment Bodies of Third Countries",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/40/",
+                            "Article 40: Harmonised Standards and Standardisation Deliverables",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/41/",
+                            "Article 41: Common Specifications",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/42/",
+                            "Article 42: Presumption of Conformity with Certain Requirements",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/43/",
+                            "Article 43: Conformity Assessment",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/44/",
+                            "Article 44: Certificates",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/45/",
+                            "Article 45: Information Obligations of Notified Bodies",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/46/",
+                            "Article 46: Derogation from Conformity Assessment Procedure",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/47/",
+                            "Article 47: EU Declaration of Conformity",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/48/",
+                            "Article 48: CE Marking",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/49/",
+                            "Article 49: Registration",
+                            []
+                        ]
+                    ]
+                ]
+            ]
+        ],
+        [
+            "https://artificialintelligenceact.eu/aia-title/4/",
+            "Chapter IV:\nTransparency Obligations for Providers and Deployers of Certain AI Systems and GPAI Models",
+            [
+                [
+                    "https://artificialintelligenceact.eu/article/50/",
+                    "Article 50: Transparency Obligations for Providers and Users of Certain AI Systems and GPAI Models",
+                    []
+                ]
+            ]
+        ],
+        [
+            "https://artificialintelligenceact.eu/aia-title/5/",
+            "Chapter V: General Purpose AI Models",
+            [
+                [
+                    "https://artificialintelligenceact.eu/chapter/5-1/",
+                    "Section 1: Classification Rules",
+                    [
+                        [
+                            "https://artificialintelligenceact.eu/article/51/",
+                            "Article 51: Classification of General-Purpose AI Models as General Purpose AI Models with Systemic Risk",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/52/",
+                            "Article 52: Procedure",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/53/",
+                            "Article 53: Obligations for Providers of General Purpose AI Models",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/54/",
+                            "Article 54: Authorised Representative",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/55/",
+                            "Article 55: Obligations for Providers of General-Purpose AI Models with Systemic Risk",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/56/",
+                            "Article 56: Codes of Practice",
+                            []
+                        ]
+                    ]
+                ],
+                [
+                    "https://artificialintelligenceact.eu/chapter/5-2/",
+                    "Section 2: Obligations for Providers of General Purpose AI Models",
+                    [
+                        [
+                            "https://artificialintelligenceact.eu/article/51/",
+                            "Article 51: Classification of General-Purpose AI Models as General Purpose AI Models with Systemic Risk",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/52/",
+                            "Article 52: Procedure",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/53/",
+                            "Article 53: Obligations for Providers of General Purpose AI Models",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/54/",
+                            "Article 54: Authorised Representative",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/55/",
+                            "Article 55: Obligations for Providers of General-Purpose AI Models with Systemic Risk",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/56/",
+                            "Article 56: Codes of Practice",
+                            []
+                        ]
+                    ]
+                ],
+                [
+                    "https://artificialintelligenceact.eu/chapter/5-3/",
+                    "Section 3: Obligations for Providers of General Purpose AI Models with Systemic\nRisk",
+                    [
+                        [
+                            "https://artificialintelligenceact.eu/article/51/",
+                            "Article 51: Classification of General-Purpose AI Models as General Purpose AI Models with Systemic Risk",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/52/",
+                            "Article 52: Procedure",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/53/",
+                            "Article 53: Obligations for Providers of General Purpose AI Models",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/54/",
+                            "Article 54: Authorised Representative",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/55/",
+                            "Article 55: Obligations for Providers of General-Purpose AI Models with Systemic Risk",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/56/",
+                            "Article 56: Codes of Practice",
+                            []
+                        ]
+                    ]
+                ]
+            ]
+        ],
+        [
+            "https://artificialintelligenceact.eu/aia-title/6/",
+            "Chapter VI:\nMeasures in Support of Innovation",
+            [
+                [
+                    "https://artificialintelligenceact.eu/article/57/",
+                    "Article 57: AI Regulatory Sandboxes",
+                    []
+                ],
+                [
+                    "https://artificialintelligenceact.eu/article/58/",
+                    "Article 58: Detailed arrangements for and functioning of AI regulatory sandboxes",
+                    []
+                ],
+                [
+                    "https://artificialintelligenceact.eu/article/59/",
+                    "Article 59: Further Processing of Personal Data for Developing Certain AI Systems in the Public Interest in the AI Regulatory Sandbox",
+                    []
+                ],
+                [
+                    "https://artificialintelligenceact.eu/article/60/",
+                    "Article 60: Testing of High-Risk AI Systems in Real World Conditions Outside AI Regulatory Sandboxes",
+                    []
+                ],
+                [
+                    "https://artificialintelligenceact.eu/article/61/",
+                    "Article 61: Informed consent to participate in testing in real world conditions outside AI regulatory sandboxes",
+                    []
+                ],
+                [
+                    "https://artificialintelligenceact.eu/article/62/",
+                    "Article 62: Measures for Providers and Deployers, in Particular SMEs, Including Start-Ups",
+                    []
+                ],
+                [
+                    "https://artificialintelligenceact.eu/article/63/",
+                    "Article 63: Derogations for specific operators",
+                    []
+                ]
+            ]
+        ],
+        [
+            "https://artificialintelligenceact.eu/aia-title/7/",
+            "Chapter VII:\nGovernance",
+            [
+                [
+                    "https://artificialintelligenceact.eu/chapter/7-1/",
+                    "Section 1: Governance at Union Level",
+                    [
+                        [
+                            "https://artificialintelligenceact.eu/article/64/",
+                            "Article 64: AI Office",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/65/",
+                            "Article 65: Establishment and Structure of the European Artificial Intelligence Board",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/66/",
+                            "Article 66: Tasks of the Board",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/67/",
+                            "Article 67: Advisory Forum",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/68/",
+                            "Article 68: Scientific Panel of Independent Experts",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/69/",
+                            "Article 69: Access to the Pool of Experts by the Member States",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/70/",
+                            "Article 70: Designation of National Competent Authorities and Single Point of Contact",
+                            []
+                        ]
+                    ]
+                ],
+                [
+                    "https://artificialintelligenceact.eu/chapter/7-2/",
+                    "Section 2: National Competent Authorities",
+                    [
+                        [
+                            "https://artificialintelligenceact.eu/article/64/",
+                            "Article 64: AI Office",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/65/",
+                            "Article 65: Establishment and Structure of the European Artificial Intelligence Board",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/66/",
+                            "Article 66: Tasks of the Board",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/67/",
+                            "Article 67: Advisory Forum",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/68/",
+                            "Article 68: Scientific Panel of Independent Experts",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/69/",
+                            "Article 69: Access to the Pool of Experts by the Member States",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/70/",
+                            "Article 70: Designation of National Competent Authorities and Single Point of Contact",
+                            []
+                        ]
+                    ]
+                ]
+            ]
+        ],
+        [
+            "https://artificialintelligenceact.eu/aia-title/8/",
+            "Chapter VIII: EU Database for High-Risk AI Systems",
+            [
+                [
+                    "https://artificialintelligenceact.eu/article/71/",
+                    "Article 71: EU Database for High-Risk AI Systems Listed in Annex III",
+                    []
+                ]
+            ]
+        ],
+        [
+            "https://artificialintelligenceact.eu/aia-title/9/",
+            "Chapter IX:\nPost-Market Monitoring, Information Sharing, Market Surveillance",
+            [
+                [
+                    "https://artificialintelligenceact.eu/chapter/9-1/",
+                    "Section 1: Post-Market Monitoring",
+                    [
+                        [
+                            "https://artificialintelligenceact.eu/article/72/",
+                            "Article 72: Post-Market Monitoring by Providers and Post-Market Monitoring Plan for High-Risk AI Systems",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/73/",
+                            "Article 73: Reporting of Serious Incidents",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/74/",
+                            "Article 74: Market Surveillance and Control of AI Systems in the Union Market",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/75/",
+                            "Article 75: Mutual Assistance, Market Surveillance and Control of General Purpose AI Systems",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/76/",
+                            "Article 76: Supervision of Testing in Real World Conditions by Market Surveillance Authorities",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/77/",
+                            "Article 77: Powers of Authorities Protecting Fundamental Rights",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/78/",
+                            "Article 78: Confidentiality",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/79/",
+                            "Article 79: Procedure for Dealing with AI Systems Presenting a Risk at National Level",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/80/",
+                            "Article 80: Procedure for Dealing with AI Systems Classified by the Provider as a Not High-Risk in Application of Annex III",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/81/",
+                            "Article 81: Union Safeguard Procedure",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/82/",
+                            "Article 82: Compliant AI Systems Which Present a Risk",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/83/",
+                            "Article 83: Formal Non-Compliance",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/84/",
+                            "Article 84: Union AI Testing Support Structures",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/85/",
+                            "Article 85: Right to Lodge a Complaint with a Market Surveillance Authority",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/86/",
+                            "Article 86: A Right to Explanation of Individual Decision-Making",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/87/",
+                            "Article 87: Reporting of Breaches and Protection of Reporting Persons",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/88/",
+                            "Article 88: Enforcement of Obligations on Providers of General Purpose AI Models",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/89/",
+                            "Article 89 : Monitoring Actions",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/90/",
+                            "Article 90: Alerts of Systemic Risks by the Scientific Panel",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/91/",
+                            "Article 91: Power to Request Documentation and Information",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/92/",
+                            "Article 92: Power to Conduct Evaluations",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/93/",
+                            "Article 93: Power to Request Measures",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/94/",
+                            "Article 94: Procedural Rights of Economic Operators of the General Purpose AI Model",
+                            []
+                        ]
+                    ]
+                ],
+                [
+                    "https://artificialintelligenceact.eu/chapter/9-2/",
+                    "Section 2: Sharing of Information on Serious Incidents",
+                    [
+                        [
+                            "https://artificialintelligenceact.eu/article/72/",
+                            "Article 72: Post-Market Monitoring by Providers and Post-Market Monitoring Plan for High-Risk AI Systems",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/73/",
+                            "Article 73: Reporting of Serious Incidents",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/74/",
+                            "Article 74: Market Surveillance and Control of AI Systems in the Union Market",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/75/",
+                            "Article 75: Mutual Assistance, Market Surveillance and Control of General Purpose AI Systems",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/76/",
+                            "Article 76: Supervision of Testing in Real World Conditions by Market Surveillance Authorities",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/77/",
+                            "Article 77: Powers of Authorities Protecting Fundamental Rights",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/78/",
+                            "Article 78: Confidentiality",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/79/",
+                            "Article 79: Procedure for Dealing with AI Systems Presenting a Risk at National Level",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/80/",
+                            "Article 80: Procedure for Dealing with AI Systems Classified by the Provider as a Not High-Risk in Application of Annex III",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/81/",
+                            "Article 81: Union Safeguard Procedure",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/82/",
+                            "Article 82: Compliant AI Systems Which Present a Risk",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/83/",
+                            "Article 83: Formal Non-Compliance",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/84/",
+                            "Article 84: Union AI Testing Support Structures",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/85/",
+                            "Article 85: Right to Lodge a Complaint with a Market Surveillance Authority",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/86/",
+                            "Article 86: A Right to Explanation of Individual Decision-Making",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/87/",
+                            "Article 87: Reporting of Breaches and Protection of Reporting Persons",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/88/",
+                            "Article 88: Enforcement of Obligations on Providers of General Purpose AI Models",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/89/",
+                            "Article 89 : Monitoring Actions",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/90/",
+                            "Article 90: Alerts of Systemic Risks by the Scientific Panel",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/91/",
+                            "Article 91: Power to Request Documentation and Information",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/92/",
+                            "Article 92: Power to Conduct Evaluations",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/93/",
+                            "Article 93: Power to Request Measures",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/94/",
+                            "Article 94: Procedural Rights of Economic Operators of the General Purpose AI Model",
+                            []
+                        ]
+                    ]
+                ],
+                [
+                    "https://artificialintelligenceact.eu/chapter/9-3/",
+                    "Section 3: Enforcement",
+                    [
+                        [
+                            "https://artificialintelligenceact.eu/article/72/",
+                            "Article 72: Post-Market Monitoring by Providers and Post-Market Monitoring Plan for High-Risk AI Systems",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/73/",
+                            "Article 73: Reporting of Serious Incidents",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/74/",
+                            "Article 74: Market Surveillance and Control of AI Systems in the Union Market",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/75/",
+                            "Article 75: Mutual Assistance, Market Surveillance and Control of General Purpose AI Systems",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/76/",
+                            "Article 76: Supervision of Testing in Real World Conditions by Market Surveillance Authorities",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/77/",
+                            "Article 77: Powers of Authorities Protecting Fundamental Rights",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/78/",
+                            "Article 78: Confidentiality",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/79/",
+                            "Article 79: Procedure for Dealing with AI Systems Presenting a Risk at National Level",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/80/",
+                            "Article 80: Procedure for Dealing with AI Systems Classified by the Provider as a Not High-Risk in Application of Annex III",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/81/",
+                            "Article 81: Union Safeguard Procedure",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/82/",
+                            "Article 82: Compliant AI Systems Which Present a Risk",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/83/",
+                            "Article 83: Formal Non-Compliance",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/84/",
+                            "Article 84: Union AI Testing Support Structures",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/85/",
+                            "Article 85: Right to Lodge a Complaint with a Market Surveillance Authority",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/86/",
+                            "Article 86: A Right to Explanation of Individual Decision-Making",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/87/",
+                            "Article 87: Reporting of Breaches and Protection of Reporting Persons",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/88/",
+                            "Article 88: Enforcement of Obligations on Providers of General Purpose AI Models",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/89/",
+                            "Article 89 : Monitoring Actions",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/90/",
+                            "Article 90: Alerts of Systemic Risks by the Scientific Panel",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/91/",
+                            "Article 91: Power to Request Documentation and Information",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/92/",
+                            "Article 92: Power to Conduct Evaluations",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/93/",
+                            "Article 93: Power to Request Measures",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/94/",
+                            "Article 94: Procedural Rights of Economic Operators of the General Purpose AI Model",
+                            []
+                        ]
+                    ]
+                ],
+                [
+                    "https://artificialintelligenceact.eu/chapter/9-4/",
+                    "Section 4: Remedies",
+                    [
+                        [
+                            "https://artificialintelligenceact.eu/article/72/",
+                            "Article 72: Post-Market Monitoring by Providers and Post-Market Monitoring Plan for High-Risk AI Systems",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/73/",
+                            "Article 73: Reporting of Serious Incidents",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/74/",
+                            "Article 74: Market Surveillance and Control of AI Systems in the Union Market",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/75/",
+                            "Article 75: Mutual Assistance, Market Surveillance and Control of General Purpose AI Systems",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/76/",
+                            "Article 76: Supervision of Testing in Real World Conditions by Market Surveillance Authorities",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/77/",
+                            "Article 77: Powers of Authorities Protecting Fundamental Rights",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/78/",
+                            "Article 78: Confidentiality",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/79/",
+                            "Article 79: Procedure for Dealing with AI Systems Presenting a Risk at National Level",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/80/",
+                            "Article 80: Procedure for Dealing with AI Systems Classified by the Provider as a Not High-Risk in Application of Annex III",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/81/",
+                            "Article 81: Union Safeguard Procedure",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/82/",
+                            "Article 82: Compliant AI Systems Which Present a Risk",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/83/",
+                            "Article 83: Formal Non-Compliance",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/84/",
+                            "Article 84: Union AI Testing Support Structures",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/85/",
+                            "Article 85: Right to Lodge a Complaint with a Market Surveillance Authority",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/86/",
+                            "Article 86: A Right to Explanation of Individual Decision-Making",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/87/",
+                            "Article 87: Reporting of Breaches and Protection of Reporting Persons",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/88/",
+                            "Article 88: Enforcement of Obligations on Providers of General Purpose AI Models",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/89/",
+                            "Article 89 : Monitoring Actions",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/90/",
+                            "Article 90: Alerts of Systemic Risks by the Scientific Panel",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/91/",
+                            "Article 91: Power to Request Documentation and Information",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/92/",
+                            "Article 92: Power to Conduct Evaluations",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/93/",
+                            "Article 93: Power to Request Measures",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/94/",
+                            "Article 94: Procedural Rights of Economic Operators of the General Purpose AI Model",
+                            []
+                        ]
+                    ]
+                ],
+                [
+                    "https://artificialintelligenceact.eu/chapter/9-5/",
+                    "Section 5: Supervision, Investigation, Enforcement and Monitoring in Respect of Providers of General Purpose AI Models",
+                    [
+                        [
+                            "https://artificialintelligenceact.eu/article/72/",
+                            "Article 72: Post-Market Monitoring by Providers and Post-Market Monitoring Plan for High-Risk AI Systems",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/73/",
+                            "Article 73: Reporting of Serious Incidents",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/74/",
+                            "Article 74: Market Surveillance and Control of AI Systems in the Union Market",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/75/",
+                            "Article 75: Mutual Assistance, Market Surveillance and Control of General Purpose AI Systems",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/76/",
+                            "Article 76: Supervision of Testing in Real World Conditions by Market Surveillance Authorities",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/77/",
+                            "Article 77: Powers of Authorities Protecting Fundamental Rights",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/78/",
+                            "Article 78: Confidentiality",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/79/",
+                            "Article 79: Procedure for Dealing with AI Systems Presenting a Risk at National Level",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/80/",
+                            "Article 80: Procedure for Dealing with AI Systems Classified by the Provider as a Not High-Risk in Application of Annex III",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/81/",
+                            "Article 81: Union Safeguard Procedure",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/82/",
+                            "Article 82: Compliant AI Systems Which Present a Risk",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/83/",
+                            "Article 83: Formal Non-Compliance",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/84/",
+                            "Article 84: Union AI Testing Support Structures",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/85/",
+                            "Article 85: Right to Lodge a Complaint with a Market Surveillance Authority",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/86/",
+                            "Article 86: A Right to Explanation of Individual Decision-Making",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/87/",
+                            "Article 87: Reporting of Breaches and Protection of Reporting Persons",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/88/",
+                            "Article 88: Enforcement of Obligations on Providers of General Purpose AI Models",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/89/",
+                            "Article 89 : Monitoring Actions",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/90/",
+                            "Article 90: Alerts of Systemic Risks by the Scientific Panel",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/91/",
+                            "Article 91: Power to Request Documentation and Information",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/92/",
+                            "Article 92: Power to Conduct Evaluations",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/93/",
+                            "Article 93: Power to Request Measures",
+                            []
+                        ],
+                        [
+                            "https://artificialintelligenceact.eu/article/94/",
+                            "Article 94: Procedural Rights of Economic Operators of the General Purpose AI Model",
+                            []
+                        ]
+                    ]
+                ]
+            ]
+        ],
+        [
+            "https://artificialintelligenceact.eu/aia-title/10/",
+            "Chapter X: Codes of Conduct and Guidelines",
+            [
+                [
+                    "https://artificialintelligenceact.eu/article/95/",
+                    "Article 95: Codes of Conduct for Voluntary Application of Specific Requirements",
+                    []
+                ],
+                [
+                    "https://artificialintelligenceact.eu/article/96/",
+                    "Article 96: Guidelines from the Commission on the Implementation of this Regulation",
+                    []
+                ]
+            ]
+        ],
+        [
+            "https://artificialintelligenceact.eu/aia-title/11/",
+            "Chapter XI:\nDelegation of Power and Committee Procedure",
+            [
+                [
+                    "https://artificialintelligenceact.eu/article/97/",
+                    "Article 97: Exercise of the Delegation",
+                    []
+                ],
+                [
+                    "https://artificialintelligenceact.eu/article/98/",
+                    "Article 98: Committee Procedure",
+                    []
+                ]
+            ]
+        ],
+        [
+            "https://artificialintelligenceact.eu/aia-title/12/",
+            "Chapter XII:\nConfidentiality and Penalties",
+            [
+                [
+                    "https://artificialintelligenceact.eu/article/99/",
+                    "Article 99: Penalties",
+                    []
+                ],
+                [
+                    "https://artificialintelligenceact.eu/article/100/",
+                    "Article 100: Administrative Fines on Union Institutions, Agencies and Bodies",
+                    []
+                ],
+                [
+                    "https://artificialintelligenceact.eu/article/101/",
+                    "Article 101: Fines for Providers of General Purpose AI Models",
+                    []
+                ]
+            ]
+        ],
+        [
+            "https://artificialintelligenceact.eu/aia-title/13/",
+            "Chapter XIII:\nFinal Provisions",
+            [
+                [
+                    "https://artificialintelligenceact.eu/article/102/",
+                    "Article 102: Amendment to Regulation (EC) No 300/2008",
+                    []
+                ],
+                [
+                    "https://artificialintelligenceact.eu/article/103/",
+                    "Article 103: Amendment to Regulation (EU) No 167/2013",
+                    []
+                ],
+                [
+                    "https://artificialintelligenceact.eu/article/104/",
+                    "Article 104: Amendment to Regulation (EU) No 168/2013",
+                    []
+                ],
+                [
+                    "https://artificialintelligenceact.eu/article/105/",
+                    "Article 105: Amendment to Directive 2014/90/EU",
+                    []
+                ]
+            ]
+        ]
+    ],
+    "annexes": [
+        [
+            "https://artificialintelligenceact.eu/annex/1/",
+            "Annex I: List of Union Harmonisation Legislation"
+        ],
+        [
+            "https://artificialintelligenceact.eu/annex/2/",
+            "Annex II: List of Criminal Offences Referred to in Article 5 (1)(iii)"
+        ],
+        [
+            "https://artificialintelligenceact.eu/annex/3/",
+            "Annex III: High-Risk AI Systems Referred to in Article 6(2)"
+        ],
+        [
+            "https://artificialintelligenceact.eu/annex/4/",
+            "Annex IV: Technical Documentation Referred to in Article 11(1)"
+        ],
+        [
+            "https://artificialintelligenceact.eu/annex/5/",
+            "Annex V: EU Declaration of Conformity"
+        ],
+        [
+            "https://artificialintelligenceact.eu/annex/6/",
+            "Annex VI: Conformity Assessment Procedure Based on Internal Control"
+        ],
+        [
+            "https://artificialintelligenceact.eu/annex/7/",
+            "Annex VII: Conformity Based on Assessment of Quality Management System and Assessment of Technical Documentation"
+        ],
+        [
+            "https://artificialintelligenceact.eu/annex/8/",
+            "Annex VIII: Information to be Submitted upon the Registration of High-Risk AI Systems in Accordance with Article 51"
+        ],
+        [
+            "https://artificialintelligenceact.eu/annex/9/",
+            "Annex IX: Information to be Submitted upon the Registration of High-Risk AI Systems Listed in Annex III in Relation to Testing in Real World Conditions in Accordance with Article 54a"
+        ],
+        [
+            "https://artificialintelligenceact.eu/annex/10/",
+            "Annex X: Union Legislation on Large-Scale IT Systems in the Area of Freedom, Security and Justice"
+        ],
+        [
+            "https://artificialintelligenceact.eu/annex/11/",
+            "Annex XI: Technical Documentation Referred to in Article 52c(1a)"
+        ],
+        [
+            "https://artificialintelligenceact.eu/annex/12/",
+            "Annex XII: Transparency Information Referred to in Article C(1b)"
+        ],
+        [
+            "https://artificialintelligenceact.eu/annex/13/",
+            "Annex XIII: Criteria for the designation of general purpose AI models with systemic risk referred to in Article 52a"
+        ]
+    ]
+}

@@ -1,6 +1,9 @@
 from answerbot.llm import LLM
 from answerbot.aiact import AiActReactor, format_results
+from dotenv import load_dotenv
 
+# load OpenAI api key
+load_dotenv()
 
 
 if __name__ == '__main__':

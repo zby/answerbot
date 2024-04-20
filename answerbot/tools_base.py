@@ -1,24 +1,8 @@
-from llm_easy_tools import extraction_model
+from llm_easy_tools import llm_function
 from pydantic import BaseModel, Field
 
 
-class SearchQuery(BaseModel):
-    query: str = Field(description='The query to search for')
-
-
-class Lookup(BaseModel):
-    keyword: str = Field(description='The keyword to search for')
-
-
-class URL(BaseModel):
-    url: str = Field(description="The url to go to")
-
-
-class NoArgs(BaseModel):
-    pass
-
-
-@extraction_model()
+@llm_function()
 class Finish(BaseModel):
     """
     Finish the task and return the answer.

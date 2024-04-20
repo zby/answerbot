@@ -137,17 +137,14 @@ class LLMReactor:
             if function_call is None:
                 self.reflection_errors.append("No function call")
             else:
-                try:
-                    result = self.toolbox.process_function(function_call, prefix_class=prefix_class)
-                except ValidationError as e:
-                    if prefix_class is not None and self.soft_reflection_validation:
-                        result = self.toolbox.process_function(function_call, prefix_class=prefix_class, ignore_prefix=True)
-                        self.reflection_errors.append(repr(e))
-                    else:
-                        raise e
-                if isinstance(result, Finish):
+
+                result = self.toolbox.process_function(function_call, 'tool id', prefix_class=prefix_class)
+                if result.error is not None and prefix_class is not None and self.soft_reflection_validation:
+                    result = self.toolbox.process_function(function_call, 'tool_id', prefix_class=prefix_class, ignore_prefix=True)
+                    self.reflection_errors.append(result.error)
+                if isinstance(result.model, Finish):
                     #self.are_you_sure()
-                    self.answer = result.normalized_answer()
+                    self.answer = result.model.normalized_answer()
                     self.set_finished()
                     return
             if self.step == self.max_llm_calls:
@@ -161,7 +158,7 @@ class LLMReactor:
                 step_info = f"\n\nThis was {self.step} out of {self.max_llm_calls} calls for data."
 
             if function_call is not None:
-                message = FunctionResult(function_call.name, result + f"\n\n{step_info}")
+                message = FunctionResult(function_call.name, result.output + f"\n\n{step_info}")
             else:
                 message = Assistant("You did not ask for any data this time - but it still counts. " + step_info)
             logger.info(str(message))

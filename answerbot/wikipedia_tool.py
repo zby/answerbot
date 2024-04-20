@@ -11,9 +11,10 @@ from typing import Optional
 from bs4 import BeautifulSoup, NavigableString
 
 from answerbot.document import MarkdownDocument
-from llm_easy_tools import external_function, extraction_model
+from llm_easy_tools import llm_function
+from typing import Annotated
 from urllib.parse import urlparse, urljoin
-from .tools_base import Finish
+from answerbot.tools_base import Finish
 
 MAX_RETRIES = 3
 # BASE_URL = 'https://pl.wikipedia.org/wiki/'
@@ -72,19 +73,16 @@ class WikipediaSearch:
             extra_links = []
         self.extra_links = extra_links
 
-    class Search(BaseModel):
-        query: str = Field(description="The query to search for on Wikipedia")
 
-    @external_function()
-    def search(self, param: Search):
+    @llm_function()
+    def search(self, query: Annotated[str, "The query to search for on Wikipedia"]):
         """
         Searches Wikipedia, saves the first result page, and informs about the content of that page.
         """
         if not self.cached:
-            search_query = param.query
-            search_record = self.wiki_api_search(search_query)
+            search_record = self.wiki_api_search(query)
         else:
-            title = param.query
+            title = query
             chunk_size = self.chunk_size
             search_record = ContentRecord.load_from_disk(title, chunk_size)
         self.document = search_record.document
@@ -223,33 +221,30 @@ class WikipediaSearch:
         url = self.base_url + title
         return self.get_url(url, title)
 
-    class Get(BaseModel):
-        title: str = Field(description="The wikipedia page title")
-#    @external_function()
-    def get(self, param: Get):
+
+#    @llm_function()
+    def get(self, title: Annotated[str, "The wikipedia page title"]):
         """
         Retrieves a Wikipedia page, saves the result, and informs about the content of that page.
         """
 
         if self.cached:
             raise Exception("Cached get not implemented")
-        search_record = self.get_page(param.title)
+        search_record = self.get_page(title)
         self.document = search_record.document
         return self._retrieval_observations(search_record)
 
-    class Lookup(BaseModel):
-        keyword: str = Field(description="The keyword to search")
 
-    @external_function()
-    def lookup(self, param: Lookup):
+    @llm_function()
+    def lookup(self, keyword: Annotated[str, "The keyword to search"] ):
         """
         Looks up a word on the current page.
         """
         if self.document is None:
             observations = "No document defined, cannot lookup"
         else:
-            text = self.document.lookup(param.keyword)
-            observations = 'Keyword "' + param.keyword + '" '
+            text = self.document.lookup(keyword)
+            observations = 'Keyword "' + keyword + '" '
             if text:
                 num_of_results = len(self.document.lookup_results)
                 observations = observations + f"found on current page in {num_of_results} places. The first occurence:\n" + text
@@ -257,11 +252,8 @@ class WikipediaSearch:
                 observations = observations + "not found in current page"
         return observations
 
-    class Next_Lookup(BaseModel):
-        pass
-
-    @external_function('next')
-    def next_lookup(self, param: Next_Lookup):
+    @llm_function('next')
+    def next_lookup(self):
         """
         Jumps to the next occurrence of the word searched previously.
         """
@@ -276,11 +268,9 @@ class WikipediaSearch:
             observations = observations + f"\n{self.document.lookup_position} of {num_of_results} places"
         return observations
 
-    class ReadChunk(BaseModel):
-        pass
 
-    @external_function()
-    def read_chunk(self, param: ReadChunk):
+    @llm_function()
+    def read_chunk(self):
         """
         Reads the next chunk of text from the current location in the current document.
         """
@@ -306,24 +296,22 @@ class WikipediaSearch:
         # Concatenate the base URL with the link address
         return urljoin(self.base_url, link_address)
 
-    class FollowLink(BaseModel):
-        link: str = Field(description="The link to follow")
 
-    @external_function()
-    def follow_link(self, param: FollowLink):
+    @llm_function()
+    def follow_link(self, link: Annotated[str, "The link to follow"]):
         """
         Follows a link from the current page and saves the retrieved page as the next current page
         """
         if self.document is None:
             observations = "No current page, cannot follow "
         else:
-            link_with_spaces_restituted = param.link.replace('_', ' ') # sometimes the LLM tries to replace spaces in links
-            if param.link in self.extra_links:
-                url = param.link
+            link_with_spaces_restituted = link.replace('_', ' ') # sometimes the LLM tries to replace spaces in links
+            if link in self.extra_links:
+                url = link
             if link_with_spaces_restituted in self.extra_links:
-                url = param.link
+                url = link
             else:
-                url = self.document.resolve_link(param.link)
+                url = self.document.resolve_link(link)
             if url is None:
                 observations = "There is not such link on current page"
             else:
@@ -355,10 +343,8 @@ if __name__ == "__main__":
     scraper = WikipediaSearch(chunk_size=800)
 
     query='Kansas Jayhawks fight song'
-    searchparam = WikipediaSearch.Search(query=query)
-    print(scraper.search(searchparam))
-    linkparam = WikipediaSearch.FollowLink(link='Rock Chalk,_Jayhawk')
-    print(scraper.follow_link(linkparam))
+    print(scraper.search(query))
+    print(scraper.follow_link('Rock Chalk,_Jayhawk'))
     exit()
 
 #    title = 'Eileen Heckart'

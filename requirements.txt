@@ -19,6 +19,6 @@ pytest==8.1.1
 docutils~=0.20.1
 sphinx~=7.2.6
 
-LLMEasyTools~=0.5
+LLMEasyTools~=0.7
 mistune==3.0.2
 tenacity==8.2.3

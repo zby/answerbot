@@ -1,5 +1,5 @@
 from unittest.mock import patch
-from answerbot.aae_tool import AAESearch, SearchQuery, URL, Lookup, NoArgs
+from answerbot.aae_tool import AAESearch
 
 class MockHttpResponse:
     def __init__(self, text, status_code):
@@ -17,7 +17,7 @@ def test_search(mock_get):
         contents = f.read()
     mock_get.return_value = MockHttpResponse(contents, status_code=200)
     tool = AAESearch()
-    result = tool.search_aae(SearchQuery(query='risk-based approach'))
+    result = tool.search_aae(query='risk-based approach')
     assert len(result) == 844
 
 
@@ -25,7 +25,7 @@ def test_search(mock_get):
 def test_search_404(mock_get):
     mock_get.return_value = MockHttpResponse('', status_code=404)
     tool = AAESearch()
-    result = tool.search_aae(SearchQuery(query='risk-based approach'))
+    result = tool.search_aae(query='risk-based approach')
     assert result == 'page not found'
 
 
@@ -35,8 +35,8 @@ def test_lookup(mock_get):
         contents = f.read()
     mock_get.return_value = MockHttpResponse(contents, status_code=200)
     tool = AAESearch()
-    tool.goto_url(URL(url='https://'))
-    result = tool.lookup(Lookup(keyword='Member States'))
+    tool.goto_url(url='https://')
+    result = tool.lookup(keyword='Member States')
     assert 'To ensure a legal framework that promotes innovation' in result
 
 
@@ -46,9 +46,9 @@ def test_lookup_next(mock_get):
         contents = f.read()
     mock_get.return_value = MockHttpResponse(contents, status_code=200)
     tool = AAESearch()
-    tool.goto_url(URL(url='https://'))
-    result = tool.lookup(Lookup(keyword='Member States'))
-    result = tool.lookup_next(NoArgs())
+    tool.goto_url(url='https://')
+    result = tool.lookup(keyword='Member States')
+    result = tool.lookup_next()
     assert 'Member States could also fulfill this obligation through participating in already existing regulatory sandboxes' in result
 
 

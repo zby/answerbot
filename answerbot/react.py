@@ -70,7 +70,6 @@ class LLMReactor:
             args['tool_choice'] = "auto"
             args['tools'] = tool_schemas
 
-
         completion = self.client.chat.completions.create( **args )
         return completion
 
@@ -78,9 +77,9 @@ class LLMReactor:
         self.finished = True
 
     def message_from_response(self, response, choice_num=0, tool_num=0):
-        if response.choices[choice_num].message.function_call:
-            function_call = response.choices[choice_num].message.function_call
-        elif response.choices[choice_num].message.tool_calls:
+        #if response.choices[choice_num].message.function_call:
+        #    function_call = response.choices[choice_num].message.function_call
+        if response.choices[choice_num].message.tool_calls:
             function_call = response.choices[choice_num].message.tool_calls[tool_num].function
         else:
             function_call = None
@@ -192,7 +191,7 @@ def get_answer_wiki(question, config, client=None):
     if 'message' in reflection:
         reflection_message = reflection['message']
     reflection_detached = reflection.get('detached', False)
-    prompt = prompt_class(question, config['max_llm_calls'], reflection_class)
+    prompt = prompt_class(question, config['max_llm_calls'], reflection_class, reflection_detached)
     reactor = LLMReactor(config['model'], toolbox, prompt, config['max_llm_calls'], reflection_class=reflection_class, reflection_message=reflection_message, client=client, reflection_detached=reflection_detached)
     reactor.analyze_question(QUESTION_CHECKS[config['question_check']])
     reactor.process_prompt()

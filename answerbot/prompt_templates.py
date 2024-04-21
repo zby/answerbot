@@ -39,8 +39,8 @@ Always try to answer the question even if it is ambiguous, just note the necessa
 
 
 class NoExamplesReactPrompt(FunctionalPrompt):
-    def __init__(self, question, max_llm_calls, reflection_class):
-        if reflection_class is not None:
+    def __init__(self, question, max_llm_calls, reflection_class, reflection_detached):
+        if not reflection_detached and reflection_class is not None:
             prefix = reflection_class.__name__.lower() + "_and_"
         else:
             prefix = ''

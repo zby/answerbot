@@ -1,5 +1,3 @@
-import httpx
-import openai
 import json
 import time
 import logging
@@ -22,9 +20,6 @@ logging.basicConfig(level=logging.INFO)
 # Get a logger for the current module
 logger = logging.getLogger(__name__)
 
-# load OpenAI api key
-load_dotenv()
-
 class LLMReactor:
     def __init__(self, model: str, toolbox: ToolBox,
                  prompt: FunctionalPrompt,
@@ -37,9 +32,6 @@ class LLMReactor:
         self.toolbox = toolbox
         self.prompt = prompt
         self.max_llm_calls = max_llm_calls
-        if client is None:
-            client = openai.OpenAI(timeout=httpx.Timeout(70.0, read=60.0, write=20.0, connect=6.0))
-
         self.client = client
         self.soft_reflection_validation = soft_reflection_validation
         self.reflection_class = reflection_class

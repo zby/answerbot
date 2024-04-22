@@ -1,20 +1,9 @@
 from string import Template
 from pydantic import BaseModel, Field
 
-from .prompt_builder import FunctionalPrompt, System, User
 
-
-class Question(User):
-    def plaintext(self) -> str:
-        return '\nQuestion: ' + self.content
-    def openai_message(self) -> dict:
-        return { "role": "user", "content": 'Question: ' + self.content }
-
-
-class AAEPrompt(FunctionalPrompt):
-    def __init__(self, question: str, max_llm_calls: int, reflection_class):
-        prefix = f'{reflection_class.__name__.lower()}_and_' if reflection_class else ''
-        system_prompt = f'''
+def aae_sys_prompt(max_llm_calls, prefix=None):
+        return f'''
 You are to take a role of a specialist in the new 
 EU artificial intelligence act. Please answer the 
 following question. You can use a EU artificial intelligence
@@ -34,17 +23,11 @@ The pages are formatted in Markdown.
 When you know the answer call {prefix}finish. Please make the answer as short as possible. If it can be answered with yes or no that is best.
 Remove all explanations from the answer and put them into the reasoning field.
 Always try to answer the question even if it is ambiguous, just note the necessary assumptions.
-        '''
-        super().__init__([ System(system_prompt), Question(question) ])
+'''
 
 
-class NoExamplesReactPrompt(FunctionalPrompt):
-    def __init__(self, question, max_llm_calls, reflection_class, reflection_detached):
-        if not reflection_detached and reflection_class is not None:
-            prefix = reflection_class.__name__.lower() + "_and_"
-        else:
-            prefix = ''
-        system_prompt = \
+def zero_shot_prompt(max_llm_calls, prefix=None):
+      return\
 f"""
 Please answer the following question. You can use wikipedia for reference - but think carefully about what pages exist at wikipedia.
 You have only {max_llm_calls - 1} calls to the wikipedia API.
@@ -66,12 +49,10 @@ When you know the answer call {prefix}finish. Please make the answer as short as
 Remove all explanations from the answer and put them into the reasoning field.
 Always try to answer the question even if it is ambiguous, just note the necessary assumptions.
 """
-        #question_analysis =  "Think about ways in which the question might be ambiguous. How could it be made more precise? Can you guess the answer without consulting wikipedia? Think step by step."
-        super().__init__([ System(system_prompt), Question(question) ])
 
 PROMPTS = {
-    'NERP': NoExamplesReactPrompt,
-    'AAE': AAEPrompt,
+    'NERP': zero_shot_prompt,
+    'AAE': aae_sys_prompt,
 }
 
 QUESTION_CHECKS = {

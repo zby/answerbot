@@ -4,10 +4,8 @@ import openai
 
 from pprint import pformat, pprint
 from dotenv import load_dotenv
-from answerbot.formatter import format_markdown
+#from answerbot.formatter import format_markdown
 
-from answerbot.prompt_builder import System
-from answerbot.prompt_templates import NoExamplesReactPrompt, Reflection, ShortReflection, QUESTION_CHECKS
 from answerbot.react import get_answer_wiki
 
 from answerbot.wikipedia_tool import WikipediaSearch
@@ -68,6 +66,6 @@ if __name__ == "__main__":
     }
 
     reactor = get_answer_wiki(question, config, client)
-    print(pformat(reactor.prompt.to_messages()))
+    print(pformat(reactor.conversation))
     pprint(reactor.reflection_errors)
-    print(format_markdown(reactor.prompt))
+#    print(format_markdown(reactor.conversation))

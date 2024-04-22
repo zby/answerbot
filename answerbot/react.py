@@ -3,13 +3,11 @@ import time
 import logging
 import copy
 from pydantic import BaseModel, Field, field_validator, ValidationError
-from typing import Literal, Union
+from typing import Literal, Union, List, Dict
 from pprint import pprint
 
-from dotenv import load_dotenv
 
-from .prompt_builder import FunctionalPrompt, PromptMessage, Assistant, System, User, FunctionCall, FunctionResult
-from .prompt_templates import QUESTION_CHECKS, PROMPTS, REFLECTIONS, AAEPrompt
+from .prompt_templates import QUESTION_CHECKS, PROMPTS, REFLECTIONS 
 from .tools_base import Finish
 
 from llm_easy_tools import ToolBox
@@ -22,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 class LLMReactor:
     def __init__(self, model: str, toolbox: ToolBox,
-                 prompt: FunctionalPrompt,
+                 conversation,
                  max_llm_calls: int, client,
                  reflection_class, reflection_message: str,
                  soft_reflection_validation=True,
@@ -30,7 +28,7 @@ class LLMReactor:
                  ):
         self.model = model
         self.toolbox = toolbox
-        self.prompt = prompt
+        self.conversation = conversation
         self.max_llm_calls = max_llm_calls
         self.client = client
         self.soft_reflection_validation = soft_reflection_validation
@@ -51,7 +49,7 @@ class LLMReactor:
     def openai_query(self, tool_schemas, force_auto_tool_choice=False):
         args = {
             'model': self.model,
-            'messages': self.prompt.to_messages()
+            'messages': self.conversation
         }
         if len(tool_schemas) == 0:
             pass
@@ -68,33 +66,18 @@ class LLMReactor:
     def set_finished(self):
         self.finished = True
 
-    def message_from_response(self, response, choice_num=0, tool_num=0):
-        #if response.choices[choice_num].message.function_call:
-        #    function_call = response.choices[choice_num].message.function_call
-        if response.choices[choice_num].message.tool_calls:
-            function_call = response.choices[choice_num].message.tool_calls[tool_num].function
-        else:
-            function_call = None
-        if function_call:
-            print(function_call.arguments)
-            function_args = json.loads(
-                    function_call.arguments
-                    .replace(', }', '}')
-                    .replace(',}','}')
-                    )
-            message = FunctionCall(function_call.name, **function_args)
-        else:
-            message = Assistant(response.choices[choice_num].message.content)
-        return message, function_call
+    def message_from_response(self, response, choice_num=0):
+        return response.choices[choice_num].message
+
 
     def get_reflection(self):
-        message = User(self.reflection_message)
+        message = { 'role': 'user', 'content': self.reflection_message }
         logger.info(str(message))
-        self.prompt.push(message)
+        self.conversation.append(message)
         response = self.openai_query([])
 
-        message, _ = self.message_from_response(response)
-        self.prompt.push(message)
+        message = self.message_from_response(response)
+        self.conversation.append(message)
         logger.info(str(message))
 
     def process_prompt(self):
@@ -112,9 +95,19 @@ class LLMReactor:
                 schema = self.toolbox.get_tool_schema(self.reflection_class.__name__)
                 schemas = [schema]
                 response = self.openai_query(schemas)
-                message, _ = self.message_from_response(response)
+                message = self.message_from_response(response)
                 logger.info(str(message))                
-                self.prompt.push(message)
+                self.conversation.append(message)
+                reflection_results = self.toolbox.process_response(response)
+                if len(reflection_results) == 0:
+                    self.reflection_errors.append("No function call")
+                elif len(reflection_results) > 1:
+                    self.reflection_errors.append("Multiple function calls")
+                else:
+                    reflection_result = reflection_results[0]
+                    message = reflection_result.to_message()
+                    logger.info(str(message))
+                    self.conversation.append(message)
 
             if self.step == self.max_llm_calls:
                 schemas = [self.toolbox.get_tool_schema('Finish', prefix_class)]  # Finish is registered
@@ -122,22 +115,27 @@ class LLMReactor:
                 schemas = self.toolbox.tool_schemas(prefix_class=prefix_class)
             #pprint(schemas)
             response = self.openai_query(schemas)
-            message, function_call = self.message_from_response(response)
+            message = self.message_from_response(response)
             logger.info(str(message))
-            self.prompt.push(message)
-            if function_call is None:
+            self.conversation.append(message)
+            results = self.toolbox.process_response(response, prefix_class=prefix_class)
+            if len(results) == 0:
                 self.reflection_errors.append("No function call")
+            elif len(results) > 1:
+                self.reflection_errors.append("Multiple function calls")
             else:
-
-                result = self.toolbox.process_function(function_call, 'tool id', prefix_class=prefix_class)
-                if result.error is not None and prefix_class is not None and self.soft_reflection_validation:
-                    result = self.toolbox.process_function(function_call, 'tool_id', prefix_class=prefix_class, ignore_prefix=True)
+                result = results[0]
+                if result.error is not None:
                     self.reflection_errors.append(result.error)
-                if isinstance(result.model, Finish):
+                    if prefix_class is not None and self.soft_reflection_validation:
+                        results = self.toolbox.process_response(response, prefix_class=prefix_class, ignore_prefix=True)
+                        result = results[0]
+                if result.name == 'Finish':
                     #self.are_you_sure()
                     self.answer = result.model.normalized_answer()
                     self.set_finished()
                     return
+                message = result.to_message()
             if self.step == self.max_llm_calls:
                 self.set_finished()
                 logger.info("<<< Max LLM calls reached without finishing")
@@ -148,24 +146,24 @@ class LLMReactor:
             else:
                 step_info = f"\n\nThis was {self.step} out of {self.max_llm_calls} calls for data."
 
-            if function_call is not None:
-                message = FunctionResult(function_call.name, result.output + f"\n\n{step_info}")
+            if len(results) == 0:
+                message = { 'role': 'assistant', 'content': f"You did not ask for any data this time - but it still counts.\n\n{step_info}" }
             else:
-                message = Assistant("You did not ask for any data this time - but it still counts. " + step_info)
+                message['content'] += f"\n\n{step_info}"
             logger.info(str(message))
-            self.prompt.push(message)
+            self.conversation.append(message)
 #            if 'gpt-4' in self.model:
 #                time.sleep(20)
 
 
     def analyze_question(self, queries):
         for query in queries:
-            question_check = User(query)
+            question_check = { 'role': 'user', 'content': query }
             logger.info(str(question_check))
-            self.prompt.push(question_check)
+            self.conversation.append(question_check)
             response = self.openai_query([])
-            message, _ = self.message_from_response(response)
-            self.prompt.push(message)
+            message = self.message_from_response(response)
+            self.conversation.append(message)
             logger.info(str(message))
 
 def get_answer_wiki(question, config, client=None):
@@ -174,7 +172,7 @@ def get_answer_wiki(question, config, client=None):
     tool = tool_class(chunk_size=config['chunk_size'])
     toolbox = ToolBox()
     toolbox.register_toolset(tool)
-    prompt_class = PROMPTS[config['prompt_class']]
+    sys_prompt = PROMPTS[config['prompt_class']]
     reflection = REFLECTIONS[config['reflection']]
     reflection_class = None
     if 'class' in reflection:
@@ -183,8 +181,15 @@ def get_answer_wiki(question, config, client=None):
     if 'message' in reflection:
         reflection_message = reflection['message']
     reflection_detached = reflection.get('detached', False)
-    prompt = prompt_class(question, config['max_llm_calls'], reflection_class, reflection_detached)
-    reactor = LLMReactor(config['model'], toolbox, prompt, config['max_llm_calls'], reflection_class=reflection_class, reflection_message=reflection_message, client=client, reflection_detached=reflection_detached)
+    if reflection_class and not reflection_detached:
+        prefix = f'{reflection_class.__name__.lower()}_and_'
+    else:
+        prefix = ''
+    initial_conversation = [
+        { 'role': 'system', 'content': sys_prompt(config['max_llm_calls'], prefix) },
+        { 'role': 'user', 'content': question }
+    ]
+    reactor = LLMReactor(config['model'], toolbox, initial_conversation, config['max_llm_calls'], reflection_class=reflection_class, reflection_message=reflection_message, client=client, reflection_detached=reflection_detached)
     reactor.analyze_question(QUESTION_CHECKS[config['question_check']])
     reactor.process_prompt()
     return reactor

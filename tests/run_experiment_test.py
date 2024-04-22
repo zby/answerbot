@@ -4,7 +4,6 @@ import os
 import shutil
 
 from scripts.run_experiment import perform_experiments
-from answerbot.prompt_builder import FunctionalPrompt
 
 @pytest.fixture(scope="function")
 def setup_and_teardown():
@@ -20,9 +19,9 @@ def test_perform_experiments(mock_get_answer, setup_and_teardown):
     output_dir = setup_and_teardown
 
     # Create a mock prompt and set its to_text return value
-    mock_prompt = FunctionalPrompt([])
+    mock_prompt = []
     mock_reactor = Mock()
-    mock_reactor.prompt = mock_prompt
+    mock_reactor.conversation = mock_prompt
     mock_reactor.answer = "Mocked Answer"
     mock_reactor.reflection_errors = []
     mock_reactor.steps = 0

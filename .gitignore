@@ -1,6 +1,9 @@
 config.json
+.vscode
 .idea
 logs/*
 tmp/*
 experiments/*
 __pycache__/
+data/OWU/*
+answerbot.egg-info

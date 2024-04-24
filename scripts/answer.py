@@ -45,16 +45,16 @@ if __name__ == "__main__":
     #question = "What is the weight proportion of oxygen in water?"
     #question = "Czy dane kardy kredytowej są danymi osobowymi w Polsce"
     #question = "How much is two plus two"
-    question = "Who is older, Annie Morton or Terry Richardson?"
+    #question = "Who is older, Annie Morton or Terry Richardson?"
 
     #question = "What are the concrete steps proposed to ensure AI safety?"
-    #question = 'What are the steps required to authorize the training of generative AI?'
+    question = 'What are the steps required to authorize the training of generative AI?'
 
 
     config = {
         "chunk_size": 400,
-        "prompt_class": 'NERP',
-        #"prompt_class": 'AAE',
+        #"prompt_class": 'NERP',
+        "prompt_class": 'AAE',
         "max_llm_calls": 4,
         "model": "gpt-3.5-turbo-0613",
         #"model": "gpt-4-1106-preview",
@@ -62,10 +62,11 @@ if __name__ == "__main__":
         #'model': "mixtral-8x7b-32768",
         "question_check": 'category_and_amb',
         'reflection': 'ShortReflectionDetached',
-        'tool': WikipediaSearch,
+        #'tool': WikipediaSearch,
+        'tool': AAESearch,
     }
 
     reactor = get_answer_wiki(question, config, client)
     print(pformat(reactor.conversation))
-    pprint(reactor.reflection_errors)
+    pprint(reactor.soft_errors)
 #    print(format_markdown(reactor.conversation))

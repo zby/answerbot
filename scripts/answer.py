@@ -25,8 +25,8 @@ load_dotenv()
 #from groq import Groq
 #client = Groq()
 
-client = openai.OpenAI(timeout=httpx.Timeout(70.0, read=60.0, write=20.0, connect=6.0))
-#client = ReplayClient('data/conversation.json')
+#client = openai.OpenAI(timeout=httpx.Timeout(70.0, read=60.0, write=20.0, connect=6.0))
+client = ReplayClient('data/conversation.json')
 
 if __name__ == "__main__":
 

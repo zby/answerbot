@@ -18,12 +18,35 @@ logging.basicConfig(level=logging.INFO)
 # Get a logger for the current module
 logger = logging.getLogger(__name__)
 
+class Conversation:
+    def __init__(self, entries = None):
+        self.entries = [] if entries is None else entries
+
+    def add_entry(self, entry):
+        self.entries.append(entry)
+
+    def to_messages(self) -> List[Dict]:
+        """
+        Returns:
+        List[Dict]: A list of dictionaries representing the messages and tool results.
+        """
+        all_messages = []
+        for entry in self.entries:
+            if isinstance(entry, dict):
+                all_messages.append(entry)
+            else:
+                all_messages.append(entry.to_message())
+        return all_messages
+
+
+
+
 class LLMReactor:
     class LLMReactorError(Exception):
         pass
 
     def __init__(self, model: str, toolbox: ToolBox,
-                 conversation,
+                 conversation: Conversation,
                  max_llm_calls: int, client,
                  reflection_class, reflection_message: str,
                  soft_reflection_validation=True,
@@ -54,7 +77,7 @@ class LLMReactor:
     def openai_query(self, tool_schemas, force_auto_tool_choice=False):
         args = {
             'model': self.model,
-            'messages': self.conversation
+            'messages': self.conversation.to_messages()
         }
         if len(tool_schemas) == 0:
             pass
@@ -76,7 +99,7 @@ class LLMReactor:
     def get_reflection(self):
         message = { 'role': 'user', 'content': self.reflection_message }
         logger.info(str(message))
-        self.conversation.append(message)
+        self.conversation.add_entry(message)
         self.query_and_process()
 
 
@@ -87,7 +110,7 @@ class LLMReactor:
             del message['function_call']
         if message['tool_calls'] is None:
             del message['tool_calls']
-        self.conversation.append(message)
+        self.conversation.add_entry(message)
         logger.info(str(message))
         results = self.toolbox.process_response(response)
         for result in results:
@@ -105,13 +128,13 @@ class LLMReactor:
             message = result.to_message()
             message['content'] += additional_info
             logger.info(str(message))
-            self.conversation.append(message)
+            self.conversation.add_entry(message)
         if len(schemas) > 0 and len(results) == 0:
             self.soft_errors.append("No function call")
             if no_tool_calls_message is not None:
                 message = { 'role': 'assistant', 'content': no_tool_calls_message }
                 logger.info(str(message))
-                self.conversation.append(message)
+                self.conversation.add_entry(message)
         return results
 
 
@@ -151,7 +174,7 @@ class LLMReactor:
         for query in self.question_checks:
             question_check = { 'role': 'user', 'content': query }
             logger.info(str(question_check))
-            self.conversation.append(question_check)
+            self.conversation.add_entry(question_check)
             self.query_and_process()
 
 def get_answer(question, config, client=None):
@@ -173,10 +196,10 @@ def get_answer(question, config, client=None):
         prefix = f'{reflection_class.__name__.lower()}_and_'
     else:
         prefix = ''
-    initial_conversation = [
+    initial_conversation = Conversation([
         { 'role': 'system', 'content': sys_prompt(config['max_llm_calls'], prefix) },
         { 'role': 'user', 'content': question }
-    ]
+    ])
     question_checks = QUESTION_CHECKS[config['question_check']] 
     reactor = LLMReactor(
         config['model'], toolbox, initial_conversation, config['max_llm_calls'], reflection_class=reflection_class,

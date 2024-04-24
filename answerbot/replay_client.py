@@ -26,7 +26,7 @@ class ReplayClient:
                 return self.mk_chat(message)
         else:
             if self.original_client is None:
-                raise MessagesExhausted("No more messages in the file and raise_on_empty is set.")
+                raise MessagesExhausted("No more messages in the file and no backup client to delegate to.")
             else:
                 return self._delegate_to_original_client()
 

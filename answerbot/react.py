@@ -28,6 +28,7 @@ class LLMReactor:
                  reflection_class, reflection_message: str,
                  soft_reflection_validation=True,
                  reflection_detached=False,
+                 question_checks=None,
                  ):
         self.model = model
         self.toolbox = toolbox
@@ -37,6 +38,7 @@ class LLMReactor:
         self.soft_reflection_validation = soft_reflection_validation
         self.reflection_class = reflection_class
         self.reflection_message = reflection_message
+        self.question_checks = [] if question_checks is None else question_checks
 
         if self.reflection_message is not None and self.reflection_class is not None:
             raise ValueError("reflection message and class cannot be used simultaneously")
@@ -80,7 +82,11 @@ class LLMReactor:
 
     def query_and_process(self, schemas=[], additional_info='', no_tool_calls_message=None, prefix_class=None):
         response = self.openai_query(schemas)
-        message = response.choices[0].message
+        message = response.choices[0].message.dict()
+        if message['function_call'] is None:
+            del message['function_call']
+        if message['tool_calls'] is None:
+            del message['tool_calls']
         self.conversation.append(message)
         logger.info(str(message))
         results = self.toolbox.process_response(response)
@@ -109,7 +115,8 @@ class LLMReactor:
         return results
 
 
-    def process_prompt(self):
+    def process(self):
+        self.analyze_question()
         while not self.finished:
             self.step += 1
             if self.reflection_message:
@@ -140,14 +147,14 @@ class LLMReactor:
 #                time.sleep(20)
 
 
-    def analyze_question(self, queries):
-        for query in queries:
+    def analyze_question(self):
+        for query in self.question_checks:
             question_check = { 'role': 'user', 'content': query }
             logger.info(str(question_check))
             self.conversation.append(question_check)
             self.query_and_process()
 
-def get_answer_wiki(question, config, client=None):
+def get_answer(question, config, client=None):
     print("\n\n<<< Question:", question)
     tool_class = config['tool']
     tool = tool_class(chunk_size=config['chunk_size'])
@@ -170,10 +177,11 @@ def get_answer_wiki(question, config, client=None):
         { 'role': 'system', 'content': sys_prompt(config['max_llm_calls'], prefix) },
         { 'role': 'user', 'content': question }
     ]
-    reactor = LLMReactor(config['model'], toolbox, initial_conversation, config['max_llm_calls'], reflection_class=reflection_class, reflection_message=reflection_message, client=client, reflection_detached=reflection_detached)
-    reactor.analyze_question(QUESTION_CHECKS[config['question_check']])
-    reactor.process_prompt()
+    question_checks = QUESTION_CHECKS[config['question_check']] 
+    reactor = LLMReactor(
+        config['model'], toolbox, initial_conversation, config['max_llm_calls'], reflection_class=reflection_class,
+        reflection_message=reflection_message, client=client, reflection_detached=reflection_detached,
+        question_checks=question_checks
+    )
+    reactor.process()
     return reactor
-
-
-get_answer = get_answer_wiki

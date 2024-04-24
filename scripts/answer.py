@@ -1,15 +1,17 @@
 import logging
 import httpx
 import openai
+import json
 
 from pprint import pformat, pprint
 from dotenv import load_dotenv
 #from answerbot.formatter import format_markdown
 
-from answerbot.react import get_answer_wiki
+from answerbot.react import get_answer
 
 from answerbot.wikipedia_tool import WikipediaSearch
 from answerbot.aae_tool import AAESearch
+from answerbot.replay_client import ReplayClient
 
 # Configure basic logging
 logging.basicConfig(level=logging.INFO)
@@ -24,6 +26,7 @@ load_dotenv()
 #client = Groq()
 
 client = openai.OpenAI(timeout=httpx.Timeout(70.0, read=60.0, write=20.0, connect=6.0))
+#client = ReplayClient('data/conversation.json')
 
 if __name__ == "__main__":
 
@@ -66,7 +69,10 @@ if __name__ == "__main__":
         'tool': AAESearch,
     }
 
-    reactor = get_answer_wiki(question, config, client)
+    reactor = get_answer(question, config, client)
     print(pformat(reactor.conversation))
     pprint(reactor.soft_errors)
+    with open('data/conversation.json', 'w') as file:
+        json.dump(reactor.conversation, file, indent=4)
+
 #    print(format_markdown(reactor.conversation))

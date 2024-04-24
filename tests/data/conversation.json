@@ -1,0 +1,46 @@
+[
+    {
+        "role": "user",
+        "content": "Hello, can you help me understand the process to authorize the training of generative AI?"
+    },
+    {
+        "role": "assistant",
+        "content": "Certainly! I'll need to perform a search to gather the specific steps involved in authorizing the training of generative AI."
+    },
+    {
+        "content": null,
+        "role": "assistant",
+        "tool_calls": [
+            {
+                "id": "call_3ZhuT706XIYAJSgaE05pm1oe",
+                "function": {
+                    "arguments": "{\n  \"search_query\": \"steps required to authorize the training of generative AI\"\n}",
+                    "name": "Search"
+                },
+                "type": "function"
+            }
+        ]
+    },
+    {
+        "role": "tool",
+        "tool_call_id": "call_3ZhuT706XIYAJSgaE05pm1oe",
+        "name": "Search",
+        "content": "The authorization process typically involves regulatory compliance, ethical review, and securing permissions from relevant authorities."
+    },
+    {
+        "role": "assistant",
+        "content": "Based on the search, the authorization process involves regulatory compliance, ethical review, and securing necessary permissions from relevant authorities."
+    },
+    {
+        "role": "user",
+        "content": "That's very informative, thank you!"
+    },
+    {
+        "role": "assistant",
+        "content": "You're welcome! Let me know if there's anything else you'd like to learn about."
+    }
+]
+
+
+
+

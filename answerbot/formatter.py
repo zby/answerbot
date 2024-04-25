@@ -2,7 +2,6 @@ from typing import Any, Callable
 from pprint import pformat
 import textwrap
 
-from answerbot.prompt_builder import FunctionResult, FunctionCall
 
 from answerbot.prompt_templates import Question
 
@@ -15,16 +14,15 @@ def format_markdown(prompts, width: int=70) -> str:
     next_url = None
     content_pieces = []
 
-    for prompt in prompts.parts:
-        if type(prompt) is FunctionCall and prompt.name=='simplereflection_and_goto_url':
-            next_url = prompt.args['url']
-        if type(prompt) is Question:
-            question = prompt.content
-        if hasattr(prompt, 'args') and isinstance(prompt.args, dict) and 'answer' in prompt.args: 
-            answer = prompt.args['answer']
-            reasoning = prompt.args['reasoning']
-        if prompt.content:
-            content_pieces.append([prompt.content, False, prompt, next_url])
+    for message in prompts.parts:
+        if message.role == 'function' and message.name=='simplereflection_and_goto_url':
+            next_url = message.args['url']
+        if message.role == 'user' and 'Question:' in message.content:
+            question = message.content
+        if message.role == 'function' and 'answer' in message.name:
+            answer = message.content
+        if message.content:
+            content_pieces.append([message.content, False, message, next_url])
         if hasattr(prompt, 'args') and isinstance(prompt.args, dict) and 'is_relevant' in prompt.args:
             content_pieces[-1][1] = prompt.args['is_relevant']
 

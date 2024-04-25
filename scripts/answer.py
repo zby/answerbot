@@ -1,15 +1,17 @@
 import logging
+import httpx
+import openai
+import json
 
 from pprint import pformat, pprint
 from dotenv import load_dotenv
-from answerbot.formatter import format_markdown
+#from answerbot.formatter import format_markdown
 
-from answerbot.prompt_builder import System
-from answerbot.prompt_templates import NoExamplesReactPrompt, Reflection, ShortReflection, QUESTION_CHECKS
-from answerbot.react import get_answer_wiki
+from answerbot.react import get_answer
 
 from answerbot.wikipedia_tool import WikipediaSearch
 from answerbot.aae_tool import AAESearch
+from answerbot.replay_client import ReplayClient
 
 # Configure basic logging
 logging.basicConfig(level=logging.INFO)
@@ -19,6 +21,12 @@ logger = logging.getLogger(__name__)
 
 # load OpenAI api key
 load_dotenv()
+
+#from groq import Groq
+#client = Groq()
+
+client = openai.OpenAI(timeout=httpx.Timeout(70.0, read=60.0, write=20.0, connect=6.0))
+#client = ReplayClient('data/conversation.json')
 
 if __name__ == "__main__":
 
@@ -40,9 +48,9 @@ if __name__ == "__main__":
     #question = "What is the weight proportion of oxygen in water?"
     #question = "Czy dane kardy kredytowej są danymi osobowymi w Polsce"
     #question = "How much is two plus two"
-    question = "Who is older, Annie Morton or Terry Richardson?"
+    #question = "Who is older, Annie Morton or Terry Richardson?"
 
-    question = "What are the concrete steps proposed to ensure AI safety?"
+    #question = "What are the concrete steps proposed to ensure AI safety?"
     question = 'What are the steps required to authorize the training of generative AI?'
 
 
@@ -50,15 +58,21 @@ if __name__ == "__main__":
         "chunk_size": 400,
         #"prompt_class": 'NERP',
         "prompt_class": 'AAE',
-        "max_llm_calls": 8,
+        "max_llm_calls": 4,
         "model": "gpt-3.5-turbo-0613",
         #"model": "gpt-4-1106-preview",
+        #"model": "llama3-8b-8192",
+        #'model': "mixtral-8x7b-32768",
         "question_check": 'category_and_amb',
         'reflection': 'ShortReflectionDetached',
+        #'tool': WikipediaSearch,
         'tool': AAESearch,
     }
 
-    reactor = get_answer_wiki(question, config)
-    print(pformat(reactor.prompt.to_messages()))
-    pprint(reactor.reflection_errors)
-    print(format_markdown(reactor.prompt))
+    reactor = get_answer(question, config, client)
+    print(pformat(reactor.conversation.to_messages()))
+    pprint(reactor.soft_errors)
+#    with open('data/conversation.json', 'w') as file:
+#        json.dump(reactor.conversation.to_messages(), file, indent=4)
+
+#    print(format_markdown(reactor.conversation))

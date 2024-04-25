@@ -28,10 +28,8 @@ Don't forget to check [Different text OpenAI](https://www.openai.com) for more i
     new_document = MarkdownDocument("New Page")
     content_record = ContentRecord(new_document, ['Page retrieval history'])
     wiki_search.get_page = MagicMock(return_value=content_record)
-    follow_object = WikipediaSearch.FollowLink(link='1', reason="because")
-
     mock_get.return_value = MockHttpResponse('<html><div id="bodyContent">Page Content</div></html>', 200)
-    wiki_search.follow_link(follow_object)
+    wiki_search.follow_link('1')
     new_content = wiki_search.document.content
     assert new_content.startswith("Page Content")
 

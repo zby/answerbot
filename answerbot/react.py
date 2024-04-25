@@ -1,17 +1,13 @@
-import httpx
-import openai
 import json
 import time
 import logging
 import copy
 from pydantic import BaseModel, Field, field_validator, ValidationError
-from typing import Literal, Union
+from typing import Literal, Union, List, Dict
 from pprint import pprint
 
-from dotenv import load_dotenv
 
-from .prompt_builder import FunctionalPrompt, PromptMessage, Assistant, System, User, FunctionCall, FunctionResult
-from .prompt_templates import QUESTION_CHECKS, PROMPTS, REFLECTIONS, AAEPrompt
+from .prompt_templates import QUESTION_CHECKS, PROMPTS, REFLECTIONS 
 from .tools_base import Finish
 
 from llm_easy_tools import ToolBox
@@ -22,28 +18,58 @@ logging.basicConfig(level=logging.INFO)
 # Get a logger for the current module
 logger = logging.getLogger(__name__)
 
-# load OpenAI api key
-load_dotenv()
+class Conversation:
+    def __init__(self, entries = None, user_question=None):
+        self.entries = [] if entries is None else entries
+        self.user_question = user_question
+
+    def add_entry(self, entry):
+        self.entries.append(entry)
+
+    def add_system_message(self, content):
+        self.entries.append({ 'role': 'system', 'content': content })
+
+    def add_user_question(self, content):
+        self.entries.append({ 'role': 'user', 'content': f"Question: {content}" })
+        self.user_question = content
+
+    def to_messages(self) -> List[Dict]:
+        """
+        Returns:
+        List[Dict]: A list of dictionaries representing the messages and tool results.
+        """
+        all_messages = []
+        for entry in self.entries:
+            if isinstance(entry, dict):
+                all_messages.append(entry)
+            else:
+                all_messages.append(entry.to_message())
+        return all_messages
+
+
+
 
 class LLMReactor:
+    class LLMReactorError(Exception):
+        pass
+
     def __init__(self, model: str, toolbox: ToolBox,
-                 prompt: FunctionalPrompt,
+                 conversation: Conversation,
                  max_llm_calls: int, client,
                  reflection_class, reflection_message: str,
                  soft_reflection_validation=True,
                  reflection_detached=False,
+                 question_checks=None,
                  ):
         self.model = model
         self.toolbox = toolbox
-        self.prompt = prompt
+        self.conversation = conversation
         self.max_llm_calls = max_llm_calls
-        if client is None:
-            client = openai.OpenAI(timeout=httpx.Timeout(70.0, read=60.0, write=20.0, connect=6.0))
-
         self.client = client
         self.soft_reflection_validation = soft_reflection_validation
         self.reflection_class = reflection_class
         self.reflection_message = reflection_message
+        self.question_checks = [] if question_checks is None else question_checks
 
         if self.reflection_message is not None and self.reflection_class is not None:
             raise ValueError("reflection message and class cannot be used simultaneously")
@@ -51,7 +77,7 @@ class LLMReactor:
         self.step = 0
         self.finished = False
         self.answer = None
-        self.reflection_errors = []
+        self.soft_errors = []
         self.reflection_detached = reflection_detached
         if reflection_detached:
             self.toolbox.register_model(reflection_class)
@@ -59,7 +85,7 @@ class LLMReactor:
     def openai_query(self, tool_schemas, force_auto_tool_choice=False):
         args = {
             'model': self.model,
-            'messages': self.prompt.to_messages()
+            'messages': self.conversation.to_messages()
         }
         if len(tool_schemas) == 0:
             pass
@@ -70,44 +96,59 @@ class LLMReactor:
             args['tool_choice'] = "auto"
             args['tools'] = tool_schemas
 
-
         completion = self.client.chat.completions.create( **args )
         return completion
 
     def set_finished(self):
         self.finished = True
 
-    def message_from_response(self, response, choice_num=0, tool_num=0):
-        if response.choices[choice_num].message.function_call:
-            function_call = response.choices[choice_num].message.function_call
-        elif response.choices[choice_num].message.tool_calls:
-            function_call = response.choices[choice_num].message.tool_calls[tool_num].function
-        else:
-            function_call = None
-        if function_call:
-            print(function_call.arguments)
-            function_args = json.loads(
-                    function_call.arguments
-                    .replace(', }', '}')
-                    .replace(',}','}')
-                    )
-            message = FunctionCall(function_call.name, **function_args)
-        else:
-            message = Assistant(response.choices[choice_num].message.content)
-        return message, function_call
+
 
     def get_reflection(self):
-        message = User(self.reflection_message)
+        message = { 'role': 'user', 'content': self.reflection_message }
         logger.info(str(message))
-        self.prompt.push(message)
-        response = self.openai_query([])
+        self.conversation.add_entry(message)
+        self.query_and_process()
 
-        message, _ = self.message_from_response(response)
-        self.prompt.push(message)
+
+    def query_and_process(self, schemas=[], additional_info='', no_tool_calls_message=None, prefix_class=None):
+        response = self.openai_query(schemas)
+        message = response.choices[0].message.dict()
+        if message['function_call'] is None:
+            del message['function_call']
+        if message['tool_calls'] is None:
+            del message['tool_calls']
+        self.conversation.add_entry(message)
         logger.info(str(message))
+        results = self.toolbox.process_response(response)
+        for result in results:
+            if result.error is not None:
+                if prefix_class:
+                    self.soft_errors.append(result.error)
+                    results = self.toolbox.process_response(response, prefix_class=prefix_class, ignore_prefix=True)
+                    result = results[0]
+                else:
+                    raise self.LLMReactorError(result.error)
+            if result.name == 'Finish':
+                self.answer = result.model.normalized_answer()
+                self.set_finished()
+                return
+            message = result.to_message()
+            message['content'] += additional_info
+            logger.info(str(message))
+            self.conversation.add_entry(message)
+        if len(schemas) > 0 and len(results) == 0:
+            self.soft_errors.append("No function call")
+            if no_tool_calls_message is not None:
+                message = { 'role': 'assistant', 'content': no_tool_calls_message }
+                logger.info(str(message))
+                self.conversation.add_entry(message)
+        return results
 
-    def process_prompt(self):
-        while True:
+
+    def process(self):
+        self.analyze_question()
+        while not self.finished:
             self.step += 1
             if self.reflection_message:
                 self.get_reflection()
@@ -120,74 +161,37 @@ class LLMReactor:
             if self.reflection_detached and self.reflection_class:
                 schema = self.toolbox.get_tool_schema(self.reflection_class.__name__)
                 schemas = [schema]
-                response = self.openai_query(schemas)
-                message, fc = self.message_from_response(response)
-                logger.info(str(message))                
-                self.prompt.push(message)
-                result = self.toolbox.process_function(fc)
-
-            if self.step == self.max_llm_calls:
+                self.query_and_process(schemas, prefix_class=prefix_class)
+            if self.step == self.max_llm_calls + 1:
                 schemas = [self.toolbox.get_tool_schema('Finish', prefix_class)]  # Finish is registered
             else:
                 schemas = self.toolbox.tool_schemas(prefix_class=prefix_class)
             #pprint(schemas)
-            response = self.openai_query(schemas)
-            message, function_call = self.message_from_response(response)
-            logger.info(str(message))
-            self.prompt.push(message)
-            if function_call is None:
-                self.reflection_errors.append("No function call")
-            else:
-                try:
-                    result = self.toolbox.process_function(function_call, prefix_class=prefix_class)
-                except ValidationError as e:
-                    if prefix_class is not None and self.soft_reflection_validation:
-                        result = self.toolbox.process_function(function_call, prefix_class=prefix_class, ignore_prefix=True)
-                        self.reflection_errors.append(repr(e))
-                    else:
-                        raise e
-                if isinstance(result, Finish):
-                    #self.are_you_sure()
-                    self.answer = result.normalized_answer()
-                    self.set_finished()
-                    return
             if self.step == self.max_llm_calls:
-                self.set_finished()
-                logger.info("<<< Max LLM calls reached without finishing")
-                return
-
-            if self.step == self.max_llm_calls - 1:
                 step_info = "\n\nThis was the last data you can get - in the next step you need to formulate your answer"
             else:
                 step_info = f"\n\nThis was {self.step} out of {self.max_llm_calls} calls for data."
+            no_tool_calls_message = "You did not ask for any data this time - but it still counts."
+            self.query_and_process(schemas, additional_info=step_info, no_tool_calls_message=no_tool_calls_message, prefix_class=prefix_class)
 
-            if function_call is not None:
-                message = FunctionResult(function_call.name, result + f"\n\n{step_info}")
-            else:
-                message = Assistant("You did not ask for any data this time - but it still counts. " + step_info)
-            logger.info(str(message))
-            self.prompt.push(message)
 #            if 'gpt-4' in self.model:
 #                time.sleep(20)
 
 
-    def analyze_question(self, queries):
-        for query in queries:
-            question_check = User(query)
+    def analyze_question(self):
+        for query in self.question_checks:
+            question_check = { 'role': 'user', 'content': query }
             logger.info(str(question_check))
-            self.prompt.push(question_check)
-            response = self.openai_query([])
-            message, _ = self.message_from_response(response)
-            self.prompt.push(message)
-            logger.info(str(message))
+            self.conversation.add_entry(question_check)
+            self.query_and_process()
 
-def get_answer_wiki(question, config, client=None):
+def get_answer(question, config, client=None):
     print("\n\n<<< Question:", question)
     tool_class = config['tool']
     tool = tool_class(chunk_size=config['chunk_size'])
     toolbox = ToolBox()
     toolbox.register_toolset(tool)
-    prompt_class = PROMPTS[config['prompt_class']]
+    sys_prompt = PROMPTS[config['prompt_class']]
     reflection = REFLECTIONS[config['reflection']]
     reflection_class = None
     if 'class' in reflection:
@@ -196,11 +200,18 @@ def get_answer_wiki(question, config, client=None):
     if 'message' in reflection:
         reflection_message = reflection['message']
     reflection_detached = reflection.get('detached', False)
-    prompt = prompt_class(question, config['max_llm_calls'], reflection_class)
-    reactor = LLMReactor(config['model'], toolbox, prompt, config['max_llm_calls'], reflection_class=reflection_class, reflection_message=reflection_message, client=client, reflection_detached=reflection_detached)
-    reactor.analyze_question(QUESTION_CHECKS[config['question_check']])
-    reactor.process_prompt()
+    if reflection_class and not reflection_detached:
+        prefix = f'{reflection_class.__name__.lower()}_and_'
+    else:
+        prefix = ''
+    initial_conversation = Conversation()
+    initial_conversation.add_system_message(sys_prompt(config['max_llm_calls'], prefix))
+    initial_conversation.add_user_question(question)
+    question_checks = QUESTION_CHECKS[config['question_check']] 
+    reactor = LLMReactor(
+        config['model'], toolbox, initial_conversation, config['max_llm_calls'], reflection_class=reflection_class,
+        reflection_message=reflection_message, client=client, reflection_detached=reflection_detached,
+        question_checks=question_checks
+    )
+    reactor.process()
     return reactor
-
-
-get_answer = get_answer_wiki

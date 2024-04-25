@@ -1,11 +1,11 @@
-from llm_easy_tools import external_function, extraction_model
+from llm_easy_tools import llm_function
+from typing import Annotated
 import requests
 import html2text
 from bs4 import BeautifulSoup, PageElement, Tag
 from answerbot.document import MarkdownDocument
 
-from answerbot.wikipedia_tool import BASE_URL
-from answerbot.tools_base import SearchQuery, Lookup, URL, NoArgs, Finish
+from answerbot.tools_base import Finish
 from tenacity import retry, stop_after_attempt
 
 
@@ -29,34 +29,34 @@ class AAESearch:
         self._chunk_size = chunk_size
 
 
-    @external_function()
-    def search_aae(self, query: SearchQuery):
+    @llm_function()
+    def search_aae(self, query: Annotated[str, 'The query to search for']):
         """
         Searches Artificial Intelligence Act EU website, and return a list of documents
         matching the query, with short blocks of texts containing the query
         """
-        return retry(stop=stop_after_attempt(self._max_retries))(_aae_search)(query.query, self._base_url)
+        return retry(stop=stop_after_attempt(self._max_retries))(_aae_search)(query, self._base_url)
 
-    @external_function()
-    def lookup(self, param: Lookup):
+    @llm_function()
+    def lookup(self, keyword: Annotated[str, 'The keyword to search for']):
         """
         Look up a word on the current page.
         """
         if self._document is None:
             return 'No document defined, cannot lookup'
 
-        text = self._document.lookup(param.keyword)
+        text = self._document.lookup(keyword)
         if text:
             return (
-                    f'Keyword "{param.keyword}" found in current page in' 
+                    f'Keyword "{keyword}" found in current page in' 
                     f'{len(self._document.lookup_results)} places.'
                     f'The first occurence:\n {text}'
                     )
         else:
-            return f'Keyword "{param.keyword} not found in current page"'
+            return f'Keyword "{keyword} not found in current page"'
 
-    @external_function()
-    def lookup_next(self, _: NoArgs):
+    @llm_function()
+    def lookup_next(self):
         """
         Jumps to the next occurrence of the word searched previously.
         """
@@ -71,8 +71,8 @@ class AAESearch:
                 f'{self._document.lookup_position} of {len(self._document.lookup_results)}'
                 )
 
-    @external_function()
-    def read_chunk(self, _: NoArgs):
+    @llm_function()
+    def read_chunk(self):
         """
         Reads the next chunk of text from the current location in the current document.
         """
@@ -80,12 +80,12 @@ class AAESearch:
             return 'No document defined, cannot read'
         return self._document.read_chunk()
 
-    @external_function()
-    def goto_url(self, param: URL):
+    @llm_function()
+    def goto_url(self, url: Annotated[str, "The url to go to"] ):
         """
         Retreive a page at url and saves the retrieved page as the next current page
         """
-        response = requests.get(param.url)
+        response = requests.get(url)
         if response.status_code == 404:
             return 'Page does not exist'
         try:
@@ -96,7 +96,7 @@ class AAESearch:
         cleaned_content = clean_html_and_textify(html)
         document = MarkdownDocument(cleaned_content, chunk_size=self._chunk_size)
         self._document = document
-        return f'{param.url} retreived successfully'
+        return f'{url} retreived successfully'
 
 
 
@@ -166,7 +166,6 @@ if __name__ == "__main__":
     scraper = AAESearch()
 
     query="training generative AI"
-    query="generative AI training steps"
+    #query="generative AI training steps"
 
-    searchparam = SearchQuery(query=query)
-    print(scraper.search_aae(searchparam))
+    print(scraper.search_aae(query))

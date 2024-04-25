@@ -67,7 +67,7 @@ def eval_question(combo, results_writer, csvfile, prompts_file, error_file):
                 'soft_errors': len(reactor.reflection_errors),
                 'steps': reactor.step,
             })
-            prompts_file.write(f"{log_preamble}\nPrompt:\n{str(reactor.prompt)}\n\n")
+            prompts_file.write(f"{log_preamble}\nPrompt:\n{str(reactor.conversation)}\n\n")
             prompts_file.flush()
             os.fsync(prompts_file.fileno())
             results_writer.writerow(config)

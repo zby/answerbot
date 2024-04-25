@@ -19,11 +19,19 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class Conversation:
-    def __init__(self, entries = None):
+    def __init__(self, entries = None, user_question=None):
         self.entries = [] if entries is None else entries
+        self.user_question = user_question
 
     def add_entry(self, entry):
         self.entries.append(entry)
+
+    def add_system_message(self, content):
+        self.entries.append({ 'role': 'system', 'content': content })
+
+    def add_user_question(self, content):
+        self.entries.append({ 'role': 'user', 'content': f"Question: {content}" })
+        self.user_question = content
 
     def to_messages(self) -> List[Dict]:
         """
@@ -196,10 +204,9 @@ def get_answer(question, config, client=None):
         prefix = f'{reflection_class.__name__.lower()}_and_'
     else:
         prefix = ''
-    initial_conversation = Conversation([
-        { 'role': 'system', 'content': sys_prompt(config['max_llm_calls'], prefix) },
-        { 'role': 'user', 'content': question }
-    ])
+    initial_conversation = Conversation()
+    initial_conversation.add_system_message(sys_prompt(config['max_llm_calls'], prefix))
+    initial_conversation.add_user_question(question)
     question_checks = QUESTION_CHECKS[config['question_check']] 
     reactor = LLMReactor(
         config['model'], toolbox, initial_conversation, config['max_llm_calls'], reflection_class=reflection_class,

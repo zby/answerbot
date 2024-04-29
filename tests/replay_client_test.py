@@ -1,12 +1,12 @@
 import pytest
-from answerbot.replay_client import ReplayClient, MessagesExhausted
+from answerbot.replay_client import LLMReplayClient, MessagesExhausted
 from unittest.mock import MagicMock
 from openai.types.chat.chat_completion import ChatCompletion, ChatCompletionMessage
 
 def test_replay_client_conversation_history():
     # Initialize ReplayClient with a test JSON file
     test_file_path = 'tests/data/conversation.json'
-    replay_client = ReplayClient(test_file_path)
+    replay_client = LLMReplayClient(test_file_path)
     
     # Load the conversation history from the file
     conversation_history = replay_client.conversation_history
@@ -22,7 +22,7 @@ def test_replay_client_conversation_history():
 def test_replay_client_response_generation():
     # Initialize ReplayClient with a test JSON file
     test_file_path = 'tests/data/conversation.json'
-    replay_client = ReplayClient(test_file_path)
+    replay_client = LLMReplayClient(test_file_path)
     
     # Simulate conversation by generating responses
     with pytest.raises(MessagesExhausted):
@@ -41,7 +41,7 @@ def test_replay_client_delegation():
     original_client.chat.completions = MagicMock()
     original_client.chat.completions.create = MagicMock(return_value={'message': 'Delegated response'})
     
-    replay_client = ReplayClient(test_file_path, original_client=original_client)
+    replay_client = LLMReplayClient(test_file_path, original_client=original_client)
     
     # Exhaust the replay client's internal messages
     for _ in replay_client.conversation_history:

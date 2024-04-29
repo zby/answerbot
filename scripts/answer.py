@@ -11,7 +11,7 @@ from answerbot.react import get_answer
 
 from answerbot.wikipedia_tool import WikipediaSearch
 from answerbot.aae_tool import AAESearch
-from answerbot.replay_client import ReplayClient
+from answerbot.replay_client import LLMReplayClient
 
 # Configure basic logging
 logging.basicConfig(level=logging.INFO)

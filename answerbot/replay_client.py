@@ -7,10 +7,15 @@ class MessagesExhausted(Exception):
     """Exception raised when there are no more messages to replay."""
     pass
 
-class ReplayClient:
-    def __init__(self, file_path, original_client=None):
+def user_message_predicate(message):
+    return message['role'] == 'assistant'
+
+
+class LLMReplayClient:
+    def __init__(self, file_path, original_client=None, filter_predicate=None):
         self.file_path = file_path
         self.original_client = original_client
+        self.filter_predicate = user_message_predicate if filter_predicate is None else filter_predicate
         self.conversation_history = self._load_conversation_history()
         self.message_index = 0
         # Directly assign chat_completions_create to the desired access path
@@ -22,8 +27,7 @@ class ReplayClient:
         if self.message_index < len(self.conversation_history):
             message = self.conversation_history[self.message_index]
             self.message_index += 1
-            if message['role'] == 'assistant':
-                return self.mk_chat(message)
+            return self.mk_chat(message)
         else:
             if self.original_client is None:
                 raise MessagesExhausted("No more messages in the file and no backup client to delegate to.")
@@ -33,7 +37,10 @@ class ReplayClient:
     def _load_conversation_history(self):
         with open(self.file_path, 'r') as file:
             all_messages = json.load(file)
-        messages = [message for message in all_messages if message['role'] == 'assistant']
+        messages = []
+        for message in all_messages:
+            if self.filter_predicate(message):
+                messages.append(message)
         return messages
 
     def mk_chat(self, message):
@@ -58,7 +65,7 @@ class ReplayClient:
 if __name__ == "__main__":
     # Example usage
     original_client = openai.OpenAI(api_key="your_api_key")
-    replay_client = ReplayClient('data/conversation.json')
+    replay_client = LLMReplayClient('data/conversation.json')
 
     # Example of iterating over the generator
     try:

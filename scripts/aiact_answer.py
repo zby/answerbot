@@ -1,8 +1,14 @@
-from answerbot.llm import LLM
+import httpx
 from answerbot.aiact import AiActReactor, format_results
 from dotenv import load_dotenv
+from openai import OpenAI
+import logging
 
-# load OpenAI api key
+logging.basicConfig(level=logging.DEBUG)
+
+openai_client = OpenAI(
+        timeout=httpx.Timeout(70, read=60.0, write=20.0, connect=6.0)
+        )
 load_dotenv()
 
 
@@ -11,9 +17,7 @@ if __name__ == '__main__':
     How is transparency defined in the AI Act and what transparency requirements apply to low-risk Ai systems?
     '''
 
-    llm = LLM(model='gpt-3.5-turbo-0125')
-    llm = LLM(model='gpt-4-turbo')
-    reactor = AiActReactor(llm=llm, question=question,energy=200)
+    reactor = AiActReactor(model='gpt-4-turbo', client=openai_client, question=question,energy=200)
     result = reactor()
 
     print(format_results(result))

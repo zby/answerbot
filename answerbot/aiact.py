@@ -5,6 +5,7 @@ from markdownify import markdownify
 import requests
 
 from answerbot.reactor import LLMReactor, ReactorResponse, llm_function, DEFAULT_SYSTEM_PROMPT, paragraphs, cost
+from llm_easy_tools.tool_box import llm_function
 import json
 
 
@@ -43,7 +44,7 @@ class AiActReactor(LLMReactor):
     SYSTEM_PROMPT = TOC_SYSTEM_PROMPT
     DOMAIN = 'EU Artificial Intelligence Act'
 
-    @llm_function
+    @llm_function()
     @paragraphs
     @cost(20)
     def goto_url_read_paragraphs(
@@ -90,6 +91,8 @@ class AiActReactor(LLMReactor):
                     '# Recitals Relevant to this document:\n' + 
                     '\n'.join(f'[{text}]({url})' for url, text in recitals)
                     )
+
+        self.energy -= 20
 
         return url, paragraphs
 

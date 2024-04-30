@@ -1,9 +1,11 @@
 from dataclasses import dataclass
 from functools import wraps
 import inspect
-from typing import Annotated, Any, Callable
-
-from answerbot.llm import LLM
+from time import time
+from typing import Annotated, Callable
+from llm_easy_tools.tool_box import ToolBox, llm_function
+from openai import OpenAI
+import httpx
 
 
 DEFAULT_SYSTEM_PROMPT = '''
@@ -74,10 +76,6 @@ def paragraphs(f: Callable[..., tuple[str, list[str]]]):
     return _w
 
 
-def llm_function(f):
-    f.__llm_function__ = True
-    return f
-
 
 def cost(x: int):
     def _wrapper(f):
@@ -92,16 +90,30 @@ class LLMReactor:
     DOMAIN: str = 'Undefined domain'
     READ_PARAGRAPHS_COST = 10
 
-    def __init__(self, llm: LLM, question: str, energy: int=100, paragraph_size: int=255) -> None:
+    def __init__(self, 
+                 model: str,
+                 client: OpenAI,
+                 question: str,
+                 energy: int=100,
+                 throttle: float=10.,
+                 paragraph_size: int=55):
         self.energy = energy
         self.question = question
-        self._llm = llm
+        self._model = model
+        self._client = client or OpenAI(
+                timeout=httpx.Timeout(70, read=60.0, write=20.0, connect=6.0)
+                )
         self.answer = None
         self.relevant_paragraphs: list[RelevantParagraph] = []
         self._document: str|None = None
         self._paragraphs: list[str]|None = None
         self._paragraph_size=paragraph_size
         self._followup_assumptions = []
+        self._last_query = 0
+        self._throttle=throttle
+        self._messages = []
+        self._toolbox = ToolBox()
+        self._toolbox.register_toolset(self)
 
     def __call__(self) -> ReactorResponse:
         self._add_system_message()
@@ -121,14 +133,28 @@ class LLMReactor:
                 )
 
     def before_loop(self):
+        while self._last_query+self._throttle > time():
+            continue
+        self._last_query = time()
         pass
 
     def _step(self):
-        response = self._llm.query(tools=self._get_tools())
-        if response.message.content:
-            self._followup_assumptions.append(response.message.content)
-        energy_consumed = sum(getattr(f, '__cost__', 0) for f in response.succeeded_calls)
-        self.energy -= energy_consumed
+        while self._last_query+self._throttle > time():
+            continue
+        self._last_query = time()
+
+        response = self._client.chat.completions.create(
+                model=self._model,   
+                messages=self._messages,
+                tools=self._toolbox.tool_schemas(predicate=lambda x: getattr(x, '__cost__', 0) <= max(0, self.energy))
+                )
+        content = response.choices[0].message.content
+        self._messages.append(response.choices[0].message)
+        tool_results = self._toolbox.process_response(response)
+        self._messages.extend(x.to_message() for x in tool_results)
+
+        if content:
+            self._followup_assumptions.append(content)
 
         assistant_message = (
                 f'you have {self.energy} left to spend' if self.energy > 0 else
@@ -139,10 +165,11 @@ class LLMReactor:
                 "\nwhat are the next steps required to provide the precise answer to the "
                 "user's question\n "
                 )
-        self._llm.add_message({'role': 'assistant', 'content': assistant_message})
+
+        self._messages.append({'role': 'assistant', 'content': assistant_message})
 
     def _add_system_message(self):
-        self._llm.add_message({
+        self._messages.append({
             'role': 'system',
             'content': self.SYSTEM_PROMPT.format(
                 domain=self.DOMAIN,
@@ -151,17 +178,23 @@ class LLMReactor:
             })
 
     def _add_user_question(self):
-        self._llm.add_message({
+        self._messages.append({
             'role': 'user',
             'content': self.question,
             })
 
     def _add_assumptions(self) -> str|None:
-        self._llm.add_message({
+        self._messages.append({
             'role': 'assistant',
             'content': 'What are the assumptions that can be made about the question?'
             })
-        return self._llm.query().message.content
+        response = self._client.chat.completions.create(
+                model=self._model,
+                messages=self._messages
+                )
+        result = response.choices[0].message.content
+        self._messages.append(response.choices[0].message)
+        return result
         
 
     def _get_tools(self) -> list[Callable]:
@@ -173,7 +206,7 @@ class LLMReactor:
                 and self.energy > getattr(method, '__cost__', 0)
                 ]
 
-    @llm_function
+    @llm_function()
     @cost(10)
     def read_paragraphs(
             self,
@@ -190,10 +223,11 @@ class LLMReactor:
                 continue
             result += f'# Paragraph {index}:\n'
             result += p + '\n'
+        self.energy -= 10
         return result
 
         
-    @llm_function
+    @llm_function()
     def reflect(
             self,
             paragraphs: Annotated[list[int], 'The indices of paragraphs you found to be relevant AND did contain the required information']
@@ -210,10 +244,10 @@ class LLMReactor:
                         )
             except IndexError:
                 continue
-        return paragraphs
+        return str(paragraphs)
 
 
-    @llm_function
+    @llm_function()
     def finish(
             self,
             answer: Annotated[str, "The answer to user's original question"],

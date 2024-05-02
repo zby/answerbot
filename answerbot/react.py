@@ -3,12 +3,10 @@ import time
 import logging
 import copy
 from pydantic import BaseModel, Field, field_validator, ValidationError
-from typing import Literal, Union, List, Dict
+from typing import Literal, Union, List, Dict, Annotated, Optional
 from pprint import pprint
 
-
 from .prompt_templates import QUESTION_CHECKS, PROMPTS, REFLECTIONS 
-from .tools_base import Finish
 
 from llm_easy_tools import ToolBox
 
@@ -63,6 +61,7 @@ class LLMReactor:
                  ):
         self.model = model
         self.toolbox = toolbox
+        toolbox.register_function(self.finish)
         self.conversation = conversation
         self.max_llm_calls = max_llm_calls
         self.client = client
@@ -124,10 +123,6 @@ class LLMReactor:
         for result in results:
             if result.error is not None:
                 raise self.LLMReactorError(result.error)
-            if result.name == 'Finish':
-                self.answer = result.model.normalized_answer()
-                self.set_finished()
-                return
             message = result.to_message()
             message['content'] += additional_info
             logger.info(str(message))
@@ -179,6 +174,30 @@ class LLMReactor:
             logger.info(str(question_check))
             self.conversation.add_entry(question_check)
             self.query_and_process()
+
+    def finish(self,
+               answer: Annotated[str, "The answer to the user's question"],
+               answer_short: Annotated[str, "A short version of the answer"],
+               reasoning: Annotated[str, "The reasoning behind the answer. Think step by step. Mention all assumptions you make."],
+               ambiguity: Annotated[Optional[str], "Have you found anything in the retrieved information that makes the question ambiguous? For example a search for some name can show that there are many different entities with the same name."] = None
+    ):
+        """
+        Finish the task and return the answer.
+        """
+        self.set_finished()
+        self.answer=(
+            self.normalize_answer(answer),
+            self.normalize_answer(answer_short),
+        )
+
+    def normalize_answer(self, answer):
+        answer = answer.strip(' \n.\'"')
+        answer = answer.replace('’', "'")  # Replace all curly apostrophes with straight single quotes
+        answer = answer.replace('"', "'")  # Replace all double quotes with straight single quotes
+        if answer.lower() == 'yes' or answer.lower() == 'no':
+            answer = answer.lower()
+        return answer
+
 
 def get_answer(question, config, client=None):
     print("\n\n<<< Question:", question)

@@ -51,13 +51,13 @@ if __name__ == "__main__":
     #question = "Who is older, Annie Morton or Terry Richardson?"
 
     #question = "What are the concrete steps proposed to ensure AI safety?"
-    question = 'What are the steps required to authorize the training of generative AI?'
+    #question = 'What are the steps required to authorize the training of generative AI?'
 
 
     config = {
         "chunk_size": 400,
-        #"prompt_class": 'NERP',
-        "prompt_class": 'AAE',
+        "prompt_class": 'NERP',
+        #"prompt_class": 'AAE',
         "max_llm_calls": 4,
         "model": "gpt-3.5-turbo-0613",
         #"model": "gpt-4-1106-preview",
@@ -65,8 +65,8 @@ if __name__ == "__main__":
         #'model': "mixtral-8x7b-32768",
         "question_check": 'category_and_amb',
         'reflection': 'ShortReflectionDetached',
-        #'tool': WikipediaSearch,
-        'tool': AAESearch,
+        'tool': WikipediaSearch,
+        #'tool': AAESearch,
     }
 
     reactor = get_answer(question, config, client)

@@ -14,7 +14,6 @@ from answerbot.document import MarkdownDocument
 from llm_easy_tools import llm_function
 from typing import Annotated
 from urllib.parse import urlparse, urljoin
-from answerbot.tools_base import Finish
 
 MAX_RETRIES = 3
 # BASE_URL = 'https://pl.wikipedia.org/wiki/'
@@ -55,8 +54,6 @@ class ContentRecord:
         return ContentRecord(document, retrieval_history)
 
 class WikipediaSearch:
-    Finish = Finish
-
 
     def __init__(self, cached=False, document=None,
                  max_retries=MAX_RETRIES, chunk_size=1024, base_url=BASE_URL, api_url=API_URL,

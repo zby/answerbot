@@ -1,11 +1,13 @@
 from dataclasses import dataclass
 from functools import wraps
-import inspect
-from time import time
-from typing import Annotated, Callable
+from time import sleep, time
+from typing import Annotated, Callable, TypeVar
 from llm_easy_tools.tool_box import ToolBox, llm_function
 from openai import OpenAI
 import httpx
+from openai.types.chat import ChatCompletionNamedToolChoiceParam, ChatCompletionToolChoiceOptionParam
+from openai.types.chat.completion_create_params import Function
+import logging
 
 
 DEFAULT_SYSTEM_PROMPT = '''
@@ -52,7 +54,7 @@ class Answer:
 
 @dataclass(frozen=True)
 class RelevantParagraph:
-    document: str
+    url: str
     paragraph: str
 
 
@@ -65,13 +67,23 @@ class ReactorResponse:
     followup_assumptions: list[str]
 
 
-def paragraphs(f: Callable[..., tuple[str, list[str]]]):
+@dataclass(frozen=True)
+class OpenDocument:
+    '''
+    url: url of the document
+    paragraphs: list of paragraphs in the document
+    '''
+    url: str
+    paragraphs:list[str]
+
+
+def opens_document(f: Callable[..., OpenDocument]):
     @wraps(f)
-    def _w(self, *args, **kwargs):
+    def _w(self: 'LLMReactor', *args, **kwargs):
         result = f(self, *args, **kwargs)
-        self._document, self._paragraphs = result
+        self._document = result
         return 'Paragraphs in the current document:\n' + '\n'.join(
-                f'{i}: {s[:self._paragraph_size]}' for i, s in enumerate(self._paragraphs)
+                f'{i}: {s[:self._paragraph_size]}' for i, s in enumerate(result.paragraphs)
                 )
     return _w
 
@@ -79,8 +91,12 @@ def paragraphs(f: Callable[..., tuple[str, list[str]]]):
 
 def cost(x: int):
     def _wrapper(f):
-        f.__doc__ += f'\nCOST: {x}'
-        f.__cost__ = x
+        @wraps(f)
+        def _w(self: 'LLMReactor', *args, **kwargs):
+            self.energy -= x
+            return f(self, *args, **kwargs)
+        _w.__doc__ = getattr(_w, '__doc__', '') + f'\nCOST: {x}'
+        setattr(_w, '__cost__', x)
         return f
     return _wrapper
 
@@ -105,8 +121,7 @@ class LLMReactor:
                 )
         self.answer = None
         self.relevant_paragraphs: list[RelevantParagraph] = []
-        self._document: str|None = None
-        self._paragraphs: list[str]|None = None
+        self._document: OpenDocument|None = None
         self._paragraph_size=paragraph_size
         self._followup_assumptions = []
         self._last_query = 0
@@ -133,23 +148,34 @@ class LLMReactor:
                 )
 
     def before_loop(self):
-        while self._last_query+self._throttle > time():
-            continue
-        self._last_query = time()
         pass
 
     def _step(self):
-        while self._last_query+self._throttle > time():
-            continue
-        self._last_query = time()
+        self.throttle()
 
-        response = self._client.chat.completions.create(
-                model=self._model,   
-                messages=self._messages,
-                tools=self._toolbox.tool_schemas(predicate=lambda x: getattr(x, '__cost__', 0) <= max(0, self.energy))
-                )
+        if self.energy > 0:
+
+            response = self._client.chat.completions.create(
+                    model=self._model,   
+                    messages=self._messages,
+                    tools=self._toolbox.tool_schemas(predicate=lambda x: getattr(x, '__cost__', 0) <= max(0, self.energy))
+                    )
+        else:
+            response = self._client.chat.completions.create(
+                    model=self._model,   
+                    messages=self._messages,
+                    tools=[self._toolbox.get_tool_schema('finish')], 
+                    tool_choice=ChatCompletionNamedToolChoiceParam(
+                        type='function',
+                        function=Function(name='finish'),
+                        )
+                    )
+
+
+        self._last_query = time()
         content = response.choices[0].message.content
         self._messages.append(response.choices[0].message)
+        print(response)
         tool_results = self._toolbox.process_response(response)
         self._messages.extend(x.to_message() for x in tool_results)
 
@@ -195,16 +221,6 @@ class LLMReactor:
         result = response.choices[0].message.content
         self._messages.append(response.choices[0].message)
         return result
-        
-
-    def _get_tools(self) -> list[Callable]:
-        return [
-                method
-                for _, method in inspect.getmembers(self)
-                if callable(method)
-                and getattr(method, '__llm_function__', False)
-                and self.energy > getattr(method, '__cost__', 0)
-                ]
 
     @llm_function()
     @cost(10)
@@ -213,17 +229,16 @@ class LLMReactor:
             paragraphs: Annotated[list[int], 'The indices of paragraphs to read']
             ):
         ''' Return the full text of paragraphs at specified indices '''
-        if not self._paragraphs:
+        if not self._document:
             raise RuntimeError('No document is currently open')
         result = ''
         for index in paragraphs:
             try:
-                p = self._paragraphs[index]
+                p = self._document.paragraphs[index]
             except IndexError:
                 continue
             result += f'# Paragraph {index}:\n'
             result += p + '\n'
-        self.energy -= 10
         return result
 
         
@@ -232,14 +247,13 @@ class LLMReactor:
             self,
             paragraphs: Annotated[list[int], 'The indices of paragraphs you found to be relevant AND did contain the required information']
             ):
-        assert self._paragraphs is not None
         assert self._document is not None
         for index in paragraphs:
             try:
                 self.relevant_paragraphs.append(
                         RelevantParagraph(
-                            document=self._document,
-                            paragraph=self._paragraphs[index]
+                            url=self._document.url,
+                            paragraph=self._document.paragraphs[index]
                             )
                         )
             except IndexError:
@@ -255,4 +269,11 @@ class LLMReactor:
             ):
         self.answer = Answer(answer=answer, reasoning=reasoning)
         return 'finished'
+
+    def throttle(self):
+        wait = max(0, self._last_query + self._throttle - time())
+        logging.getLogger(__name__).info(f'Waiting {wait} seconds')
+        sleep(wait)
+        self._last_query = time()
+
 

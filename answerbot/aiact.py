@@ -4,7 +4,15 @@ from markdownify import markdownify
 
 import requests
 
-from answerbot.reactor import LLMReactor, ReactorResponse, llm_function, DEFAULT_SYSTEM_PROMPT, paragraphs, cost
+from answerbot.reactor import (
+        LLMReactor, 
+        OpenDocument, 
+        ReactorResponse, 
+        llm_function, 
+        DEFAULT_SYSTEM_PROMPT, 
+        opens_document, 
+        cost
+        )
 from llm_easy_tools.tool_box import llm_function
 import json
 
@@ -45,12 +53,12 @@ class AiActReactor(LLMReactor):
     DOMAIN = 'EU Artificial Intelligence Act'
 
     @llm_function()
-    @paragraphs
+    @opens_document
     @cost(20)
     def goto_url_read_paragraphs(
             self,
             url: Annotated[str, 'The url to go to']
-            ) -> tuple[str, list[str]]:
+            ) -> OpenDocument:
         '''
         Read a page located at EU Artificial Intelligence Act explorer websiste.
         Only urls on https://artificialintelligenceact.eu/ are accepted.
@@ -74,7 +82,7 @@ class AiActReactor(LLMReactor):
         
         recitals_grid = soup.find('div', class_='recitals-grid')
         if not recitals_grid or not isinstance(recitals_grid, Tag):
-            return url, paragraphs
+            return OpenDocument(url, paragraphs)
 
         recitals = []
 
@@ -92,13 +100,11 @@ class AiActReactor(LLMReactor):
                     '\n'.join(f'[{text}]({url})' for url, text in recitals)
                     )
 
-        self.energy -= 20
-
-        return url, paragraphs
+        return OpenDocument(url, paragraphs)
 
 
 def format_results(response: ReactorResponse) -> str:
-    relevant_paragraphs = '\n\n'.join(f'({p.document})\n{p.paragraph}' for p in response.relevant_paragraphs)
+    relevant_paragraphs = '\n\n'.join(f'({p.url})\n{p.paragraph}' for p in response.relevant_paragraphs)
     followup_assumptions = '\n'.join(response.followup_assumptions)
     result = (
             '#Question\n'

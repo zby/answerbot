@@ -123,12 +123,7 @@ class LLMReactor:
         results = self.toolbox.process_response(response)
         for result in results:
             if result.error is not None:
-                if prefix_class:
-                    self.soft_errors.append(result.error)
-                    results = self.toolbox.process_response(response, prefix_class=prefix_class, ignore_prefix=True)
-                    result = results[0]
-                else:
-                    raise self.LLMReactorError(result.error)
+                raise self.LLMReactorError(result.error)
             if result.name == 'Finish':
                 self.answer = result.model.normalized_answer()
                 self.set_finished()

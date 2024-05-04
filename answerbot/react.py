@@ -5,6 +5,7 @@ import copy
 from pydantic import BaseModel, Field, field_validator, ValidationError
 from typing import Literal, Union, List, Dict, Annotated, Optional
 from pprint import pprint
+from dataclasses import dataclass
 
 from .prompt_templates import QUESTION_CHECKS, PROMPTS, REFLECTIONS 
 
@@ -46,17 +47,35 @@ class Conversation:
 
 
 
+@dataclass(frozen=True)
+class Reflection:
+    reflection_class: Optional[str] = None
+    message: Optional[str] = None
+    detached: bool = True
+
+    def __post_init__(self):
+        if (self.reflection_class is None) == (self.message is None):
+            raise ValueError("reflection message and class cannot be used simultaneously")
+
+    def prefix(self):
+        if self.reflection_class and not self.detached:
+            return f'{self.reflection_class.__name__.lower()}_and_'
+        else:
+            return ''
+
 
 class LLMReactor:
     class LLMReactorError(Exception):
         pass
 
-    def __init__(self, model: str, toolbox: ToolBox,
+    def __init__(self, 
+                 model: str,
+                 toolbox: ToolBox,
                  conversation: Conversation,
-                 max_llm_calls: int, client,
-                 reflection_class, reflection_message: str,
+                 max_llm_calls: int,
+                 client: object,
+                 reflection: Reflection,
                  soft_reflection_validation=True,
-                 reflection_detached=False,
                  question_checks=None,
                  ):
         self.model = model
@@ -66,20 +85,15 @@ class LLMReactor:
         self.max_llm_calls = max_llm_calls
         self.client = client
         self.soft_reflection_validation = soft_reflection_validation
-        self.reflection_class = reflection_class
-        self.reflection_message = reflection_message
         self.question_checks = [] if question_checks is None else question_checks
-
-        if self.reflection_message is not None and self.reflection_class is not None:
-            raise ValueError("reflection message and class cannot be used simultaneously")
 
         self.step = 0
         self.finished = False
         self.answer = None
         self.soft_errors = []
-        self.reflection_detached = reflection_detached
-        if reflection_detached:
-            self.toolbox.register_model(reflection_class)
+        if reflection.detached and reflection.reflection_class:
+            self.toolbox.register_model(reflection.reflection_class)
+        self.reflection = reflection
 
     def openai_query(self, tool_schemas, force_auto_tool_choice=False):
         args = {
@@ -98,16 +112,17 @@ class LLMReactor:
         completion = self.client.chat.completions.create( **args )
         return completion
 
-    def set_finished(self):
-        self.finished = True
-
-
 
     def get_reflection(self):
-        message = { 'role': 'user', 'content': self.reflection_message }
-        logger.info(str(message))
-        self.conversation.add_entry(message)
-        self.query_and_process()
+        if self.reflection.reflection_class:
+            schema = self.toolbox.get_tool_schema(self.reflection.reflection_class.__name__)
+            schemas = [schema]
+            self.query_and_process(schemas)
+        else:
+            message = { 'role': 'user', 'content': self.reflection.message }
+            logger.info(str(message))
+            self.conversation.add_entry(message)
+            self.query_and_process()
 
 
     def query_and_process(self, schemas=[], additional_info='', no_tool_calls_message=None, prefix_class=None):
@@ -138,22 +153,16 @@ class LLMReactor:
 
     def process(self):
         self.analyze_question()
-        while not self.finished:
+        while self.answer is None:
             self.step += 1
-            if self.reflection_message:
+            if self.reflection.detached:
                 self.get_reflection()
                 prefix_class = None
-            elif self.reflection_detached:
-                prefix_class = None
             else:
-                prefix_class = self.reflection_class
+                prefix_class = self.reflection.reflection_class
 
-            if self.reflection_detached and self.reflection_class:
-                schema = self.toolbox.get_tool_schema(self.reflection_class.__name__)
-                schemas = [schema]
-                self.query_and_process(schemas, prefix_class=prefix_class)
             if self.step == self.max_llm_calls + 1:
-                schemas = [self.toolbox.get_tool_schema('Finish', prefix_class)]  # Finish is registered
+                schemas = [self.toolbox.get_tool_schema('finish', prefix_class)]
             else:
                 schemas = self.toolbox.tool_schemas(prefix_class=prefix_class)
             #pprint(schemas)
@@ -184,7 +193,6 @@ class LLMReactor:
         """
         Finish the task and return the answer.
         """
-        self.set_finished()
         self.answer=(
             self.normalize_answer(answer),
             self.normalize_answer(answer_short),
@@ -199,32 +207,20 @@ class LLMReactor:
         return answer
 
 
-def get_answer(question, config, client=None):
+def get_answer(question, config, client: object):
     print("\n\n<<< Question:", question)
     tool_class = config['tool']
     tool = tool_class(chunk_size=config['chunk_size'])
     toolbox = ToolBox()
     toolbox.register_toolset(tool)
     sys_prompt = PROMPTS[config['prompt_class']]
-    reflection = REFLECTIONS[config['reflection']]
-    reflection_class = None
-    if 'class' in reflection:
-        reflection_class = reflection['class']
-    reflection_message = None
-    if 'message' in reflection:
-        reflection_message = reflection['message']
-    reflection_detached = reflection.get('detached', False)
-    if reflection_class and not reflection_detached:
-        prefix = f'{reflection_class.__name__.lower()}_and_'
-    else:
-        prefix = ''
+    reflection = Reflection(**REFLECTIONS[config['reflection']])
     initial_conversation = Conversation()
-    initial_conversation.add_system_message(sys_prompt(config['max_llm_calls'], prefix))
+    initial_conversation.add_system_message(sys_prompt(config['max_llm_calls'], reflection.prefix()))
     initial_conversation.add_user_question(question)
     question_checks = QUESTION_CHECKS[config['question_check']] 
     reactor = LLMReactor(
-        config['model'], toolbox, initial_conversation, config['max_llm_calls'], reflection_class=reflection_class,
-        reflection_message=reflection_message, client=client, reflection_detached=reflection_detached,
+        config['model'], toolbox, initial_conversation, config['max_llm_calls'], client, reflection,
         question_checks=question_checks
     )
     reactor.process()

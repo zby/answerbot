@@ -82,11 +82,11 @@ class ShortReflection(BaseModel):
 
 REFLECTIONS = {
     'None': {},
-    'Reflection': { "class": Reflection },
-    'SimpleReflection': {'class': SimpleReflection},
-    'ShortReflection': { "class": ShortReflection },
-    'ReflectionDetached': {'class': Reflection, 'detached': True},
-    'ShortReflectionDetached': {'class': ShortReflection, 'detached': True},
+    'Reflection': { "reflection_class": Reflection, 'detached': False },
+    'SimpleReflection': {'reflection_class': SimpleReflection, 'detached': False},
+    'ShortReflection': { "reflection_class": ShortReflection, 'detached': False },
+    'ReflectionDetached': {'reflection_class': Reflection},
+    'ShortReflectionDetached': {'reflection_class': ShortReflection},
     'separate': { "message": "Reflect on the information you have gathered so far. Was the last retrieved information relevant for answering the question? What additional information you need, why and how you can get it?" },
     'separate_cot': { "message": "Reflect on the information you have gathered so far. Was the last retrieved information relevant for answering the question? What additional information you need, why and how you can get it? Think step by step"}
 }

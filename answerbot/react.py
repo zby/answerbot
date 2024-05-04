@@ -134,7 +134,7 @@ class LLMReactor:
             del message['tool_calls']
         self.conversation.add_entry(message)
         logger.info(str(message))
-        results = self.toolbox.process_response(response)
+        results = self.toolbox.process_response(response, prefix_class=prefix_class)
         for result in results:
             if result.error is not None:
                 raise self.LLMReactorError(result.error)

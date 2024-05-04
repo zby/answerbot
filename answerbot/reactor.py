@@ -9,6 +9,9 @@ from openai.types.chat import ChatCompletionNamedToolChoiceParam, ChatCompletion
 from openai.types.chat.completion_create_params import Function
 import logging
 
+from answerbot.replay_client import ReplayClient
+
+import json
 
 DEFAULT_SYSTEM_PROMPT = '''
 You are an expert system for answering questions in a specific domain, specifically {domain}.
@@ -139,6 +142,10 @@ class LLMReactor:
         while self.answer is None:
             self._step()
 
+        # write all messages to json file
+        with open('data/messages.json', 'w') as f:
+            json.dump(self._messages, f, indent=4)
+
         return ReactorResponse(
                 question=self.question,
                 answer=self.answer,
@@ -174,7 +181,7 @@ class LLMReactor:
 
         self._last_query = time()
         content = response.choices[0].message.content
-        self._messages.append(response.choices[0].message)
+        self._messages.append(response.choices[0].message.model_dump())
         print(response)
         tool_results = self._toolbox.process_response(response)
         self._messages.extend(x.to_message() for x in tool_results)
@@ -219,7 +226,7 @@ class LLMReactor:
                 messages=self._messages
                 )
         result = response.choices[0].message.content
-        self._messages.append(response.choices[0].message)
+        self._messages.append(response.choices[0].message.model_dump())
         return result
 
     @llm_function()
@@ -271,6 +278,9 @@ class LLMReactor:
         return 'finished'
 
     def throttle(self):
+        # if client is ReplayClient, do nothing
+        if isinstance(self._client, ReplayClient):
+            return
         wait = max(0, self._last_query + self._throttle - time())
         logging.getLogger(__name__).info(f'Waiting {wait} seconds')
         sleep(wait)

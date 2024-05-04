@@ -66,7 +66,7 @@ class AiActReactor(LLMReactor):
         response = requests.get(url)
         response.raise_for_status()
         html = response.text
-        soup = BeautifulSoup(html)
+        soup = BeautifulSoup(html, 'html.parser')
 
         post_content = soup.find('div', class_='et_pb_post_content')
         if not isinstance(post_content, Tag):

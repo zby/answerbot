@@ -1,10 +1,10 @@
 import logging
 import httpx
-import openai
 import json
 
+from openai import OpenAI
 from pprint import pformat, pprint
-from dotenv import load_dotenv
+from dotenv import dotenv_values
 #from answerbot.formatter import format_markdown
 
 from answerbot.react import get_answer
@@ -19,14 +19,26 @@ logging.basicConfig(level=logging.INFO)
 # Get a logger for the current module
 logger = logging.getLogger(__name__)
 
-# load OpenAI api key
-load_dotenv()
+config = dotenv_values(".env")
 
 #from groq import Groq
 #client = Groq()
 
-client = openai.OpenAI(timeout=httpx.Timeout(70.0, read=60.0, write=20.0, connect=6.0))
-#client = ReplayClient('data/conversation.json')
+#client = ReplayClient('data/conversation.json')a
+
+#client = OpenAI(
+#     timeout=httpx.Timeout(70.0, read=60.0, write=20.0, connect=6.0),
+#     api_key=config['OPENAI_API_KEY'],
+#     base_url="https://oai.hconeai.com/v1",
+#     default_headers={
+#         "Helicone-Auth": f"Bearer {config['HELICONE_API_KEY']}",
+#     }
+#)
+
+client = OpenAI(
+    api_key=config['OPENAI_API_KEY'],
+    timeout=httpx.Timeout(70.0, read=60.0, write=20.0, connect=6.0)
+)
 
 if __name__ == "__main__":
 

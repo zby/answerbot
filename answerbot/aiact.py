@@ -1,4 +1,5 @@
-from typing import Annotated
+from typing import Annotated, Any
+from dataclasses import dataclass
 from bs4 import BeautifulSoup, Tag
 from markdownify import markdownify
 
@@ -10,7 +11,6 @@ from answerbot.reactor import (
         ReactorResponse, 
         llm_function, 
         DEFAULT_SYSTEM_PROMPT, 
-        opens_document, 
         cost
         )
 from llm_easy_tools.tool_box import llm_function
@@ -47,22 +47,54 @@ You can use links from this table of contents of the EU Artificial Intelligence 
 Table of Contents:
 ''' + format_table_of_contents()
 
+@dataclass(frozen=True)
+class RelevantParagraph:
+    url: str
+    paragraph: str
 
-class AiActReactor(LLMReactor):
-    SYSTEM_PROMPT = TOC_SYSTEM_PROMPT
-    DOMAIN = 'EU Artificial Intelligence Act'
+@dataclass(frozen=True)
+class OpenDocument:
+    '''
+    url: url of the document
+    paragraphs: list of paragraphs in the document
+    '''
+    url: str
+    paragraphs:list[str]
+
+
+
+class AiActTool:
+    READ_PARAGRAPHS_COST = 10
+
+    def __init__(self, 
+                 paragraph_size: int=55):
+        self.relevant_paragraphs: list[RelevantParagraph] = []
+        self._document: OpenDocument|None = None
+        self._paragraph_size=paragraph_size
+        self.relevant_paragraphs: list[RelevantParagraph] = []
+
 
     @llm_function()
-    @opens_document
     @cost(20)
     def goto_url_read_paragraphs(
             self,
             url: Annotated[str, 'The url to go to']
-            ) -> OpenDocument:
+            ) -> str:
         '''
         Read a page located at EU Artificial Intelligence Act explorer websiste.
         Only urls on https://artificialintelligenceact.eu/ are accepted.
         '''
+        result = self.get_document(url)
+        self._document = result
+        return 'Paragraphs in the current document:\n' + '\n'.join(
+                f'{i}: {s[:self._paragraph_size]}' for i, s in enumerate(result.paragraphs)
+                )
+
+    def get_document(
+            self,
+            url: Annotated[str, 'The url to go to']
+            ) -> OpenDocument:
+ 
         response = requests.get(url)
         response.raise_for_status()
         html = response.text
@@ -102,19 +134,59 @@ class AiActReactor(LLMReactor):
 
         return OpenDocument(url, paragraphs)
 
+    @llm_function()
+    @cost(10)
+    def read_paragraphs(
+            self,
+            paragraphs: Annotated[list[int], 'The indices of paragraphs to read']
+            ):
+        ''' Return the full text of paragraphs at specified indices '''
+        if not self._document:
+            raise RuntimeError('No document is currently open')
+        result = ''
+        for index in paragraphs:
+            try:
+                p = self._document.paragraphs[index]
+            except IndexError:
+                continue
+            result += f'# Paragraph {index}:\n'
+            result += p + '\n'
+        return result
 
-def format_results(response: ReactorResponse) -> str:
-    relevant_paragraphs = '\n\n'.join(f'({p.url})\n{p.paragraph}' for p in response.relevant_paragraphs)
-    followup_assumptions = '\n'.join(response.followup_assumptions)
+        
+    @llm_function()
+    def reflect(
+            self,
+            paragraphs: Annotated[list[int], 'The indices of paragraphs you found to be relevant AND did contain the required information']
+            ):
+        assert self._document is not None
+        for index in paragraphs:
+            try:
+                self.relevant_paragraphs.append(
+                        RelevantParagraph(
+                            url=self._document.url,
+                            paragraph=self._document.paragraphs[index]
+                            )
+                        )
+            except IndexError:
+                continue
+        return str(paragraphs)
+
+
+def format_results(reactor: LLMReactor) -> str:
+    ai_act_tool_object = reactor._toolbox._tool_sets['AiActTool']
+    rp = ai_act_tool_object.relevant_paragraphs
+    relevant_paragraphs = '\n\n'.join(f'({p.url})\n{p.paragraph}' for p in rp)
+    followup_assumptions = '\n'.join(reactor.followup_assumptions)
     result = (
             '#Question\n'
-            f'{response.question}\n\n'
+            f'{reactor.question}\n\n'
             '#Assumptions\n'
-            f'{response.assumptions}\n\n'
+            f'{ai_act_tool_object.assumptions}\n\n'
             '#Answer\n'
-            f'{response.answer.answer}\n\n'
+            f'{ai_act_tool_object.answer}\n\n'
             '#Reasoning\n'
-            f'{response.answer.reasoning}\n\n'
+            f'{ai_act_tool_object.reasoning}\n\n'
             '#Relevant paragraphs\n'
             f'{relevant_paragraphs}'
             '#Followup assumptions\n'
@@ -122,4 +194,9 @@ def format_results(response: ReactorResponse) -> str:
             )
     return result
 
+
+def run_reactor(question: str, client: Any, model: str, energy: int) -> ReactorResponse:
+    ai_act_tool = AiActTool()
+    reactor = LLMReactor(system_prompt=TOC_SYSTEM_PROMPT, model=model, client=client, question=question, toolbox=ai_act_tool, energy=energy)
+    return reactor()
 

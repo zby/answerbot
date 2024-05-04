@@ -1,5 +1,5 @@
 import httpx
-from answerbot.aiact import AiActReactor, format_results
+from answerbot.aiact import run_reactor, format_results
 from answerbot.replay_client import ReplayClient
 
 from dotenv import load_dotenv
@@ -21,7 +21,6 @@ if __name__ == '__main__':
     How is transparency defined in the AI Act and what transparency requirements apply to low-risk Ai systems?
     '''
 
-    reactor = AiActReactor(model='gpt-4-turbo', client=client, question=question,energy=200)
-    result = reactor()
+    result = run_reactor(model='gpt-4-turbo', client=client, question=question,energy=200)
 
     print(format_results(result))

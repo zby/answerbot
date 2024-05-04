@@ -55,43 +55,6 @@ class Answer:
     reasoning: str
 
 
-@dataclass(frozen=True)
-class RelevantParagraph:
-    url: str
-    paragraph: str
-
-
-@dataclass(frozen=True)
-class ReactorResponse:
-    question: str
-    answer: Answer
-    relevant_paragraphs: list[RelevantParagraph]
-    assumptions: str|None
-    followup_assumptions: list[str]
-
-
-@dataclass(frozen=True)
-class OpenDocument:
-    '''
-    url: url of the document
-    paragraphs: list of paragraphs in the document
-    '''
-    url: str
-    paragraphs:list[str]
-
-
-def opens_document(f: Callable[..., OpenDocument]):
-    @wraps(f)
-    def _w(self: 'LLMReactor', *args, **kwargs):
-        result = f(self, *args, **kwargs)
-        self._document = result
-        return 'Paragraphs in the current document:\n' + '\n'.join(
-                f'{i}: {s[:self._paragraph_size]}' for i, s in enumerate(result.paragraphs)
-                )
-    return _w
-
-
-
 def cost(x: int):
     def _wrapper(f):
         @wraps(f)
@@ -105,17 +68,16 @@ def cost(x: int):
 
 
 class LLMReactor:
-    SYSTEM_PROMPT: str = DEFAULT_SYSTEM_PROMPT
-    DOMAIN: str = 'Undefined domain'
-    READ_PARAGRAPHS_COST = 10
-
     def __init__(self, 
+                 system_prompt: str,
                  model: str,
                  client: OpenAI,
                  question: str,
+                 toolbox: ToolBox,
                  energy: int=100,
                  throttle: float=10.,
-                 paragraph_size: int=55):
+                 followup_assumptions: list[str] = []
+                 ):
         self.energy = energy
         self.question = question
         self._model = model
@@ -123,17 +85,13 @@ class LLMReactor:
                 timeout=httpx.Timeout(70, read=60.0, write=20.0, connect=6.0)
                 )
         self.answer = None
-        self.relevant_paragraphs: list[RelevantParagraph] = []
-        self._document: OpenDocument|None = None
-        self._paragraph_size=paragraph_size
-        self._followup_assumptions = []
         self._last_query = 0
         self._throttle=throttle
         self._messages = []
-        self._toolbox = ToolBox()
-        self._toolbox.register_toolset(self)
+        self._toolbox = toolbox
+        self._toolbox.register_function(self.finish)
 
-    def __call__(self) -> ReactorResponse:
+    def __call__(self):
         self._add_system_message()
         self._add_user_question()
         assumptions = self._add_assumptions()
@@ -145,14 +103,6 @@ class LLMReactor:
         # write all messages to json file
         with open('data/messages.json', 'w') as f:
             json.dump(self._messages, f, indent=4)
-
-        return ReactorResponse(
-                question=self.question,
-                answer=self.answer,
-                relevant_paragraphs=self.relevant_paragraphs,
-                assumptions=assumptions,
-                followup_assumptions=self._followup_assumptions,
-                )
 
     def before_loop(self):
         pass
@@ -204,7 +154,7 @@ class LLMReactor:
     def _add_system_message(self):
         self._messages.append({
             'role': 'system',
-            'content': self.SYSTEM_PROMPT.format(
+            'content': self.system_prompt.format(
                 domain=self.DOMAIN,
                 initial_energy=self.energy,
                 )
@@ -229,46 +179,7 @@ class LLMReactor:
         self._messages.append(response.choices[0].message.model_dump())
         return result
 
-    @llm_function()
-    @cost(10)
-    def read_paragraphs(
-            self,
-            paragraphs: Annotated[list[int], 'The indices of paragraphs to read']
-            ):
-        ''' Return the full text of paragraphs at specified indices '''
-        if not self._document:
-            raise RuntimeError('No document is currently open')
-        result = ''
-        for index in paragraphs:
-            try:
-                p = self._document.paragraphs[index]
-            except IndexError:
-                continue
-            result += f'# Paragraph {index}:\n'
-            result += p + '\n'
-        return result
 
-        
-    @llm_function()
-    def reflect(
-            self,
-            paragraphs: Annotated[list[int], 'The indices of paragraphs you found to be relevant AND did contain the required information']
-            ):
-        assert self._document is not None
-        for index in paragraphs:
-            try:
-                self.relevant_paragraphs.append(
-                        RelevantParagraph(
-                            url=self._document.url,
-                            paragraph=self._document.paragraphs[index]
-                            )
-                        )
-            except IndexError:
-                continue
-        return str(paragraphs)
-
-
-    @llm_function()
     def finish(
             self,
             answer: Annotated[str, "The answer to user's original question"],

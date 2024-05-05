@@ -3,13 +3,13 @@ import time
 import logging
 import copy
 from pydantic import BaseModel, Field, field_validator, ValidationError
-from typing import Literal, Union, List, Dict, Annotated, Optional
+from typing import Literal, Union, List, Dict, Annotated, Optional, Callable
 from pprint import pprint
 from dataclasses import dataclass
 
 from .prompt_templates import QUESTION_CHECKS, PROMPTS, REFLECTIONS 
 
-from llm_easy_tools import ToolBox
+from llm_easy_tools import process_response, get_tool_defs, get_toolset_tools
 
 # Configure basic logging
 logging.basicConfig(level=logging.INFO)
@@ -52,6 +52,7 @@ class Reflection:
     reflection_class: Optional[str] = None
     message: Optional[str] = None
     detached: bool = True
+    case_insensitive: bool = False
 
     def __post_init__(self):
         if (self.reflection_class is None) == (self.message is None):
@@ -59,7 +60,10 @@ class Reflection:
 
     def prefix(self):
         if self.reflection_class and not self.detached:
-            return f'{self.reflection_class.__name__.lower()}_and_'
+            name = self.reflection_class.__name__
+            if self.case_insensitive:
+                name = name.lower()
+            return f'{name}_and_'
         else:
             return ''
 
@@ -70,22 +74,24 @@ class LLMReactor:
 
     def __init__(self, 
                  model: str,
-                 toolbox: ToolBox,
+                 toolbox: list[Callable],
                  conversation: Conversation,
                  max_llm_calls: int,
                  client: object,
                  reflection: Reflection,
                  soft_reflection_validation=True,
                  question_checks=None,
+                 case_insensitive=False,
                  ):
         self.model = model
         self.toolbox = toolbox
-        toolbox.register_function(self.finish)
+        self.toolbox.append(self.finish)
         self.conversation = conversation
         self.max_llm_calls = max_llm_calls
         self.client = client
         self.soft_reflection_validation = soft_reflection_validation
         self.question_checks = [] if question_checks is None else question_checks
+        self.case_insensitive = case_insensitive
 
         self.step = 0
         self.finished = False
@@ -115,8 +121,7 @@ class LLMReactor:
 
     def get_reflection(self):
         if self.reflection.reflection_class:
-            schema = self.toolbox.get_tool_schema(self.reflection.reflection_class.__name__)
-            schemas = [schema]
+            schemas = get_tool_defs([self.reflection.reflection_class])
             self.query_and_process(schemas)
         else:
             message = { 'role': 'user', 'content': self.reflection.message }
@@ -125,7 +130,8 @@ class LLMReactor:
             self.query_and_process()
 
 
-    def query_and_process(self, schemas=[], additional_info='', no_tool_calls_message=None, prefix_class=None):
+    def query_and_process(self, tools=[], additional_info='', no_tool_calls_message=None, prefix_class=None):
+        schemas = get_tool_defs(tools, prefix_class=prefix_class)
         response = self.openai_query(schemas)
         message = response.choices[0].message.dict()
         if message['function_call'] is None:
@@ -134,7 +140,7 @@ class LLMReactor:
             del message['tool_calls']
         self.conversation.add_entry(message)
         logger.info(str(message))
-        results = self.toolbox.process_response(response, prefix_class=prefix_class)
+        results = process_response(response, tools, prefix_class=prefix_class)
         for result in results:
             if result.error is not None:
                 raise self.LLMReactorError(result.error)
@@ -162,16 +168,15 @@ class LLMReactor:
                 prefix_class = self.reflection.reflection_class
 
             if self.step == self.max_llm_calls + 1:
-                schemas = [self.toolbox.get_tool_schema('finish', prefix_class)]
+                tools = [self.finish]
             else:
-                schemas = self.toolbox.tool_schemas(prefix_class=prefix_class)
-            #pprint(schemas)
+                tools = self.toolbox
             if self.step == self.max_llm_calls:
                 step_info = "\n\nThis was the last data you can get - in the next step you need to formulate your answer"
             else:
                 step_info = f"\n\nThis was {self.step} out of {self.max_llm_calls} calls for data."
             no_tool_calls_message = "You did not ask for any data this time - but it still counts."
-            self.query_and_process(schemas, additional_info=step_info, no_tool_calls_message=no_tool_calls_message, prefix_class=prefix_class)
+            self.query_and_process(tools, additional_info=step_info, no_tool_calls_message=no_tool_calls_message, prefix_class=prefix_class)
 
 #            if 'gpt-4' in self.model:
 #                time.sleep(20)
@@ -211,8 +216,7 @@ def get_answer(question, config, client: object):
     print("\n\n<<< Question:", question)
     tool_class = config['tool']
     tool = tool_class(chunk_size=config['chunk_size'])
-    toolbox = ToolBox()
-    toolbox.register_toolset(tool)
+    toolbox = get_toolset_tools(tool)
     sys_prompt = PROMPTS[config['prompt_class']]
     reflection = Reflection(**REFLECTIONS[config['reflection']])
     initial_conversation = Conversation()

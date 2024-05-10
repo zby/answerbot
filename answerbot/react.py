@@ -58,6 +58,12 @@ class Reflection:
         if (self.reflection_class is None) == (self.message is None):
             raise ValueError("reflection message and class cannot be used simultaneously")
 
+    def prefix_class(self):
+        if self.reflection_class and not self.detached:
+            return self.reflection_class
+        else:
+            return None
+
     def prefix(self):
         if self.reflection_class and not self.detached:
             name = self.reflection_class.__name__
@@ -130,8 +136,8 @@ class LLMReactor:
             self.query_and_process()
 
 
-    def query_and_process(self, tools=[], additional_info='', no_tool_calls_message=None, prefix_class=None):
-        schemas = get_tool_defs(tools, prefix_class=prefix_class)
+    def query_and_process(self, tools=[], additional_info='', no_tool_calls_message=None):
+        schemas = get_tool_defs(tools, prefix_class=self.reflection.prefix_class())
         response = self.openai_query(schemas)
         message = response.choices[0].message.dict()
         if message['function_call'] is None:
@@ -140,7 +146,7 @@ class LLMReactor:
             del message['tool_calls']
         self.conversation.add_entry(message)
         logger.info(str(message))
-        results = process_response(response, tools, prefix_class=prefix_class)
+        results = process_response(response, tools, prefix_class=self.reflection.prefix_class())
         for result in results:
             if result.error is not None:
                 raise self.LLMReactorError(result.error)
@@ -161,12 +167,6 @@ class LLMReactor:
         self.analyze_question()
         while self.answer is None:
             self.step += 1
-            if self.reflection.detached:
-                self.get_reflection()
-                prefix_class = None
-            else:
-                prefix_class = self.reflection.reflection_class
-
             if self.step == self.max_llm_calls + 1:
                 tools = [self.finish]
             else:
@@ -176,7 +176,9 @@ class LLMReactor:
             else:
                 step_info = f"\n\nThis was {self.step} out of {self.max_llm_calls} calls for data."
             no_tool_calls_message = "You did not ask for any data this time - but it still counts."
-            self.query_and_process(tools, additional_info=step_info, no_tool_calls_message=no_tool_calls_message, prefix_class=prefix_class)
+            if self.reflection.detached:
+                self.get_reflection()
+            self.query_and_process(tools, additional_info=step_info, no_tool_calls_message=no_tool_calls_message)
 
 #            if 'gpt-4' in self.model:
 #                time.sleep(20)

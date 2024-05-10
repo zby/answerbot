@@ -50,6 +50,16 @@ Remove all explanations from the answer and put them into the reasoning field.
 Always try to answer the question even if it is ambiguous, just note the necessary assumptions.
 """
 
+def main_sys_prompt(max_llm_calls, prefix=None):
+    return f"""
+You are to take a role of a researcher. Please answer the users question.
+You can get help from a wikipedia expert - by calling 'delegate' function
+and passing the question you want to ask him.
+You need to carefully divide your work and delegate work to the assistant.
+The questions you ask the assistant need to be as simple and specific as possible.
+You can call {prefix}finish when you think you have enough information to answer the question.
+You can delegate only {max_llm_calls} tasks to the assistant."""
+
 PROMPTS = {
     'NERP': zero_shot_prompt,
     'AAE': aae_sys_prompt,

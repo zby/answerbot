@@ -7,7 +7,7 @@ from typing import Literal, Union, List, Dict, Annotated, Optional, Callable
 from pprint import pprint
 from dataclasses import dataclass
 
-from .prompt_templates import QUESTION_CHECKS, PROMPTS, REFLECTIONS 
+from .prompt_templates import QUESTION_CHECKS, PROMPTS, REFLECTIONS, main_sys_prompt
 
 from llm_easy_tools import process_response, get_tool_defs, get_toolset_tools
 
@@ -162,9 +162,12 @@ class LLMReactor:
                 self.conversation.add_entry(message)
         return results
 
-
-    def process(self):
+    def add_question(self, question: str):
+        self.conversation.add_user_question(question)
         self.analyze_question()
+
+    def process(self, question: str):
+        self.add_question(question)
         while self.answer is None:
             self.step += 1
             if self.step == self.max_llm_calls + 1:
@@ -212,6 +215,13 @@ class LLMReactor:
         if answer.lower() == 'yes' or answer.lower() == 'no':
             answer = answer.lower()
         return answer
+    
+    def delegate(self, question: str):
+        """
+        Delegate the question to the assistant.
+        """
+        self.process(question)
+        return self.answer[0]
 
 
 def get_answer(question, config, client: object):
@@ -223,11 +233,16 @@ def get_answer(question, config, client: object):
     reflection = Reflection(**REFLECTIONS[config['reflection']])
     initial_conversation = Conversation()
     initial_conversation.add_system_message(sys_prompt(config['max_llm_calls'], reflection.prefix()))
-    initial_conversation.add_user_question(question)
     question_checks = QUESTION_CHECKS[config['question_check']] 
-    reactor = LLMReactor(
+    sub_reactor = LLMReactor(
         config['model'], toolbox, initial_conversation, config['max_llm_calls'], client, reflection,
         question_checks=question_checks
     )
-    reactor.process()
+    initial_conversation = Conversation()
+    initial_conversation.add_system_message(main_sys_prompt(config['max_llm_calls'], reflection.prefix()))
+    reactor = LLMReactor(
+        config['model'], [sub_reactor.delegate], initial_conversation, config['max_llm_calls'], client, reflection,
+        question_checks=question_checks
+    )
+    reactor.process(question)
     return reactor

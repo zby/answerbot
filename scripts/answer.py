@@ -76,7 +76,7 @@ if __name__ == "__main__":
         #"model": "llama3-8b-8192",
         #'model': "mixtral-8x7b-32768",
         "question_check": 'category_and_amb',
-        'reflection': 'Reflection',
+        'reflection': 'ShortReflectionDetached',
         'tool': WikipediaSearch,
         #'tool': AAESearch,
     }

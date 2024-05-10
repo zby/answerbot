@@ -98,7 +98,7 @@ class LLMReactor:
         self.answer = None
         self.soft_errors = []
         if reflection.detached and reflection.reflection_class:
-            self.toolbox.register_model(reflection.reflection_class)
+            self.toolbox.append(reflection.reflection_class)
         self.reflection = reflection
 
     def openai_query(self, tool_schemas, force_auto_tool_choice=False):
@@ -121,8 +121,8 @@ class LLMReactor:
 
     def get_reflection(self):
         if self.reflection.reflection_class:
-            schemas = get_tool_defs([self.reflection.reflection_class])
-            self.query_and_process(schemas)
+            tools = [self.reflection.reflection_class]
+            self.query_and_process(tools)
         else:
             message = { 'role': 'user', 'content': self.reflection.message }
             logger.info(str(message))

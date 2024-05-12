@@ -143,11 +143,13 @@ class WikipediaTool:
             info_pieces.append(InfoPiece(text=f"The retrieved page starts with:\n{document.read_chunk()}", source=url))
         return Observation(info_pieces)
 
-    def get_page(self, title):
+    #@llm_function()
+    def get_page(self, title: Annotated[str, "The title of the page to get"]):
         url = self.base_url + title
         return self.get_url(url, title)
     
 
+    @llm_function()
     def search(self, query: Annotated[str, "The query to search for on Wikipedia"]):
         """
         Searches Wikipedia using the provided search query. Reports the search results and the content of the first page.
@@ -208,7 +210,7 @@ class WikipediaTool:
         Looks up a word on the current page.
         """
         if self.document is None:
-            info_text="No document defined, cannot lookup"
+            info_text="No document defined, cannot lookup, you need to use search first to retrieve a document"
         else:
             text = self.document.lookup(keyword)
             if text:

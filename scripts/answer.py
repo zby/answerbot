@@ -9,6 +9,7 @@ from dotenv import dotenv_values
 
 from answerbot.react import get_answer
 
+from answerbot.wiki_tool import WikipediaTool
 from answerbot.wikipedia_tool import WikipediaSearch
 from answerbot.aae_tool import AAESearch
 from answerbot.replay_client import LLMReplayClient
@@ -77,14 +78,14 @@ if __name__ == "__main__":
         #'model': "mixtral-8x7b-32768",
         "question_check": 'category_and_amb',
         'reflection': 'ShortReflectionDetached',
-        'tool': WikipediaSearch,
+        'tool': WikipediaTool,
         #'tool': AAESearch,
     }
 
     reactor = get_answer(question, config, client)
     print(pformat(reactor.conversation.to_messages()))
     pprint(reactor.soft_errors)
-#    with open('data/conversation.json', 'w') as file:
-#        json.dump(reactor.conversation.to_messages(), file, indent=4)
+    with open('data/conversation.json', 'w') as file:
+        json.dump(reactor.conversation.to_messages(), file, indent=4)
 
 #    print(format_markdown(reactor.conversation))

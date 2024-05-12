@@ -32,6 +32,7 @@ f"""
 Please answer the following question. You can use wikipedia for reference - but think carefully about what pages exist at wikipedia.
 You have only {max_llm_calls - 1} calls to the wikipedia API.
 After the first call to wikipedia you need to always reflect on the data retrieved in the previous call.
+To retrieve the first document you need to call {prefix}search.
 Every time you can retrieve only a small fragment of the wikipedia page, if the retrieved information looks promising - but is cut short
 you can call {prefix}read_chunk to retrieve a consecutive chunk of the page.
 You can also jump to different parts of the page using the {prefix}lookup function. In particular you can jump to 

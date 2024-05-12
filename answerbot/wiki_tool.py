@@ -23,6 +23,7 @@ CHUNK_SIZE = 1024
 class InfoPiece:
     text: str
     source: str
+    quotable: bool = False
 
 @dataclass
 class Observation:
@@ -139,8 +140,8 @@ class WikipediaTool:
                 sections = sections[:limit_sections]
             sections_list_md = "\n".join(sections)
             if len(sections) > 0:
-                info_pieces.append(InfoPiece(text=f'The retrieved page contains the following sections:\n{sections_list_md}', source=url))
-            info_pieces.append(InfoPiece(text=f"The retrieved page starts with:\n{document.read_chunk()}", source=url))
+                info_pieces.append(InfoPiece(text=f'The retrieved page contains the following sections:\n{sections_list_md}', source=url, quotable=True))
+            info_pieces.append(InfoPiece(text=f"The retrieved page starts with:\n{document.read_chunk()}", source=url, quotable=True))
         return Observation(info_pieces)
 
     #@llm_function()
@@ -218,7 +219,7 @@ class WikipediaTool:
                 info_text = f'Keyword "{keyword}" found on current page in {num_of_results} places. The first occurrence:\n{text}'
             else:
                 info_text = f'Keyword "{keyword}" not found in current page'
-        return Observation([InfoPiece(text=info_text, source=self.current_url)])
+        return Observation([InfoPiece(text=info_text, source=self.current_url, quotable=True)])
 
     @llm_function('next')
     def next_lookup(self):
@@ -233,7 +234,7 @@ class WikipediaTool:
             text = self.document.next_lookup()
             num_of_results = len(self.document.lookup_results)
             info_text = f'Keyword "{self.document.lookup_word}" found in: \n{text}\n{self.document.lookup_position} of {num_of_results} places'
-        return Observation([InfoPiece(text=info_text, source=self.current_url)])
+        return Observation([InfoPiece(text=info_text, source=self.current_url, quotable=True)])
 
 
     @llm_function()
@@ -245,7 +246,7 @@ class WikipediaTool:
             info_text = "No document defined, cannot read"
         else:
             info_text = self.document.read_chunk()
-        return Observation([InfoPiece(text=info_text, source=self.current_url)])
+        return Observation([InfoPiece(text=info_text, source=self.current_url, quotable=True)])
 
     def make_absolute_url(self, link_address):
         # Check if the link address is already an absolute URL

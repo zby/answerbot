@@ -24,7 +24,7 @@ config = dotenv_values(".env")
 #from groq import Groq
 #client = Groq()
 
-#client = ReplayClient('data/conversation.json')a
+#client = ReplayClient('data/conversation.json')
 
 #client = OpenAI(
 #     timeout=httpx.Timeout(70.0, read=60.0, write=20.0, connect=6.0),
@@ -82,9 +82,8 @@ if __name__ == "__main__":
     }
 
     reactor = get_answer(question, config, client)
-    print(pformat(reactor.conversation.to_messages()))
+    print(pformat(reactor.trace.to_messages()))
     pprint(reactor.soft_errors)
-    with open('data/conversation.json', 'w') as file:
-        json.dump(reactor.conversation.to_messages(), file, indent=4)
-
+    with open('data/trace.py', 'w') as file:
+        file.write(repr(reactor.trace))
 #    print(format_markdown(reactor.conversation))

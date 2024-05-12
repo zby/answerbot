@@ -7,8 +7,10 @@ from typing import Annotated
 from dataclasses import dataclass
 from answerbot.document import MarkdownDocument 
 from bs4 import BeautifulSoup, NavigableString
+from urllib.parse import urlparse, urljoin
 from pprint import pprint
 
+from llm_easy_tools import llm_function
 
 MAX_RETRIES = 3
 # BASE_URL = 'https://pl.wikipedia.org/wiki/'
@@ -32,17 +34,21 @@ class Observation:
 class WikipediaTool:
     def __init__(self, 
                 document=None,
+                current_url=None,
                 max_retries=MAX_RETRIES,
                 chunk_size=CHUNK_SIZE,
                 base_url=BASE_URL,
                 api_url=API_URL,
+                extra_links=None
                 ):
         self.document = document
+        self.current_url = current_url
 
         self.max_retries = max_retries
         self.chunk_size = chunk_size
         self.base_url = base_url
         self.api_url = api_url
+        self.extra_links = extra_links if extra_links is not None else []
 
     @classmethod
     def clean_html_and_textify(self, html):
@@ -106,7 +112,7 @@ class WikipediaTool:
         while retries < self.max_retries:
             response = requests.get(url)
             if response.status_code == 404:
-                info_pieces.append(InfoPiece(text="Page does not exist", source=url))
+                info_pieces.append(InfoPiece(text="Page does not exist.", source=url))
                 break
             elif response.status_code == 200:
                 html = response.text
@@ -116,38 +122,31 @@ class WikipediaTool:
                 if title is not None:
                     info_pieces.append(InfoPiece(text=f"Successfully retrieved page {title} from wikipedia", source=url))
                 else:
-                    info_pieces.append(InfoPiece(text="Successfully retrieved document from url", source=url))
+                    info_pieces.append(InfoPiece(text=f"Successfully retrieved document from url: '{url}'", source=url))
                 break
             else:
                 info_pieces.append(InfoPiece(text=f"HTTP error occurred: {response.status_code}", source=url))
             retries += 1
+
+        if retries == self.max_retries:
             info_pieces.append(InfoPiece(text=f"Retries exhausted. No options available.", source=url))
+
         if document is not None:
             self.document = document
+            self.current_url = url
             sections = document.section_titles()
             if limit_sections is not None:
                 sections = sections[:limit_sections]
             sections_list_md = "\n".join(sections)
             if len(sections) > 0:
-                info_pieces.append(InfoPiece(text=f'The retrieved page contains the following sections:\n{sections_list_md}\n\n', source=url))
-            info_pieces.append(InfoPiece(text=f"The retrieved page starts with:\n{document.read_chunk()}\n", source=url))
+                info_pieces.append(InfoPiece(text=f'The retrieved page contains the following sections:\n{sections_list_md}', source=url))
+            info_pieces.append(InfoPiece(text=f"The retrieved page starts with:\n{document.read_chunk()}", source=url))
         return Observation(info_pieces)
 
     def get_page(self, title):
         url = self.base_url + title
         return self.get_url(url, title)
     
-
-        """
-        Searches Wikipedia, saves the first result page, and informs about the content of that page using InformationPieces.
-        """
-        info_pieces = []
-        search_record = self.wiki_api_search(query)
-        self.document = search_record.document
-        if search_record.document is None:
-            info_pieces.append(InfoPiece(text="No document found", source=self.api_url))
-        else:
-            info_pieces.append(InfoPiece(text=f"Document retrieved successfully: {query}", source=self.api_url))
 
     def search(self, query: Annotated[str, "The query to search for on Wikipedia"]):
         """
@@ -197,11 +196,92 @@ class WikipediaTool:
         text = f"Wikipedia search results for query: '{query}' are: "
         results = []
         for item in items:
-            results.append(f"[[{item['title']}]]")
-            #self.extra_links.append(item['title'])
+            results.append(f"[{item['title']}]({item['title']})")
+            self.extra_links.append(item['title'])
 
         search_results = ", ".join(results)
         return text + search_results
+
+    @llm_function()
+    def lookup(self, keyword: Annotated[str, "The keyword to search"] ):
+        """
+        Looks up a word on the current page.
+        """
+        if self.document is None:
+            info_text="No document defined, cannot lookup"
+        else:
+            text = self.document.lookup(keyword)
+            if text:
+                num_of_results = len(self.document.lookup_results)
+                info_text = f'Keyword "{keyword}" found on current page in {num_of_results} places. The first occurrence:\n{text}'
+            else:
+                info_text = f'Keyword "{keyword}" not found in current page'
+        return Observation([InfoPiece(text=info_text, source=self.current_url)])
+
+    @llm_function('next')
+    def next_lookup(self):
+        """
+        Jumps to the next occurrence of the word searched previously.
+        """
+        if self.document is None:
+            info_text = "No document defined, cannot lookup"
+        elif not self.document.lookup_results:
+            info_text = "No lookup results found"
+        else:
+            text = self.document.next_lookup()
+            num_of_results = len(self.document.lookup_results)
+            info_text = f'Keyword "{self.document.lookup_word}" found in: \n{text}\n{self.document.lookup_position} of {num_of_results} places'
+        return Observation([InfoPiece(text=info_text, source=self.current_url)])
+
+
+    @llm_function()
+    def read_chunk(self):
+        """
+        Reads the next chunk of text from the current location in the current document.
+        """
+        if self.document is None:
+            info_text = "No document defined, cannot read"
+        else:
+            info_text = self.document.read_chunk()
+        return Observation([InfoPiece(text=info_text, source=self.current_url)])
+
+    def make_absolute_url(self, link_address):
+        # Check if the link address is already an absolute URL
+        parsed_link = urlparse(link_address)
+        if parsed_link.scheme:
+            return link_address
+
+        # Check if the link address starts with '/'
+        if link_address.startswith('/'):
+            # Extract the host part of the base URL
+            parsed_base = urlparse(self.base_url)
+            base_host = parsed_base.scheme + '://' + parsed_base.netloc
+            return urljoin(base_host, link_address)
+
+        # Concatenate the base URL with the link address
+        return urljoin(self.base_url, link_address)
+
+
+    @llm_function()
+    def follow_link(self, link: Annotated[str, "The link to follow"]):
+        """
+        Follows a link from the current page and saves the retrieved page as the next current page
+        """
+        if self.document is None:
+            return Observation([InfoPiece(text="No current page, cannot follow", source=self.current_url)])
+        else:
+            link_with_spaces_restituted = link.replace('_', ' ') # sometimes the LLM tries to replace spaces in links
+            if link in self.extra_links:
+                url = link
+            if link_with_spaces_restituted in self.extra_links:
+                url = link
+            else:
+                url = self.document.resolve_link(link)
+            if url is None:
+                return Observation([InfoPiece(text=f"There is no '{link}' link on current page", source=self.current_url)])
+            else:
+                url = self.make_absolute_url(url)
+                return self.get_url(url)
 
 
 

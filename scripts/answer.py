@@ -21,8 +21,8 @@ logger = logging.getLogger(__name__)
 
 config = dotenv_values(".env")
 
-#from groq import Groq
-#client = Groq()
+from groq import Groq
+client = Groq()
 
 #client = ReplayClient('data/conversation.json')
 
@@ -35,10 +35,10 @@ config = dotenv_values(".env")
 #     }
 #)
 
-client = OpenAI(
-    api_key=config['OPENAI_API_KEY'],
-    timeout=httpx.Timeout(70.0, read=60.0, write=20.0, connect=6.0)
-)
+#client = OpenAI(
+#    api_key=config['OPENAI_API_KEY'],
+#    timeout=httpx.Timeout(70.0, read=60.0, write=20.0, connect=6.0)
+#)
 
 if __name__ == "__main__":
 
@@ -71,18 +71,18 @@ if __name__ == "__main__":
         "prompt_class": 'NERP',
         #"prompt_class": 'AAE',
         "max_llm_calls": 4,
-        "model": "gpt-3.5-turbo-0613",
+        #"model": "gpt-3.5-turbo-0613",
         #"model": "gpt-4-1106-preview",
-        #"model": "llama3-8b-8192",
+        "model": "llama3-8b-8192",
         #'model': "mixtral-8x7b-32768",
-        "question_check": 'category_and_amb',
+        "question_check": 'None',
         'reflection': 'ShortReflectionDetached',
         'tool': WikipediaTool,
         #'tool': AAESearch,
     }
 
     reactor = get_answer(question, config, client)
-    print(pformat(reactor.trace.to_messages()))
+    print(reactor.trace.generate_report())
     pprint(reactor.soft_errors)
     with open('data/trace.py', 'w') as file:
         file.write(repr(reactor.trace))

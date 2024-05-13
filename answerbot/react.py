@@ -12,6 +12,7 @@ from openai.types.chat.chat_completion import ChatCompletionMessage
 from .prompt_templates import QUESTION_CHECKS, PROMPTS, REFLECTIONS 
 
 from llm_easy_tools import process_response, get_tool_defs, get_toolset_tools, ToolResult
+from answerbot.wiki_tool import Observation
 
 # Configure basic logging
 logging.basicConfig(level=logging.INFO)
@@ -43,7 +44,7 @@ class Trace:
         for entry in self.entries:
             if isinstance(entry, dict):
                 all_messages.append(entry)
-            elif isinstance(entry, ChatCompletionMessage):
+            elif isinstance(entry, BaseModel):
                 all_messages.append(entry.model_dump())
             elif isinstance(entry, ToolResult):
                 all_messages.append(entry.to_message())
@@ -53,6 +54,38 @@ class Trace:
 
     def __repr__(self):
         return f"Trace(entries={self.entries}, user_question={self.user_question!r})"
+
+    def generate_report(self):
+        """
+        Generates a report from a Trace object containing the user question, the answer, and the list of document quotes used.
+
+        Args:
+        trace (Trace): The Trace object containing the entries of the conversation.
+
+        Returns:
+        str: A formatted report as a string.
+        """
+        report = []
+        answer = None
+        document_quotes = []
+
+        for entry in self.entries:
+            if isinstance(entry, ToolResult):
+                if isinstance(entry.output, Observation):
+                    if entry.output.info_pieces:
+                        for info_piece in entry.output.info_pieces:
+                            if info_piece.quotable:
+                                document_quotes.append(f"{info_piece.source}: {info_piece.text}\n\n---")
+                elif isinstance(entry.output, Answer):
+                    answer = entry.output
+
+        report.append(f"User Question: {self.user_question}")
+        report.append(f"Answer: {answer.normalized_answer()}")
+        report.append(f"Reasoning: {answer.reasoning}")
+        report.append("Analyzed Document Fragments:")
+        report.extend(document_quotes)
+
+        return "\n".join(report)
 
 
 
@@ -81,6 +114,25 @@ class Reflection:
             return f'{name}_and_'
         else:
             return ''
+
+@dataclass
+class Answer:
+    answer: str
+    answer_short: str
+    reasoning: str
+    ambiguity: Optional[str]
+
+    def normalized_answer(self):
+        answer = self.answer
+        answer = answer.strip(' \n.\'"')
+        answer = answer.replace('’', "'")  # Replace all curly apostrophes with straight single quotes
+        answer = answer.replace('"', "'")  # Replace all double quotes with straight single quotes
+        if answer.lower() == 'yes' or answer.lower() == 'no':
+            answer = answer.lower()
+        return answer
+
+    def __str__(self):
+        return self.normalized_answer()
 
 
 
@@ -111,6 +163,7 @@ class LLMReactor:
         self.case_insensitive = case_insensitive
 
         self.step = 0
+        self.to_reflect = False
         self.finished = False
         self.answer = None
         self.soft_errors = []
@@ -156,11 +209,13 @@ class LLMReactor:
         for result in results:
             if result.error is not None:
                 raise self.LLMReactorError(result.error)
+            result.tool = None
             self.trace.add_entry(result)
             if len(additional_info) > 0:
                 self.trace.add_entry({'role': 'system', 'content': additional_info})
         if len(schemas) > 0 and len(results) == 0:
             self.soft_errors.append("No function call")
+            self.to_reflect = False
             if no_tool_calls_message is not None:
                 message = { 'role': 'assistant', 'content': no_tool_calls_message }
                 self.trace.add_entry(message)
@@ -180,9 +235,10 @@ class LLMReactor:
             else:
                 step_info = f"\n\nThis was {self.step} out of {self.max_llm_calls} calls for data."
             no_tool_calls_message = "You did not ask for any data this time - but it still counts."
-            if self.reflection.detached and self.step > 1:
+            if self.reflection.detached and self.to_reflect:
                 self.get_reflection()
             self.query_and_process(tools, additional_info=step_info, no_tool_calls_message=no_tool_calls_message)
+            self.to_reflect = True
 
 #            if 'gpt-4' in self.model:
 #                time.sleep(20)
@@ -204,17 +260,8 @@ class LLMReactor:
         """
         Finish the task and return the answer.
         """
-        self.answer=(
-            self.normalize_answer(answer),
-            self.normalize_answer(answer_short),
-        )
-
-    def normalize_answer(self, answer):
-        answer = answer.strip(' \n.\'"')
-        answer = answer.replace('’', "'")  # Replace all curly apostrophes with straight single quotes
-        answer = answer.replace('"', "'")  # Replace all double quotes with straight single quotes
-        if answer.lower() == 'yes' or answer.lower() == 'no':
-            answer = answer.lower()
+        answer = Answer(answer, answer_short, reasoning, ambiguity)
+        self.answer = answer
         return answer
 
 

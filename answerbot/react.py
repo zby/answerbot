@@ -171,10 +171,10 @@ class LLMReactor:
             self.toolbox.append(reflection.reflection_class)
         self.reflection = reflection
 
-    def openai_query(self, tool_schemas, force_auto_tool_choice=False):
+    def openai_query(self, messages, tool_schemas, force_auto_tool_choice=False):
         args = {
             'model': self.model,
-            'messages': self.trace.to_messages()
+            'messages': messages
         }
         if len(tool_schemas) == 0:
             pass
@@ -201,9 +201,8 @@ class LLMReactor:
 
 
     def query_and_process(self, tools=[], additional_info='', no_tool_calls_message=None):
-        prefix_class = self.reflection.prefix_class()
-        schemas = get_tool_defs(tools, prefix_class=prefix_class)
-        response = self.openai_query(schemas)
+        schemas = get_tool_defs(tools, prefix_class=self.reflection.prefix_class())
+        response = self.openai_query(self.trace.to_messages(), schemas)
         message = response.choices[0].message
         self.trace.add_entry(message)
         results = process_response(response, tools, prefix_class=self.reflection.prefix_class())
@@ -212,6 +211,7 @@ class LLMReactor:
                 raise self.LLMReactorError(result.error)
             result.tool = None
             self.trace.add_entry(result)
+            reflection = self.clean_context_reflection(result)
             if len(additional_info) > 0:
                 self.trace.add_entry({'role': 'system', 'content': additional_info})
         if len(schemas) > 0 and len(results) == 0:
@@ -222,7 +222,46 @@ class LLMReactor:
                 self.trace.add_entry(message)
         return results
 
+    class ReflectionResult(BaseModel):
+        relevant_quotes: List[str] = Field(..., description="A list of relevant quotes from the source that should be saved.")
+        new_sources: List[str] = Field(..., description="A list of new links mentioned in the notes that should be checked later.")
+        right_page: bool = Field(..., description="Are we on the right page? Is it possible that the needed information is somewhere else on the page?")
+        
+        def to_note(self):
+            return f"Relevant quotes:\n\n{self.relevant_quotes}\n\nNew sources:\n\n{self.new_sources}"
+    
+    def clean_context_reflection(self, result):
+        sysprompt = """
+You are a researcher working on a user question. Yesterday your colleague checked one source of information and quoted some fragments.
+Today you need to evaluate that information and plan checking other sources mentioned in these notes.
+"""
+        user_prompt = f"Here are the notes in Markdown format:\n\n{str(result.output)}"
+        user_prompt += f"\n\nFrom these notes please extract quotes and note new sources relevant to answering the following question: {self.trace.user_question}"
+        messages = [
+            {'role': 'system', 'content': sysprompt},
+            {'role': 'user', 'content': user_prompt},
+        ]
+        response = self.openai_query(messages, get_tool_defs([self.ReflectionResult]))
+        exit()
+        message = response.choices[0].message
+        self.trace.add_entry(message)
+        results = process_response(response, [self.ReflectionResult])
+        result = results[0]
+        if result.error is not None:
+            raise self.LLMReactorError(result.error)
+        result.tool = None
+        reflection = result.output
+        result.output = reflection.to_note()
+        self.trace.add_entry(result)
+        if len(results) == 0:
+            self.soft_errors.append("No function call for reflection")
+        if len(results) > 1:
+            self.soft_errors.append(f"More than one reflection result")
+        return results
 
+            
+            
+            
     def process(self):
         self.analyze_question()
         while self.answer is None:
@@ -236,8 +275,8 @@ class LLMReactor:
             else:
                 step_info = f"\n\nThis was {self.step} out of {self.max_llm_calls} calls for data."
             no_tool_calls_message = "You did not ask for any data this time - but it still counts."
-            if self.reflection.detached and self.to_reflect:
-                self.get_reflection()
+#            if self.reflection.detached and self.to_reflect:
+#                self.get_reflection()
             self.query_and_process(tools, additional_info=step_info, no_tool_calls_message=no_tool_calls_message)
             self.to_reflect = True
 

@@ -26,14 +26,14 @@ config = dotenv_values(".env")
 
 #client = ReplayClient('data/conversation.json')
 
-#client = OpenAI(
-#     timeout=httpx.Timeout(70.0, read=60.0, write=20.0, connect=6.0),
-#     api_key=config['OPENAI_API_KEY'],
-#     base_url="https://oai.hconeai.com/v1",
-#     default_headers={
-#         "Helicone-Auth": f"Bearer {config['HELICONE_API_KEY']}",
-#     }
-#)
+client = OpenAI(
+     timeout=httpx.Timeout(70.0, read=60.0, write=20.0, connect=6.0),
+     api_key=config['OPENAI_API_KEY'],
+     base_url="https://oai.hconeai.com/v1",
+     default_headers={
+         "Helicone-Auth": f"Bearer {config['HELICONE_API_KEY']}",
+     }
+)
 
 client = OpenAI(
     api_key=config['OPENAI_API_KEY'],
@@ -49,10 +49,10 @@ if __name__ == "__main__":
     # question = "how old was Donald Tusk when he died?"
     # question = "how many keys does a US-ANSI keyboard have on it?"
     # question = "How many children does Donald Tusk have?"
-    #question = "What government position was held by the woman who portrayed Corliss Archer in the film Kiss and Tell?"
+    question = "What government position was held by the woman who portrayed Corliss Archer in the film Kiss and Tell?"
     # question = "The director of the romantic comedy \"Big Stone Gap\" is based in what New York city?"
     #question = "When Poland became elective monarchy?"
-    question = "Were Scott Derrickson and Ed Wood of the same nationality?"
+    #question = "Were Scott Derrickson and Ed Wood of the same nationality?"
     #question = "What science fantasy young adult series, told in first person, has a set of companion books narrating the stories of enslaved worlds and alien species?"
     #question = "The arena where the Lewiston Maineiacs played their home games can seat how many people?"
     #question = "What is the name of the fight song of the university whose main campus is in Lawrence, Kansas and whose branch campuses are in the Kansas City metropolitan area?"

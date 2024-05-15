@@ -24,13 +24,21 @@ class InfoPiece:
     text: str
     source: str
     quotable: bool = False
+    def to_markdown_blockquote(self) -> str:
+        """
+        Formats the InfoPiece text as a Markdown blockquote and appends the source.
+        Handles text containing new lines by applying blockquote to each line.
+        """
+        quoted_text = "\n".join([f"> {line}" for line in self.text.split('\n')])
+        return f"{quoted_text}\n— *from {self.source}*"
+
 
 @dataclass
 class Observation:
     info_pieces: list[InfoPiece]
 
-    def to_content(self) -> str:
-        return "\n\n".join([info.text for info in self.info_pieces])
+    def __str__(self) -> str:
+        return "\n\n".join([info.to_markdown_blockquote() for info in self.info_pieces])
 
 class WikipediaTool:
     def __init__(self, 

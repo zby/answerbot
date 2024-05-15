@@ -97,3 +97,28 @@ def test_search_success(mock_get_page, mock_get):
     assert observation.info_pieces[1].text == "Successfully retrieved page TestTitle1 from wikipedia"
     assert observation.info_pieces[2].text == "The retrieved page starts with:\nPage content for TestTitle1"
 
+
+def test_to_markdown_blockquote():
+    info_piece = InfoPiece(text="First piece of information\nSecond piece of information", source="First URL")
+    blockquote = info_piece.to_markdown_blockquote()
+    assert blockquote == "> First piece of information\n> Second piece of information\n— *from First URL*"
+
+def test_observation_stringification():
+
+    # Create an Observation with multiple InfoPieces
+    info_pieces = [
+        InfoPiece(text="First piece of information\nSecond piece of information", source="First URL"),
+        InfoPiece(text="Third piece of information\nFourth piece of information", source="Second URL")
+    ]
+    observation = Observation(info_pieces=info_pieces)
+
+    # Convert the Observation to string and verify
+    observation_str = str(observation)
+    expected_str = """> First piece of information
+> Second piece of information
+— *from First URL*
+
+> Third piece of information
+> Fourth piece of information
+— *from Second URL*"""
+    assert observation_str == expected_str, "The Observation stringification did not match the expected format."

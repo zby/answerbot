@@ -3,8 +3,8 @@ import html2text
 import time
 import traceback
 
-from typing import Annotated
-from dataclasses import dataclass
+from typing import Annotated, Optional
+from dataclasses import dataclass, field
 from answerbot.markdown_document import MarkdownDocument 
 from bs4 import BeautifulSoup, NavigableString
 from urllib.parse import urlparse, urljoin
@@ -32,13 +32,33 @@ class InfoPiece:
         quoted_text = "\n".join([f"> {line}" for line in self.text.split('\n')])
         return f"{quoted_text}\n— *from {self.source}*"
 
-
 @dataclass
 class Observation:
     info_pieces: list[InfoPiece]
+    is_refined: bool = False
+    interesting_links: list[str] = field(default_factory=list)
+    comment: Optional[str] = None
+
+    def clear_info_pieces(self):
+        self.info_pieces = []
+
+    def add_info_piece(self, info_piece: InfoPiece):
+        self.info_pieces.append(info_piece)
+
 
     def __str__(self) -> str:
-        return "\n\n".join([info.to_markdown_blockquote() for info in self.info_pieces])
+        result = ''
+        if self.is_refined:
+            result += 'Relevant quotes:\n'
+        for info in self.info_pieces:
+            result += f"\n\n{info.to_markdown_blockquote()}"
+        if self.interesting_links:
+            result += '\n\nNew sources:\n'
+            for link in self.interesting_links:
+                result += f"\n\n- {link}"
+        if self.comment:
+            result += f"\n\nComment: {self.comment}"
+        return result
 
 class WikipediaTool:
     def __init__(self, 

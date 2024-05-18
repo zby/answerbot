@@ -14,6 +14,30 @@ class MarkdownDocument:
         else:
             raise ValueError("Position out of range.")
 
+    def find_good_boundary(self, text, search_from_start=True):
+        """Find a good semantic boundary within the given text."""
+        # Define boundaries with two different behaviors
+        boundaries = [
+            (r'\n# ', False),  # Header 1
+            (r'\n## ', False),  # Header 2
+            (r'\n### ', False),  # Header 3
+            (r'\n#### ', False),  # Header 4
+            (r'\n##### ', False),  # Header 5
+            (r'\n###### ', False),  # Header 6
+            (r'\.\s', True)  # Period followed by space
+        ]
+
+        for pattern, after_match in boundaries:
+            matches = re.finditer(pattern, text)
+
+            if not search_from_start:
+                matches = reversed(list(matches))
+
+            for match in matches:
+                return match.end() if after_match else match.start()
+
+        raise ValueError(f"No good boundary found in:\n{text}\n")
+
     def read_chunk(self):
         """Read a chunk of text from the current position, stopping at a good semantic boundary."""
         if self.position >= len(self.text):
@@ -22,40 +46,48 @@ class MarkdownDocument:
         end_position = min(self.position + self.max_size, len(self.text))
         chunk = self.text[self.position:end_position]
 
-        # Define the order of boundaries to search for
-        boundaries = [
-            r'\n###### ',  # Header 6
-            r'\n##### ',   # Header 5
-            r'\n#### ',    # Header 4
-            r'\n### ',     # Header 3
-            r'\n## ',      # Header 2
-            r'\n# ',       # Header 1
-            r'\.\s'        # Period followed by space
-        ]
+        chosen_boundary = self.find_good_boundary(chunk, search_from_start=False)
 
-        # Find the positions of boundaries in the chunk
-        boundary_positions = {}
-        for pattern in boundaries:
-            matches = [m.end() for m in re.finditer(pattern, chunk)]
-            if matches:
-                boundary_positions[pattern] = matches
-
-        # Find the last good boundary within the limits
-        chosen_boundary = None
-        for pattern in boundaries:
-            if pattern in boundary_positions:
-                last_boundary = max((b for b in boundary_positions[pattern] if b >= self.min_size), default=None)
-                if last_boundary and last_boundary <= self.max_size:
-                    chosen_boundary = last_boundary
-                    break
-        if chosen_boundary is None:
-            raise ValueError("No good boundary found within the specified range.")
-        else:
-            end_position = self.position + chosen_boundary
-            chunk = self.text[self.position:end_position]
+        end_position = self.position + chosen_boundary
+        chunk = self.text[self.position:end_position]
 
         self.position = end_position
         return chunk
+
+
+    def keyword_search(self, keyword):
+        """Search for a keyword and return a chunk of text around it with good boundaries."""
+        match = re.search(re.escape(keyword), self.text)
+        if not match:
+            return None  # Keyword not found
+
+        keyword_position = match.start()
+
+        # Define the start position for the chunk
+        start_position = max(0, keyword_position - self.max_size // 2)
+        pre_chunk = self.text[start_position:keyword_position]
+
+        # Find a good boundary for the start position
+        chosen_start_boundary = self.find_good_boundary(pre_chunk, search_from_start=True)
+        start_position = start_position + chosen_start_boundary
+
+        end_position = min(start_position + self.max_size, len(self.text))
+        chunk = self.text[start_position:end_position]
+
+        # Find a good boundary for the end position
+        chosen_end_boundary = self.find_good_boundary(chunk, search_from_start=False)
+        end_position = start_position + chosen_end_boundary
+        chunk = self.text[start_position:end_position]
+        self.position = end_position
+
+        return chunk
+
+
+# Example usage
+text = "Your markdown text goes here..."
+doc = MarkdownDocument(text=text)
+chunk = doc.keyword_search("keyword")
+print(chunk)
 
 if __name__ == "__main__":
     md = MarkdownDocument(

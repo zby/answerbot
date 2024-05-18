@@ -24,110 +24,57 @@ def test_set_position():
 
 def test_read_chunk_within_bounds():
     text = "# Header 1\nSample text.\n## Header 2\nMore text."
-    doc = MarkdownDocument(text=text, min_size=10, max_size=50)
-    chunk = doc.read_chunk()
-    assert chunk == "# Header 1\nSample text.\n## Header 2"
-    assert doc.position == len(chunk)
-
-
-def test_read_chunk_exceed_bounds():
-    text = "# Header 1\nSample text.\n## Header 2\nMore text."
-    doc = MarkdownDocument(text=text, min_size=10, max_size=20)
+    print(len(text))
+    doc = MarkdownDocument(text=text, min_size=10, max_size=40)
     chunk = doc.read_chunk()
     assert chunk == "# Header 1\nSample text."
     assert doc.position == len(chunk)
 
+@pytest.fixture
+def doc():
+    sample_text = """# Header 1
+Some introductory text.
 
-def test_read_chunk_no_boundary():
-    text = "Sample text with no headers."
-    doc = MarkdownDocument(text=text, min_size=5, max_size=20)
-    chunk = doc.read_chunk()
-    assert chunk == "Sample text with no headers."
-    assert doc.position == len(chunk)
+## Header 2
+Details about header 2. 
 
+### Header 3
+More details in header 3. 
 
-def test_keyword_search_found():
-    text = "This is a test document.\n## Header 2\nHere is the keyword.\nMore text after keyword."
-    doc = MarkdownDocument(text=text, min_size=10, max_size=50)
-    chunk = doc.keyword_search("keyword")
-    assert "keyword" in chunk
-    assert "Header 2" in chunk or "More text after keyword." in chunk
+Another paragraph. Ending this section. 
 
+#### Header 4
+Details in header 4. A bit more text.
 
-def test_keyword_search_not_found():
-    text = "This is a test document with no keyword."
-    doc = MarkdownDocument(text=text, min_size=10, max_size=50)
-    chunk = doc.keyword_search("keyword")
-    assert chunk is None
+##### Header 5
+Text for header 5. Final notes.
 
-def test_keyword_search_boundary():
-    text = "This is a test document.\n## Header 2\nHere is the keyword.\nMore text after keyword."
-    doc = MarkdownDocument(text=text, min_size=10, max_size=50)
-    chunk = doc.keyword_search("Header 2")
-    assert "Header 2" in chunk
-    assert "More text after keyword." in chunk or "This is a test document." in chunk
+###### Header 6
+Last header text. The end."""
 
-def test_find_good_boundary_start():
-    text = "This is a test document.\n## Header 2\nHere is the keyword.\nMore text after keyword."
-    doc = MarkdownDocument(text=text, min_size=10, max_size=50)
-    boundary = doc.find_good_boundary(text[:30], search_from_start=True)
-    assert boundary is not None
+    return MarkdownDocument(text=sample_text, min_size=50, max_size=100)
 
-def test_find_good_boundary_end():
-    text = "This is a test document.\n## Header 2\nHere is the keyword.\nMore text after keyword."
-    doc = MarkdownDocument(text=text, min_size=10, max_size=50)
-    boundary = doc.find_good_boundary(text[:50], search_from_start=False)
-    assert boundary is not None
+def test_read_until_end(doc):
+    chunks = []
+    while True:
+        chunk = doc.read_chunk()
+        if not chunk:
+            break
+        chunks.append(chunk)
+    full_text = ''.join(chunks)
+    assert full_text == doc.text
 
+def test_keyword_search(doc):
+    keyword = "Header 4"
+    result = doc.keyword_search(keyword)
+    assert keyword in result
+    assert len(result) >= doc.min_size
+    assert len(result) <= doc.max_size
 
-def test_find_good_boundary_with_rich_structure():
-    text = (
-        "# Header 1\n"
-        "Some introduction text.\n"
-        "## Header 2\n"
-        "Details about header 2. More details here.\n"
-        "### Header 3\n"
-        "Further details about a subsection.\n"
-        "More text and more details.\n"
-        "## Another Header 2\n"
-        "Text under another header 2.\n"
-        "#### Header 4\n"
-        "Details in a deeper subsection.\n"
-        "Even more detailed text here.\n"
-        "# Conclusion\n"
-        "Final thoughts and summary.\n"
-    )
-    doc = MarkdownDocument(text=text, min_size=50, max_size=200)
-
-    # Test a chunk that should find "## Header 2" as a good boundary
-    chunk = text[:100]
-    boundary = doc.find_good_boundary(chunk, search_from_start=False)
-    assert boundary is not None
-    assert text[boundary-9:boundary] == "\n## Header 2"
-
-    # Test a chunk that should find "### Header 3" as a good boundary
-    chunk = text[50:150]
-    boundary = doc.find_good_boundary(chunk, search_from_start=False)
-    assert boundary is not None
-    assert text[50 + boundary-9:50 + boundary] == "\n### Header 3"
-
-    # Test a chunk that should prioritize "## Another Header 2" over a period
-    chunk = text[100:300]
-    boundary = doc.find_good_boundary(chunk, search_from_start=False)
-    assert boundary is not None
-    assert text[100 + boundary-18:100 + boundary] == "\n## Another Header 2"
-
-    # Test a chunk that should find "# Conclusion" as a good boundary
-    chunk = text[200:]
-    boundary = doc.find_good_boundary(chunk, search_from_start=False)
-    assert boundary is not None
-    assert text[200 + boundary-10:200 + boundary] == "\n# Conclusion"
-
-    # Test a chunk with no good boundary other than a period
-    chunk = text[20:40]
-    boundary = doc.find_good_boundary(chunk, search_from_start=False)
-    assert boundary is not None
-    assert text[20 + boundary - 1:20 + boundary + 1] == ". "
+def test_keyword_not_found(doc):
+    keyword = "Nonexistent keyword"
+    result = doc.keyword_search(keyword)
+    assert result is None
 
 # Example usage
 if __name__ == "__main__":

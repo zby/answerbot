@@ -44,13 +44,13 @@ class MarkdownDocument:
             return ''  # No more text to read
 
         end_position = min(self.position + self.max_size, len(self.text))
+        end_chunk = self.text[self.position + self.min_size:end_position]
+
+        if end_position < len(self.text):
+            chosen_boundary = self.find_good_boundary(end_chunk, search_from_start=False)
+            end_position = self.position + self.min_size + chosen_boundary
+
         chunk = self.text[self.position:end_position]
-
-        chosen_boundary = self.find_good_boundary(chunk, search_from_start=False)
-
-        end_position = self.position + chosen_boundary
-        chunk = self.text[self.position:end_position]
-
         self.position = end_position
         return chunk
 
@@ -67,27 +67,15 @@ class MarkdownDocument:
         start_position = max(0, keyword_position - self.max_size // 2)
         pre_chunk = self.text[start_position:keyword_position]
 
+        if start_position > 0:
         # Find a good boundary for the start position
-        chosen_start_boundary = self.find_good_boundary(pre_chunk, search_from_start=True)
-        start_position = start_position + chosen_start_boundary
+            chosen_start_boundary = self.find_good_boundary(pre_chunk, search_from_start=True)
+            start_position = start_position + chosen_start_boundary
+        pre_chunk = self.text[start_position:keyword_position]
+        self.position = keyword_position
+        post_chunk = self.read_chunk()
+        return pre_chunk + post_chunk
 
-        end_position = min(start_position + self.max_size, len(self.text))
-        chunk = self.text[start_position:end_position]
-
-        # Find a good boundary for the end position
-        chosen_end_boundary = self.find_good_boundary(chunk, search_from_start=False)
-        end_position = start_position + chosen_end_boundary
-        chunk = self.text[start_position:end_position]
-        self.position = end_position
-
-        return chunk
-
-
-# Example usage
-text = "Your markdown text goes here..."
-doc = MarkdownDocument(text=text)
-chunk = doc.keyword_search("keyword")
-print(chunk)
 
 if __name__ == "__main__":
     md = MarkdownDocument(
@@ -97,7 +85,11 @@ if __name__ == "__main__":
     )
     chunk = md.read_chunk()
     print(chunk)  # Output should stop at a good boundary
+    print()
     chunk = md.read_chunk()
     print(chunk)  # Output should stop at a good boundary
+    print()
     chunk = md.read_chunk()
     print(chunk)  # Output should stop at a good boundary
+    print()
+    print('=')

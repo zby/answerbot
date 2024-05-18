@@ -7,6 +7,9 @@ class MarkdownDocument:
         self.min_size = min_size
         self.max_size = max_size
 
+        self.matches = []
+        self.current_match_index = -1
+
     def set_position(self, position):
         """Set the current reading position."""
         if 0 <= position < len(self.text):
@@ -63,6 +66,24 @@ class MarkdownDocument:
 
         keyword_position = match.start()
 
+
+    def keyword_search(self, keyword):
+        """Search for a keyword and store the starting positions of all matches."""
+        self.matches = []  # Clear previous matches
+        self.current_match_index = -1  # Reset the match index
+
+        for match in re.finditer(re.escape(keyword), self.text):
+            self.matches.append(match.start())  # Save the start position of the match
+
+        return self.next_match()
+
+    def next_match(self):
+        if not self.matches:
+            return None
+        self.current_match_index += 1
+        if self.current_match_index > len(self.matches):
+            self.current_match_index = -1
+        keyword_position = self.matches[self.current_match_index]
         # Define the start position for the chunk
         start_position = max(0, keyword_position - self.max_size // 2)
         pre_chunk = self.text[start_position:keyword_position]
@@ -75,7 +96,6 @@ class MarkdownDocument:
         self.position = keyword_position
         post_chunk = self.read_chunk()
         return pre_chunk + post_chunk
-
 
 if __name__ == "__main__":
     md = MarkdownDocument(

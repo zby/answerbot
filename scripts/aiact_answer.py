@@ -1,27 +1,57 @@
-import httpx
-from answerbot.aiact import AiActReactor, format_results
-from answerbot.replay_client import ReplayClient
-
-from dotenv import load_dotenv
-from openai import OpenAI
 import logging
 
+logging.basicConfig(level=logging.INFO)
 
-logging.basicConfig(level=logging.DEBUG)
+from openai import OpenAI
+from answerbot.aiact.react import answer
+from answerbot.reactor import Finish
+from answerbot.subtasks.table_of_contents import ReadFromTableOfContentsResult
+import os
 
-load_dotenv()
+
+def format_reactor_results(question: str, results: list) -> str:
+    chunks = []
+    chunks.append(f'# Question\n\n{question}')
+
+    for item in results:
+        if isinstance(item, Finish):
+            chunks.append(f'# Answer\n\n{item.answer}')
+
+    relevant_info = []
+
+    for item in results:
+        if isinstance(item, ReadFromTableOfContentsResult):
+            for article in item.articles:
+                relevant_info.append(
+                        f'## {article.article.title}\n\n {article.reflection.summary}'
+                        )
+
+    relevant_info_text = '\n\n'.join(relevant_info)
+    chunks.append(f'# Information gathered\n\n{relevant_info_text}')
+
+    return '\n\n'.join(chunks)
+
+
+question = '''
+How is transparency defined in the AI Act and what transparency requirements apply to low-risk Ai systems?
+'''
+
+
 client = OpenAI(
-        timeout=httpx.Timeout(70, read=60.0, write=20.0, connect=6.0)
+  base_url="http://oai.hconeai.com/v1", 
+  default_headers= { 
+    "Helicone-Auth": f"Bearer {os.getenv('HELICONE_API_KEY')}",
+  },
+)
+
+
+result = answer(
+        client,
+        'gpt-4o',
+        question=question,
+        energy=100,
         )
 
-client = ReplayClient('data/messages.json')
 
-if __name__ == '__main__':
-    question = '''
-    How is transparency defined in the AI Act and what transparency requirements apply to low-risk Ai systems?
-    '''
-
-    reactor = AiActReactor(model='gpt-4-turbo', client=client, question=question,energy=200)
-    result = reactor()
-
-    print(format_results(result))
+formatted = format_reactor_results(question=question, results=result)
+print(formatted)

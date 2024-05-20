@@ -201,7 +201,8 @@ class LLMReactor:
 
 
     def query_and_process(self, tools=[], additional_info='', no_tool_calls_message=None):
-        schemas = get_tool_defs(tools, prefix_class=self.reflection.prefix_class())
+        prefix_class = self.reflection.prefix_class()
+        schemas = get_tool_defs(tools, prefix_class=prefix_class)
         response = self.openai_query(schemas)
         message = response.choices[0].message
         self.trace.add_entry(message)

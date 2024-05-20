@@ -1,14 +1,27 @@
 import re
 
 class MarkdownDocument:
-    def __init__(self, text='', min_size=100, max_size=500):
+    def __init__(self, text='', min_size=100, max_size=500, url_shortener=None):
         self.text = text
         self.position = 0
         self.min_size = min_size
         self.max_size = max_size
+        self.url_shortener = url_shortener
 
         self.matches = []
         self.current_match_index = -1
+
+        if self.url_shortener:
+            self.text = self.shorten_urls(self.text)
+
+    def shorten_urls(self, text):
+        """Shorten all URLs found in the text using the provided URL shortener."""
+        url_pattern = r'https?://\S+'
+        urls = re.findall(url_pattern, text)
+        for url in urls:
+            short_url = self.url_shortener.shorten(url)
+            text = text.replace(url, short_url)
+        return text
 
     def set_position(self, position):
         """Set the current reading position."""
@@ -59,15 +72,6 @@ class MarkdownDocument:
 
 
     def keyword_search(self, keyword):
-        """Search for a keyword and return a chunk of text around it with good boundaries."""
-        match = re.search(re.escape(keyword), self.text)
-        if not match:
-            return None  # Keyword not found
-
-        keyword_position = match.start()
-
-
-    def keyword_search(self, keyword):
         """Search for a keyword and store the starting positions of all matches."""
         self.matches = []  # Clear previous matches
         self.current_match_index = -1  # Reset the match index
@@ -92,10 +96,9 @@ class MarkdownDocument:
         # Find a good boundary for the start position
             chosen_start_boundary = self.find_good_boundary(pre_chunk, search_from_start=True)
             start_position = start_position + chosen_start_boundary
-        pre_chunk = self.text[start_position:keyword_position]
-        self.position = keyword_position
-        post_chunk = self.read_chunk()
-        return pre_chunk + post_chunk
+        self.position = start_position
+        chunk = self.read_chunk()
+        return chunk
 
 if __name__ == "__main__":
     md = MarkdownDocument(

@@ -5,7 +5,6 @@ import html2text
 from bs4 import BeautifulSoup, PageElement, Tag
 from answerbot.document import MarkdownDocument
 
-from answerbot.tools_base import Finish
 from tenacity import retry, stop_after_attempt
 
 
@@ -15,7 +14,6 @@ CHUNK_SIZE = 1024
 
 
 class AAESearch:
-    Finish = Finish
 
     def __init__(
             self, 

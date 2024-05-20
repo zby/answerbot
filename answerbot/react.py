@@ -3,14 +3,16 @@ import time
 import logging
 import copy
 from pydantic import BaseModel, Field, field_validator, ValidationError
-from typing import Literal, Union, List, Dict
+from typing import Literal, Union, List, Dict, Annotated, Optional, Callable
 from pprint import pprint
+from dataclasses import dataclass
 
+from openai.types.chat.chat_completion import ChatCompletionMessage
 
 from .prompt_templates import QUESTION_CHECKS, PROMPTS, REFLECTIONS 
-from .tools_base import Finish
 
-from llm_easy_tools import ToolBox
+from llm_easy_tools import process_response, get_tool_defs, get_toolset_tools, ToolResult
+from answerbot.wiki_tool import Observation
 
 # Configure basic logging
 logging.basicConfig(level=logging.INFO)
@@ -18,7 +20,7 @@ logging.basicConfig(level=logging.INFO)
 # Get a logger for the current module
 logger = logging.getLogger(__name__)
 
-class Conversation:
+class Trace:
     def __init__(self, entries = None, user_question=None):
         self.entries = [] if entries is None else entries
         self.user_question = user_question
@@ -42,9 +44,95 @@ class Conversation:
         for entry in self.entries:
             if isinstance(entry, dict):
                 all_messages.append(entry)
-            else:
+            elif isinstance(entry, BaseModel):
+                all_messages.append(entry.model_dump())
+            elif isinstance(entry, ToolResult):
                 all_messages.append(entry.to_message())
+            else:
+                raise ValueError(f"Invalid entry type: {type(entry)}")
         return all_messages
+
+    def __repr__(self):
+        return f"Trace(entries={self.entries}, user_question={self.user_question!r})"
+
+    def generate_report(self):
+        """
+        Generates a report from a Trace object containing the user question, the answer, and the list of document quotes used.
+
+        Args:
+        trace (Trace): The Trace object containing the entries of the conversation.
+
+        Returns:
+        str: A formatted report as a string.
+        """
+        report = []
+        answer = None
+        document_quotes = []
+
+        for entry in self.entries:
+            if isinstance(entry, ToolResult):
+                if isinstance(entry.output, Observation):
+                    if entry.output.info_pieces:
+                        for info_piece in entry.output.info_pieces:
+                            if info_piece.quotable:
+                                document_quotes.append(f"{info_piece.source}: {info_piece.text}\n\n---")
+                elif isinstance(entry.output, Answer):
+                    answer = entry.output
+
+        report.append(f"User Question: {self.user_question}")
+        report.append(f"Answer: {answer.normalized_answer()}")
+        report.append(f"Reasoning: {answer.reasoning}")
+        report.append("Analyzed Document Fragments:")
+        report.extend(document_quotes)
+
+        return "\n".join(report)
+
+
+
+@dataclass(frozen=True)
+class Reflection:
+    reflection_class: Optional[str] = None
+    message: Optional[str] = None
+    detached: bool = True
+    case_insensitive: bool = False
+
+    def __post_init__(self):
+        if (self.reflection_class is None) == (self.message is None):
+            raise ValueError("reflection message and class cannot be used simultaneously")
+
+    def prefix_class(self):
+        if self.reflection_class and not self.detached:
+            return self.reflection_class
+        else:
+            return None
+
+    def prefix(self):
+        if self.reflection_class and not self.detached:
+            name = self.reflection_class.__name__
+            if self.case_insensitive:
+                name = name.lower()
+            return f'{name}_and_'
+        else:
+            return ''
+
+@dataclass
+class Answer:
+    answer: str
+    answer_short: str
+    reasoning: str
+    ambiguity: Optional[str]
+
+    def normalized_answer(self):
+        answer = self.answer
+        answer = answer.strip(' \n.\'"')
+        answer = answer.replace('’', "'")  # Replace all curly apostrophes with straight single quotes
+        answer = answer.replace('"', "'")  # Replace all double quotes with straight single quotes
+        if answer.lower() == 'yes' or answer.lower() == 'no':
+            answer = answer.lower()
+        return answer
+
+    def __str__(self):
+        return self.normalized_answer()
 
 
 
@@ -53,39 +141,40 @@ class LLMReactor:
     class LLMReactorError(Exception):
         pass
 
-    def __init__(self, model: str, toolbox: ToolBox,
-                 conversation: Conversation,
-                 max_llm_calls: int, client,
-                 reflection_class, reflection_message: str,
+    def __init__(self, 
+                 model: str,
+                 toolbox: list[Callable],
+                 trace: Trace,
+                 max_llm_calls: int,
+                 client: object,
+                 reflection: Reflection,
                  soft_reflection_validation=True,
-                 reflection_detached=False,
                  question_checks=None,
+                 case_insensitive=False,
                  ):
         self.model = model
         self.toolbox = toolbox
-        self.conversation = conversation
+        self.toolbox.append(self.finish)
+        self.trace = trace
         self.max_llm_calls = max_llm_calls
         self.client = client
         self.soft_reflection_validation = soft_reflection_validation
-        self.reflection_class = reflection_class
-        self.reflection_message = reflection_message
         self.question_checks = [] if question_checks is None else question_checks
-
-        if self.reflection_message is not None and self.reflection_class is not None:
-            raise ValueError("reflection message and class cannot be used simultaneously")
+        self.case_insensitive = case_insensitive
 
         self.step = 0
+        self.to_reflect = False
         self.finished = False
         self.answer = None
         self.soft_errors = []
-        self.reflection_detached = reflection_detached
-        if reflection_detached:
-            self.toolbox.register_model(reflection_class)
+        if reflection.detached and reflection.reflection_class:
+            self.toolbox.append(reflection.reflection_class)
+        self.reflection = reflection
 
     def openai_query(self, tool_schemas, force_auto_tool_choice=False):
         args = {
             'model': self.model,
-            'messages': self.conversation.to_messages()
+            'messages': self.trace.to_messages()
         }
         if len(tool_schemas) == 0:
             pass
@@ -99,80 +188,57 @@ class LLMReactor:
         completion = self.client.chat.completions.create( **args )
         return completion
 
-    def set_finished(self):
-        self.finished = True
-
-
 
     def get_reflection(self):
-        message = { 'role': 'user', 'content': self.reflection_message }
-        logger.info(str(message))
-        self.conversation.add_entry(message)
-        self.query_and_process()
+        if self.reflection.reflection_class:
+            tools = [self.reflection.reflection_class]
+            self.query_and_process(tools)
+        else:
+            message = { 'role': 'user', 'content': self.reflection.message }
+            logger.info(str(message))
+            self.trace.add_entry(message)
+            self.query_and_process()
 
 
-    def query_and_process(self, schemas=[], additional_info='', no_tool_calls_message=None, prefix_class=None):
+    def query_and_process(self, tools=[], additional_info='', no_tool_calls_message=None):
+        schemas = get_tool_defs(tools, prefix_class=self.reflection.prefix_class())
         response = self.openai_query(schemas)
-        message = response.choices[0].message.dict()
-        if message['function_call'] is None:
-            del message['function_call']
-        if message['tool_calls'] is None:
-            del message['tool_calls']
-        self.conversation.add_entry(message)
-        logger.info(str(message))
-        results = self.toolbox.process_response(response)
+        message = response.choices[0].message
+        self.trace.add_entry(message)
+        results = process_response(response, tools, prefix_class=self.reflection.prefix_class())
         for result in results:
             if result.error is not None:
-                if prefix_class:
-                    self.soft_errors.append(result.error)
-                    results = self.toolbox.process_response(response, prefix_class=prefix_class, ignore_prefix=True)
-                    result = results[0]
-                else:
-                    raise self.LLMReactorError(result.error)
-            if result.name == 'Finish':
-                self.answer = result.model.normalized_answer()
-                self.set_finished()
-                return
-            message = result.to_message()
-            message['content'] += additional_info
-            logger.info(str(message))
-            self.conversation.add_entry(message)
+                raise self.LLMReactorError(result.error)
+            result.tool = None
+            self.trace.add_entry(result)
+            if len(additional_info) > 0:
+                self.trace.add_entry({'role': 'system', 'content': additional_info})
         if len(schemas) > 0 and len(results) == 0:
             self.soft_errors.append("No function call")
+            self.to_reflect = False
             if no_tool_calls_message is not None:
                 message = { 'role': 'assistant', 'content': no_tool_calls_message }
-                logger.info(str(message))
-                self.conversation.add_entry(message)
+                self.trace.add_entry(message)
         return results
 
 
     def process(self):
         self.analyze_question()
-        while not self.finished:
+        while self.answer is None:
             self.step += 1
-            if self.reflection_message:
-                self.get_reflection()
-                prefix_class = None
-            elif self.reflection_detached:
-                prefix_class = None
-            else:
-                prefix_class = self.reflection_class
-
-            if self.reflection_detached and self.reflection_class:
-                schema = self.toolbox.get_tool_schema(self.reflection_class.__name__)
-                schemas = [schema]
-                self.query_and_process(schemas, prefix_class=prefix_class)
             if self.step == self.max_llm_calls + 1:
-                schemas = [self.toolbox.get_tool_schema('Finish', prefix_class)]  # Finish is registered
+                tools = [self.finish]
             else:
-                schemas = self.toolbox.tool_schemas(prefix_class=prefix_class)
-            #pprint(schemas)
+                tools = self.toolbox
             if self.step == self.max_llm_calls:
                 step_info = "\n\nThis was the last data you can get - in the next step you need to formulate your answer"
             else:
                 step_info = f"\n\nThis was {self.step} out of {self.max_llm_calls} calls for data."
             no_tool_calls_message = "You did not ask for any data this time - but it still counts."
-            self.query_and_process(schemas, additional_info=step_info, no_tool_calls_message=no_tool_calls_message, prefix_class=prefix_class)
+            if self.reflection.detached and self.to_reflect:
+                self.get_reflection()
+            self.query_and_process(tools, additional_info=step_info, no_tool_calls_message=no_tool_calls_message)
+            self.to_reflect = True
 
 #            if 'gpt-4' in self.model:
 #                time.sleep(20)
@@ -182,35 +248,36 @@ class LLMReactor:
         for query in self.question_checks:
             question_check = { 'role': 'user', 'content': query }
             logger.info(str(question_check))
-            self.conversation.add_entry(question_check)
+            self.trace.add_entry(question_check)
             self.query_and_process()
 
-def get_answer(question, config, client=None):
+    def finish(self,
+               answer: Annotated[str, "The answer to the user's question"],
+               answer_short: Annotated[str, "A short version of the answer"],
+               reasoning: Annotated[str, "The reasoning behind the answer. Think step by step. Mention all assumptions you make."],
+               ambiguity: Annotated[Optional[str], "Have you found anything in the retrieved information that makes the question ambiguous? For example a search for some name can show that there are many different entities with the same name."] = None
+    ):
+        """
+        Finish the task and return the answer.
+        """
+        answer = Answer(answer, answer_short, reasoning, ambiguity)
+        self.answer = answer
+        return answer
+
+
+def get_answer(question, config, client: object):
     print("\n\n<<< Question:", question)
     tool_class = config['tool']
     tool = tool_class(chunk_size=config['chunk_size'])
-    toolbox = ToolBox()
-    toolbox.register_toolset(tool)
+    toolbox = get_toolset_tools(tool)
     sys_prompt = PROMPTS[config['prompt_class']]
-    reflection = REFLECTIONS[config['reflection']]
-    reflection_class = None
-    if 'class' in reflection:
-        reflection_class = reflection['class']
-    reflection_message = None
-    if 'message' in reflection:
-        reflection_message = reflection['message']
-    reflection_detached = reflection.get('detached', False)
-    if reflection_class and not reflection_detached:
-        prefix = f'{reflection_class.__name__.lower()}_and_'
-    else:
-        prefix = ''
-    initial_conversation = Conversation()
-    initial_conversation.add_system_message(sys_prompt(config['max_llm_calls'], prefix))
-    initial_conversation.add_user_question(question)
+    reflection = Reflection(**REFLECTIONS[config['reflection']])
+    initial_trace = Trace()
+    initial_trace.add_system_message(sys_prompt(config['max_llm_calls'], reflection.prefix()))
+    initial_trace.add_user_question(question)
     question_checks = QUESTION_CHECKS[config['question_check']] 
     reactor = LLMReactor(
-        config['model'], toolbox, initial_conversation, config['max_llm_calls'], reflection_class=reflection_class,
-        reflection_message=reflection_message, client=client, reflection_detached=reflection_detached,
+        config['model'], toolbox, initial_trace, config['max_llm_calls'], client, reflection,
         question_checks=question_checks
     )
     reactor.process()

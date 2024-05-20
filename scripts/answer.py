@@ -1,17 +1,17 @@
 import logging
 import httpx
-import openai
 import json
 
+from openai import OpenAI
 from pprint import pformat, pprint
-from dotenv import load_dotenv
+from dotenv import dotenv_values
 #from answerbot.formatter import format_markdown
 
 from answerbot.react import get_answer
 
-from answerbot.wikipedia_tool import WikipediaSearch
+from answerbot.wiki_tool import WikipediaTool
 from answerbot.aae_tool import AAESearch
-from answerbot.replay_client import ReplayClient
+from answerbot.replay_client import LLMReplayClient
 
 # Configure basic logging
 logging.basicConfig(level=logging.INFO)
@@ -19,14 +19,26 @@ logging.basicConfig(level=logging.INFO)
 # Get a logger for the current module
 logger = logging.getLogger(__name__)
 
-# load OpenAI api key
-load_dotenv()
+config = dotenv_values(".env")
 
-#from groq import Groq
-#client = Groq()
+from groq import Groq
+client = Groq()
 
-client = openai.OpenAI(timeout=httpx.Timeout(70.0, read=60.0, write=20.0, connect=6.0))
 #client = ReplayClient('data/conversation.json')
+
+#client = OpenAI(
+#     timeout=httpx.Timeout(70.0, read=60.0, write=20.0, connect=6.0),
+#     api_key=config['OPENAI_API_KEY'],
+#     base_url="https://oai.hconeai.com/v1",
+#     default_headers={
+#         "Helicone-Auth": f"Bearer {config['HELICONE_API_KEY']}",
+#     }
+#)
+
+#client = OpenAI(
+#    api_key=config['OPENAI_API_KEY'],
+#    timeout=httpx.Timeout(70.0, read=60.0, write=20.0, connect=6.0)
+#)
 
 if __name__ == "__main__":
 
@@ -51,28 +63,27 @@ if __name__ == "__main__":
     #question = "Who is older, Annie Morton or Terry Richardson?"
 
     #question = "What are the concrete steps proposed to ensure AI safety?"
-    question = 'What are the steps required to authorize the training of generative AI?'
+    #question = 'What are the steps required to authorize the training of generative AI?'
 
 
     config = {
         "chunk_size": 400,
-        #"prompt_class": 'NERP',
-        "prompt_class": 'AAE',
+        "prompt_class": 'NERP',
+        #"prompt_class": 'AAE',
         "max_llm_calls": 4,
-        "model": "gpt-3.5-turbo-0613",
+        #"model": "gpt-3.5-turbo-0613",
         #"model": "gpt-4-1106-preview",
-        #"model": "llama3-8b-8192",
+        "model": "llama3-8b-8192",
         #'model': "mixtral-8x7b-32768",
-        "question_check": 'category_and_amb',
+        "question_check": 'None',
         'reflection': 'ShortReflectionDetached',
-        #'tool': WikipediaSearch,
-        'tool': AAESearch,
+        'tool': WikipediaTool,
+        #'tool': AAESearch,
     }
 
     reactor = get_answer(question, config, client)
-    print(pformat(reactor.conversation.to_messages()))
+    print(reactor.trace.generate_report())
     pprint(reactor.soft_errors)
-#    with open('data/conversation.json', 'w') as file:
-#        json.dump(reactor.conversation.to_messages(), file, indent=4)
-
+    with open('data/trace.py', 'w') as file:
+        file.write(repr(reactor.trace))
 #    print(format_markdown(reactor.conversation))

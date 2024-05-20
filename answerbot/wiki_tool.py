@@ -160,7 +160,7 @@ class WikipediaTool:
     #@llm_function()
     def get_page(self, title: Annotated[str, "The title of the page to get"]):
         url = self.base_url + title
-        return self.get_url(url, title)
+        return self._get_url(url, title)
 
 
     @llm_function()

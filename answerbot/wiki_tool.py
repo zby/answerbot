@@ -5,7 +5,7 @@ import traceback
 
 from typing import Annotated
 from dataclasses import dataclass
-from answerbot.document import MarkdownDocument 
+from answerbot.markdown_document import MarkdownDocument 
 from bs4 import BeautifulSoup, NavigableString
 from urllib.parse import urlparse, urljoin
 from pprint import pprint
@@ -45,19 +45,18 @@ class WikipediaTool:
                 document=None,
                 current_url=None,
                 max_retries=MAX_RETRIES,
+                min_chunk_size=100,
                 chunk_size=CHUNK_SIZE,
                 base_url=BASE_URL,
                 api_url=API_URL,
-                extra_links=None
                 ):
         self.document = document
         self.current_url = current_url
-
+        self.min_chunk_size = min_chunk_size
         self.max_retries = max_retries
         self.chunk_size = chunk_size
         self.base_url = base_url
         self.api_url = api_url
-        self.extra_links = extra_links if extra_links is not None else []
 
     @classmethod
     def clean_html_and_textify(self, html):
@@ -112,8 +111,11 @@ class WikipediaTool:
         cleaned_content = markdown.strip()
         return cleaned_content
 
- 
+    @llm_function()
     def get_url(self, url, title=None, limit_sections=None):
+        """
+        Retrieves a page from Wikipedia by its URL.
+        """
         retries = 0
         print(f"Getting {url}")
         info_pieces = []
@@ -127,7 +129,7 @@ class WikipediaTool:
                 html = response.text
                 cleaned_content = self.clean_html_and_textify(html)
 
-                document = MarkdownDocument(cleaned_content, chunk_size=self.chunk_size)
+                document = MarkdownDocument(cleaned_content, min_size=self.min_chunk_size, max_size=self.chunk_size)
                 if title is not None:
                     info_pieces.append(InfoPiece(text=f"Successfully retrieved page {title} from wikipedia", source=url))
                 else:
@@ -156,7 +158,7 @@ class WikipediaTool:
     def get_page(self, title: Annotated[str, "The title of the page to get"]):
         url = self.base_url + title
         return self.get_url(url, title)
-    
+
 
     @llm_function()
     def search(self, query: Annotated[str, "The query to search for on Wikipedia"]):
@@ -207,8 +209,7 @@ class WikipediaTool:
         text = f"Wikipedia search results for query: '{query}' are: "
         results = []
         for item in items:
-            results.append(f"[{item['title']}]({item['title']})")
-            self.extra_links.append(item['title'])
+            results.append(f"[{item['title']}]({urljoin(self.base_url, item['title'])})")
 
         search_results = ", ".join(results)
         return text + search_results
@@ -255,47 +256,6 @@ class WikipediaTool:
         else:
             info_text = self.document.read_chunk()
         return Observation([InfoPiece(text=info_text, source=self.current_url, quotable=True)])
-
-    def make_absolute_url(self, link_address):
-        # Check if the link address is already an absolute URL
-        parsed_link = urlparse(link_address)
-        if parsed_link.scheme:
-            return link_address
-
-        # Check if the link address starts with '/'
-        if link_address.startswith('/'):
-            # Extract the host part of the base URL
-            parsed_base = urlparse(self.base_url)
-            base_host = parsed_base.scheme + '://' + parsed_base.netloc
-            return urljoin(base_host, link_address)
-
-        # Concatenate the base URL with the link address
-        return urljoin(self.base_url, link_address)
-
-
-    @llm_function()
-    def follow_link(self, link: Annotated[str, "The link to follow"]):
-        """
-        Follows a link from the current page and saves the retrieved page as the next current page
-        """
-        if self.document is None:
-            return Observation([InfoPiece(text="No current page, cannot follow", source=self.current_url)])
-        else:
-            link_with_spaces_restituted = link.replace('_', ' ') # sometimes the LLM tries to replace spaces in links
-            if link in self.extra_links:
-                url = link
-            if link_with_spaces_restituted in self.extra_links:
-                url = link
-            else:
-                url = self.document.resolve_link(link)
-            if url is None:
-                return Observation([InfoPiece(text=f"There is no '{link}' link on current page", source=self.current_url)])
-            else:
-                url = self.make_absolute_url(url)
-                return self.get_url(url)
-
-
-
 
 if __name__ == "__main__":
     tool = WikipediaTool()

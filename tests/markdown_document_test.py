@@ -46,35 +46,60 @@ Another paragraph. Ending this section.
 #### Header 4
 Details in header 4. A bit more text.
 
+#### Second Header 4
+Details in second header 4. A bit more text.
+
 ##### Header 5
 Text for header 5. Final notes.
 
 ###### Header 6
 Last header text. The end."""
 
-    return MarkdownDocument(text=sample_text, min_size=50, max_size=100)
+    return MarkdownDocument(text=sample_text, min_size=50, max_size=200)
 
 def test_read_until_end(doc):
     chunks = []
     while True:
         chunk = doc.read_chunk()
-        if not chunk:
+        if not len(chunk):
             break
         chunks.append(chunk)
     full_text = ''.join(chunks)
     assert full_text == doc.text
 
-def test_keyword_search(doc):
+def test_lookup(doc):
     keyword = "Header 4"
-    result = doc.keyword_search(keyword)
+    result = doc.lookup(keyword)
     assert keyword in result
     assert len(result) >= doc.min_size
     assert len(result) <= doc.max_size
 
 def test_keyword_not_found(doc):
     keyword = "Nonexistent keyword"
-    result = doc.keyword_search(keyword)
+    result = doc.lookup(keyword)
     assert result is None
+
+def test_read_chunk_with_params(doc):
+    # Test reading from the start with specific parameters
+    chunk = doc.read_chunk_with_params(start_position=0, min_size=50, max_size=100, search_from_start=True)
+    assert len(chunk) >= 50 and len(chunk) <= 100
+    assert chunk.startswith("# Header 1")
+
+    # Test reading from nearly the start with specific parameters
+    chunk = doc.read_chunk_with_params(start_position=1, min_size=50, max_size=100, search_from_start=True)
+    assert len(chunk) >= 50 and len(chunk) <= 100
+    assert chunk.startswith("\n## Header 2")
+
+    # Test reading from a specific position with parameters ensuring not to exceed document length
+    start_pos = len(doc.text) - 50
+    chunk = doc.read_chunk_with_params(start_position=start_pos, min_size=10, max_size=50, search_from_start=False)
+    assert len(chunk) >= 10 and len(chunk) <= 50
+    assert chunk.endswith("The end.")
+
+def test_section_titles(doc):
+    titles = doc.section_titles()
+    expected_titles = ['# Header 1', '## Header 2', '### Header 3', '#### Header 4', '#### Second Header 4', '##### Header 5', '###### Header 6']
+    assert titles == expected_titles, f"Expected titles {expected_titles}, but got {titles}"
 
 # Example usage
 if __name__ == "__main__":

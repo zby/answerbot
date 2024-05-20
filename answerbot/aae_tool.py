@@ -3,7 +3,7 @@ from typing import Annotated
 import requests
 import html2text
 from bs4 import BeautifulSoup, PageElement, Tag
-from answerbot.document import MarkdownDocument
+from answerbot.markdown_document import MarkdownDocument
 
 from tenacity import retry, stop_after_attempt
 
@@ -11,6 +11,8 @@ from tenacity import retry, stop_after_attempt
 MAX_RETRIES = 3
 BASE_URL = 'https://artificialintelligenceact.eu/'
 CHUNK_SIZE = 1024
+MIN_CHUNK_SIZE = 100
+
 
 
 class AAESearch:
@@ -19,12 +21,14 @@ class AAESearch:
             self, 
             max_retries=MAX_RETRIES,
             base_url=BASE_URL,
-            chunk_size=CHUNK_SIZE
+            chunk_size=CHUNK_SIZE,
+            min_chunk_size=MIN_CHUNK_SIZE,
             ):
         self._max_retries = max_retries
         self._base_url = base_url
         self._document = None
         self._chunk_size = chunk_size
+        self._min_chunk_size = min_chunk_size
 
 
     @llm_function()
@@ -92,7 +96,7 @@ class AAESearch:
             return 'Could not open the page'
         html = response.text
         cleaned_content = clean_html_and_textify(html)
-        document = MarkdownDocument(cleaned_content, chunk_size=self._chunk_size)
+        document = MarkdownDocument(cleaned_content, max_size=self._chunk_size, min_size=self._min_chunk_size)
         self._document = document
         return f'{url} retreived successfully'
 

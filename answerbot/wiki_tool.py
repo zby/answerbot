@@ -112,10 +112,13 @@ class WikipediaTool:
         return cleaned_content
 
     @llm_function()
-    def get_url(self, url, title=None, limit_sections=None):
+    def get_url(self, url: Annotated[str, "The URL to get"]):
         """
         Retrieves a page from Wikipedia by its URL.
         """
+        self._get_url(url)
+
+    def _get_url(self, url: str, title=None, limit_sections = None):
         retries = 0
         print(f"Getting {url}")
         info_pieces = []

@@ -8,7 +8,6 @@ from openai.types.chat import (
         ChatCompletionNamedToolChoiceParam,
 )
 from pydantic import BaseModel, Field, annotated_handlers
-from answerbot.reactor import cost, use_limit
 
 from answerbot.subtasks.read_full_article import Quote, ReadFullArticleReflection, read_full_article
 import logging
@@ -161,32 +160,17 @@ class ReadFromTableOfContents:
             document_toc: DocumentSection,
             read_article_cost=1,
             show_table_of_contents_cost=1,
-            cost_=10,
-            use_limit_=3,
-            docstring='',
             ) -> None:
         self._client = client
-        self._model = model
+        self._model=model
         self._question = question
+        self._document_toc = document_toc
         self._read_article_cost = read_article_cost
         self._show_table_of_contents_cost = show_table_of_contents_cost
-        self._document_toc = document_toc
         self._articles_read = set()
 
-        def read_toc(
-                energy: Annotated[int, 'Energy you have left'],
-                goal: Annotated[str, 'The information you expect to obtain'],
-                context: Annotated[str|None, 'Any additional information gathered so far if any']):
-            return self.__call__(energy, goal, context)
-
-        read_toc.__doc__ = docstring
-        self.read_from_table_of_contents = read_toc
-        self.read_from_table_of_contents = use_limit(use_limit_)(
-                cost(cost_)(self.read_from_table_of_contents)
-                )
-
     def __call__(
-            self, 
+            self,
             energy: Annotated[int, 'Energy you have left'],
             goal: Annotated[str, 'The information you expect to obtain'],
             context: Annotated[str|None, 'Any additional information gathered so far if any']):

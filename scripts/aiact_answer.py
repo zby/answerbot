@@ -1,35 +1,49 @@
+from collections.abc import Callable
 import logging
+from typing import Collection, Iterable, Any, TypeAlias
 
 logging.basicConfig(level=logging.INFO)
 
 from openai import OpenAI
-from answerbot.aiact.react import answer
-from answerbot.reactor import Finish
+from answerbot.aiact.answer import answer
+from answerbot.aiact.react import Finish
 from answerbot.subtasks.table_of_contents import ReadFromTableOfContentsResult
 import os
 
 
-def format_reactor_results(question: str, results: list) -> str:
-    chunks = []
-    chunks.append(f'# Question\n\n{question}')
+ReflectionFormatter: TypeAlias = Callable[[list], str|Any]
 
-    for item in results:
-        if isinstance(item, Finish):
-            chunks.append(f'# Answer\n\n{item.answer}')
 
-    relevant_info = []
-
-    for item in results:
-        if isinstance(item, ReadFromTableOfContentsResult):
-            for article in item.articles:
-                relevant_info.append(
-                        f'## {article.article.title}\n\n {article.reflection.summary}'
-                        )
-
-    relevant_info_text = '\n\n'.join(relevant_info)
-    chunks.append(f'# Information gathered\n\n{relevant_info_text}')
-
+def format_reactor_results(
+        formatters: Collection[ReflectionFormatter],
+        question: str, 
+        reflections: list) -> str:
+    chunks = [f'# Question:\n\n{question.strip()}'] + [formatter(reflections) for formatter in formatters]
     return '\n\n'.join(chunks)
+
+
+def format_answer(reflections: list) -> str|None:
+    for reflection in reflections:
+        if not isinstance(reflection, Finish):
+            continue
+        return f'# Answer\n\n{reflection.answer.strip()}'
+
+
+def format_read_from_table_of_contents(reflections: list) -> str|None:
+    chunks = [
+            f'## {article.article.title.strip()}\n\n {article.reflection.summary}'
+            for reflection in reflections
+            if isinstance(reflection, ReadFromTableOfContentsResult)
+            for article in reflection.articles
+            ]
+
+    if not chunks:
+        return None
+
+    chunks_text = '\n\n'.join(chunks)
+
+    return f'# Information gathered\n\n{chunks_text}'
+
 
 
 question = '''
@@ -53,5 +67,9 @@ result = answer(
         )
 
 
-formatted = format_reactor_results(question=question, results=result)
+formatted = format_reactor_results(
+        [format_answer, format_read_from_table_of_contents],
+        question,
+        result
+        )
 print(formatted)

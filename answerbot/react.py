@@ -12,7 +12,7 @@ from openai.types.chat.chat_completion import ChatCompletionMessage
 from .prompt_templates import QUESTION_CHECKS, PROMPTS, REFLECTIONS 
 
 from llm_easy_tools import process_response, get_tool_defs, get_toolset_tools, ToolResult
-from answerbot.wiki_tool import Observation
+from answerbot.wiki_tool import Observation, InfoPiece
 
 # Configure basic logging
 logging.basicConfig(level=logging.INFO)
@@ -186,8 +186,9 @@ class LLMReactor:
         new_sources: List[str] = Field(..., description="A list of new links mentioned in the notes that should be checked later.")
         right_page: bool = Field(..., description="Are we on the right page?")
         comment: str = Field(..., description="A comment on the search results and next actions.")
-        
+
         def refine_observation(self, observation: Observation):
+            new_comments = []
             original_info_pieces = observation.info_pieces
             observation.clear_info_pieces()
             for quote in self.relevant_quotes:
@@ -195,8 +196,15 @@ class LLMReactor:
                     if quote in info_piece.text:
                         info_piece.text = quote
                         observation.add_info_piece(info_piece)
+            if self.right_page and self.relevant_quotes:
+                new_comments.append("We've gone to the right page.")
+            elif self.right_page and not self.relevant_quotes:
+                new_comments.append("We've gone to the right page - but no relevant information found in the current page fragment")
+            else:
+                new_comments.append("We've gone to the wrong page.")
             observation.interesting_links = self.new_sources
-            observation.comment = self.comment
+            new_comments.append(self.comment)
+            observation.comment = "\n\n".join(new_comments)
             observation.is_refined = True
             return observation
 
@@ -209,35 +217,38 @@ class LLMReactor:
         elif result.name == "search":
             sysprompt = """
 You are a researcher working on a user question. Previously you searched wikipedia and now
-you need to evaluate the results. If you got any relevant information you need to extract
+you need to evaluate the results.
+If you got any relevant information you need to extract
 quotes quotes to be used as supporting evidence for answering the question.
-You need to decide if you have enough information to answer the question and if you should look for more information on the same page or
-or or if you need to follow a link or do another search.
+You can also note urls from the page that you need to check later.
+You need to leave a comment that would remind you what to do next.
 """
         elif result.name == "lookup" or result.name == "next_lookup":
             sysprompt = """
 You are a researcher working on a user question. Previously you searched wikipedia and found a page.
 You than did a keyword lookup on that page and now you need to evaluate the results.
 If you got any relevant information you need to extract quotes quotes to be used as supporting evidence for answering the question.
-You need to decide if you have enough information to answer the question and if you should look for more information on the same page or
-or or if you need to follow a link or do another search.
+You can also note urls from the page that you need to check later.
+You need to leave a comment that would remind you what to do next.
 """
         elif result.name == "read_chunk":
             sysprompt = """
 You are a researcher working on a user question. Previously you searched wikipedia and found a page.
 You than retrieved another part of that page and now you need to evaluate the results.
 If you got any relevant information you need to extract quotes quotes to be used as supporting evidence for answering the question.
-You need to decide if you have enough information to answer the question and if you should look for more information on the same page or
-or or if you need to follow a link or do another search.
+You can also note urls from the page that you need to check later.
+You need to leave a comment that would remind you what to do next.
 """
-        elif result.name == "follow_link":
+        elif result.name == "get_url":
             sysprompt = """
 You are a researcher working on a user question. Previously you followed a link to a page.
 Now you need to evaluate the results of that page retrieval.
 If you got any relevant information you need to extract quotes quotes to be used as supporting evidence for answering the question.
-You need to decide if you have enough information to answer the question and if you should look for more information on the same page or
-or or if you need to follow a link or do another search.
+You can also note urls from the page that you need to check later.
+You need to leave a comment that would remind you what to do next.
 """
+        else:
+            raise ValueError(f"Unknown tool name: {result.name}")
 
         user_prompt = f"Here are the results for the search in Markdown format:\n\n{str(result.output)}"
         user_prompt += f"\n\nFrom these notes please extract quotes and note new sources relevant to answering the following question: {self.trace.user_question}"

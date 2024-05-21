@@ -22,15 +22,13 @@ CHUNK_SIZE = 1024
 @dataclass
 class InfoPiece:
     text: str
-    source: str
+    source: Optional[str] = None
     quotable: bool = False
-    def to_markdown_blockquote(self) -> str:
-        """
-        Formats the InfoPiece text as a Markdown blockquote and appends the source.
-        Handles text containing new lines by applying blockquote to each line.
-        """
-        quoted_text = "\n".join([f"> {line}" for line in self.text.split('\n')])
-        return f"{quoted_text}\n— *from {self.source}*"
+    def to_markdown(self) -> str:
+        if self.source:
+            return f"{self.text}\n— *from {self.source}*"
+        else:
+            return self.text
 
 @dataclass
 class Observation:
@@ -51,7 +49,7 @@ class Observation:
         if self.is_refined:
             result += 'Relevant quotes:\n'
         for info in self.info_pieces:
-            result += f"\n\n{info.to_markdown_blockquote()}"
+            result += f"\n\n{info.to_markdown()}"
         if self.interesting_links:
             result += '\n\nNew sources:\n'
             for link in self.interesting_links:
@@ -136,7 +134,7 @@ class WikipediaTool:
         """
         Retrieves a page from Wikipedia by its URL.
         """
-        self._get_url(url)
+        return self._get_url(url)
 
     def _get_url(self, url: str, title=None, limit_sections = None):
         retries = 0
@@ -154,9 +152,9 @@ class WikipediaTool:
 
                 document = MarkdownDocument(cleaned_content, min_size=self.min_chunk_size, max_size=self.chunk_size)
                 if title is not None:
-                    info_pieces.append(InfoPiece(text=f"Successfully retrieved page {title} from wikipedia", source=url))
+                    info_pieces.append(InfoPiece(text=f"Successfully retrieved page {title} from wikipedia"))
                 else:
-                    info_pieces.append(InfoPiece(text=f"Successfully retrieved document from url: '{url}'", source=url))
+                    info_pieces.append(InfoPiece(text=f"Successfully retrieved document from url: '{url}'"))
                 break
             else:
                 info_pieces.append(InfoPiece(text=f"HTTP error occurred: {response.status_code}", source=url))
@@ -171,11 +169,15 @@ class WikipediaTool:
             sections = document.section_titles()
             if limit_sections is not None:
                 sections = sections[:limit_sections]
-            sections_list_md = "\n".join(sections)
+            sections_list_md = "\n- ".join(sections)
             if len(sections) > 0:
                 info_pieces.append(InfoPiece(text=f'The retrieved page contains the following sections:\n{sections_list_md}', source=url, quotable=True))
-            info_pieces.append(InfoPiece(text=f"The retrieved page starts with:\n{document.read_chunk()}", source=url, quotable=True))
-        return Observation(info_pieces)
+            chunk = document.read_chunk()
+            quoted_text = "\n".join([f"> {line}" for line in chunk.split('\n')])
+            info_pieces.append(InfoPiece(text=f"The retrieved page starts with:\n{quoted_text}", source=url, quotable=True))
+        result = Observation(info_pieces)
+        pprint(result)
+        return result
 
     #@llm_function()
     def get_page(self, title: Annotated[str, "The title of the page to get"]):
@@ -229,12 +231,12 @@ class WikipediaTool:
         return Observation(info_pieces)
 
     def search_result_to_text(self, query, items):
-        text = f"Wikipedia search results for query: '{query}' are: "
+        text = f"Wikipedia search results for query: '{query}' are:\n"
         results = []
         for item in items:
             results.append(f"[{item['title']}]({urljoin(self.base_url, item['title'])})")
 
-        search_results = ", ".join(results)
+        search_results = "\n- ".join(results)
         return text + search_results
 
     @llm_function()
@@ -246,9 +248,10 @@ class WikipediaTool:
             info_text="No document defined, cannot lookup, you need to use search first to retrieve a document"
         else:
             text = self.document.lookup(keyword)
+            quoted_text = "\n".join([f"> {line}" for line in text.split('\n')])
             if text:
                 num_of_results = len(self.document.lookup_results)
-                info_text = f'Keyword "{keyword}" found on current page in {num_of_results} places. The first occurrence:\n{text}'
+                info_text = f'Keyword "{keyword}" found on current page in {num_of_results} places. The first occurrence:\n{quoted_text}'
             else:
                 info_text = f'Keyword "{keyword}" not found in current page'
         return Observation([InfoPiece(text=info_text, source=self.current_url, quotable=True)])
@@ -265,7 +268,8 @@ class WikipediaTool:
         else:
             text = self.document.next_lookup()
             num_of_results = len(self.document.lookup_results)
-            info_text = f'Keyword "{self.document.lookup_word}" found in: \n{text}\n{self.document.lookup_position} of {num_of_results} places'
+            quoted_text = "\n".join([f"> {line}" for line in text.split('\n')])
+            info_text = f'Keyword "{self.document.lookup_word}" found in: \n{quoted_text}\n- *{self.document.lookup_position} of {num_of_results} places*'
         return Observation([InfoPiece(text=info_text, source=self.current_url, quotable=True)])
 
 
@@ -283,5 +287,6 @@ class WikipediaTool:
 if __name__ == "__main__":
     tool = WikipediaTool()
     #pprint(tool.get_page("Wiaaa"))
-    pprint(tool.search("Oxygen"))
+    #pprint(tool.search("Oxygen"))
+    pprint(tool.get_url("https://en.wikipedia.org/wiki/Ann_B._Davis"))
 

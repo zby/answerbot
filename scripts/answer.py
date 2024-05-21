@@ -35,10 +35,10 @@ client = OpenAI(
      }
 )
 
-client = OpenAI(
-    api_key=config['OPENAI_API_KEY'],
-    timeout=httpx.Timeout(70.0, read=60.0, write=20.0, connect=6.0)
-)
+#client = OpenAI(
+#    api_key=config['OPENAI_API_KEY'],
+#    timeout=httpx.Timeout(70.0, read=60.0, write=20.0, connect=6.0)
+#)
 
 if __name__ == "__main__":
 

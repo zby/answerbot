@@ -53,6 +53,7 @@ class MarkdownDocument:
             (r'\n\n', False),  # Paragraph ending
             (r'\.\s+', True),  # Sentence ending
             (r'\n', False),  # Newline
+            (r'\s+', True),  # White space
         ]
 
         for pattern, after_match in boundaries:

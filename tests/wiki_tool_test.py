@@ -24,7 +24,7 @@ def test_get_page_success(mock_get):
     observation = wiki_search.get_url("https://www.test.test")
     assert wiki_search.document is not None
     assert observation.info_pieces[0].text == "Successfully retrieved document from url: 'https://www.test.test'"
-    assert observation.info_pieces[1].text == "The retrieved page starts with:\nPage Content"
+    assert observation.info_pieces[1].text == "The retrieved page starts with:\n> Page Content"
     assert "Page Content" in wiki_search.document.text
 
 
@@ -63,25 +63,22 @@ def test_search_success(mock_get_page, mock_get):
 
     # Mock get_page to return a dummy observation
     mock_get_page.return_value = Observation([
-        InfoPiece(text="Successfully retrieved page TestTitle1 from wikipedia", source="https://en.wikipedia.org/wiki/TestTitle1"),
-        InfoPiece(text="The retrieved page starts with:\nPage content for TestTitle1", source="https://en.wikipedia.org/wiki/TestTitle1")
+        InfoPiece(text="mock get page infopiece 1", source="https://en.wikipedia.org/wiki/TestTitle1"),
+        InfoPiece(text="mock get page infopiece 2", source="https://en.wikipedia.org/wiki/TestTitle1")
         ])
 
     wiki_tool = WikipediaTool()
     observation = wiki_tool.search("test_query")
 
     # Check if the search results text is correct
-    assert observation.info_pieces[0].text == "Wikipedia search results for query: 'test_query' are: [TestTitle1](https://en.wikipedia.org/wiki/TestTitle1), [TestTitle2](https://en.wikipedia.org/wiki/TestTitle2)"
+    assert observation.info_pieces[0].text == """Wikipedia search results for query: 'test_query' are:
+- [TestTitle1](https://en.wikipedia.org/wiki/TestTitle1)
+- [TestTitle2](https://en.wikipedia.org/wiki/TestTitle2)"""
     mock_get_page.assert_called_once_with('TestTitle1')
     # Check if the content from get_page is included in the observation
-    assert observation.info_pieces[1].text == "Successfully retrieved page TestTitle1 from wikipedia"
-    assert observation.info_pieces[2].text == "The retrieved page starts with:\nPage content for TestTitle1"
+    assert observation.info_pieces[1].text == "mock get page infopiece 1"
+    assert observation.info_pieces[2].text == "mock get page infopiece 2"
 
-
-def test_to_markdown_blockquote():
-    info_piece = InfoPiece(text="First piece of information\nSecond piece of information", source="First URL")
-    blockquote = info_piece.to_markdown_blockquote()
-    assert blockquote == "> First piece of information\n> Second piece of information\n— *from First URL*"
 
 def test_observation_stringification():
 
@@ -94,11 +91,14 @@ def test_observation_stringification():
 
     # Convert the Observation to string and verify
     observation_str = str(observation)
-    expected_str = """> First piece of information
-> Second piece of information
+    expected_str = """
+
+First piece of information
+Second piece of information
 — *from First URL*
 
-> Third piece of information
-> Fourth piece of information
+Third piece of information
+Fourth piece of information
 — *from Second URL*"""
     assert observation_str == expected_str, "The Observation stringification did not match the expected format."
+    print(observation_str)

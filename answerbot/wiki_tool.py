@@ -36,6 +36,7 @@ class Observation:
     is_refined: bool = False
     interesting_links: list[str] = field(default_factory=list)
     comment: Optional[str] = None
+    keyword: Optional[str] = None
 
     def clear_info_pieces(self):
         self.info_pieces = []
@@ -46,8 +47,6 @@ class Observation:
 
     def __str__(self) -> str:
         result = ''
-        if self.is_refined:
-            result += 'Relevant quotes:\n'
         for info in self.info_pieces:
             result += f"\n\n{info.to_markdown()}"
         if self.interesting_links:
@@ -176,7 +175,7 @@ class WikipediaTool:
             quoted_text = "\n".join([f"> {line}" for line in chunk.split('\n')])
             info_pieces.append(InfoPiece(text=f"The retrieved page starts with:\n{quoted_text}", source=url, quotable=True))
         result = Observation(info_pieces)
-        pprint(result)
+        #pprint(result)
         return result
 
     #@llm_function()
@@ -218,7 +217,8 @@ class WikipediaTool:
                 search_results_text = self.search_result_to_text(query, search_results)
                 info_pieces.append(InfoPiece(text=search_results_text, source=self.api_url))
                 first_title = search_results[0]['title']
-                info_pieces.extend(self.get_page(first_title).info_pieces)
+                get_page_observation = self.get_page(first_title)
+                info_pieces.extend(get_page_observation.info_pieces)
             else:
                 info_pieces.append(InfoPiece(text="No results found", source=self.api_url))
 
@@ -231,13 +231,13 @@ class WikipediaTool:
         return Observation(info_pieces)
 
     def search_result_to_text(self, query, items):
-        text = f"Wikipedia search results for query: '{query}' are:\n"
+        text = f"Wikipedia search results for query: '{query}' are:"
         results = []
         for item in items:
             results.append(f"[{item['title']}]({urljoin(self.base_url, item['title'])})")
 
         search_results = "\n- ".join(results)
-        return text + search_results
+        return text + "\n- " + search_results
 
     @llm_function()
     def lookup(self, keyword: Annotated[str, "The keyword to search"] ):
@@ -245,16 +245,15 @@ class WikipediaTool:
         Looks up a word on the current page.
         """
         if self.document is None:
-            info_text="No document defined, cannot lookup, you need to use search first to retrieve a document"
+            return Observation([InfoPiece(text="No document defined, cannot lookup, you need to use search first to retrieve a document", source=self.current_url)])
         else:
             text = self.document.lookup(keyword)
-            quoted_text = "\n".join([f"> {line}" for line in text.split('\n')])
             if text:
+                quoted_text = "\n".join([f"> {line}" for line in text.split('\n')])
                 num_of_results = len(self.document.lookup_results)
-                info_text = f'Keyword "{keyword}" found on current page in {num_of_results} places. The first occurrence:\n{quoted_text}'
+                return Observation([InfoPiece(text=f'Keyword "{keyword}" found on current page in {num_of_results} places. The first occurrence:\n{quoted_text}', source=self.current_url, quotable=True)])
             else:
-                info_text = f'Keyword "{keyword}" not found in current page'
-        return Observation([InfoPiece(text=info_text, source=self.current_url, quotable=True)])
+                return Observation([InfoPiece(text=f'Keyword "{keyword}" not found in current page', source=self.current_url)])
 
     @llm_function('next')
     def next_lookup(self):
@@ -262,15 +261,18 @@ class WikipediaTool:
         Jumps to the next occurrence of the word searched previously.
         """
         if self.document is None:
-            info_text = "No document defined, cannot lookup"
+            return Observation([InfoPiece(text="No document defined, cannot lookup", source=self.current_url)])
         elif not self.document.lookup_results:
-            info_text = "No lookup results found"
+            return Observation([InfoPiece(text="No lookup results found", source=self.current_url)])
         else:
             text = self.document.next_lookup()
             num_of_results = len(self.document.lookup_results)
             quoted_text = "\n".join([f"> {line}" for line in text.split('\n')])
-            info_text = f'Keyword "{self.document.lookup_word}" found in: \n{quoted_text}\n- *{self.document.lookup_position} of {num_of_results} places*'
-        return Observation([InfoPiece(text=info_text, source=self.current_url, quotable=True)])
+            info_piece = InfoPiece(
+                text=f'Keyword "{self.document.lookup_word}" found in: \n{quoted_text}\n- *{self.document.lookup_position} of {num_of_results} places*',
+                source=self.current_url, 
+                quotable=True)
+            return Observation([info_piece], keyword=self.document.lookup_word)
 
 
     @llm_function()
@@ -279,14 +281,16 @@ class WikipediaTool:
         Reads the next chunk of text from the current location in the current document.
         """
         if self.document is None:
-            info_text = "No document defined, cannot read"
+            return Observation([InfoPiece(text="No document defined, cannot read", source=self.current_url)])
         else:
             info_text = self.document.read_chunk()
-        return Observation([InfoPiece(text=info_text, source=self.current_url, quotable=True)])
+            return Observation([InfoPiece(text=info_text, source=self.current_url, quotable=True)])
 
 if __name__ == "__main__":
     tool = WikipediaTool()
     #pprint(tool.get_page("Wiaaa"))
     #pprint(tool.search("Oxygen"))
-    pprint(tool.get_url("https://en.wikipedia.org/wiki/Ann_B._Davis"))
+    #pprint(tool.get_url("https://en.wikipedia.org/wiki/Ann_B._Davis"))
+    tool.get_url("https://en.wikipedia.org/wiki/Kiss_and_Tell_(1945_film)")
+    print(str(tool.lookup("Cast")))
 

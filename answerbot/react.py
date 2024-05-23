@@ -13,6 +13,7 @@ from .prompt_templates import QUESTION_CHECKS, PROMPTS, REFLECTIONS
 
 from llm_easy_tools import process_response, get_tool_defs, get_toolset_tools, ToolResult
 from answerbot.wiki_tool import Observation, InfoPiece
+from answerbot.clean_reflection import ReflectionResult
 
 # Configure basic logging
 logging.basicConfig(level=logging.INFO)
@@ -167,111 +168,67 @@ class LLMReactor:
         message = response.choices[0].message
         self.trace.add_entry(message)
         results = process_response(response, tools)
-        for result in results:
-            if result.error is not None:
-                raise self.LLMReactorError(result.error)
-            reflection = self.clean_context_reflection(result)
-            if len(additional_info) > 0:
-                self.trace.add_entry({'role': 'system', 'content': additional_info})
         if len(schemas) > 0 and len(results) == 0:
             self.soft_errors.append("No function call")
             self.to_reflect = False
             if no_tool_calls_message is not None:
                 message = { 'role': 'assistant', 'content': no_tool_calls_message }
                 self.trace.add_entry(message)
+        for result in results:
+            if result.error is not None:
+                raise self.LLMReactorError(result.stack_trace)
+            self.trace.add_entry(result)
+            if len(additional_info) > 0:
+                self.trace.add_entry({'role': 'system', 'content': additional_info})
+            self.clean_context_reflection(result)
         return results
 
-    class ReflectionResult(BaseModel):
-        relevant_quotes: List[str] = Field(..., description="A list of relevant quotes from the source that should be saved.")
-        new_sources: List[str] = Field(..., description="A list of new links mentioned in the notes that should be checked later.")
-        right_page: bool = Field(..., description="Are we on the right page?")
-        comment: str = Field(..., description="A comment on the search results and next actions.")
-
-        def refine_observation(self, observation: Observation):
-            new_comments = []
-            original_info_pieces = observation.info_pieces
-            observation.clear_info_pieces()
-            for quote in self.relevant_quotes:
-                for info_piece in original_info_pieces:
-                    if quote in info_piece.text:
-                        info_piece.text = quote
-                        observation.add_info_piece(info_piece)
-            if self.right_page and self.relevant_quotes:
-                new_comments.append("We've gone to the right page.")
-            elif self.right_page and not self.relevant_quotes:
-                new_comments.append("We've gone to the right page - but no relevant information found in the current page fragment")
-            else:
-                new_comments.append("We've gone to the wrong page.")
-            observation.interesting_links = self.new_sources
-            new_comments.append(self.comment)
-            observation.comment = "\n\n".join(new_comments)
-            observation.is_refined = True
-            return observation
 
 
     def clean_context_reflection(self, result):
+        sysprompt = f"You are a researcher working on a user question. You need to review the information you have retrieved\n"
         if result.name == 'finish':
-            result.tool = None
-            self.trace.add_entry(result)
-            return result
+            return
         elif result.name == "search":
-            sysprompt = """
-You are a researcher working on a user question. Previously you searched wikipedia and now
-you need to evaluate the results.
-If you got any relevant information you need to extract
-quotes quotes to be used as supporting evidence for answering the question.
-You can also note urls from the page that you need to check later.
-You need to leave a comment that would remind you what to do next.
-"""
-        elif result.name == "lookup" or result.name == "next_lookup":
-            sysprompt = """
-You are a researcher working on a user question. Previously you searched wikipedia and found a page.
-You than did a keyword lookup on that page and now you need to evaluate the results.
-If you got any relevant information you need to extract quotes quotes to be used as supporting evidence for answering the question.
-You can also note urls from the page that you need to check later.
-You need to leave a comment that would remind you what to do next.
-"""
+            query = result.arguments['query']
+            sysprompt += f"using the following wikipedia search: `{query}`."
+        elif result.name == "lookup" or result.name == "next":
+            if result.name == "lookup":
+                keyword = result.arguments['keyword']
+            else:
+                keyword = Observation.keyword
+            sysprompt += f"using the following keyword search: `{keyword}` on current page"
         elif result.name == "read_chunk":
-            sysprompt = """
-You are a researcher working on a user question. Previously you searched wikipedia and found a page.
-You than retrieved another part of that page and now you need to evaluate the results.
-If you got any relevant information you need to extract quotes quotes to be used as supporting evidence for answering the question.
-You can also note urls from the page that you need to check later.
-You need to leave a comment that would remind you what to do next.
-"""
+            sysprompt += f"by reading a new fragmeng from the current page."
         elif result.name == "get_url":
-            sysprompt = """
-You are a researcher working on a user question. Previously you followed a link to a page.
-Now you need to evaluate the results of that page retrieval.
-If you got any relevant information you need to extract quotes quotes to be used as supporting evidence for answering the question.
-You can also note urls from the page that you need to check later.
-You need to leave a comment that would remind you what to do next.
-"""
+            url = result.arguments['url']
+            sysprompt += f"by getting the content of the following page: `{url}`."
         else:
             raise ValueError(f"Unknown tool name: {result.name}")
-
-        user_prompt = f"Here are the results for the search in Markdown format:\n\n{str(result.output)}"
-        user_prompt += f"\n\nFrom these notes please extract quotes and note new sources relevant to answering the following question: {self.trace.user_question}"
+        user_prompt = f"Here are the results for the retrieval operation in Markdown format:\n\n{str(result.output)}\n\n"
+        if result.name == "search" or result.name == "get_url":
+            user_prompt += f"\n\nPlease note if the current page relevant to the question?"
+        user_prompt += f"\n\nPlease extract quotes and note new sources relevant to answering the following question: {self.trace.user_question}"
         messages = [
             {'role': 'system', 'content': sysprompt},
             {'role': 'user', 'content': user_prompt},
         ]
-        response = self.openai_query(messages, get_tool_defs([self.ReflectionResult]))
+        response = self.openai_query(messages, get_tool_defs([ReflectionResult]))
         message = response.choices[0].message
         #self.trace.add_entry(message)
-        results = process_response(response, [self.ReflectionResult])
+        results = process_response(response, [ReflectionResult])
         if len(results) > 1:
             self.soft_errors.append(f"More than one reflection result")
         new_result = results[0]
         if new_result.error is not None:
-            raise self.LLMReactorError(new_result.error)
-        reflection = new_result.output
-        result.output = reflection.refine_observation(result.output)
-        result.tool = None
-        self.trace.add_entry(result)
+            raise self.LLMReactorError(new_result.stack_trace)
+        reflection_string  = str(new_result.output)
+        if len(reflection_string) > 0:
+            message = { 'role': 'user', 'content': reflection_string }
+            self.trace.add_entry(message)
         return results
-            
-            
+
+
     def process(self):
         self.analyze_question()
         while self.answer is None:

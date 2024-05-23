@@ -72,15 +72,15 @@ class MarkdownDocument:
         if start_position >= len(self.text):
             return ''  # No more text to read
 
+        # Calculate initial end position
+        end_position = min(start_position + max_size, len(self.text))
+
         # Adjust start position if searching from start
         if search_from_start and start_position > 0:
             boundary_end = min(start_position + max_size - min_size, len(self.text))
             boundary_chunk = self.text[start_position:boundary_end]
             boundary_position = self.find_good_boundary(boundary_chunk, search_from_start=True)
             start_position += boundary_position
-
-        # Calculate initial end position
-        end_position = min(start_position + max_size, len(self.text))
 
         # Adjust end position if not searching from start
         if not search_from_start and end_position < len(self.text):

@@ -71,6 +71,7 @@ def test_lookup(doc):
     keyword = "Header 4"
     result = doc.lookup(keyword)
     assert keyword in result
+    assert 'DeHeader 4' not in result
     assert len(result) >= doc.min_size
     assert len(result) <= doc.max_size
 

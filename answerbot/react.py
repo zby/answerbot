@@ -95,7 +95,6 @@ class Answer:
     answer: str
     answer_short: str
     reasoning: str
-    ambiguity: Optional[str]
 
     def normalized_answer(self):
         answer = self.answer
@@ -107,8 +106,7 @@ class Answer:
         return answer
 
     def __str__(self):
-        return self.normalized_answer()
-
+        return f'{self.normalized_answer()}\n\nReasoning: {self.reasoning}'
 
 
 
@@ -144,45 +142,45 @@ class LLMReactor:
         self.soft_errors = []
         self.reflection_prompt = []
         self.what_have_we_learned = []
+        self.no_tool_calls_message = None
 
-    def openai_query(self, messages, tool_schemas, force_auto_tool_choice=False):
+    def openai_query(self, messages, tools):
         args = {
             'model': self.model,
             'messages': messages
         }
-        if len(tool_schemas) == 0:
-            pass
-        elif len(tool_schemas) == 1 and not force_auto_tool_choice:
+        if len(tools) > 0:
+            tool_schemas = get_tool_defs(tools)
+            args['tools'] = tool_schemas
+
+        if len(tools) == 1:
             args['tool_choice'] = {'type': 'function', 'function': {'name': tool_schemas[0]['function']['name']}}
-            args['tools'] = tool_schemas
-        else:
+        if len(tools) > 1:
             args['tool_choice'] = "auto"
-            args['tools'] = tool_schemas
 
         completion = self.client.chat.completions.create( **args )
         return completion
 
 
 
-    def query_and_process(self, tools=[], additional_info='', no_tool_calls_message=None):
-        schemas = get_tool_defs(tools)
-        response = self.openai_query(self.trace.to_messages(), schemas)
+    def query_and_process(self, tools=[], additional_info=''):
+        response = self.openai_query(self.trace.to_messages(), tools)
         message = response.choices[0].message
         self.trace.add_entry(message)
         results = process_response(response, tools)
-        if len(schemas) > 0 and len(results) == 0:
+        if len(tools) > 0 and len(results) == 0:
             self.soft_errors.append("No function call")
             self.to_reflect = False
-            if no_tool_calls_message is not None:
-                message = { 'role': 'assistant', 'content': no_tool_calls_message }
+            if self.no_tool_calls_message is not None:
+                message = { 'role': 'assistant', 'content': self.no_tool_calls_message }
                 self.trace.add_entry(message)
         for result in results:
             if result.error is not None:
                 raise self.LLMReactorError(result.stack_trace)
             self.trace.add_entry(result)
-            if len(additional_info) > 0:
-                self.trace.add_entry({'role': 'system', 'content': additional_info})
             self.clean_context_reflection(result)
+        if len(additional_info) > 0:
+            self.trace.add_entry({'role': 'system', 'content': additional_info})
         return results
 
 
@@ -207,7 +205,7 @@ You need to review the information retrieval recorded below."""
             {'role': 'system', 'content': sysprompt},
             {'role': 'user', 'content': user_prompt},
         ]
-        response = self.openai_query(messages, get_tool_defs([ReflectionResult]))
+        response = self.openai_query(messages, [ReflectionResult])
         message = response.choices[0].message
         #self.trace.add_entry(message)
         results = process_response(response, [ReflectionResult])
@@ -238,9 +236,7 @@ You need to review the information retrieval recorded below."""
                 step_info = "\n\nThis was the last data you can get - in the next step you need to formulate your answer"
             else:
                 step_info = f"\n\nThis was {self.step} out of {self.max_llm_calls} calls for data."
-            no_tool_calls_message = "You did not ask for any data this time - but it still counts."
-            self.query_and_process(tools, additional_info=step_info, no_tool_calls_message=no_tool_calls_message)
-            self.to_reflect = True
+            self.query_and_process(tools, additional_info=step_info)
 
 #            if 'gpt-4' in self.model:
 #                time.sleep(20)
@@ -257,12 +253,11 @@ You need to review the information retrieval recorded below."""
                answer: Annotated[str, "The answer to the user's question"],
                answer_short: Annotated[str, "A short version of the answer"],
                reasoning: Annotated[str, "The reasoning behind the answer. Think step by step. Mention all assumptions you make."],
-               ambiguity: Annotated[Optional[str], "Have you found anything in the retrieved information that makes the question ambiguous? For example a search for some name can show that there are many different entities with the same name."] = None
     ):
         """
         Finish the task and return the answer.
         """
-        answer = Answer(answer, answer_short, reasoning, ambiguity)
+        answer = Answer(answer, answer_short, reasoning)
         self.answer = answer
         return answer
 

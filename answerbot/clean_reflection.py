@@ -6,7 +6,7 @@ from answerbot.observation import Observation
 
 
 class ReflectionResult(BaseModel):
-    what_have_we_learned: Optional[str] = Field(..., description="What have we learned from the above?")
+    what_have_we_learned: Optional[str] = Field(..., description="What new information have we learned from the information the user retrieved?")
     comment: str = Field(..., description="A comment on the retrieved information and next actions.")
     relevant_quotes: list[str] = Field(..., description="A list of relevant quotes from the source that should be saved.")
     new_sources: list[str] = Field(..., description="A list of new urls mentioned in the notes that should be checked later.")

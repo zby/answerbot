@@ -216,7 +216,7 @@ You need to review the information retrieval recorded below. To save potential s
             raise self.LLMReactorError(new_result.stack_trace)
         reflection = new_result.output
         tool_object.remove_checked_urls(reflection)
-        if reflection.what_have_we_learned:
+        if reflection.what_have_we_learned and reflection.what_have_we_learned not in self.what_have_we_learned:
             self.what_have_we_learned.append(reflection.what_have_we_learned)
         reflection_string  = str(reflection)
         if len(reflection_string) > 0:

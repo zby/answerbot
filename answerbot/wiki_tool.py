@@ -4,7 +4,6 @@ import time
 import traceback
 
 from typing import Annotated, Optional
-from dataclasses import dataclass, field
 from answerbot.markdown_document import MarkdownDocument 
 from bs4 import BeautifulSoup, NavigableString
 from urllib.parse import urlparse, urljoin
@@ -12,50 +11,15 @@ from pprint import pprint
 
 from llm_easy_tools import llm_function
 
+from answerbot.observation import Observation, InfoPiece
+from answerbot.clean_reflection import ReflectionResult
+
 MAX_RETRIES = 3
 # BASE_URL = 'https://pl.wikipedia.org/wiki/'
 # API_URL = 'https://pl.wikipedia.org/w/api.php'
 BASE_URL = 'https://en.wikipedia.org/wiki/'
 API_URL = 'https://en.wikipedia.org/w/api.php'
 CHUNK_SIZE = 1024
-
-@dataclass
-class InfoPiece:
-    text: str
-    source: Optional[str] = None
-    quotable: bool = False
-    def to_markdown(self) -> str:
-        if self.source:
-            return f"{self.text}\n— *from {self.source}*"
-        else:
-            return self.text
-
-@dataclass
-class Observation:
-    info_pieces: list[InfoPiece]
-    is_refined: bool = False
-    interesting_links: list[str] = field(default_factory=list)
-    comment: Optional[str] = None
-    keyword: Optional[str] = None
-
-    def clear_info_pieces(self):
-        self.info_pieces = []
-
-    def add_info_piece(self, info_piece: InfoPiece):
-        self.info_pieces.append(info_piece)
-
-
-    def __str__(self) -> str:
-        result = ''
-        for info in self.info_pieces:
-            result += f"\n\n{info.to_markdown()}"
-        if self.interesting_links:
-            result += '\n\nNew sources:\n'
-            for link in self.interesting_links:
-                result += f"\n\n- {link}"
-        if self.comment:
-            result += f"\n\nComment: {self.comment}"
-        return result
 
 class WikipediaTool:
     def __init__(self, 
@@ -74,6 +38,8 @@ class WikipediaTool:
         self.chunk_size = chunk_size
         self.base_url = base_url
         self.api_url = api_url
+
+        self.checked_urls = []
 
     @classmethod
     def clean_html_and_textify(self, html):
@@ -140,6 +106,7 @@ class WikipediaTool:
         print(f"Getting {url}")
         info_pieces = []
         document = None
+        self.checked_urls.append(url)
         while retries < self.max_retries:
             response = requests.get(url)
             if response.status_code == 404:
@@ -151,7 +118,7 @@ class WikipediaTool:
 
                 document = MarkdownDocument(cleaned_content, min_size=self.min_chunk_size, max_size=self.chunk_size)
                 if title is not None:
-                    info_pieces.append(InfoPiece(text=f"Successfully retrieved page {title} from wikipedia"))
+                    info_pieces.append(InfoPiece(text=f'Successfully retrieved page "{title}" from wikipedia'))
                 else:
                     info_pieces.append(InfoPiece(text=f"Successfully retrieved document from url: '{url}'"))
                 break
@@ -180,7 +147,8 @@ class WikipediaTool:
 
     #@llm_function()
     def get_page(self, title: Annotated[str, "The title of the page to get"]):
-        url = self.base_url + title
+        url_title = title.replace(' ', '_')
+        url = self.base_url + url_title
         return self._get_url(url, title)
 
 
@@ -285,6 +253,38 @@ class WikipediaTool:
         else:
             info_text = self.document.read_chunk()
             return Observation([InfoPiece(text=info_text, source=self.current_url, quotable=True)])
+
+
+    def reflection_prompt(self, method_name, method_args, result_output, user_question):
+        prompt = ''
+        if method_name == "search":
+            query = method_args['query']
+            prompt += f"The following wikipedia search was used: `{query}`."
+        elif method_name == "lookup" or method_name == "next":
+            if method_name == "lookup":
+                keyword = method_args['keyword']
+            else:
+                keyword = self.document.lookup_word
+            prompt += f"The following keyword search was used: `{keyword}` on current page"
+        elif method_name == "read_chunk":
+            prompt += f"A new fragment from the current page was read."
+        elif method_name == "get_url":
+            url = method_args['url']
+            prompt += f"The retrieval of following page was attempted: `{url}`."
+        else:
+            raise ValueError(f"Unknown tool name: {method_name}")
+        prompt += f"Here are the results for the retrieval operation in Markdown format:\n\n{str(result_output)}\n\n"
+        prompt += f"Please analyze the retrieved information, focusing on the following question:\n{user_question}\n\n"
+        prompt += f"Please extract quotes to be saved as supporting evidence and note new urls mentioned in the information pieces"
+        prompt += f"that might be useful in answering the user question."
+        if method_name == "search" or method_name == "get_url":
+            prompt += f"Please also note if the current page relevant to the question."
+        return prompt
+
+    def remove_checked_urls(self, reflection: ReflectionResult):
+        for url in self.checked_urls:
+            reflection.remove_source(url)
+
 
 if __name__ == "__main__":
     tool = WikipediaTool()

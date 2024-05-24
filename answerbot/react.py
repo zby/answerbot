@@ -180,35 +180,23 @@ class LLMReactor:
             self.trace.add_entry(result)
             if len(additional_info) > 0:
                 self.trace.add_entry({'role': 'system', 'content': additional_info})
-            self.clean_context_reflection(result)
+            if result.name != 'finish':
+                self.clean_context_reflection(result)
         return results
 
 
 
     def clean_context_reflection(self, result):
-        sysprompt = f"You are a researcher working on a user question. You need to review the information you have retrieved\n"
-        if result.name == 'finish':
-            return
-        elif result.name == "search":
-            query = result.arguments['query']
-            sysprompt += f"using the following wikipedia search: `{query}`."
-        elif result.name == "lookup" or result.name == "next":
-            if result.name == "lookup":
-                keyword = result.arguments['keyword']
-            else:
-                keyword = Observation.keyword
-            sysprompt += f"using the following keyword search: `{keyword}` on current page"
-        elif result.name == "read_chunk":
-            sysprompt += f"by reading a new fragmeng from the current page."
-        elif result.name == "get_url":
-            url = result.arguments['url']
-            sysprompt += f"by getting the content of the following page: `{url}`."
+        # In clean context reflection we cannot ask the llm to plan - because it does not get the information retrieved previously.
+        # But we can contrast the reflection with previous data ourselves - and for example remove links that were already retrieved.
+
+        if hasattr(result.tool, '__self__'):
+            tool_object = result.tool.__self__
         else:
-            raise ValueError(f"Unknown tool name: {result.name}")
-        user_prompt = f"Here are the results for the retrieval operation in Markdown format:\n\n{str(result.output)}\n\n"
-        if result.name == "search" or result.name == "get_url":
-            user_prompt += f"\n\nPlease note if the current page relevant to the question?"
-        user_prompt += f"\n\nPlease extract quotes and note new sources relevant to answering the following question: {self.trace.user_question}"
+            raise ValueError(f"Don't know how to create prompts for tool that is not a bound method. Tool object has no __self__ attribute: {result.tool}")
+
+        sysprompt = f"You are a researcher working on a user question. You need to review the information you have retrieved."
+        user_prompt = tool_object.reflection_prompt(result.name, result.arguments, result.output, self.trace.user_question)
         messages = [
             {'role': 'system', 'content': sysprompt},
             {'role': 'user', 'content': user_prompt},
@@ -222,11 +210,12 @@ class LLMReactor:
         new_result = results[0]
         if new_result.error is not None:
             raise self.LLMReactorError(new_result.stack_trace)
-        reflection_string  = str(new_result.output)
+        reflection = new_result.output
+        tool_object.remove_checked_urls(reflection)
+        reflection_string  = str(reflection)
         if len(reflection_string) > 0:
             message = { 'role': 'user', 'content': reflection_string }
             self.trace.add_entry(message)
-        return results
 
 
     def process(self):

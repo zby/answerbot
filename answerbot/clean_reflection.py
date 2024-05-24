@@ -1,13 +1,21 @@
 import sys
 
-from pydantic import BaseModel, Field
-from answerbot.wiki_tool import Observation
+from pydantic import BaseModel, Field, field_validator
+from answerbot.observation import Observation
 
 
 class ReflectionResult(BaseModel):
     comment: str = Field(..., description="A comment on the search results and next actions.")
     relevant_quotes: list[str] = Field(..., description="A list of relevant quotes from the source that should be saved.")
     new_sources: list[str] = Field(..., description="A list of new urls mentioned in the notes that should be checked later.")
+
+    @field_validator('new_sources', mode='before')
+    def unique_new_sources(cls, v):
+        return list(dict.fromkeys(v))
+
+    def remove_source(self, url):
+        if url in self.new_sources:
+            self.new_sources.remove(url)
 
     def refine_observation(self, observation: Observation):
         original_info_pieces = observation.info_pieces
@@ -36,5 +44,4 @@ class ReflectionResult(BaseModel):
         if len(self.comment) > 0:
             content += f"\n{self.comment}"
         return content
-        
 

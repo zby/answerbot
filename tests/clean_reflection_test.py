@@ -56,3 +56,19 @@ def test_empty_reflection_result_stringify():
     # Stringify the object
     reflection_result_page_str = str(reflection_result_page)
     assert reflection_result_page_str == ""
+
+def test_remove_source_from_reflection_result():
+    # Setup
+    reflection_result = ReflectionResult(
+        relevant_quotes=["Quote about AI."],
+        new_sources=["http://source1.com", "http://source2.com"],
+        comment="Initial sources included."
+    )
+
+    # Action
+    reflection_result.remove_source("http://source1.com")
+
+    # Assert
+    assert "http://source1.com" not in reflection_result.new_sources
+    assert "http://source2.com" in reflection_result.new_sources
+    assert len(reflection_result.new_sources) == 1

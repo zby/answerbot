@@ -213,7 +213,7 @@ class WikipediaTool:
                 info_pieces.append(InfoPiece(text=search_results_text, source=self.api_url))
                 first_title = search_results[0]['title']
                 get_page_observation = self.get_page(first_title)
-                reflection_prompt += get_page_observation.reflection_prompt + '\n\n'
+                reflection_prompt += get_page_observation.reflection_prompt
                 info_pieces.extend(get_page_observation.info_pieces)
             else:
                 info_pieces.append(InfoPiece(text="No results found", source=self.api_url))

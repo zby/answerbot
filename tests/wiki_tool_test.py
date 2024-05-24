@@ -65,7 +65,9 @@ def test_search_success(mock_get_page, mock_get):
     mock_get_page.return_value = Observation([
         InfoPiece(text="mock get page infopiece 1", source="https://en.wikipedia.org/wiki/TestTitle1"),
         InfoPiece(text="mock get page infopiece 2", source="https://en.wikipedia.org/wiki/TestTitle1")
-        ])
+        ],
+        reflection_prompt="reflection prompt"
+    )
 
     wiki_tool = WikipediaTool()
     observation = wiki_tool.search("test_query")
@@ -78,6 +80,7 @@ def test_search_success(mock_get_page, mock_get):
     # Check if the content from get_page is included in the observation
     assert observation.info_pieces[1].text == "mock get page infopiece 1"
     assert observation.info_pieces[2].text == "mock get page infopiece 2"
+    assert observation.reflection_prompt.endswith("\n\nreflection prompt")
 
 
 def test_observation_stringification():

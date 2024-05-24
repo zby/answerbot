@@ -44,8 +44,7 @@ class WikipediaTool:
 
         self.checked_urls = []
 
-    @classmethod
-    def clean_html_and_textify(self, html, base_url):
+    def clean_html_and_textify(self, html):
 
         # remove table of content
         soup = BeautifulSoup(html, 'html.parser')
@@ -93,8 +92,10 @@ class WikipediaTool:
             if 'title' in a_tag.attrs:
                 del a_tag.attrs['title']  # Remove the title attribute if it exists
             if not relative_href.startswith(('http://', 'https://')):
-                absolute_href = urljoin(base_url, relative_href)
+                absolute_href = urljoin(self.absolute_base_url, relative_href)
                 a_tag['href'] = absolute_href
+            if self.url_shortener:
+                a_tag['href'] = self.url_shortener.shorten(a_tag['href'])
 
         modified_html = str(content)
 
@@ -115,6 +116,8 @@ class WikipediaTool:
 
     def _get_url(self, url: str, title=None, limit_sections = None):
         retries = 0
+        if self.url_shortener:
+            url = self.url_shortener.retrieve(url)
         print(f"Getting {url}")
         info_pieces = []
         document = None
@@ -128,7 +131,7 @@ class WikipediaTool:
                 break
             elif response.status_code == 200:
                 html = response.text
-                cleaned_content = self.clean_html_and_textify(html, self.absolute_base_url)
+                cleaned_content = self.clean_html_and_textify(html)
 
                 document = MarkdownDocument(cleaned_content, min_size=self.min_chunk_size, max_size=self.chunk_size)
                 if title is not None:
@@ -301,7 +304,9 @@ class WikipediaTool:
 
 
 if __name__ == "__main__":
-    tool = WikipediaTool()
+    from answerbot.url_shortener import UrlShortener
+    url_shortener = UrlShortener()
+    tool = WikipediaTool(url_shortener=url_shortener)
     #pprint(tool.get_page("Wiaaa"))
     #pprint(tool.search("Oxygen"))
     #pprint(tool.get_url("https://en.wikipedia.org/wiki/Ann_B._Davis"))

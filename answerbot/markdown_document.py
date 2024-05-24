@@ -12,17 +12,6 @@ class MarkdownDocument:
         self.lookup_word = None
         self.lookup_position = -1
 
-        if self.url_shortener:
-            self.text = self.shorten_urls(self.text)
-
-    def shorten_urls(self, text):
-        """Shorten all URLs found in the text using the provided URL shortener."""
-        url_pattern = r'https?://\S+'
-        urls = re.findall(url_pattern, text)
-        for url in urls:
-            short_url = self.url_shortener.shorten(url)
-            text = text.replace(url, short_url)
-        return text
 
     def set_position(self, position):
         """Set the current reading position."""

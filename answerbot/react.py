@@ -142,6 +142,8 @@ class LLMReactor:
         self.finished = False
         self.answer = None
         self.soft_errors = []
+        self.reflection_prompt = []
+        self.what_have_we_learned = []
 
     def openai_query(self, messages, tool_schemas, force_auto_tool_choice=False):
         args = {
@@ -180,8 +182,7 @@ class LLMReactor:
             self.trace.add_entry(result)
             if len(additional_info) > 0:
                 self.trace.add_entry({'role': 'system', 'content': additional_info})
-            if result.name != 'finish':
-                self.clean_context_reflection(result)
+            self.clean_context_reflection(result)
         return results
 
 
@@ -193,10 +194,15 @@ class LLMReactor:
         if hasattr(result.tool, '__self__'):
             tool_object = result.tool.__self__
         else:
-            raise ValueError(f"Don't know how to create prompts for tool that is not a bound method. Tool object has no __self__ attribute: {result.tool}")
+            raise ValueError(f"We need the tool object to remove used urls. Tool object has no __self__ attribute: {result.tool}")
+        learned_stuff = "\n\nSo far we have learned:\n" + "\n".join(self.what_have_we_learned) if self.what_have_we_learned else ""
+        sysprompt = f"""You are a researcher working on the following user question:
+{self.trace.user_question}{learned_stuff}
 
-        sysprompt = f"You are a researcher working on a user question. You need to review the information you have retrieved."
-        user_prompt = tool_object.reflection_prompt(result.name, result.arguments, result.output, self.trace.user_question)
+You need to review the information retrieval recorded below."""
+        if not isinstance(result.output, Observation) or result.output.reflection_prompt is None:
+            return
+        user_prompt = result.output.reflection_prompt
         messages = [
             {'role': 'system', 'content': sysprompt},
             {'role': 'user', 'content': user_prompt},
@@ -212,6 +218,8 @@ class LLMReactor:
             raise self.LLMReactorError(new_result.stack_trace)
         reflection = new_result.output
         tool_object.remove_checked_urls(reflection)
+        if reflection.what_have_we_learned:
+            self.what_have_we_learned.append(reflection.what_have_we_learned)
         reflection_string  = str(reflection)
         if len(reflection_string) > 0:
             message = { 'role': 'user', 'content': reflection_string }

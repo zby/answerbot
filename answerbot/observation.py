@@ -19,6 +19,7 @@ class Observation:
     interesting_links: list[str] = field(default_factory=list)
     comment: Optional[str] = None
     keyword: Optional[str] = None
+    reflection_prompt: Optional[str] = None
 
     def clear_info_pieces(self):
         self.info_pieces = []

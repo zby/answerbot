@@ -1,11 +1,13 @@
 import sys
 
+from typing import Optional
 from pydantic import BaseModel, Field, field_validator
 from answerbot.observation import Observation
 
 
 class ReflectionResult(BaseModel):
-    comment: str = Field(..., description="A comment on the search results and next actions.")
+    what_have_we_learned: Optional[str] = Field(..., description="What have we learned from the above?")
+    comment: str = Field(..., description="A comment on the retrieved information and next actions.")
     relevant_quotes: list[str] = Field(..., description="A list of relevant quotes from the source that should be saved.")
     new_sources: list[str] = Field(..., description="A list of new urls mentioned in the notes that should be checked later.")
 

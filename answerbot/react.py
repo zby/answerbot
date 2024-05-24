@@ -197,7 +197,7 @@ class LLMReactor:
         sysprompt = f"""You are a researcher working on the following user question:
 {self.trace.user_question}{learned_stuff}
 
-You need to review the information retrieval recorded below."""
+You need to review the information retrieval recorded below. To save potential sources of new information please add their urls to the new_sources list."""
         if not isinstance(result.output, Observation) or result.output.reflection_prompt is None:
             return
         user_prompt = result.output.reflection_prompt

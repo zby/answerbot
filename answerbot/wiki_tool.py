@@ -17,32 +17,35 @@ from answerbot.clean_reflection import ReflectionResult
 MAX_RETRIES = 3
 # BASE_URL = 'https://pl.wikipedia.org/wiki/'
 # API_URL = 'https://pl.wikipedia.org/w/api.php'
-BASE_URL = 'https://en.wikipedia.org/wiki/'
+BASE_URL = 'https://en.wikipedia.org/'
 API_URL = 'https://en.wikipedia.org/w/api.php'
 CHUNK_SIZE = 1024
 
 class WikipediaTool:
     def __init__(self, 
                 document=None,
+                url_shortener=None,
                 current_url=None,
                 max_retries=MAX_RETRIES,
                 min_chunk_size=100,
                 chunk_size=CHUNK_SIZE,
-                base_url=BASE_URL,
+                absolute_base_url=BASE_URL,
                 api_url=API_URL,
                 ):
         self.document = document
+        self.url_shortener = url_shortener
         self.current_url = current_url
         self.min_chunk_size = min_chunk_size
         self.max_retries = max_retries
         self.chunk_size = chunk_size
-        self.base_url = base_url
+        self.absolute_base_url = absolute_base_url
+        self.base_url = self.absolute_base_url + 'wiki/'
         self.api_url = api_url
 
         self.checked_urls = []
 
     @classmethod
-    def clean_html_and_textify(self, html):
+    def clean_html_and_textify(self, html, base_url):
 
         # remove table of content
         soup = BeautifulSoup(html, 'html.parser')
@@ -84,6 +87,15 @@ class WikipediaTool:
                         break  # Stop checking this div, as we found a match
         for div in content.find_all('div', class_='mbox-text-span'):
             print(div)
+            
+        for a_tag in content.find_all('a', href=True):
+            relative_href = a_tag['href']
+            if 'title' in a_tag.attrs:
+                del a_tag.attrs['title']  # Remove the title attribute if it exists
+            if not relative_href.startswith(('http://', 'https://')):
+                absolute_href = urljoin(base_url, relative_href)
+                a_tag['href'] = absolute_href
+
         modified_html = str(content)
 
         converter = html2text.HTML2Text()
@@ -116,7 +128,7 @@ class WikipediaTool:
                 break
             elif response.status_code == 200:
                 html = response.text
-                cleaned_content = self.clean_html_and_textify(html)
+                cleaned_content = self.clean_html_and_textify(html, self.absolute_base_url)
 
                 document = MarkdownDocument(cleaned_content, min_size=self.min_chunk_size, max_size=self.chunk_size)
                 if title is not None:
@@ -198,9 +210,8 @@ class WikipediaTool:
                 info_pieces.append(InfoPiece(text=search_results_text, source=self.api_url))
                 first_title = search_results[0]['title']
                 get_page_observation = self.get_page(first_title)
-                for info_piece in get_page_observation.info_pieces:
-                    reflection_prompt += info_piece.text + "\n\n"
-                    info_pieces.append(info_piece)
+                reflection_prompt += get_page_observation.reflection_prompt + '\n\n'
+                info_pieces.extend(get_page_observation.info_pieces)
             else:
                 info_pieces.append(InfoPiece(text="No results found", source=self.api_url))
                 reflection_prompt = "No results found on wikipedia"   #TODO: add tips on improving wikipedia search
@@ -242,7 +253,7 @@ class WikipediaTool:
                 reflection_prompt = f'Keyword "{keyword}" found at "{current_url}" in {num_of_results} places. The first occurrence:\n{quoted_text}'
                 return Observation([InfoPiece(text=reflection_prompt, source=self.current_url, quotable=True)], reflection_prompt=reflection_prompt)
             else:
-                reflection_prompt = f'Keyword "{keyword}" not found at "{current_url}". You might try a modified keyword - for example use synonyms.'
+                reflection_prompt = f'Keyword "{keyword}" not found at "{current_url}". You might try a modified keyword - for example use synonyms.\n'
                 reflection_prompt += f"It is often better to use one word lookups because two or more words can be separated somehow or used in a different order."
                 return Observation([InfoPiece(text=reflection_prompt, source=self.current_url)], reflection_prompt=reflection_prompt)
 
@@ -294,6 +305,9 @@ if __name__ == "__main__":
     #pprint(tool.get_page("Wiaaa"))
     #pprint(tool.search("Oxygen"))
     #pprint(tool.get_url("https://en.wikipedia.org/wiki/Ann_B._Davis"))
-    tool.get_url("https://en.wikipedia.org/wiki/Kiss_and_Tell_(1945_film)")
-    print(str(tool.lookup("Cast")))
+    #tool.get_url("https://en.wikipedia.org/wiki/Kiss_and_Tell_(1945_film)")
+    #print(str(tool.lookup("Cast")))
+
+    tool.get_url("https://en.wikipedia.org/wiki/Lewiston_Maineiacs")
+    print(str(tool.lookup("arena")))
 

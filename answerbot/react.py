@@ -189,6 +189,9 @@ class LLMReactor:
         # In clean context reflection we cannot ask the llm to plan - because it does not get the information retrieved previously.
         # But we can contrast the reflection with previous data ourselves - and for example remove links that were already retrieved.
 
+        if not isinstance(result.output, Observation) or not result.output.reflection_needed():
+            return
+
         if hasattr(result.tool, '__self__'):
             tool_object = result.tool.__self__
         else:
@@ -198,9 +201,7 @@ class LLMReactor:
 {self.trace.user_question}{learned_stuff}
 
 You need to review the information retrieval recorded below. To save potential sources of new information please add their urls to the new_sources list."""
-        if not isinstance(result.output, Observation) or result.output.reflection_prompt is None:
-            return
-        user_prompt = result.output.reflection_prompt
+        user_prompt = str(result.output)
         messages = [
             {'role': 'system', 'content': sysprompt},
             {'role': 'user', 'content': user_prompt},

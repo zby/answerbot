@@ -23,8 +23,8 @@ def test_get_page_success(mock_get):
     wiki_search = WikipediaTool()
     observation = wiki_search.get_url("https://www.test.test")
     assert wiki_search.document is not None
-    assert observation.info_pieces[0].text == "Successfully retrieved document from url: 'https://www.test.test'"
-    assert observation.info_pieces[1].text == "The retrieved page starts with:\n> Page Content"
+    assert observation.info_pieces[1].text == "Successfully retrieved document from url: 'https://www.test.test'"
+    assert observation.info_pieces[2].text == "The retrieved page starts with:\n> Page Content"
     assert "Page Content" in wiki_search.document.text
 
 
@@ -34,7 +34,7 @@ def test_get_page_404(mock_get):
     wiki_search = WikipediaTool()
     observation = wiki_search.get_url("https://www.test.test")
     assert wiki_search.document is None
-    assert observation.info_pieces[0].text == "Page does not exist."
+    assert observation.info_pieces[1].text == "Page does not exist."
 
 # Test other HTTP errors
 @patch('answerbot.wiki_tool.requests.get')
@@ -44,9 +44,9 @@ def test_get_page_http_error(mock_get):
     observation = wiki_search.get_url("https://www.test.test")
     pprint(observation.info_pieces)
     assert wiki_search.document is None
-    assert observation.info_pieces[0].text == "HTTP error occurred: 500"
-    assert observation.info_pieces[1].text == "HTTP error occurred: 500"
-    assert observation.info_pieces[wiki_search.max_retries].text == "Retries exhausted. No options available."
+    assert observation.info_pieces[2].text == "HTTP error occurred: 500"
+    assert observation.info_pieces[3].text == "HTTP error occurred: 500"
+    assert observation.info_pieces[wiki_search.max_retries + 1].text == "Retries exhausted. No options available."
 
 # Test successful search
 @patch('answerbot.wiki_tool.requests.get')
@@ -66,21 +66,19 @@ def test_search_success(mock_get_page, mock_get):
         InfoPiece(text="mock get page infopiece 1", source="https://en.wikipedia.org/wiki/TestTitle1"),
         InfoPiece(text="mock get page infopiece 2", source="https://en.wikipedia.org/wiki/TestTitle1")
         ],
-        reflection_prompt="reflection prompt"
     )
 
     wiki_tool = WikipediaTool()
     observation = wiki_tool.search("test_query")
 
     # Check if the search results text is correct
-    assert observation.info_pieces[0].text == """Wikipedia search results for query: 'test_query' are:
+    assert observation.info_pieces[1].text == """Wikipedia search results for query: 'test_query' are:
 - [TestTitle1](https://en.wikipedia.org/wiki/TestTitle1)
 - [TestTitle2](https://en.wikipedia.org/wiki/TestTitle2)"""
     mock_get_page.assert_called_once_with('TestTitle1')
     # Check if the content from get_page is included in the observation
-    assert observation.info_pieces[1].text == "mock get page infopiece 1"
-    assert observation.info_pieces[2].text == "mock get page infopiece 2"
-    assert observation.reflection_prompt.endswith("\n\nreflection prompt")
+    assert observation.info_pieces[2].text == "mock get page infopiece 1"
+    assert observation.info_pieces[3].text == "mock get page infopiece 2"
 
 
 def test_observation_stringification():

@@ -19,7 +19,6 @@ class Observation:
     interesting_links: list[str] = field(default_factory=list)
     comment: Optional[str] = None
     keyword: Optional[str] = None
-    reflection_prompt: Optional[str] = None
 
     def clear_info_pieces(self):
         self.info_pieces = []
@@ -39,4 +38,7 @@ class Observation:
         if self.comment:
             result += f"\n\nComment: {self.comment}"
         return result
+
+    def reflection_needed(self) -> bool:
+        return any(info.quotable for info in self.info_pieces)
 

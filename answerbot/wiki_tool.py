@@ -122,12 +122,11 @@ class WikipediaTool:
         info_pieces = []
         document = None
         self.checked_urls.append(url)
-        reflection_prompt = f"Trying to retrieve url: `{url}`.\n"
+        info_pieces.append(InfoPiece(text=f"Trying to retrieve url: `{url}`."))
         while retries < self.max_retries:
             response = requests.get(url)
             if response.status_code == 404:
                 info_pieces.append(InfoPiece(text="Page does not exist.", source=url))
-                reflection_prompt += "Page does not exist."
                 break
             elif response.status_code == 200:
                 html = response.text
@@ -136,19 +135,15 @@ class WikipediaTool:
                 document = MarkdownDocument(cleaned_content, min_size=self.min_chunk_size, max_size=self.chunk_size)
                 if title is not None:
                     info_pieces.append(InfoPiece(text=f'Successfully retrieved page "{title}" from wikipedia'))
-                    reflection_prompt += f'Successfully retrieved page "{title}" from wikipedia\n\n'
                 else:
                     info_pieces.append(InfoPiece(text=f"Successfully retrieved document from url: '{url}'"))
-                    reflection_prompt += f"Successfully retrieved document from url: '{url}'\n\n"
                 break
             else:
                 info_pieces.append(InfoPiece(text=f"HTTP error occurred: {response.status_code}", source=url))
-                reflection_prompt += f"HTTP error occurred: {response.status_code}"
             retries += 1
 
         if retries == self.max_retries:
             info_pieces.append(InfoPiece(text=f"Retries exhausted. No options available.", source=url))
-            reflection_prompt += f"Retries exhausted. No options available."
 
         if document is not None:
             self.document = document
@@ -160,13 +155,11 @@ class WikipediaTool:
             if len(sections) > 0:
                 text = f'The retrieved page contains the following sections:\n{sections_list_md}'
                 info_pieces.append(InfoPiece(text=text, source=url))
-                reflection_prompt += text + "\n\n"
             chunk = document.read_chunk()
             quoted_text = self.quote_text(chunk)
             text = f"The retrieved page starts with:\n{quoted_text}"
             info_pieces.append(InfoPiece(text=text, source=url, quotable=True))
-            reflection_prompt += text + "\n\n"
-        result = Observation(info_pieces, reflection_prompt=reflection_prompt)
+        result = Observation(info_pieces)
         #pprint(result)
         return result
 
@@ -190,7 +183,7 @@ class WikipediaTool:
             'srsearch': query,
             'srlimit': 10,  # Limit the number of results
         }
-        reflection_prompt = f"The following wikipedia search was used: `{query}`.\n"
+        info_pieces.append(InfoPiece(text=f"The following wikipedia search was used: `{query}`."))
 
         try:
             response = requests.get(self.api_url, params=params)
@@ -209,23 +202,22 @@ class WikipediaTool:
             search_results = data['query']['search']
             if search_results:
                 search_results_text = self.search_result_to_text(query, search_results)
-                reflection_prompt += search_results_text + "\n\n"
                 info_pieces.append(InfoPiece(text=search_results_text, source=self.api_url))
                 first_title = search_results[0]['title']
                 get_page_observation = self.get_page(first_title)
-                reflection_prompt += get_page_observation.reflection_prompt
                 info_pieces.extend(get_page_observation.info_pieces)
             else:
                 info_pieces.append(InfoPiece(text="No results found", source=self.api_url))
-                reflection_prompt = "No results found on wikipedia"   #TODO: add tips on improving wikipedia search
 
         except requests.exceptions.HTTPError as e:
             info_pieces.append(InfoPiece(text=f"HTTP error occurred during search: {e}", source=self.api_url))
+            return Observation(info_pieces)
         except Exception as e:
             stack_trace = traceback.format_exc()
             info_pieces.append(InfoPiece(text=f"Error during search: {stack_trace}", source=self.api_url))
+            return Observation(info_pieces)
 
-        return Observation(info_pieces, reflection_prompt=reflection_prompt)
+        return Observation(info_pieces)
 
     def search_result_to_text(self, query, items):
         text = f"Wikipedia search results for query: '{query}' are:"
@@ -253,12 +245,13 @@ class WikipediaTool:
             if text:
                 quoted_text = self.quote_text(text)
                 num_of_results = len(self.document.lookup_results)
-                reflection_prompt = f'Keyword "{keyword}" found at "{current_url}" in {num_of_results} places. The first occurrence:\n{quoted_text}'
-                return Observation([InfoPiece(text=reflection_prompt, source=self.current_url, quotable=True)], reflection_prompt=reflection_prompt)
+                info = f'Keyword "{keyword}" found at "{current_url}" in {num_of_results} places. The first occurrence:\n{quoted_text}'
+                return Observation([InfoPiece(text=info, source=self.current_url, quotable=True)])
             else:
-                reflection_prompt = f'Keyword "{keyword}" not found at "{current_url}". You might try a modified keyword - for example use synonyms.\n'
-                reflection_prompt += f"It is often better to use one word lookups because two or more words can be separated somehow or used in a different order."
-                return Observation([InfoPiece(text=reflection_prompt, source=self.current_url)], reflection_prompt=reflection_prompt)
+                info = f'Keyword "{keyword}" not found at "{current_url}". You might try a modified keyword - for example use synonyms.\n'
+                if " " in keyword:
+                    info += "\nNote: Your keyword contains spaces. Consider using a single word for more effective lookups, multiple words can be separated by additional text or whitespace, or they might occur in different order."
+                return Observation([InfoPiece(text=info, source=self.current_url)])
 
     @llm_function('next')
     def next_lookup(self):
@@ -266,11 +259,11 @@ class WikipediaTool:
         Jumps to the next occurrence of the word searched previously.
         """
         if self.document is None:
-            reflection_prompt = "No document defined, cannot lookup, you need to use search or get_url first to retrieve a document"
-            return Observation([InfoPiece(text=reflection_prompt, source=self.current_url)], reflection_prompt=reflection_prompt)
+            info = "No document defined, cannot lookup, you need to use search or get_url first to retrieve a document"
+            return Observation([InfoPiece(text=info, source=self.current_url)])
         elif not self.document.lookup_results:
-            reflection_prompt = "No lookup results found, you need to use lookup first to find the places with the word you are looking for"
-            return Observation([InfoPiece(text=reflection_prompt, source=self.current_url)], reflection_prompt=reflection_prompt)
+            info = "No lookup results found, you need to use lookup first to find the places with the word you are looking for"
+            return Observation([InfoPiece(text=info, source=self.current_url)])
         else:
             text = self.document.next_lookup()
             num_of_results = len(self.document.lookup_results)
@@ -280,7 +273,7 @@ class WikipediaTool:
                 text=text,
                 source=self.current_url, 
                 quotable=True)
-            return Observation([info_piece], keyword=self.document.lookup_word, reflection_prompt=text)
+            return Observation([info_piece], keyword=self.document.lookup_word)
 
 
     @llm_function()
@@ -289,13 +282,13 @@ class WikipediaTool:
         Reads the next chunk of text from the current location in the current document.
         """
         if self.document is None:
-            return Observation([InfoPiece(text="No document defined, cannot read", source=self.current_url)], reflection_prompt=None)
+            return Observation([InfoPiece(text="No document defined, cannot read", source=self.current_url)])
         else:
             info_text = self.document.read_chunk()
             quoted_text = self.quote_text(info_text)
             reflection_prompt = f"A new fragment from the current page was read:\n"
             reflection_prompt += f"{quoted_text}"
-            return Observation([InfoPiece(text=info_text, source=self.current_url, quotable=True)], reflection_prompt=reflection_prompt)
+            return Observation([InfoPiece(text=info_text, source=self.current_url, quotable=True)])
 
 
     def remove_checked_urls(self, reflection: ReflectionResult):

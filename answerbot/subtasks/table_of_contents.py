@@ -95,7 +95,7 @@ class ReadFromTableOfContentsArticleResult:
 @dataclass(frozen=True)
 class ReadFromTableOfContentsResult:
     articles: list[ReadFromTableOfContentsArticleResult]
-    energy_spent: int
+    budget_spent: int
 
     def __str__(self) -> str:
         chunks = []
@@ -171,7 +171,7 @@ class ReadFromTableOfContents:
 
     def __call__(
             self,
-            energy: Annotated[int, 'Energy you have left'],
+            budget: Annotated[int, 'Budget you have left'],
             goal: Annotated[str, 'The information you expect to obtain'],
             context: Annotated[str|None, 'Any additional information gathered so far if any']):
         result = read_from_table_of_contents(
@@ -180,7 +180,7 @@ class ReadFromTableOfContents:
                 question=self._question,
                 read_article_cost=self._read_article_cost,
                 show_table_of_contents_cost=self._show_table_of_contents_cost,
-                energy=energy,
+                budget=budget,
                 context=context or '',
                 articles_read=self._articles_read,
                 document_toc=self._document_toc
@@ -195,20 +195,20 @@ def read_from_table_of_contents(
         model: str,
         question: str,
         context: str,
-        energy: int,
+        budget: int,
         read_article_cost: int,
         show_table_of_contents_cost: int,
         document_toc: DocumentSection,
         articles_read: set[str],
         ) -> ReadFromTableOfContentsResult:
-    energy_left = energy
+    budget_left = budget
 
     article_choices = show_table_of_contents(
             client,
             model,
             question=question,
             context=context,
-            limit=energy // read_article_cost,
+            limit=budget // read_article_cost,
             document_toc=document_toc
             )
 
@@ -219,10 +219,10 @@ def read_from_table_of_contents(
 
     reflections = []
 
-    energy_left -= show_table_of_contents_cost
+    budget_left -= show_table_of_contents_cost
 
     for choice in article_choices:
-        if energy_left < read_article_cost:
+        if budget_left < read_article_cost:
             break
         article = document_toc.find_article(choice.id)
         if article is None:
@@ -251,11 +251,11 @@ def read_from_table_of_contents(
                     )
                 )
 
-        energy_left -= read_article_cost
+        budget_left -= read_article_cost
 
 
     return ReadFromTableOfContentsResult(
             articles=reflections,
-            energy_spent=energy-energy_left,
+            budget_spent=budget-budget_left,
             )
 

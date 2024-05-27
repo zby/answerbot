@@ -63,7 +63,7 @@ result = answer(
         client,
         'gpt-4o',
         question=question,
-        energy=100,
+        budget=100,
         )
 
 

@@ -19,7 +19,7 @@ def answer(
         client: OpenAI,
         model: str,
         question: str,
-        energy: int=30,
+        budget: int=30,
         ) -> list:
     table_of_contents = get_eu_act_toc()
 
@@ -36,7 +36,7 @@ def answer(
     result = llm_react(
             client=client,
             model=model,
-            energy=energy,
+            budget=budget,
             domain='EU Artificial Intelligence Act',
             toolset=toolbox,
             question=question

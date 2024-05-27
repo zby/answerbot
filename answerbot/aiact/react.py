@@ -6,7 +6,8 @@ from openai.types.chat import ChatCompletionMessageParam
 
 REACTOR_SYSTEM_MESSAGE = """
 You are an AI model tasked with answering questions within a specified domain using a set of tools. 
-Each tool has a specific energy cost mentioned in its docstring as 'COST: x'. 
+Each tool has a specific cost mentioned in its docstring as 'COST: x'. You will have a limited budget
+to answer the question, so choose your tools wisely.
 Some tools may also have usage limits.
 
 Your goal is to provide a complete answer to the following question:
@@ -15,7 +16,7 @@ Domain: {domain}
 
 Question: {question}
 
-You have {energy} energy available for this task.
+Your budget for this task is: {energy}
 
 Manage your energy carefully by selecting appropriate tools based on their energy costs. 
 If you reach an acceptable answer or run out of energy, use the 'Finish' tool to conclude.
@@ -50,23 +51,23 @@ def cost(cost: int):
 def llm_react(
         client: OpenAI,
         model: str,
-        energy: int,
+        budget: int,
         domain: str,
         question: str,
         toolset: list[Callable],
         ) -> list[Any]:
-    energy_left = energy
+    budget_left = budget
     result = []
     tools_used = {}
     context = ''
     done = False
 
-    while energy_left > 0 and not done:
+    while budget_left > 0 and not done:
         toolset_ = toolset + [Finish]
         toolset_ = [
                 tool
                 for tool in toolset_
-                if getattr(tool, '__reactor_cost__', 0) <= max(0, energy_left)
+                if getattr(tool, '__reactor_cost__', 0) <= max(0, budget_left)
                 and getattr(tool, '__reactor_use_limit__', float('inf')) > tools_used.get(tool, 0)
                 ]
 
@@ -74,7 +75,7 @@ def llm_react(
                 'role': 'system',
                 'content': REACTOR_SYSTEM_MESSAGE.format(
                     domain=domain,
-                    energy=energy_left,
+                    energy=budget_left,
                     context=context,
                     question=question,
                     )
@@ -86,7 +87,7 @@ def llm_react(
                 tools=get_tool_defs(toolset_),
                 tool_choice=(
                     'auto' if len(toolset_) > 1
-                    else {'type': 'function', 'function': {'name': 'Finish'}}
+                    else get_tool_defs([Finish])[0]
                     )
                 )
 
@@ -96,7 +97,7 @@ def llm_react(
             else:
                 context += str(call.output) + '\n\n'
             result.append(call.output)
-            energy_left -= (
+            budget_left -= (
                     getattr(call.output, 'energy_spent', 0) 
                     + getattr(call.tool, '__reactor_cost__', 0)
                     )

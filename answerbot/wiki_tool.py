@@ -157,8 +157,11 @@ class WikipediaTool:
                 info_pieces.append(InfoPiece(text=text, source=url))
             chunk = document.read_chunk()
             quoted_text = self.quote_text(chunk)
-            text = f"The retrieved page starts with:\n{quoted_text}"
-            info_pieces.append(InfoPiece(text=text, source=url, quotable=True))
+            info_pieces.append(InfoPiece("The retrieved page starts with:"))
+            info_pieces.append(InfoPiece(quoted_text, source=url, quotable=True))
+            info = "If you want to continue reading the page, you can call `read_more`. "
+            info += "If you want to jump to a specific keyword on this page (for example a section of the article) `lookup`."
+            info_pieces.append(InfoPiece(info))
         result = Observation(info_pieces)
         #pprint(result)
         return result
@@ -206,6 +209,7 @@ class WikipediaTool:
                 first_title = search_results[0]['title']
                 get_page_observation = self.get_page(first_title)
                 info_pieces.extend(get_page_observation.info_pieces)
+                info_pieces.append(InfoPiece(text="If you want to get a different page you can call `get_url`."))
             else:
                 info_pieces.append(InfoPiece(text="No results found", source=self.api_url))
 
@@ -245,7 +249,16 @@ class WikipediaTool:
             if text:
                 quoted_text = self.quote_text(text)
                 num_of_results = len(self.document.lookup_results)
-                info = f'Keyword "{keyword}" found at "{current_url}" in {num_of_results} places. The first occurrence:\n{quoted_text}'
+                info = f'If you want to continue reading from this point, you can call `read_more`.'
+                if num_of_results > 1:
+                    info += f' If you want to jump to the next occurence of the keyword you can call `next`.'
+                return Observation([
+                    InfoPiece(f'Keyword "{self.document.lookup_word}" found at "{current_url}" in {num_of_results} places. The first occurrence:'),
+                    InfoPiece(quoted_text, source=self.current_url, quotable=True),
+                    InfoPiece(f"- *{self.document.lookup_position} of {num_of_results} places*"),
+                    InfoPiece(info),
+                ])
+
                 return Observation([InfoPiece(text=info, source=self.current_url, quotable=True)])
             else:
                 info = f'Keyword "{keyword}" not found at "{current_url}". You might try a modified keyword - for example use synonyms.\n'
@@ -268,15 +281,18 @@ class WikipediaTool:
             text = self.document.next_lookup()
             num_of_results = len(self.document.lookup_results)
             quoted_text = self.quote_text(text)
-            text = f'Keyword "{self.document.lookup_word}" found in: \n{quoted_text}\n- *{self.document.lookup_position} of {num_of_results} places*'
-            info_piece = InfoPiece(
-                text=text,
-                source=self.current_url, 
-                quotable=True)
-            return Observation([info_piece], keyword=self.document.lookup_word)
+            info = f'If you want to continue reading from this point, you can call `read_more`.'
+            if num_of_results > self.document.lookup_position + 1:
+                info += f' If you want to jump to the next occurence of the keyword you can call `next`.'
+            return Observation([
+                InfoPiece(f'Keyword "{self.document.lookup_word}" found in:'),
+                InfoPiece(quoted_text, source=self.current_url, quotable=True),
+                InfoPiece(f"*{self.document.lookup_position} of {num_of_results} places*"),
+                InfoPiece(info),
+            ])
 
 
-    @llm_function()
+    @llm_function('read_more')
     def read_chunk(self):
         """
         Reads the next chunk of text from the current location in the current document.
@@ -284,11 +300,13 @@ class WikipediaTool:
         if self.document is None:
             return Observation([InfoPiece(text="No document defined, cannot read", source=self.current_url)])
         else:
-            info_text = self.document.read_chunk()
-            quoted_text = self.quote_text(info_text)
-            reflection_prompt = f"A new fragment from the current page was read:\n"
-            reflection_prompt += f"{quoted_text}"
-            return Observation([InfoPiece(text=info_text, source=self.current_url, quotable=True)])
+            text = self.document.read_chunk()
+            quoted_text = self.quote_text(text)
+            return Observation([
+                InfoPiece("A new fragment from the current page was read:"),
+                InfoPiece(text=quoted_text, source=self.current_url, quotable=True),
+                InfoPiece("If you want to continue reading the page, you can call `read_more`."),
+            ])
 
 
     def remove_checked_urls(self, reflection: ReflectionResult):

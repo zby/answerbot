@@ -13,7 +13,7 @@ from .prompt_templates import QUESTION_CHECKS, PROMPTS, REFLECTIONS
 
 from llm_easy_tools import process_response, get_tool_defs, get_toolset_tools, ToolResult
 from answerbot.wiki_tool import Observation, InfoPiece
-from answerbot.clean_reflection import ReflectionResult
+from answerbot.clean_reflection import ReflectionResult, KnowledgeBase
 
 # Configure basic logging
 logging.basicConfig(level=logging.INFO)
@@ -141,7 +141,7 @@ class LLMReactor:
         self.answer = None
         self.soft_errors = []
         self.reflection_prompt = []
-        self.what_have_we_learned = []
+        self.what_have_we_learned = KnowledgeBase()
         self.no_tool_calls_message = None
 
     def openai_query(self, messages, tools):
@@ -160,8 +160,6 @@ class LLMReactor:
 
         completion = self.client.chat.completions.create( **args )
         return completion
-
-
 
     def query_and_process(self, tools=[], additional_info=''):
         response = self.openai_query(self.trace.to_messages(), tools)
@@ -183,20 +181,24 @@ class LLMReactor:
             self.trace.add_entry({'role': 'system', 'content': additional_info})
         return results
 
+    def reflection_needed(self, output):
+        text = str(output)
+        result = "\n— *from" in text
+        return result
 
+    def get_current_url(self, result):
+        # todo - tool architecture
+        tool_object = result.tool.__self__
+        return tool_object.current_url
 
     def clean_context_reflection(self, result):
         # In clean context reflection we cannot ask the llm to plan - because it does not get the information retrieved previously.
         # But we can contrast the reflection with previous data ourselves - and for example remove links that were already retrieved.
 
-        if not isinstance(result.output, Observation) or not result.output.reflection_needed():
+        if not self.reflection_needed(result.output):
             return
 
-        if hasattr(result.tool, '__self__'):
-            tool_object = result.tool.__self__
-        else:
-            raise ValueError(f"We need the tool object to remove used urls. Tool object has no __self__ attribute: {result.tool}")
-        learned_stuff = "\n\nSo far we have learned:\n" + "\n".join(self.what_have_we_learned) if self.what_have_we_learned else ""
+        learned_stuff = f"\n\nSo far we have some notes on the following urls:{str(self.what_have_we_learned)}" if self.what_have_we_learned else ""
         sysprompt = f"""You are a researcher working on the following user question:
 {self.trace.user_question}{learned_stuff}
 
@@ -216,10 +218,12 @@ You need to review the information retrieval recorded below. To save potential s
         if new_result.error is not None:
             raise self.LLMReactorError(new_result.stack_trace)
         reflection = new_result.output
-        tool_object.remove_checked_urls(reflection)
-        if reflection.what_have_we_learned and reflection.what_have_we_learned not in self.what_have_we_learned:
-            self.what_have_we_learned.append(reflection.what_have_we_learned)
+        reflection.remove_checked_urls(self.what_have_we_learned.urls())
+
+        current_url = self.get_current_url(result) 
+        self.what_have_we_learned.add_info(current_url, reflection.what_have_we_learned)
         reflection_string  = str(reflection)
+        print(reflection_string)
         if len(reflection_string) > 0:
             message = { 'role': 'user', 'content': reflection_string }
             self.trace.add_entry(message)

@@ -1,13 +1,7 @@
 ## Redesing react.py
-I want to have just one answer_question. Maybe tools should go in config?
-
-## URL or links
-We can give to the LLM urls and let it retrieve it if it thinks it is useful, or give it links. When
-presented with Markdown formatted links the LLM usually tries to follow the link text - this 
-creates some problems because you can have multiple links with the same text - but links
-are more universal because we can add links in places where there are no links in the original document.
-We need to decide what is better. How difficult it will be to add this as another named option to the config
-dictionary?
+We need to have a toolbox object that will contain all the tools available at any given moment.
+It should filter the tools based on the current context - for example the wikipedia keyword
+lookup should not be available if we have no current page.
 
 ## Hierarchical documents
 I want to have documents with structure - so that the LLM could move around it.
@@ -25,12 +19,6 @@ We could also try to fit directories of documents into the same structure.
 ## PDF Parsing
 We probably don't want to use PDFs in queries directly - we want batch scripts to parse them into Markdown documents.
 But we might experiment with pages.
-
-## Static chunking
-Everyone chunks the documents in a static way - that is up-front before even the user query is received.
-We currently try to find the best chunk that contains a position
-in the document (for example after searching for a word) - maybe we need to go back to static chunking and use
-more generic tools?
 
 ## Internationalisation
 I want the system to be multilingual. It should be able to read documentation in one language and answer

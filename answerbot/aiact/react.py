@@ -87,7 +87,7 @@ def llm_react(
                 tools=get_tool_defs(toolset_),
                 tool_choice=(
                     'auto' if len(toolset_) > 1
-                    else get_tool_defs([Finish])[0]
+                    else get_tool_defs(toolset_)[0]
                     )
                 )
 

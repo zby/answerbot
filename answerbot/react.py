@@ -181,16 +181,11 @@ class LLMReactor:
             self.trace.add_entry({'role': 'system', 'content': additional_info})
         return results
 
-    def reflection_needed(self, output):
-        text = str(output)
-        result = "\n— *from" in text
-        return result
-
     def clean_context_reflection(self, result):
         # In clean context reflection we cannot ask the llm to plan - because it does not get the information retrieved previously.
         # But we can contrast the reflection with previous data ourselves - and for example remove links that were already retrieved.
 
-        if not self.reflection_needed(result.output):
+        if not result.output.reflection_needed():
             return
 
         learned_stuff = f"\n\nSo far we have some notes on the following urls:{str(self.what_have_we_learned)}" if self.what_have_we_learned else ""

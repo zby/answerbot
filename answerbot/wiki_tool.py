@@ -261,10 +261,10 @@ class WikipediaTool:
 
                 return Observation([InfoPiece(text=info, source=self.current_url, quotable=True)])
             else:
-                info = f'Keyword "{keyword}" not found at "{current_url}". You might try a modified keyword - for example use synonyms.\n'
+                info = f'Keyword "{keyword}" not found at "{current_url}". You might try using `lookup` with a modified keyword - for example use synonyms.\n'
                 if " " in keyword:
                     info += "\nNote: Your keyword contains spaces. Consider using a single word for more effective lookups, multiple words can be separated by additional text or whitespace, or they might occur in different order."
-                return Observation([InfoPiece(text=info, source=self.current_url)])
+                return Observation([InfoPiece(info)])
 
     @llm_function('next')
     def next_lookup(self):

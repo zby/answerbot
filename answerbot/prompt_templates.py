@@ -32,21 +32,13 @@ f"""
 Please answer the following question. You can use wikipedia for reference - but think carefully about what pages exist at wikipedia.
 You have only {max_llm_calls - 1} calls to the wikipedia API.
 After the first call to wikipedia you need to always reflect on the data retrieved in the previous call.
-To retrieve the first document you need to call {prefix}search.
-Every time you can retrieve only a small fragment of the wikipedia page, if the retrieved information looks promising - but is cut short
-you can call {prefix}read_more to retrieve a consecutive chunk of the page.
-You can also jump to different parts of the page using the {prefix}lookup function. In particular you can jump to 
-page sections by looking up the section headers in the MarkDown syntax. It is often better to use one word lookups
-because two or more words can be separated somehow or used in a different order.
-If a lookup does not return meaningful information you can lookup synonyms of the word you are looking for.
-If the the lookup function return indicates that a given keyword is found in multiple places you can use the {prefix}next
-function to retrieve the next occurence of that keyword.
+To retrieve the first document you need to call search.
 
 When you need to know a property of something or someone - search for that something page instead of using that property in the search.
 The search function automatically retrieves the first search result you don't need to call get for it.
 
 The wikipedia pages are formatted in Markdown.
-When you know the answer call {prefix}finish. Please make the answer as short as possible. If it can be answered with yes or no that is best.
+When you know the answer call finish. Please make the answer as short as possible. If it can be answered with yes or no that is best.
 Remove all explanations from the answer and put them into the reasoning field.
 Always try to answer the question even if it is ambiguous, just note the necessary assumptions.
 """

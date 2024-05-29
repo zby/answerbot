@@ -199,10 +199,19 @@ class LLMReactor:
             return
 
         learned_stuff = f"\n\nSo far we have some notes on the following urls:{str(self.what_have_we_learned)}" if self.what_have_we_learned else ""
+        jump_next = f"\n- jump to the next occurrence of the looked up keyword\n" if result.name == 'lookup' or result.name == 'next' else ""
         sysprompt = f"""You are a researcher working on the following user question:
 {self.trace.user_question}{learned_stuff}
 
-You need to review the information retrieval recorded below. To save potential sources of new information please add their urls to the new_sources list."""
+You need to review the information retrieval recorded below."""
+
+#. You need to decide if the next action should be:
+#- read_more information from the current position on the current page
+#- lookup a new keyword on the current page{jump_next}
+#- go to a new url 
+#- make a new wikipedia search
+#- finish with an answer to the user question
+#To save potential sources of new information please add their urls to the new_sources list."""
         user_prompt = str(result.output)
         messages = [
             {'role': 'system', 'content': sysprompt},
@@ -224,9 +233,26 @@ You need to review the information retrieval recorded below. To save potential s
         self.what_have_we_learned.add_info(current_url, reflection.what_have_we_learned)
         reflection_string  = str(reflection)
         print(reflection_string)
-        if len(reflection_string) > 0:
-            message = { 'role': 'user', 'content': reflection_string }
-            self.trace.add_entry(message)
+
+        second_user_prompt = f"""What would you do next? 
+You can choose from the following options:
+- read_more information from the current position on the current page
+- lookup a new keyword on the current page{jump_next}
+- go to a new url 
+- make a new wikipedia search
+- finish with an answer to the user question
+Please explain your decision.
+        """
+        messages = [
+            {'role': 'system', 'content': sysprompt},
+            {'role': 'user', 'content': user_prompt},
+            {'role': 'user', 'content': second_user_prompt},
+        ]
+        response = self.openai_query(messages, [])
+        second_reflection = response.choices[0].message.content
+        reflection_string = reflection_string + "\n\n" + second_reflection
+        message = { 'role': 'user', 'content': reflection_string }
+        self.trace.add_entry(message)
 
 
     def process(self):

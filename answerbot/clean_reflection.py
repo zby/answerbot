@@ -6,8 +6,8 @@ from answerbot.observation import Observation
 
 
 class ReflectionResult(BaseModel):
-    what_have_we_learned: Optional[str] = Field(..., description="Have we learned anything that would help us answer the user question from the retrieved information?")
-    comment: str = Field(..., description="A comment on the retrieved information and next actions.")
+    what_have_we_learned: Optional[str] = Field(..., description="Have we learned anything that would help us answer the user question from the retrieved information and why?")
+    comment: str = Field(..., description="A comment on the retrieved information.")
     relevant_quotes: list[str] = Field(..., description="A list of relevant quotes from the source that should be saved.")
     new_sources: list[str] = Field(..., description="A list of new urls mentioned in the notes that should be checked later.")
 
@@ -35,12 +35,12 @@ class ReflectionResult(BaseModel):
         content = ''
         if self.relevant_quotes:
             quotes_string = "".join("\n > " + quote for quote in self.relevant_quotes)
-            content += f"Here are quotes that looks relevant:\n{quotes_string}"
+            content += f"Here are quotes that looks relevant:\n{quotes_string}\n"
         if self.new_sources:
             new_sources_string = "".join("\n - " + link for link in self.new_sources)
-            content += f"\nSome links from the notes that might contain relevant information that we should check later:\n{new_sources_string}"
+            content += f"Some links from the notes that might contain relevant information that we should check later:\n{new_sources_string}\n"
         if len(self.comment) > 0:
-            content += f"\n{self.comment}"
+            content += f"{self.comment}"
         return content
 
     def remove_checked_urls(self, urls: list[str]):

@@ -42,3 +42,8 @@ class Observation:
     def reflection_needed(self) -> bool:
         return any(info.quotable for info in self.info_pieces)
 
+    def get_current_url(self) -> str:
+        for info in self.info_pieces:
+            if info.quotable:
+                return info.source
+        return None

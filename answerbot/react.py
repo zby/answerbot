@@ -186,11 +186,6 @@ class LLMReactor:
         result = "\n— *from" in text
         return result
 
-    def get_current_url(self, result):
-        # todo - tool architecture
-        tool_object = result.tool.__self__
-        return tool_object.current_url
-
     def clean_context_reflection(self, result):
         # In clean context reflection we cannot ask the llm to plan - because it does not get the information retrieved previously.
         # But we can contrast the reflection with previous data ourselves - and for example remove links that were already retrieved.
@@ -229,7 +224,7 @@ You need to review the information retrieval recorded below."""
         reflection = new_result.output
         reflection.remove_checked_urls(self.what_have_we_learned.urls())
 
-        current_url = self.get_current_url(result) 
+        current_url = result.output.get_current_url()
         self.what_have_we_learned.add_info(current_url, reflection.what_have_we_learned)
         reflection_string  = str(reflection)
         print(reflection_string)

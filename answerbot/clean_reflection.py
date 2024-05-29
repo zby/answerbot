@@ -35,7 +35,7 @@ class ReflectionResult(BaseModel):
         content = ''
         if self.relevant_quotes:
             quotes_string = "".join("\n > " + quote for quote in self.relevant_quotes)
-            content += f"Here are quotes that looks relevant:\n{quotes_string}\n"
+            content += f"Here are quotes that look relevant:{quotes_string}\n\n"
         if self.new_sources:
             new_sources_string = "".join("\n - " + link for link in self.new_sources)
             content += f"Some links from the notes that might contain relevant information that we should check later:\n{new_sources_string}\n"

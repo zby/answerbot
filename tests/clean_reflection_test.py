@@ -51,3 +51,14 @@ def test_remove_source_from_reflection_result():
     assert "http://source1.com" not in reflection_result.new_sources
     assert "http://source2.com" in reflection_result.new_sources
     assert len(reflection_result.new_sources) == 1
+
+#def test_reflection_result_default_new_sources():
+#    # Create an instance without providing new_sources
+#    reflection_result = ReflectionResult(
+#        what_have_we_learned="Learned something important.",
+#        comment="This is a test comment.",
+#        relevant_quotes=["Quote1", "Quote2"]
+#    )
+#    
+#    # Check if new_sources is an empty list by default
+#    assert reflection_result.new_sources == [], "new_sources should default to an empty list if not provided"

@@ -13,6 +13,8 @@ class ReflectionResult(BaseModel):
 
     @field_validator('new_sources', mode='before')
     def unique_new_sources(cls, v):
+        if v is None:
+            return []
         return list(dict.fromkeys(v))
 
     def refine_observation(self, observation: Observation):

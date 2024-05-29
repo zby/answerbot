@@ -255,7 +255,7 @@ class WikipediaTool:
                 return Observation([
                     InfoPiece(f'Keyword "{self.document.lookup_word}" found at "{current_url}" in {num_of_results} places. The first occurrence:'),
                     InfoPiece(quoted_text, source=self.current_url, quotable=True),
-                    InfoPiece(f"- *{self.document.lookup_position} of {num_of_results} places*"),
+                    InfoPiece(f"- *{self.document.lookup_position + 1} of {num_of_results} places*"),
                     InfoPiece(info),
                 ])
 

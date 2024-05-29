@@ -199,7 +199,7 @@ class LLMReactor:
             return
 
         learned_stuff = f"\n\nSo far we have some notes on the following urls:{str(self.what_have_we_learned)}" if self.what_have_we_learned else ""
-        jump_next = f"\n- jump to the next occurrence of the looked up keyword\n" if result.name == 'lookup' or result.name == 'next' else ""
+        jump_next = f"\n- jump to the next occurrence of the looked up keyword" if result.name == 'lookup' or result.name == 'next' else ""
         sysprompt = f"""You are a researcher working on the following user question:
 {self.trace.user_question}{learned_stuff}
 

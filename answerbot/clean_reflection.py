@@ -45,10 +45,9 @@ class ReflectionResult(BaseModel):
             content += f"{self.comment}"
         return content
 
-    def remove_checked_urls(self, urls: list[str]):
-        for url in urls:
-            if url in self.new_sources:
-                self.new_sources.remove(url)
+    def remove_source(self, url:str):
+        if url in self.new_sources:
+            self.new_sources.remove(url)
 
 class KnowledgeBase(BaseModel):
     checked_urls: Optional[dict[str, list[str]]] = Field(default_factory=dict, description="A list of urls that have been checked with learned information.")

@@ -45,7 +45,7 @@ def test_remove_source_from_reflection_result():
     )
 
     # Action
-    reflection_result.remove_source("http://source1.com")
+    reflection_result.remove_checked_urls(["http://source1.com"])
 
     # Assert
     assert "http://source1.com" not in reflection_result.new_sources

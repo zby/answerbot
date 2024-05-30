@@ -178,7 +178,7 @@ class LLMReactor:
         completion = self.client.chat.completions.create( **args )
         return completion
 
-    def query_and_process(self, additional_info=''):
+    def query_and_process(self):
         schemas = get_tool_defs(self.get_tools())
         response = self.openai_query(self.trace.to_messages(), schemas)
         message = response.choices[0].message
@@ -195,8 +195,6 @@ class LLMReactor:
                 raise self.LLMReactorError(result.stack_trace)
             self.trace.add_entry(result)
             self.clean_context_reflection(result)
-        if len(additional_info) > 0:
-            self.trace.add_entry({'role': 'system', 'content': additional_info})
         return results
 
     def clean_context_reflection(self, result):
@@ -267,13 +265,15 @@ Please explain your decision.
 
     def process(self):
         self.analyze_question()
-        while self.answer is None:
+        while self.answer is None and self.step <= self.max_llm_calls + 1:
+            self.query_and_process()
             self.step += 1
             if self.step == self.max_llm_calls:
                 step_info = "\n\nThis was the last data you can get - in the next step you need to formulate your answer"
+                self.trace.add_entry({'role': 'system', 'content': step_info})
             else:
                 step_info = f"\n\nThis was {self.step} out of {self.max_llm_calls} calls for data."
-            self.query_and_process(step_info)
+                self.trace.add_entry({'role': 'system', 'content': step_info})
 
 #            if 'gpt-4' in self.model:
 #                time.sleep(20)

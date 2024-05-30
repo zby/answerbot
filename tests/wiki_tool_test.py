@@ -24,7 +24,8 @@ def test_get_page_success(mock_get):
     observation = wiki_search.get_url("https://www.test.test")
     assert wiki_search.document is not None
     assert observation.info_pieces[1].text == "Successfully retrieved document from url: 'https://www.test.test'"
-    assert observation.info_pieces[2].text == "The retrieved page starts with:\n> Page Content"
+    assert observation.info_pieces[2].text == "The retrieved page starts with:"
+    assert observation.info_pieces[3].text == "> Page Content"
     assert "Page Content" in wiki_search.document.text
 
 

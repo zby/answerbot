@@ -250,6 +250,7 @@ You can choose from the following options:
 - go to a new url 
 - make a new wikipedia search
 - finish with an answer to the user question
+Specify the action and also its parameters.
 Please explain your decision.
         """
         messages = [

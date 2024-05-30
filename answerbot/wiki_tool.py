@@ -3,7 +3,7 @@ import html2text
 import time
 import traceback
 
-from typing import Annotated, Optional
+from typing import Annotated, Optional, Callable
 from answerbot.markdown_document import MarkdownDocument 
 from bs4 import BeautifulSoup, NavigableString
 from urllib.parse import urlparse, urljoin
@@ -309,9 +309,17 @@ class WikipediaTool:
             ])
 
 
-    def remove_checked_urls(self, reflection: ReflectionResult):
-        for url in self.checked_urls:
-            reflection.remove_source(url)
+    def get_llm_tools(self) -> list[Callable]:
+        result = [self.search, self.get_url]
+
+        if self.document:
+            result.append(self.read_chunk)
+            result.append(self.lookup)
+            if self.document.lookup_results:
+                result.append(self.next_lookup)
+
+        return result
+
 
 
 if __name__ == "__main__":

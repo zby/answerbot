@@ -3,7 +3,7 @@ import time
 import logging
 import copy
 from pydantic import BaseModel, Field, field_validator, ValidationError
-from typing import Literal, Union, List, Dict, Annotated, Optional, Callable, Any
+from typing import Literal, Union, List, Dict, Annotated, Optional, Callable, Any, Protocol, Iterable, runtime_checkable
 from pprint import pprint
 from dataclasses import dataclass
 
@@ -89,7 +89,6 @@ class Trace:
         return "\n".join(report)
 
 
-
 @dataclass
 class Answer:
     answer: str
@@ -109,22 +108,27 @@ class Answer:
         return f'{self.normalized_answer()}\n\nReasoning: {self.reasoning}'
 
 
+@runtime_checkable
+class HasLLMTools(Protocol):
+    def get_llm_tools(self) -> Iterable[Callable]:
+        pass
+
 
 class LLMReactor:
     class LLMReactorError(Exception):
         pass
 
     def __init__(self, 
-                 model: str,
-                 toolbox: list[Callable],
-                 trace: Trace,
-                 max_llm_calls: int,
-                 client: object,
-                 reflection: Any,
-                 soft_reflection_validation=True,
-                 question_checks=None,
-                 case_insensitive=False,
-                 ):
+                model: str,
+                toolbox: list[Callable|HasLLMTools],
+                trace: Trace,
+                max_llm_calls: int,
+                client: object,
+                reflection: Any,
+                soft_reflection_validation=True,
+                question_checks=None,
+                case_insensitive=False,
+                ):
         self.model = model
         self.toolbox = toolbox
         self.toolbox.append(self.finish)
@@ -144,29 +148,43 @@ class LLMReactor:
         self.what_have_we_learned = KnowledgeBase()
         self.no_tool_calls_message = None
 
-    def openai_query(self, messages, tools):
+    def get_tools(self) -> list[Callable]:
+        if self.step == self.max_llm_calls + 1:
+            toolbox = [self.finish]
+        else:
+            toolbox = self.toolbox
+        tools = []
+        for item in toolbox:
+            if isinstance(item, HasLLMTools):
+                tools.extend(item.get_llm_tools())
+            else:
+                tools.append(item)
+        return tools
+
+
+    def openai_query(self, messages, schemas=[]):
         args = {
             'model': self.model,
             'messages': messages
         }
-        if len(tools) > 0:
-            tool_schemas = get_tool_defs(tools)
-            args['tools'] = tool_schemas
 
-        if len(tools) == 1:
-            args['tool_choice'] = {'type': 'function', 'function': {'name': tool_schemas[0]['function']['name']}}
-        if len(tools) > 1:
-            args['tool_choice'] = "auto"
+        if len(schemas) > 0:
+            args['tools'] = schemas
+            if len(schemas) == 1:
+                args['tool_choice'] = {'type': 'function', 'function': {'name': schemas[0]['function']['name']}}
+            else:
+                args['tool_choice'] = "auto"
 
         completion = self.client.chat.completions.create( **args )
         return completion
 
-    def query_and_process(self, tools=[], additional_info=''):
-        response = self.openai_query(self.trace.to_messages(), tools)
+    def query_and_process(self, additional_info=''):
+        schemas = get_tool_defs(self.get_tools())
+        response = self.openai_query(self.trace.to_messages(), schemas)
         message = response.choices[0].message
         self.trace.add_entry(message)
-        results = process_response(response, tools)
-        if len(tools) > 0 and len(results) == 0:
+        results = process_response(response, self.get_tools())
+        if len(self.get_tools()) > 0 and len(results) == 0:
             self.soft_errors.append("No function call")
             self.to_reflect = False
             if self.no_tool_calls_message is not None:
@@ -185,7 +203,7 @@ class LLMReactor:
         # In clean context reflection we cannot ask the llm to plan - because it does not get the information retrieved previously.
         # But we can contrast the reflection with previous data ourselves - and for example remove links that were already retrieved.
 
-        if not result.output.reflection_needed():
+        if not isinstance(result.output, Observation) or not result.output.reflection_needed():
             return
 
         learned_stuff = f"\n\nSo far we have some notes on the following urls:{str(self.what_have_we_learned)}" if self.what_have_we_learned else ""
@@ -207,7 +225,8 @@ You need to review the information retrieval recorded below."""
             {'role': 'system', 'content': sysprompt},
             {'role': 'user', 'content': user_prompt},
         ]
-        response = self.openai_query(messages, [ReflectionResult])
+        schemas = get_tool_defs([ReflectionResult])
+        response = self.openai_query(messages, schemas)
         message = response.choices[0].message
         #self.trace.add_entry(message)
         results = process_response(response, [ReflectionResult])
@@ -249,15 +268,11 @@ Please explain your decision.
         self.analyze_question()
         while self.answer is None:
             self.step += 1
-            if self.step == self.max_llm_calls + 1:
-                tools = [self.finish]
-            else:
-                tools = self.toolbox
             if self.step == self.max_llm_calls:
                 step_info = "\n\nThis was the last data you can get - in the next step you need to formulate your answer"
             else:
                 step_info = f"\n\nThis was {self.step} out of {self.max_llm_calls} calls for data."
-            self.query_and_process(tools, additional_info=step_info)
+            self.query_and_process(step_info)
 
 #            if 'gpt-4' in self.model:
 #                time.sleep(20)

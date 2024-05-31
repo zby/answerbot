@@ -62,3 +62,30 @@ def test_remove_source_from_reflection_result():
 #    
 #    # Check if new_sources is an empty list by default
 #    assert reflection_result.new_sources == [], "new_sources should default to an empty list if not provided"
+def test_check_base():
+    # Setup
+    observation = Observation(
+        info_pieces=[
+            InfoPiece(text="Extended discussion on artificial *intelligence* and its impacts.", quotable=True, source="something"),
+            InfoPiece(text="Brief mention of machine learning within broader tech trends.", quotable=True, source="something"),
+            InfoPiece(text="Unrelated content about economics.", quotable=True, source="something"),
+            InfoPiece(text="Unquotable.", quotable=False, source="something"),
+            InfoPiece(text="Artificial intelligence could revolutionize many sectors.", quotable=True, source="something")
+        ]
+    )
+    reflection_result = ReflectionResult(
+        what_have_we_learned="Insights on AI",
+        relevant_quotes=["artificial intelligence", "machine learning", "revolutionize"],
+        new_sources=["http://source1.com"],
+        comment="Reflection on AI"
+    )
+
+    # Action
+    checked_knowledge_piece = reflection_result.extract_knowledge(observation)
+
+    # Assert
+    assert checked_knowledge_piece.quotes.count("artificial intelligence") == 2, "Should match 'artificial intelligence' twice"
+    assert "machine learning" in checked_knowledge_piece.quotes, "Should find 'machine learning'"
+    assert "revolutionize" in checked_knowledge_piece.quotes, "Should find 'revolutionize'"
+    assert len(checked_knowledge_piece.quotes) == 4, "Should have four valid quotes checked"
+

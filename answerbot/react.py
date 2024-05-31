@@ -76,14 +76,14 @@ class Trace:
                     if entry.output.info_pieces:
                         for info_piece in entry.output.info_pieces:
                             if info_piece.quotable:
-                                document_quotes.append(f"{info_piece.source}: {info_piece.text}\n\n---")
+                                document_quotes.append(f"{info_piece.source}:\n{info_piece.text}\n\n---")
                 elif isinstance(entry.output, Answer):
                     answer = entry.output
 
         report.append(f"User Question: {self.user_question}")
         report.append(f"Answer: {answer.normalized_answer()}")
         report.append(f"Reasoning: {answer.reasoning}")
-        report.append("Analyzed Document Fragments:")
+        report.append("Analyzed Document Fragments:\n")
         report.extend(document_quotes)
 
         return "\n".join(report)
@@ -234,11 +234,12 @@ You need to review the information retrieval recorded below."""
         if new_result.error is not None:
             raise self.LLMReactorError(new_result.stack_trace)
         reflection = new_result.output
+        knowledge_piece = reflection.check_base(result.output)
+        self.what_have_we_learned.add_knowledge_piece(knowledge_piece)
         reflection.remove_checked_urls(self.what_have_we_learned.urls())
-
-        current_url = result.output.get_current_url()
-        self.what_have_we_learned.add_info(current_url, reflection.what_have_we_learned)
-        reflection_string  = str(reflection)
+        reflection_string = ''
+        if len(reflection.new_sources) > 0 or not knowledge_piece.is_empty():
+            reflection_string = f"url: {knowledge_piece.url}\n{str(knowledge_piece)}\nDiscovered new sources: {reflection.new_sources}"
         print(reflection_string)
 
         second_user_prompt = f"""What would you do next? 
@@ -258,7 +259,7 @@ Please explain your decision.
         ]
         response = self.openai_query(messages, [])
         second_reflection = response.choices[0].message.content
-        reflection_string = reflection_string + "\n\n" + second_reflection
+        reflection_string = "**My Notes**\n" + reflection_string + "\n\n" + second_reflection
         message = { 'role': 'user', 'content': reflection_string }
         self.trace.add_entry(message)
 

@@ -83,6 +83,9 @@ if __name__ == "__main__":
 
     reactor = get_answer(question, config, client)
     print(reactor.trace.generate_report())
+    print()
+    print(str(reactor.what_have_we_learned))
+    print()
     pprint(reactor.soft_errors)
     with open('data/trace.py', 'w') as file:
         file.write(repr(reactor.trace))

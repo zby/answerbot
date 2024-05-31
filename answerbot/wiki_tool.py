@@ -245,6 +245,7 @@ class WikipediaTool:
             return Observation([InfoPiece(text="No document defined, cannot lookup, you need to use search first to retrieve a document", source=self.current_url)])
         else:
             text = self.document.lookup(keyword)
+            text = text.strip()
             current_url = self.current_url
             if text:
                 quoted_text = self.quote_text(text)
@@ -279,6 +280,7 @@ class WikipediaTool:
             return Observation([InfoPiece(text=info, source=self.current_url)])
         else:
             text = self.document.next_lookup()
+            text = text.strip()
             num_of_results = len(self.document.lookup_results)
             quoted_text = self.quote_text(text)
             info = f'If you want to continue reading from this point, you can call `read_more`.'
@@ -301,6 +303,7 @@ class WikipediaTool:
             return Observation([InfoPiece(text="No document defined, cannot read", source=self.current_url)])
         else:
             text = self.document.read_chunk()
+            text = text.strip()
             quoted_text = self.quote_text(text)
             return Observation([
                 InfoPiece("A new fragment from the current page was read:"),
@@ -325,13 +328,16 @@ class WikipediaTool:
 if __name__ == "__main__":
     from answerbot.url_shortener import UrlShortener
     url_shortener = UrlShortener()
-    tool = WikipediaTool(url_shortener=url_shortener)
+    tool = WikipediaTool(url_shortener=url_shortener, chunk_size=400)
     #pprint(tool.get_page("Wiaaa"))
     #pprint(tool.search("Oxygen"))
     #pprint(tool.get_url("https://en.wikipedia.org/wiki/Ann_B._Davis"))
     #tool.get_url("https://en.wikipedia.org/wiki/Kiss_and_Tell_(1945_film)")
     #print(str(tool.lookup("Cast")))
 
-    tool.get_url("https://en.wikipedia.org/wiki/Lewiston_Maineiacs")
-    print(str(tool.lookup("arena")))
+    #tool.get_url("https://en.wikipedia.org/wiki/Lewiston_Maineiacs")
+    #print(str(tool.lookup("arena")))
+
+    tool.get_url("https://en.wikipedia.org/wiki/Kiss_and_Tell_(1945_film)")
+    print(str(tool.lookup("Corliss Archer")))
 

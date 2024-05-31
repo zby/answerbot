@@ -204,7 +204,7 @@ class LLMReactor:
         if not isinstance(result.output, Observation) or not result.output.reflection_needed():
             return
 
-        learned_stuff = f"\n\nSo far we have some notes on the following urls:{str(self.what_have_we_learned)}" if self.what_have_we_learned else ""
+        learned_stuff = f"\n\nSo far we have some notes on the following urls:{self.what_have_we_learned.learned()}" if self.what_have_we_learned else ""
         jump_next = f"\n- jump to the next occurrence of the looked up keyword" if result.name == 'lookup' or result.name == 'next' else ""
         sysprompt = f"""You are a researcher working on the following user question:
 {self.trace.user_question}{learned_stuff}
@@ -234,12 +234,14 @@ You need to review the information retrieval recorded below."""
         if new_result.error is not None:
             raise self.LLMReactorError(new_result.stack_trace)
         reflection = new_result.output
-        knowledge_piece = reflection.check_base(result.output)
+        knowledge_piece = reflection.extract_knowledge(result.output)
         self.what_have_we_learned.add_knowledge_piece(knowledge_piece)
         reflection.remove_checked_urls(self.what_have_we_learned.urls())
-        reflection_string = ''
+        reflection_string = f"current url: {knowledge_piece.url}\n"
         if len(reflection.new_sources) > 0 or not knowledge_piece.is_empty():
-            reflection_string = f"url: {knowledge_piece.url}\n{str(knowledge_piece)}\nDiscovered new sources: {reflection.new_sources}"
+            reflection_string += f"{str(knowledge_piece)}\n"
+            if len(reflection.new_sources) > 0:
+                reflection_string += f"Discovered new sources: {reflection.new_sources}"
         print(reflection_string)
 
         second_user_prompt = f"""What would you do next? 

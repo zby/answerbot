@@ -123,6 +123,21 @@ class KnowledgeBase(BaseModel):
                 content += f"\n       - No relevant information found"
         return content
 
+    def learned(self):
+        content = ''
+        for url, info_list in self.knowledge_dict.items():
+            content += f"\n- {url}, learned:"
+            learned = False
+            for info in info_list:
+                if info.learned is not None:
+                    text = "\n" + info.learned
+                    text = text.replace("\n", "\n    ")
+                    content += f"{text}\n"
+                    learned = True
+            if not learned:
+                content += f"\n    No relevant information found"
+        return content
+
 if __name__ == "__main__":
     # Create KnowledgePiece instances and assign them to variables
     knowledge_piece1 = KnowledgePiece(
@@ -143,12 +158,24 @@ if __name__ == "__main__":
         learned="Upcoming policy changes in economics."
     )
 
+    knowledge_piece3 = KnowledgePiece(
+        url="https://example.com/article3",
+        quotes=[
+            "Something something.\nSomething something.",
+            "Something something.\nSomething something."
+        ],
+    )
+
     # Create a sample KnowledgeBase instance
     knowledge_base = KnowledgeBase()
 
     # Adding the knowledge pieces to the knowledge base
     knowledge_base.add_knowledge_piece(knowledge_piece1)
     knowledge_base.add_knowledge_piece(knowledge_piece2)
+    knowledge_base.add_knowledge_piece(knowledge_piece3)
 
     # Stringify the KnowledgeBase instance to see its content
     print(str(knowledge_base))
+    print()
+    print('='*100)
+    print(knowledge_base.learned())

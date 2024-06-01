@@ -3,7 +3,7 @@ from typing import Annotated
 import requests
 import html2text
 from bs4 import BeautifulSoup, PageElement, Tag
-from answerbot.markdown_document import MarkdownDocument
+from answerbot.tools.markdown_document import MarkdownDocument
 
 from tenacity import retry, stop_after_attempt
 

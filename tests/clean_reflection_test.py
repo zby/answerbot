@@ -1,6 +1,6 @@
 import pytest
 from answerbot.clean_reflection import ReflectionResult 
-from answerbot.wiki_tool import Observation, InfoPiece
+from answerbot.tools.wiki_tool import Observation, InfoPiece
 
 def test_stringification():
     reflection_result = ReflectionResult(

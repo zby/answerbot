@@ -2,7 +2,7 @@ import sys
 
 from typing import Optional
 from pydantic import BaseModel, Field, field_validator
-from answerbot.observation import Observation
+from answerbot.tools.observation import Observation
 
 from fuzzywuzzy import fuzz
 

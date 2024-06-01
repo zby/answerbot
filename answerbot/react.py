@@ -12,7 +12,7 @@ from openai.types.chat.chat_completion import ChatCompletionMessage
 from .prompt_templates import QUESTION_CHECKS, PROMPTS, REFLECTIONS 
 
 from llm_easy_tools import process_response, get_tool_defs, get_toolset_tools, ToolResult
-from answerbot.wiki_tool import Observation, InfoPiece
+from answerbot.tools.wiki_tool import Observation, InfoPiece
 from answerbot.clean_reflection import ReflectionResult, KnowledgeBase
 
 # Configure basic logging

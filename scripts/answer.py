@@ -9,7 +9,7 @@ from dotenv import dotenv_values
 
 from answerbot.react import get_answer
 
-from answerbot.wiki_tool import WikipediaTool
+from answerbot.tools.wiki_tool import WikipediaTool
 from answerbot.aae_tool import AAESearch
 from answerbot.replay_client import LLMReplayClient
 

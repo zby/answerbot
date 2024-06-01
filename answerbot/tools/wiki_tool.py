@@ -4,14 +4,14 @@ import time
 import traceback
 
 from typing import Annotated, Optional, Callable
-from answerbot.markdown_document import MarkdownDocument 
+from answerbot.tools.markdown_document import MarkdownDocument 
 from bs4 import BeautifulSoup, NavigableString
 from urllib.parse import urlparse, urljoin
 from pprint import pprint
 
 from llm_easy_tools import llm_function, ToolResult
 
-from answerbot.observation import Observation, InfoPiece
+from answerbot.tools.observation import Observation, InfoPiece
 from answerbot.clean_reflection import ReflectionResult
 
 MAX_RETRIES = 3
@@ -326,7 +326,7 @@ class WikipediaTool:
 
 
 if __name__ == "__main__":
-    from answerbot.url_shortener import UrlShortener
+    from answerbot.tools.url_shortener import UrlShortener
     url_shortener = UrlShortener()
     tool = WikipediaTool(url_shortener=url_shortener, chunk_size=400)
     #pprint(tool.get_page("Wiaaa"))

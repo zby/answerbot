@@ -1,5 +1,5 @@
 import pytest
-from answerbot.markdown_document import MarkdownDocument
+from answerbot.tools.markdown_document import MarkdownDocument
 
 
 def test_initialization():

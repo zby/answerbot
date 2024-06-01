@@ -1,7 +1,7 @@
 import pytest
 
-from answerbot.wiki_tool import WikipediaTool, Observation, InfoPiece
-from answerbot.markdown_document import MarkdownDocument
+from answerbot.tools.wiki_tool import WikipediaTool, Observation, InfoPiece
+from answerbot.tools.markdown_document import MarkdownDocument
 from unittest.mock import MagicMock, patch
 
 from pprint import pprint

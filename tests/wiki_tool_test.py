@@ -104,3 +104,58 @@ Fourth piece of information
 — *from Second URL*"""
     assert observation_str == expected_str, "The Observation stringification did not match the expected format."
     print(observation_str)
+
+
+def test_lookup_method():
+    # Create a special document object with a controlled lookup method
+    class MockDocument:
+        def __init__(self, lookup_results):
+            self.lookup_results = lookup_results
+            self.lookup_word = None
+            self.lookup_position = None
+
+        def lookup(self, keyword):
+            self.lookup_word = keyword
+            self.lookup_position = 0
+            if len(self.lookup_results) > 0:
+                return self.lookup_results[self.lookup_position]
+            else:
+                return None
+
+
+    # one lookup result
+    mock_document = MockDocument(["This is a test lookup result for the keyword."])
+    wiki_tool = WikipediaTool(document=mock_document, current_url="https://en.wikipedia.org")
+
+    result = wiki_tool.lookup("test_keyword")
+
+    assert 'Keyword "test_keyword" found' in result.info_pieces[0].text
+    assert 'in 1 places' in result.info_pieces[0].text
+    assert 'https://en.wikipedia.org' in result.info_pieces[0].text
+    assert result.info_pieces[1].text == "> This is a test lookup result for the keyword."
+    assert result.info_pieces[2].text == "- *1 of 1 places*"
+    assert result.info_pieces[3].text == "If you want to continue reading from this point, you can call `read_more`."
+
+    # two lookup results
+    mock_document = MockDocument(["This is a test lookup result for the keyword.", "This is a test lookup result for the keyword."])
+    wiki_tool = WikipediaTool(document=mock_document)
+
+    result = wiki_tool.lookup("test_keyword")
+
+    assert 'Keyword "test_keyword" found' in result.info_pieces[0].text
+    assert 'in 2 places' in result.info_pieces[0].text
+    assert result.info_pieces[1].text == "> This is a test lookup result for the keyword."
+    assert result.info_pieces[2].text == "- *1 of 2 places*"
+    assert "If you want to jump to the next occurence of the keyword you can call `next`." in result.info_pieces[3].text
+    assert "If you want to continue reading from this point, you can call `read_more`." in result.info_pieces[3].text
+
+    # no lookup results
+    mock_document = MockDocument([])
+    wiki_tool = WikipediaTool(document=mock_document)
+
+    result = wiki_tool.lookup("test_keyword")
+
+    assert f'Keyword "test_keyword" not found at' in result.info_pieces[0].text
+    result = wiki_tool.lookup("test keyword")
+    assert f'Keyword "test keyword" not found at' in result.info_pieces[0].text
+    assert 'Note: Your keyword contains spaces.' in result.info_pieces[0].text

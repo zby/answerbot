@@ -230,7 +230,8 @@ class WikipediaTool:
             results.append(f"[{item['title']}]({urljoin(self.base_url, item['title'])})")
 
         search_results = "\n- ".join(results)
-        return text + "\n- " + search_results
+        hint = f"\n\n**Hint:** Have a look at the search results - sometimes it is not the first result that is the most interesting."
+        return f"{text}\n- {search_results}\n\n{hint}"
 
     def quote_text(self, text):
         quoted_text = "\n".join([f"> {line}" for line in text.split('\n')])
@@ -245,10 +246,9 @@ class WikipediaTool:
             return Observation([InfoPiece(text="No document defined, cannot lookup, you need to use search first to retrieve a document", source=self.current_url)])
         else:
             text = self.document.lookup(keyword)
-            text = text.strip()
             current_url = self.current_url
             if text:
-                quoted_text = self.quote_text(text)
+                quoted_text = self.quote_text(text.strip())
                 num_of_results = len(self.document.lookup_results)
                 info = f'If you want to continue reading from this point, you can call `read_more`.'
                 if num_of_results > 1:

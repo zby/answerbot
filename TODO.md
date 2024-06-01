@@ -1,7 +1,10 @@
-## Redesing react.py
-We need to have a toolbox object that will contain all the tools available at any given moment.
-It should filter the tools based on the current context - for example the wikipedia keyword
-lookup should not be available if we have no current page.
+## Check what really works in clean reflection
+It seems that clean reflection really improves the process - but do we need the knowledgebase?
+
+## Redesign the trace/context
+We probably need a tree structure for the trace.
+
+## sub-tasks
 
 ## Hierarchical documents
 I want to have documents with structure - so that the LLM could move around it.

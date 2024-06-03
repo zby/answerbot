@@ -60,7 +60,7 @@ class ReflectionResult(BaseModel):
                 # Using partial ratio for approximate substring matching
                 if fuzz.partial_ratio(quote, info_piece.text) > 80:  # adjust the threshold as needed
                     checked_quotes.append(quote)
-        return KnowledgePiece(url=observation.get_current_url(), quotes=checked_quotes, learned=self.what_have_we_learned)
+        return KnowledgePiece(url=observation.current_url, quotes=checked_quotes, learned=self.what_have_we_learned)
 
 class KnowledgePiece(BaseModel):
     url: str = Field(..., description="The url of the source that provided the information.")
@@ -93,6 +93,9 @@ class KnowledgePiece(BaseModel):
 
 class KnowledgeBase(BaseModel):
     knowledge_dict: dict[str, list[KnowledgePiece]] = Field(default_factory=dict, description="A dictionary of pieces of knowledge that have been learned.")
+
+    def is_empty(self):
+        return len(self.knowledge_dict) == 0
 
     def add_knowledge_piece(self, piece: KnowledgePiece):
         if piece.url not in self.knowledge_dict:

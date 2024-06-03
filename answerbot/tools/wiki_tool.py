@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup, NavigableString
 from urllib.parse import urlparse, urljoin
 from pprint import pprint
 
-from llm_easy_tools import llm_function, ToolResult
+from llm_easy_tools import llm_function, ToolResult, get_tool_defs
 
 from answerbot.tools.observation import Observation, InfoPiece
 from answerbot.clean_reflection import ReflectionResult
@@ -107,6 +107,17 @@ class WikipediaTool:
         cleaned_content = markdown.strip()
         return cleaned_content
 
+    def mk_observation(self, info_pieces):
+        tools = self.get_llm_tools()
+        schemas = get_tool_defs(tools)
+        result = ''
+        for schema in schemas:
+            tool_name = schema['function']['name']
+            tool_desc = schema['function']['description']
+            result += f" - {tool_name}: {tool_desc}\n"
+
+        return Observation(info_pieces, current_url=self.current_url, available_tools=result)
+
     @llm_function()
     def get_url(self, url: Annotated[str, "The URL to get"]):
         """
@@ -154,6 +165,7 @@ class WikipediaTool:
             sections_list_md = "- " + "\n- ".join(sections) if sections else ""
             if len(sections) > 0:
                 text = f'The retrieved page contains the following sections:\n{sections_list_md}'
+                text += "You can easily jump to any section by using `lookup` function with the section name together with the `#` signs, like `lookup('##section_name')`."
                 info_pieces.append(InfoPiece(text=text, source=url))
             chunk = document.read_chunk()
             quoted_text = self.quote_text(chunk)
@@ -162,7 +174,7 @@ class WikipediaTool:
             info = "If you want to continue reading the page, you can call `read_more`. "
             info += "If you want to jump to a specific keyword on this page (for example a section of the article) `lookup`."
             info_pieces.append(InfoPiece(info))
-        result = Observation(info_pieces)
+        result = self.mk_observation(info_pieces)
         #pprint(result)
         return result
 
@@ -215,13 +227,13 @@ class WikipediaTool:
 
         except requests.exceptions.HTTPError as e:
             info_pieces.append(InfoPiece(text=f"HTTP error occurred during search: {e}", source=self.api_url))
-            return Observation(info_pieces)
+            return self.mk_observation(info_pieces)
         except Exception as e:
             stack_trace = traceback.format_exc()
             info_pieces.append(InfoPiece(text=f"Error during search: {stack_trace}", source=self.api_url))
-            return Observation(info_pieces)
+            return self.mk_observation(info_pieces)
 
-        return Observation(info_pieces)
+        return self.mk_observation(info_pieces)
 
     def search_result_to_text(self, query, items):
         text = f"Wikipedia search results for query: '{query}' are:"
@@ -243,7 +255,7 @@ class WikipediaTool:
         Looks up a word on the current page.
         """
         if self.document is None:
-            return Observation([InfoPiece(text="No document defined, cannot lookup, you need to use search first to retrieve a document", source=self.current_url)])
+            return self.mk_observation([InfoPiece(text="No document defined, cannot lookup, you need to use search first to retrieve a document", source=self.current_url)])
         else:
             text = self.document.lookup(keyword)
             current_url = self.current_url
@@ -253,7 +265,7 @@ class WikipediaTool:
                 info = f'If you want to continue reading from this point, you can call `read_more`.'
                 if num_of_results > 1:
                     info += f' If you want to jump to the next occurence of the keyword you can call `next`.'
-                return Observation([
+                return self.mk_observation([
                     InfoPiece(f'Keyword "{self.document.lookup_word}" found at "{current_url}" in {num_of_results} places. The first occurrence:'),
                     InfoPiece(quoted_text, source=self.current_url, quotable=True),
                     InfoPiece(f"- *{self.document.lookup_position + 1} of {num_of_results} places*"),
@@ -265,7 +277,7 @@ class WikipediaTool:
                 info = f'Keyword "{keyword}" not found at "{current_url}". You might try using `lookup` with a modified keyword - for example use synonyms.\n'
                 if " " in keyword:
                     info += "\nNote: Your keyword contains spaces. Consider using a single word for more effective lookups, multiple words can be separated by additional text or whitespace, or they might occur in different order."
-                return Observation([InfoPiece(info)])
+                return self.mk_observation([InfoPiece(info)])
 
     @llm_function('next')
     def next_lookup(self):
@@ -274,10 +286,10 @@ class WikipediaTool:
         """
         if self.document is None:
             info = "No document defined, cannot lookup, you need to use search or get_url first to retrieve a document"
-            return Observation([InfoPiece(text=info, source=self.current_url)])
+            return self.mk_observation([InfoPiece(text=info, source=self.current_url)])
         elif not self.document.lookup_results:
             info = "No lookup results found, you need to use lookup first to find the places with the word you are looking for"
-            return Observation([InfoPiece(text=info, source=self.current_url)])
+            return self.mk_observation([InfoPiece(text=info, source=self.current_url)])
         else:
             text = self.document.next_lookup()
             text = text.strip()
@@ -286,7 +298,7 @@ class WikipediaTool:
             info = f'If you want to continue reading from this point, you can call `read_more`.'
             if num_of_results > self.document.lookup_position + 1:
                 info += f' If you want to jump to the next occurence of the keyword you can call `next`.'
-            return Observation([
+            return self.mk_observation([
                 InfoPiece(f'Keyword "{self.document.lookup_word}" found in:'),
                 InfoPiece(quoted_text, source=self.current_url, quotable=True),
                 InfoPiece(f"*{self.document.lookup_position} of {num_of_results} places*"),
@@ -300,12 +312,12 @@ class WikipediaTool:
         Reads the next chunk of text from the current location in the current document.
         """
         if self.document is None:
-            return Observation([InfoPiece(text="No document defined, cannot read", source=self.current_url)])
+            return self.mk_observation([InfoPiece(text="No document defined, cannot read", source=self.current_url)])
         else:
             text = self.document.read_chunk()
             text = text.strip()
             quoted_text = self.quote_text(text)
-            return Observation([
+            return self.mk_observation([
                 InfoPiece("A new fragment from the current page was read:"),
                 InfoPiece(text=quoted_text, source=self.current_url, quotable=True),
                 InfoPiece("If you want to continue reading the page, you can call `read_more`."),

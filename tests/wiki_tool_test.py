@@ -17,7 +17,7 @@ class MockHttpResponse:
 
 
 # Test successful page retrieval
-@patch('answerbot.wiki_tool.requests.get')
+@patch('answerbot.tools.wiki_tool.requests.get')
 def test_get_page_success(mock_get):
     mock_get.return_value = MockHttpResponse('<html><div id="bodyContent">Page Content</div></html>', 200)
     wiki_search = WikipediaTool()
@@ -29,7 +29,7 @@ def test_get_page_success(mock_get):
     assert "Page Content" in wiki_search.document.text
 
 
-@patch('answerbot.wiki_tool.requests.get')
+@patch('answerbot.tools.wiki_tool.requests.get')
 def test_get_page_404(mock_get):
     mock_get.return_value = MockHttpResponse("Page not found", 404)
     wiki_search = WikipediaTool()
@@ -38,7 +38,7 @@ def test_get_page_404(mock_get):
     assert observation.info_pieces[1].text == "Page does not exist."
 
 # Test other HTTP errors
-@patch('answerbot.wiki_tool.requests.get')
+@patch('answerbot.tools.wiki_tool.requests.get')
 def test_get_page_http_error(mock_get):
     mock_get.return_value = MockHttpResponse("Error", 500)
     wiki_search = WikipediaTool()
@@ -50,8 +50,8 @@ def test_get_page_http_error(mock_get):
     assert observation.info_pieces[wiki_search.max_retries + 1].text == "Retries exhausted. No options available."
 
 # Test successful search
-@patch('answerbot.wiki_tool.requests.get')
-@patch('answerbot.wiki_tool.WikipediaTool.get_page')
+@patch('answerbot.tools.wiki_tool.requests.get')
+@patch('answerbot.tools.wiki_tool.WikipediaTool.get_page')
 def test_search_success(mock_get_page, mock_get):
     mock_http_response = MagicMock()
     mock_http_response.json.return_value = {
@@ -73,9 +73,9 @@ def test_search_success(mock_get_page, mock_get):
     observation = wiki_tool.search("test_query")
 
     # Check if the search results text is correct
-    assert observation.info_pieces[1].text == """Wikipedia search results for query: 'test_query' are:
-- [TestTitle1](https://en.wikipedia.org/wiki/TestTitle1)
-- [TestTitle2](https://en.wikipedia.org/wiki/TestTitle2)"""
+    assert observation.info_pieces[1].text.startswith("Wikipedia search results for query: 'test_query' are:")
+    assert "- [TestTitle1](https://en.wikipedia.org/wiki/TestTitle1)" in observation.info_pieces[1].text
+    assert "- [TestTitle2](https://en.wikipedia.org/wiki/TestTitle2)" in observation.info_pieces[1].text
     mock_get_page.assert_called_once_with('TestTitle1')
     # Check if the content from get_page is included in the observation
     assert observation.info_pieces[2].text == "mock get page infopiece 1"

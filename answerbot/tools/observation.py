@@ -19,6 +19,8 @@ class Observation:
     interesting_links: list[str] = field(default_factory=list)
     comment: Optional[str] = None
     keyword: Optional[str] = None
+    available_tools: str = ''
+    current_url: Optional[str] = None
 
     def clear_info_pieces(self):
         self.info_pieces = []
@@ -42,8 +44,3 @@ class Observation:
     def reflection_needed(self) -> bool:
         return any(info.quotable for info in self.info_pieces)
 
-    def get_current_url(self) -> str:
-        for info in self.info_pieces:
-            if info.quotable:
-                return info.source
-        return None

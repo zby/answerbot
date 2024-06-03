@@ -204,7 +204,7 @@ class LLMReactor:
         if not isinstance(result.output, Observation) or not result.output.reflection_needed():
             return
 
-        learned_stuff = f"\n\nSo far we have some notes on the following urls:{self.what_have_we_learned.learned()}" if self.what_have_we_learned else ""
+        learned_stuff = f"\n\nSo far we have some notes on the following urls:{self.what_have_we_learned.learned()}" if not self.what_have_we_learned.is_empty() else ""
         jump_next = f"\n- jump to the next occurrence of the looked up keyword" if result.name == 'lookup' or result.name == 'next' else ""
         sysprompt = f"""You are a researcher working on the following user question:
 {self.trace.user_question}{learned_stuff}
@@ -246,11 +246,7 @@ You need to review the information retrieval recorded below."""
 
         second_user_prompt = f"""What would you do next? 
 You can choose from the following options:
-- read_more information from the current position on the current page
-- lookup a new keyword on the current page{jump_next}
-- go to a new url 
-- make a new wikipedia search
-- finish with an answer to the user question
+{result.output.available_tools}
 Specify the action and also its parameters.
 Please explain your decision.
         """

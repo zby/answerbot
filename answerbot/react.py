@@ -194,6 +194,7 @@ class LLMReactor:
             if result.error is not None:
                 raise self.LLMReactorError(result.stack_trace)
             self.trace.add_entry(result)
+        for result in results:
             self.clean_context_reflection(result)
         return results
 

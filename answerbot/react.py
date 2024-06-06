@@ -303,7 +303,7 @@ def get_answer(question, config, client: object):
     print("\n\n<<< Question:", question)
     tool_class = config['tool']
     tool = tool_class(chunk_size=config['chunk_size'])
-    toolbox = get_toolset_tools(tool)
+    toolbox = [tool] if isinstance(tool, HasLLMTools) else get_toolset_tools(tool) 
     sys_prompt = PROMPTS[config['prompt_class']]
     initial_trace = Trace()
     initial_trace.add_system_message(sys_prompt(config['max_llm_calls'], ''))

@@ -51,6 +51,7 @@ class AAESearch:
         Searches Artificial Intelligence Act EU website, and return a list of documents
         matching the query, with short blocks of texts containing the query
         """
+        print(f'Searching for "{query}"')
         return retry(stop=stop_after_attempt(self._max_retries))(_aae_search)(query, self._base_url)
 
     @llm_function()
@@ -191,5 +192,8 @@ if __name__ == "__main__":
 
     query="training generative AI"
     #query="generative AI training steps"
+    #query="generative AI training authorization"
+    query="authorization of generative AI training"
+    query="generative AI training authorization"
 
     print(scraper.search_aae(query))

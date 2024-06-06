@@ -60,17 +60,17 @@ if __name__ == "__main__":
     #question = "Who is older, Annie Morton or Terry Richardson?"
 
     #question = "What are the concrete steps proposed to ensure AI safety?"
-    #question = 'What are the steps required to authorize the training of generative AI?'
+    question = 'What are the steps required to authorize the training of generative AI?'
 
-    question = "What is the name of the fight song of the university whose main campus is in Lawrence, Kansas and whose branch campuses are in the Kansas City metropolitan area?"
+    #question = "What is the name of the fight song of the university whose main campus is in Lawrence, Kansas and whose branch campuses are in the Kansas City metropolitan area?"
     #question = "What government position was held by the woman who portrayed Corliss Archer in the film Kiss and Tell?"
     #question = "The arena where the Lewiston Maineiacs played their home games can seat how many people?"
 
 
     config = {
         "chunk_size": 400,
-        "prompt_class": 'NERP',
-        #"prompt_class": 'AAE',
+        #"prompt_class": 'NERP',
+        "prompt_class": 'AAE',
         "max_llm_calls": 7,
         "model": "gpt-3.5-turbo",
         #"model": "gpt-4-turbo",
@@ -79,7 +79,7 @@ if __name__ == "__main__":
         "question_check": 'None',
         'reflection': 'ShortReflectionDetached',
         'tool': WikipediaTool,
-        #'tool': AAESearch,
+        'tool': AAESearch,
     }
 
     reactor = get_answer(question, config, client)

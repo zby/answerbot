@@ -71,7 +71,8 @@ def test_check_base():
             InfoPiece(text="Unrelated content about economics.", quotable=True, source="something"),
             InfoPiece(text="Unquotable.", quotable=False, source="something"),
             InfoPiece(text="Artificial intelligence could revolutionize many sectors.", quotable=True, source="something")
-        ]
+        ],
+        current_url="http://test.com"
     )
     reflection_result = ReflectionResult(
         what_have_we_learned="Insights on AI",

@@ -70,25 +70,27 @@ class AAESearch:
                     f'{len(self._document[0].lookup_results)} places.'
                     f'The first occurence:\n {text}'
                     )
-            return Observation([InfoPiece(result, quotable=True)], current_url=self._document[1])
+            url = self._document[1]
+            return Observation([InfoPiece(result, quotable=True, source=url)], current_url=url)
         else:
             return Observation([InfoPiece(f'Keyword "{keyword}" not found on current page')])
 
     @llm_function()
-    def lookup_next(self):
+    def lookup_next(self) -> Observation:
         """
         Jumps to the next occurrence of the word searched previously.
         """
         if self._document is None:
-            return 'No document defined, cannot lookup'
+            return Observation([InfoPiece('No document defined, cannot lookup')])
         if not self._document[0].lookup_results:
-            return 'No lookup results found'
+            return Observation([InfoPiece('No lookup results found')])
         text = self._document[0].next_lookup()
-        return (
+        result = (
                 f'Keyword "{self._document[0].lookup_word}" found in: \n'
                 f'{text}\n'
                 f'{self._document[0].lookup_position} of {len(self._document[0].lookup_results)}'
                 )
+        return Observation([InfoPiece(result, quotable=True, source=self._document[1])])
 
     @llm_function()
     def read_chunk(self) -> Observation:
@@ -98,7 +100,7 @@ class AAESearch:
         if self._document is None:
             return Observation([InfoPiece('No document defined, cannot read')])
         return Observation(
-                [InfoPiece(self._document[0].read_chunk(), quotable=True)],
+                [InfoPiece(self._document[0].read_chunk(), quotable=True, source=self._document[1])],
                 current_url=self._document[1],
                 )
 

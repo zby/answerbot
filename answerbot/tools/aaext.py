@@ -102,7 +102,7 @@ class EUAIAct:
         return Observation(
                 [
                     InfoPiece(f'Opening article: {article.title}'),
-                    InfoPiece(result, quotable=True),
+                    InfoPiece(result, quotable=True, source=article.url),
                 ],
                 current_url=article.url
                 )

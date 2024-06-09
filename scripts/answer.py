@@ -90,4 +90,6 @@ if __name__ == "__main__":
     pprint(reactor.soft_errors)
     with open('data/trace.py', 'w') as file:
         file.write(repr(reactor.trace))
+    with open('data/what_have_we_learned.py', 'w') as file:
+        file.write(repr(reactor.what_have_we_learned))
 #    print(format_markdown(reactor.conversation))

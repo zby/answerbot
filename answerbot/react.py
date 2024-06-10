@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 class Trace:
     def __init__(self, entries = None, user_question=None):
-        self.entries = [] if entries is None else entries
+        self.entries: List[Union[Dict, ChatCompletionMessage, ToolResult]] = [] if entries is None else entries
         self.user_question = user_question
 
     def add_entry(self, entry):

@@ -179,12 +179,13 @@ class LLMReactor:
         return completion
 
     def query_and_process(self):
-        schemas = get_tool_defs(self.get_tools())
+        tools = self.get_tools()
+        schemas = get_tool_defs(tools)
         response = self.openai_query(self.trace.to_messages(), schemas)
         message = response.choices[0].message
         self.trace.add_entry(message)
-        results = process_response(response, self.get_tools())
-        if len(self.get_tools()) > 0 and len(results) == 0:
+        results = process_response(response, tools)
+        if len(tools) > 0 and len(results) == 0:
             self.soft_errors.append("No function call")
             self.to_reflect = False
             if self.no_tool_calls_message is not None:

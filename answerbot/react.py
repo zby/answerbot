@@ -22,19 +22,23 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class Trace:
-    def __init__(self, entries = None, user_question=None):
-        self.entries: List[Union[Dict, ChatCompletionMessage, ToolResult]] = [] if entries is None else entries
+    def __init__(self, entries = None, user_question=None, result=None):
+        self.entries: list[Union[dict, ChatCompletionMessage, ToolResult, Trace]] = [] if entries is None else entries
         self.user_question = user_question
+        self.result: dict = result
 
     def add_entry(self, entry):
         self.entries.append(entry)
 
-    def add_system_message(self, content):
-        self.entries.append({ 'role': 'system', 'content': content })
+    def add_message(self, role, content):
+        self.entries.append({ 'role': role, 'content': content })
 
-    def add_user_question(self, content):
-        self.entries.append({ 'role': 'user', 'content': f"Question: {content}" })
-        self.user_question = content
+    def add_user_question(self, question):
+        self.add_message('user', f"Question: {question}")
+        self.user_question = question
+
+    def add_result(self, result):
+        self.result = result
 
     def to_messages(self) -> List[Dict]:
         """
@@ -45,6 +49,9 @@ class Trace:
         for entry in self.entries:
             if isinstance(entry, dict):
                 all_messages.append(entry)
+            elif isinstance(entry, Trace):
+                if entry.result is not None:
+                    all_messages.append(entry.result)
             elif isinstance(entry, BaseModel):
                 all_messages.append(entry.model_dump())
             elif isinstance(entry, ToolResult):
@@ -205,6 +212,8 @@ class LLMReactor:
         if not isinstance(result.output, Observation) or not result.output.reflection_needed():
             return
 
+        trace = Trace()
+
         learned_stuff = f"\n\nSo far we have some notes on the following urls:{self.what_have_we_learned.learned()}" if not self.what_have_we_learned.is_empty() else ""
         jump_next = f"\n- jump to the next occurrence of the looked up keyword" if result.name == 'lookup' or result.name == 'next' else ""
         sysprompt = f"""You are a researcher working on the following user question:
@@ -220,18 +229,17 @@ You need to review the information retrieval recorded below."""
 #- finish with an answer to the user question
 #To save potential sources of new information please add their urls to the new_sources list."""
         user_prompt = str(result.output)
-        messages = [
-            {'role': 'system', 'content': sysprompt},
-            {'role': 'user', 'content': user_prompt},
-        ]
+        trace.add_message('system', sysprompt)
+        trace.add_message('user', user_prompt)
         schemas = get_tool_defs([ReflectionResult])
-        response = self.openai_query(messages, schemas)
+        response = self.openai_query(trace.to_messages(), schemas)
         message = response.choices[0].message
-        #self.trace.add_entry(message)
+        trace.add_entry(message)
         results = process_response(response, [ReflectionResult])
         if len(results) > 1:
             self.soft_errors.append(f"More than one reflection result")
         new_result = results[0]
+        trace.add_entry(new_result)
         if new_result.error is not None:
             raise self.LLMReactorError(new_result.stack_trace)
         reflection = new_result.output
@@ -244,6 +252,9 @@ You need to review the information retrieval recorded below."""
             if len(reflection.new_sources) > 0:
                 reflection_string += f"Discovered new sources: {reflection.new_sources}"
         print(reflection_string)
+        self.trace.add_entry(trace)
+
+        new_trace = Trace()
 
         second_user_prompt = f"""What would you do next? 
 You can choose from the following options:
@@ -251,16 +262,15 @@ You can choose from the following options:
 Specify the action and also its parameters.
 Please explain your decision.
         """
-        messages = [
-            {'role': 'system', 'content': sysprompt},
-            {'role': 'user', 'content': user_prompt},
-            {'role': 'user', 'content': second_user_prompt},
-        ]
-        response = self.openai_query(messages, [])
+        new_trace.add_message('system', sysprompt)
+        new_trace.add_message('user', user_prompt)
+        new_trace.add_message('user', second_user_prompt)
+        response = self.openai_query(new_trace.to_messages(), [])
         second_reflection = response.choices[0].message.content
         reflection_string = "**My Notes**\n" + reflection_string + "\n\n" + second_reflection
         message = { 'role': 'user', 'content': reflection_string }
-        self.trace.add_entry(message)
+        new_trace.add_result(message)
+        self.trace.add_entry(new_trace)
 
 
     def process(self):
@@ -306,7 +316,7 @@ def get_answer(question, config, client: object):
     toolbox = [tool]
     sys_prompt = PROMPTS[config['prompt_class']]
     initial_trace = Trace()
-    initial_trace.add_system_message(sys_prompt(config['max_llm_calls'], ''))
+    initial_trace.add_message('system', sys_prompt(config['max_llm_calls'], ''))
     initial_trace.add_user_question(question)
     question_checks = QUESTION_CHECKS[config['question_check']] 
     reactor = LLMReactor(

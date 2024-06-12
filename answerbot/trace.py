@@ -1,76 +1,76 @@
-from typing import Union, Any
-from pydantic import BaseModel
-from answerbot.tools.observation import Observation
-from llm_easy_tools import ToolResult
 from openai.types.chat import ChatCompletionMessage
 
+from functools import singledispatch
+
 from typing import Union, Any
-from llm_easy_tools import ToolResult
+from pprint import pprint
 
-class Node:
-    def __init__(self, value: Union[dict, ToolResult]) -> None:
-        self.value = value
-
+class ToolResult:
     def to_message(self) -> dict:
-        if isinstance(self.value, dict):
-            return self.value
-        elif isinstance(self.value, ToolResult):
-            return self.value.to_message()
+        return {'node': 'this is a tool result'}
 
-class Trace:
-    def __init__(self, value: Union[None, dict] = None) -> None:
-        self.value = value
-        self.children: list[Union[Node, 'Trace']] = []
-        self.parent: Union[None, 'Trace'] = None
-        self.roots: list['Trace'] = [self]  # Track the latest root in this trace
+class TraceBase:
+    pass
 
-    def _set_value(self, value: dict) -> None:
-        self.value = value
+@singledispatch
+def to_messages(obj) -> list[dict]:
+    raise NotImplementedError(f'to_messages not implemented for type {type(obj)}')
 
-    def to_message(self) -> dict:
-        if self.value is None:
-            raise ValueError("Trace value is None and the trace is not closed")
-        return self.value
+@to_messages.register
+def _(obj: dict) -> list[dict]:
+    return [obj]
 
-    def messages_trace(self) -> list[dict]:
-        # Return the value of calling to_message on the children of the last element of the roots list
-        return [child.to_message() for child in self._current_root().children]
+@to_messages.register
+def _(obj: ToolResult) -> list[dict]:
+    return [obj.to_message()]
 
-    def attach(self, value: dict) -> None:
-        # Create a new Node with the given value and attach it to the last element in the roots list
-        new_node = Node(value)
-        self._current_root().children.append(new_node)
+@to_messages.register
+def _(obj: ChatCompletionMessage) -> list[dict]:
+    return [obj.to_dict()]
 
-    def attach_sub_trace(self) -> 'Trace':
-        # Create a new sub_trace and attach it to the last element in the roots list
-        sub_trace = Trace()
-        sub_trace.parent = self._current_root()
-        self._current_root().children.append(sub_trace)
-        self.roots.append(sub_trace)
-        return sub_trace
+@to_messages.register
+def _(obj: TraceBase) -> list[dict]:    
+    return []
 
-    def close(self, value: dict) -> None:
-        self._current_root()._set_value(value)
-        self.roots.pop()
+class Trace(TraceBase):
+    def __init__(self, entries = None, question=None):
+        self.entries: list[Union[dict, ChatCompletionMessage, ToolResult, Trace]] = [] if entries is None else entries
+        self.question = question
 
-    def _current_root(self) -> 'Trace':
-        # Return the last element from the roots list
-        return self.roots[-1]
+    def append(self, entry):
+        self.entries.append(entry)
+
+    def add_message(self, role, content):
+        self.entries.append({ 'role': role, 'content': content })
+
+    def add_sub_trace(self, sub_trace, sub_trace_result):
+        self.entries.append({'role': 'assistant', 'content': sub_trace_result})
+        self.entries.append(sub_trace)
+
+    def to_messages(self) -> list[dict]:
+        """
+        Returns:
+        List[Dict]: A list of dictionaries representing the messages and tool results.
+        """
+        all_messages = [
+            {'role': 'user', 'content': f"Question: {self.question}"}
+        ]
+        for entry in self.entries:
+            all_messages.extend(to_messages(entry))
+        return all_messages
+
 
 
 # Example usage
 if __name__ == "__main__":
-    trace = Trace()
-    trace.attach({"node1": "value1"})
-    trace.attach({"node2": "value2"})
+    trace = Trace([], 'What is the distance from Moscow to Sao Paulo?')
+    trace.append({'node1': 'value1'})
+    trace.append(ToolResult())
 
-    print("Trace messages_trace before attaching sub_trace:", trace.messages_trace())
+    sub_trace = Trace([], trace.question)
+    trace.add_sub_trace(sub_trace, 'sub_trace_result')
 
-    sub_trace = trace.attach_sub_trace()
-    trace.attach({"node3": "value3"})  # This should attach node3 to the sub_trace
+    # print main trace messages
+    pprint(trace.to_messages())
 
-    print("Trace messages_trace after attaching sub_trace and node3:", trace.messages_trace())
-
-    trace.close({"sub_trace": "value"})
-
-    print("Trace messages_trace after closing sub_trace:", trace.messages_trace())
+    pprint(sub_trace.to_messages())

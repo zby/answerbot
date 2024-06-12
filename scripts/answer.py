@@ -10,7 +10,6 @@ from dotenv import dotenv_values
 from answerbot.react import get_answer
 
 from answerbot.tools.wiki_tool import WikipediaTool
-from answerbot.aae_tool import AAESearch
 from answerbot.replay_client import LLMReplayClient
 
 # Configure basic logging
@@ -70,7 +69,6 @@ if __name__ == "__main__":
     config = {
         "chunk_size": 400,
         #"prompt_class": 'NERP',
-        "prompt_class": 'AAE',
         "max_llm_calls": 7,
         "model": "gpt-3.5-turbo",
         #"model": "gpt-4-turbo",
@@ -79,7 +77,6 @@ if __name__ == "__main__":
         "question_check": 'None',
         'reflection': 'ShortReflectionDetached',
         'tool': WikipediaTool,
-        'tool': AAESearch,
     }
 
     reactor = get_answer(question, config, client)

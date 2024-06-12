@@ -1,5 +1,6 @@
+from answerbot.tools.observation import InfoPiece, Observation
 from llm_easy_tools import llm_function
-from typing import Annotated
+from typing import Annotated, Callable
 import requests
 import html2text
 from bs4 import BeautifulSoup, PageElement, Tag
@@ -26,9 +27,22 @@ class AAESearch:
             ):
         self._max_retries = max_retries
         self._base_url = base_url
-        self._document = None
+        self._document: tuple[MarkdownDocument, str]|None = None
         self._chunk_size = chunk_size
         self._min_chunk_size = min_chunk_size
+
+    def get_llm_tools(self) -> list[Callable]:
+        result = [
+                self.search_aae,
+                self.goto_url,
+                ]
+        if self._document:
+            result.append(self.read_chunk)
+            if self._document[0].lookup_results:
+                result.append(self.lookup_next)
+            else:
+                result.append(self.lookup)
+        return result
 
 
     @llm_function()
@@ -41,65 +55,73 @@ class AAESearch:
         return retry(stop=stop_after_attempt(self._max_retries))(_aae_search)(query, self._base_url)
 
     @llm_function()
-    def lookup(self, keyword: Annotated[str, 'The keyword to search for']):
+    def lookup(self, keyword: Annotated[str, 'The keyword to search for']) -> Observation:
         """
         Look up a word on the current page.
         """
         if self._document is None:
-            return 'No document defined, cannot lookup'
+            return Observation(
+                    [InfoPiece('No document defined, cannot lookup')]
+                    )
 
-        text = self._document.lookup(keyword)
+        text = self._document[0].lookup(keyword)
         if text:
-            return (
+            result = (
                     f'Keyword "{keyword}" found in current page in' 
-                    f'{len(self._document.lookup_results)} places.'
+                    f'{len(self._document[0].lookup_results)} places.'
                     f'The first occurence:\n {text}'
                     )
+            url = self._document[1]
+            return Observation([InfoPiece(result, quotable=True, source=url)], current_url=url)
         else:
-            return f'Keyword "{keyword} not found in current page"'
+            return Observation([InfoPiece(f'Keyword "{keyword}" not found on current page')])
 
     @llm_function()
-    def lookup_next(self):
+    def lookup_next(self) -> Observation:
         """
         Jumps to the next occurrence of the word searched previously.
         """
         if self._document is None:
-            return 'No document defined, cannot lookup'
-        if not self._document.lookup_results:
-            return 'No lookup results found'
-        text = self._document.next_lookup()
-        return (
-                f'Keyword "{self._document.lookup_word}" found in: \n'
+            return Observation([InfoPiece('No document defined, cannot lookup')])
+        if not self._document[0].lookup_results:
+            return Observation([InfoPiece('No lookup results found')])
+        text = self._document[0].next_lookup()
+        result = (
+                f'Keyword "{self._document[0].lookup_word}" found in: \n'
                 f'{text}\n'
-                f'{self._document.lookup_position} of {len(self._document.lookup_results)}'
+                f'{self._document[0].lookup_position} of {len(self._document[0].lookup_results)}'
                 )
+        return Observation([InfoPiece(result, quotable=True, source=self._document[1])])
 
     @llm_function()
-    def read_chunk(self):
+    def read_chunk(self) -> Observation:
         """
         Reads the next chunk of text from the current location in the current document.
         """
         if self._document is None:
-            return 'No document defined, cannot read'
-        return self._document.read_chunk()
+            return Observation([InfoPiece('No document defined, cannot read')])
+        return Observation(
+                [InfoPiece(self._document[0].read_chunk(), quotable=True, source=self._document[1])],
+                current_url=self._document[1],
+                )
 
     @llm_function()
-    def goto_url(self, url: Annotated[str, "The url to go to"] ):
+    def goto_url(self, url: Annotated[str, "The url to go to"] ) -> Observation:
         """
         Retreive a page at url and saves the retrieved page as the next current page
         """
         response = requests.get(url)
         if response.status_code == 404:
-            return 'Page does not exist'
+            return Observation([InfoPiece('Page does not Exist')])
         try:
             response.raise_for_status()
         except:
-            return 'Could not open the page'
+            return Observation([InfoPiece('Could not open the page')])
         html = response.text
         cleaned_content = clean_html_and_textify(html)
         document = MarkdownDocument(cleaned_content, max_size=self._chunk_size, min_size=self._min_chunk_size)
-        self._document = document
-        return f'{url} retreived successfully'
+        self._document = (document, url)
+        return Observation([InfoPiece(f'{url} retrieved successfully')])
 
 
 

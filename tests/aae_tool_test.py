@@ -1,5 +1,5 @@
 from unittest.mock import patch
-from answerbot.aae_tool import AAESearch
+from answerbot.tools.aae import AAESearch
 
 class MockHttpResponse:
     def __init__(self, text, status_code):

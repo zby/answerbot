@@ -85,7 +85,8 @@ class WikipediaTool:
                         div.decompose()
                         break  # Stop checking this div, as we found a match
         for div in content.find_all('div', class_='mbox-text-span'):
-            print(div)
+            #print(div)
+            pass
             
         for a_tag in content.find_all('a', href=True):
             relative_href = a_tag['href']
@@ -129,7 +130,10 @@ class WikipediaTool:
         retries = 0
         if self.url_shortener:
             url = self.url_shortener.retrieve(url)
-        print(f"Getting {url}")
+        print(f"\nGetting {url}\n")
+        if not url.startswith(self.absolute_base_url):
+            info_piece = InfoPiece(text=f"This tool can only work on pages from {self.absolute_base_url}.")
+            return Observation([info_piece], current_url=url)
         info_pieces = []
         document = None
         self.checked_urls.append(url)
@@ -164,15 +168,15 @@ class WikipediaTool:
                 sections = sections[:limit_sections]
             sections_list_md = "- " + "\n- ".join(sections) if sections else ""
             if len(sections) > 0:
-                text = f'The retrieved page contains the following sections:\n{sections_list_md}'
-                text += "You can easily jump to any section by using `lookup` function with the section name together with the `#` signs, like `lookup('##section_name')`."
+                text = f'The retrieved page contains the following sections:\n{sections_list_md}\n\n'
+                text += "You can easily jump to any section by using `lookup` function with the section name together with the `#` signs, like `lookup('## section_name')`."
                 info_pieces.append(InfoPiece(text=text, source=url))
             chunk = document.read_chunk()
             quoted_text = self.quote_text(chunk)
             info_pieces.append(InfoPiece("The retrieved page starts with:"))
             info_pieces.append(InfoPiece(quoted_text, source=url, quotable=True))
             info = "If you want to continue reading the page, you can call `read_more`. "
-            info += "If you want to jump to a specific keyword on this page (for example a section of the article) `lookup`."
+            info += "If you want to jump to a specific keyword on this page (for example a section of the article) `lookup('keyword')`."
             info_pieces.append(InfoPiece(info))
         result = self.mk_observation(info_pieces)
         #pprint(result)
@@ -190,6 +194,7 @@ class WikipediaTool:
         """
         Searches Wikipedia using the provided search query. Reports the search results and the content of the first page.
         """
+        print(f"\nSearching for '{query}'\n")
         info_pieces = []
         params = {
             'action': 'query',
@@ -252,8 +257,9 @@ class WikipediaTool:
     @llm_function()
     def lookup(self, keyword: Annotated[str, "The keyword to search"] ):
         """
-        Looks up a word on the current page.
+        Looks up a word on the current page. Use it if you think you are on the right page and want to jump to a specific word on it.
         """
+        print(f"\nLooking up '{keyword}'\n")
         if self.document is None:
             return self.mk_observation([InfoPiece(text="No document defined, cannot lookup, you need to use search first to retrieve a document", source=self.current_url)])
         else:
@@ -284,6 +290,7 @@ class WikipediaTool:
         """
         Jumps to the next occurrence of the word searched previously.
         """
+        print(f"\nLooking up next occurrence of '{self.document.lookup_word}'\n")
         if self.document is None:
             info = "No document defined, cannot lookup, you need to use search or get_url first to retrieve a document"
             return self.mk_observation([InfoPiece(text=info, source=self.current_url)])
@@ -309,8 +316,9 @@ class WikipediaTool:
     @llm_function('read_more')
     def read_chunk(self):
         """
-        Reads the next chunk of text from the current location in the current document.
+        Reads the next chunk of text from the current location in the current document. Use it if you want to continue reading the page.
         """
+        print(f"\nReading more from current position\n")
         if self.document is None:
             return self.mk_observation([InfoPiece(text="No document defined, cannot read", source=self.current_url)])
         else:

@@ -80,6 +80,7 @@ if __name__ == "__main__":
     }
 
     reactor = get_answer(question, config, client)
+    print(f'The answer to the question:"{question}" is:\n')
     print(str(reactor.answer))
     print()
     print(str(reactor.what_have_we_learned))

@@ -17,7 +17,7 @@ from answerbot.clean_reflection import ReflectionResult, KnowledgeBase
 from answerbot.trace import Trace, Question
 
 # Configure basic logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.ERROR)
 
 # Get a logger for the current module
 logger = logging.getLogger(__name__)
@@ -184,9 +184,12 @@ You need to review the information retrieval recorded below."""
         new_trace = Trace()
 
         second_user_prompt = f"""What would you do next? 
-You can choose from the following options:
+If you have found enough information to answer the question you can call finish.
+Otherwise you can choose from the following options:
 {result.output.available_tools}
-Specify the action and also its parameters.
+List five actions - that is function names and their arguments - that could help you answer the user question.
+Please don't list actions that you have already tried.
+Then specify which one of them you would like to do next.
 Please explain your decision.
         """
         new_trace.append({'role': 'system', 'content': sysprompt})
@@ -194,7 +197,7 @@ Please explain your decision.
         new_trace.append({'role': 'user', 'content': second_user_prompt})
         response = self.openai_query(new_trace.to_messages(), [])
         second_reflection = response.choices[0].message.content
-        reflection_string = "**My Notes**\n" + reflection_string + "\n\n" + second_reflection
+        reflection_string = "**My Notes**\n" + reflection_string + "\n\nHmm what I could do next?\n\n" + second_reflection
         message = { 'role': 'user', 'content': reflection_string }
         new_trace.result = message
         self.trace.append(new_trace)

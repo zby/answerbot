@@ -1,59 +1,68 @@
 from openai.types.chat import ChatCompletionMessage
+from dataclasses import dataclass, field
 
-from typing import Union, Any
+from typing import Union, Any, Optional
 from pprint import pprint
 
-class ToolResult:
-    def to_message(self) -> dict:
-        return {'node': 'this is a tool result'}
+from llm_easy_tools import ToolResult
 
+@dataclass
+class Question:
+    question: str
+    
+    def to_message(self):
+        return {'role': 'user', 'content': f"Question: {self.question}" }
+
+@dataclass
 class Trace:
-    def __init__(self, entries = None, question=None, result=None):
-        self.entries: list[Union[dict, ChatCompletionMessage, ToolResult, Trace]] = [] if entries is None else entries
-        self.question = question
-        self.result = result
+    entries: list[Union[dict, Question, ChatCompletionMessage, ToolResult, 'Trace']] = field(default_factory=list)
+    result: Optional[dict] = None
+
+    def __init__(self, entries=None, result=None):
+        self.entries: list[Union[dict, Question, ChatCompletionMessage, ToolResult, Trace]] = [] if entries is None else entries
+        self.result: Optional[dict] = result
 
     def append(self, entry):
         self.entries.append(entry)
-
-    def add_message(self, role, content):
-        self.entries.append({ 'role': role, 'content': content })
-
-    def add_sub_trace(self, sub_trace):
-        self.entries.append(sub_trace)
 
     def to_messages(self) -> list[dict]:
         """
         Returns:
         List[Dict]: A list of dictionaries representing the messages and tool results.
         """
-        all_messages = [
-            {'role': 'user', 'content': f"Question: {self.question}"}
-        ]
+        all_messages = []
         for entry in self.entries:
             if isinstance(entry, Trace):
                 if entry.result is not None:
-                    all_messages.append({'role': 'assistant', 'content': entry.result})
+                    all_messages.append(entry.result)
             elif isinstance(entry, ToolResult):
                 all_messages.append(entry.to_message())
             elif isinstance(entry, ChatCompletionMessage):
-                all_messages.append(entry.to_dict())
+                all_messages.append(entry.model_dump())
             elif isinstance(entry, dict):
                 all_messages.append(entry)
+            elif isinstance(entry, Question):
+                all_messages.append(entry.to_message())
             else:
                 raise ValueError(f'Unsupported entry type: {type(entry)}')
         return all_messages
+    
+    def user_question(self):
+        for entry in self.entries:
+            if isinstance(entry, Question):
+                return entry.question
+        return None
 
 
 
 # Example usage
 if __name__ == "__main__":
-    trace = Trace([], 'What is the distance from Moscow to Sao Paulo?')
+    trace = Trace([Question('What is the distance from Moscow to Sao Paulo?')])
     trace.append({'node1': 'value1'})
-    trace.append(ToolResult())
+    trace.append(ToolResult(tool_call_id='tool_call_id', name='tool_name', output='tool_result'))
 
-    sub_trace = Trace([], trace.question, 'sub_trace_result')
-    trace.add_sub_trace(sub_trace)
+    sub_trace = Trace([trace.entries[0]], {'role': 'assistant', 'content': 'sub_trace_result'})
+    trace.append(sub_trace)
 
     # print main trace messages
     pprint(trace.to_messages())

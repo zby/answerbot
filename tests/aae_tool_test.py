@@ -11,7 +11,7 @@ class MockHttpResponse:
             raise Exception("HTTP Error")
 
 
-@patch('answerbot.aae_tool.requests.get')
+@patch('answerbot.tools.aae.requests.get')
 def test_search(mock_get):
     with open('tests/data/risk_based_approach.html', 'r', encoding='utf-8') as f:
         contents = f.read()
@@ -21,7 +21,7 @@ def test_search(mock_get):
     assert len(result) == 844
 
 
-@patch('answerbot.aae_tool.requests.get')
+@patch('answerbot.tools.aae.requests.get')
 def test_search_404(mock_get):
     mock_get.return_value = MockHttpResponse('', status_code=404)
     tool = AAESearch()
@@ -29,7 +29,7 @@ def test_search_404(mock_get):
     assert result == 'page not found'
 
 
-@patch('answerbot.aae_tool.requests.get')
+@patch('answerbot.tools.aae.requests.get')
 def test_lookup(mock_get):
     with open('tests/data/recital_71.html', 'r', encoding='utf-8') as f:
         contents = f.read()
@@ -37,10 +37,10 @@ def test_lookup(mock_get):
     tool = AAESearch()
     tool.goto_url(url='https://')
     result = tool.lookup(keyword='Member States')
-    assert 'To ensure a legal framework that promotes innovation' in result
+    assert 'To ensure a legal framework that promotes innovation' in str(result)
 
 
-@patch('answerbot.aae_tool.requests.get')
+@patch('answerbot.tools.aae.requests.get')
 def test_lookup_next(mock_get):
     with open('tests/data/recital_71.html', 'r', encoding='utf-8') as f:
         contents = f.read()
@@ -49,6 +49,6 @@ def test_lookup_next(mock_get):
     tool.goto_url(url='https://')
     result = tool.lookup(keyword='Member States')
     result = tool.lookup_next()
-    assert 'Member States could also fulfill this obligation through participating in already existing regulatory sandboxes' in result
+    assert 'Member States could also fulfill this obligation through participating in already existing regulatory sandboxes' in str(result)
 
 

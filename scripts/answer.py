@@ -68,7 +68,7 @@ if __name__ == "__main__":
 
     config = {
         "chunk_size": 400,
-        #"prompt_class": 'NERP',
+        "prompt_class": 'NERP',
         "max_llm_calls": 7,
         "model": "gpt-3.5-turbo",
         #"model": "gpt-4-turbo",
@@ -80,7 +80,7 @@ if __name__ == "__main__":
     }
 
     reactor = get_answer(question, config, client)
-    print(reactor.trace.generate_report())
+    print(str(reactor.answer))
     print()
     print(str(reactor.what_have_we_learned))
     print()

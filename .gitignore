@@ -7,3 +7,5 @@ experiments/*
 __pycache__/
 data/OWU/*
 answerbot.egg-info
+.env
+llm_easy_tools

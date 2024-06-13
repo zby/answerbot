@@ -1,6 +1,8 @@
 # answerbot
 Agentic RAG system for question answering.
 
+Work in progress.
+
 ## Installation
 
 Copy `.env_` to `.env` and fill in your OPENAI_API_KEY. You can also set the environment variable in the shell.
@@ -22,8 +24,3 @@ Edit the file to change the question.
 
 ## Compatibility
 I currently work only on OpenAI llms.
-
-
-## Generating examples
-The current 0-shot prompts seem to work - so I have not tested the example generating code for long time.
-

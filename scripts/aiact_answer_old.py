@@ -27,18 +27,16 @@ def main():
     )
     config = {
         "chunk_size": 400,
-        "prompt_class": 'NERP',
-        #"prompt_class": 'AAE',
+        "prompt_class": 'AAE',
         "max_llm_calls": 7,
         "model": "gpt-4o",
         "question_check": 'None',
         'reflection': 'ShortReflectionDetached',
         'tool': AAESearch,
-        #'tool': AAESearch,
     }
     reactor = get_answer(question, config, client)
-    print('dfjkasd')
-    print(reactor.trace.generate_report())
+    print(f'The answer to the question:"{question}" is:\n')
+    print(str(reactor.answer))
     print()
     print(str(reactor.what_have_we_learned))
     print()

@@ -126,6 +126,7 @@ class LLMReactor:
                 self.trace.append(message)
         for result in results:
             if result.error is not None:
+                print(result.error)
                 raise self.LLMReactorError(result.stack_trace)
             self.trace.append(result)
         for result in results:

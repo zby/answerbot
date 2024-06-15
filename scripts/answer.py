@@ -1,6 +1,5 @@
 import logging
 import httpx
-import json
 
 from openai import OpenAI
 from pprint import pformat, pprint

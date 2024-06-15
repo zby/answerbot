@@ -117,15 +117,13 @@ class LLMReactor:
                 raise self.LLMReactorError(result.stack_trace)
             self.trace.append(result)
         for result in results:
-            self.clean_context_reflection(result)
+            if isinstance(result.output, Observation) and result.output.reflection_needed():
+                self.clean_context_reflection(result)
         return results
 
     def clean_context_reflection(self, result):
         # In clean context reflection we cannot ask the llm to plan - because it does not get the information retrieved previously.
         # But we can contrast the reflection with previous data ourselves - and for example remove links that were already retrieved.
-
-        if not isinstance(result.output, Observation) or not result.output.reflection_needed():
-            return
 
         trace = Trace()
 
@@ -224,6 +222,29 @@ Please explain your decision.
         answer = Answer(answer, answer_short, reasoning)
         self.answer = answer
         return answer
+
+    def generate_report(self) -> str:
+        report = f'''
+The answer to the question:"{self.trace.user_question()}" is:
+{str(self.answer)}
+'''
+        return report
+
+    @classmethod
+    def create_reactor(self, 
+                       sys_prompt: str,
+                       question: str,
+                       toolbox: list[Callable],
+                       max_llm_calls: int,
+                       client: object,
+                       model: str,
+                       question_checks: list[str]
+                       ):
+        trace = Trace()
+        trace.append({'role': 'system', 'content': sys_prompt(max_llm_calls, '')})
+        trace.append(Question(question))
+        reactor = LLMReactor(model, toolbox, trace, max_llm_calls, client, question_checks)
+        return reactor
 
 
 def get_answer(question, config, client: object):

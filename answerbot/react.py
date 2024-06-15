@@ -1,8 +1,6 @@
-import json
 import time
 import logging
 import copy
-from pydantic import BaseModel, Field, field_validator, ValidationError
 from typing import Literal, Union, List, Dict, Annotated, Optional, Callable, Any, Protocol, Iterable, runtime_checkable
 from pprint import pprint
 from dataclasses import dataclass
@@ -57,23 +55,16 @@ class LLMReactor:
                 trace: Trace,
                 max_llm_calls: int,
                 client: object,
-                reflection: Any,
-                soft_reflection_validation=True,
                 question_checks=None,
-                case_insensitive=False,
                 ):
         self.model = model
         self.toolbox = toolbox
         self.trace = trace
         self.max_llm_calls = max_llm_calls
         self.client = client
-        self.soft_reflection_validation = soft_reflection_validation
         self.question_checks = [] if question_checks is None else question_checks
-        self.case_insensitive = case_insensitive
 
         self.step = 0
-        self.to_reflect = False
-        self.finished = False
         self.answer = None
         self.soft_errors = []
         self.reflection_prompt = []
@@ -85,7 +76,8 @@ class LLMReactor:
         if self.step < self.max_llm_calls + 1:
             for item in self.toolbox:
                 if isinstance(item, HasLLMTools):
-                    tools.extend(item.get_llm_tools())
+                    new_tools = item.get_llm_tools()
+                    tools.extend(new_tools)
                 else:
                     tools.append(item)
         return tools
@@ -116,7 +108,6 @@ class LLMReactor:
         results = process_response(response, tools)
         if len(tools) > 0 and len(results) == 0:
             self.soft_errors.append("No function call")
-            self.to_reflect = False
             if self.no_tool_calls_message is not None:
                 message = { 'role': 'assistant', 'content': self.no_tool_calls_message }
                 self.trace.append(message)
@@ -246,7 +237,7 @@ def get_answer(question, config, client: object):
     initial_trace.append(Question(question))
     question_checks = QUESTION_CHECKS[config['question_check']] 
     reactor = LLMReactor(
-        config['model'], toolbox, initial_trace, config['max_llm_calls'], client, None,
+        config['model'], toolbox, initial_trace, config['max_llm_calls'], client,
         question_checks=question_checks
     )
     reactor.process()

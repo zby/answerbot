@@ -241,7 +241,7 @@ The answer to the question:"{self.trace.user_question()}" is:
                        question_checks: list[str]
                        ):
         trace = Trace()
-        trace.append({'role': 'system', 'content': sys_prompt(max_llm_calls, '')})
+        trace.append({'role': 'system', 'content': sys_prompt})
         trace.append(Question(question))
         reactor = LLMReactor(model, toolbox, trace, max_llm_calls, client, question_checks)
         return reactor

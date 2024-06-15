@@ -64,7 +64,6 @@ class LLMReactor:
                 ):
         self.model = model
         self.toolbox = toolbox
-        self.toolbox.append(self.finish)
         self.trace = trace
         self.max_llm_calls = max_llm_calls
         self.client = client
@@ -82,16 +81,13 @@ class LLMReactor:
         self.no_tool_calls_message = None
 
     def get_tools(self) -> list[Callable]:
-        if self.step == self.max_llm_calls + 1:
-            toolbox = [self.finish]
-        else:
-            toolbox = self.toolbox
-        tools = []
-        for item in toolbox:
-            if isinstance(item, HasLLMTools):
-                tools.extend(item.get_llm_tools())
-            else:
-                tools.append(item)
+        tools = [self.finish]  # Note for the AI assistant - always include the finish tool
+        if self.step < self.max_llm_calls + 1:
+            for item in self.toolbox:
+                if isinstance(item, HasLLMTools):
+                    tools.extend(item.get_llm_tools())
+                else:
+                    tools.append(item)
         return tools
 
 
@@ -211,10 +207,9 @@ Please explain your decision.
             self.step += 1
             if self.step == self.max_llm_calls:
                 step_info = "\n\nThis was the last data you can get - in the next step you need to formulate your answer"
-                self.trace.append({'role': 'system', 'content': step_info})
             else:
                 step_info = f"\n\nThis was {self.step} out of {self.max_llm_calls} calls for data."
-                self.trace.append({'role': 'system', 'content': step_info})
+            self.trace.append({'role': 'system', 'content': step_info})
 
 #            if 'gpt-4' in self.model:
 #                time.sleep(20)

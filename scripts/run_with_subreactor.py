@@ -39,10 +39,10 @@ client = OpenAI(
 #    timeout=httpx.Timeout(70.0, read=60.0, write=20.0, connect=6.0)
 #)
 
-max_llm_calls = 5
+sub_reactor_max_llm_calls = 4
 sub_sys_prompt = f"""
 Please answer the following question. You can use wikipedia for reference - but think carefully about what pages exist at wikipedia.
-You have only {max_llm_calls - 1} calls to the wikipedia API.
+You have only {sub_reactor_max_llm_calls - 1} calls to the wikipedia API.
 After the first call to wikipedia you need to always reflect on the data retrieved in the previous call.
 To retrieve the first document you need to call search.
 
@@ -55,14 +55,17 @@ Remove all explanations from the answer and put them into the reasoning field.
 Always try to answer the question even if it is ambiguous, just note the necessary assumptions.
 """
 
+main_reactor_max_llm_calls = 3
 main_sys_prompt = f"""
 You are to take a role of a researcher. Please answer the users question.
-You can get help from a wikipedia expert - by calling 'delegate' function
+You can get help from a wikipedia assistant - by calling 'delegate' function
 and passing the question you want to ask him.
-You need to carefully divide your work and delegate work to the assistant.
+
+You need to carefully divide the work into tasks that would require the least amount of calls to the wikipedia API,
+and then delegate them to the assistant.
 The questions you ask the assistant need to be as simple and specific as possible.
 You can call finish when you think you have enough information to answer the question.
-You can delegate only {max_llm_calls - 1} tasks to the assistant."""
+You can delegate only {main_reactor_max_llm_calls - 1} tasks to the assistant."""
 
 if __name__ == "__main__":
 
@@ -87,14 +90,14 @@ if __name__ == "__main__":
     question = 'What are the steps required to authorize the training of generative AI?'
 
     #question = "What is the name of the fight song of the university whose main campus is in Lawrence, Kansas and whose branch campuses are in the Kansas City metropolitan area?"
-    #question = "What government position was held by the woman who portrayed Corliss Archer in the film Kiss and Tell?"
-    question = "The arena where the Lewiston Maineiacs played their home games can seat how many people?"
+    question = "What government position was held by the woman who portrayed Corliss Archer in the film Kiss and Tell?"
+    #question = "The arena where the Lewiston Maineiacs played their home games can seat how many people?"
     
     
     sub_reactors = {
         'wikipedia researcher': {
             'toolbox': [WikipediaTool(chunk_size=400)],
-            'max_llm_calls': max_llm_calls,
+            'max_llm_calls': sub_reactor_max_llm_calls,
             'model': 'gpt-3.5-turbo',
             'client': client,
             'sys_prompt': sub_sys_prompt,
@@ -105,11 +108,11 @@ if __name__ == "__main__":
     reactor = LLMReactor.create_reactor(
         model='gpt-3.5-turbo',
         toolbox=[sub_reactor_tool.delegate],
-        max_llm_calls=max_llm_calls,
+        max_llm_calls=main_reactor_max_llm_calls,
         client=client,
         question=question,
         sys_prompt=main_sys_prompt,
-        question_checks=[],
+        question_checks=["Please analyze the user question and find the first step in answering it - a task to delegate to a wikipedia researcher that would require the least amount of calls to the wikipedia API. Think step by step."],
     )
     reactor.process()
     print(f'The answer to the question:"{question}" is:\n')

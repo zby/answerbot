@@ -44,6 +44,14 @@ class HasLLMTools(Protocol):
     def get_llm_tools(self) -> Iterable[Callable]:
         pass
 
+@dataclass
+class SubReactorResult:
+    report: str
+    trace: Trace
+    reflection_prompt: str
+
+    def __str__(self):
+        return self.report
 
 class LLMReactor:
     class LLMReactorError(Exception):
@@ -120,6 +128,26 @@ class LLMReactor:
             if isinstance(result.output, Observation) and result.output.reflection_needed():
                 self.clean_context_reflection(result)
         return results
+
+    def base_reflection(self, result):
+        # In clean context reflection we cannot ask the llm to plan - because it does not get the information retrieved previously.
+        # But we can contrast the reflection with previous data ourselves - and for example remove links that were already retrieved.
+
+
+        sysprompt = f"""You are a researcher working on the following user question:
+{self.trace.user_question()}
+"""
+
+        new_trace = Trace()
+
+        new_trace.append({'role': 'system', 'content': sysprompt})
+        new_trace.append({'role': 'user', 'content': result.output.reflection_prompt})
+        response = self.openai_query(new_trace.to_messages(), [])
+        reflection_string = "**My Notes**\n" + response.choices[0].message.content
+        message = { 'role': 'user', 'content': reflection_string }
+        new_trace.result = message
+        self.trace.append(new_trace)
+
 
     def clean_context_reflection(self, result):
         # In clean context reflection we cannot ask the llm to plan - because it does not get the information retrieved previously.
@@ -208,8 +236,11 @@ Please explain your decision.
         for query in self.question_checks:
             question_check = { 'role': 'user', 'content': query }
             logger.info(str(question_check))
-            self.trace.append(question_check)
-            self.query_and_process()
+            trace = self.trace
+            trace.append(question_check)
+            response = self.openai_query(trace.to_messages())
+            message = response.choices[0].message
+            trace.append(message)
 
     def finish(self,
                answer: Annotated[str, "The answer to the user's question"],

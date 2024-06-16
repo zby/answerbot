@@ -316,7 +316,8 @@ class WikipediaTool:
     @llm_function('read_more')
     def read_chunk(self):
         """
-        Reads the next chunk of text from the current location in the current document. Use it if you want to continue reading the page.
+        Reads the next chunk of text from the current location in the current document.
+        Use it if the just received was interesting but seems to be cut short and you want to continue reading.
         """
         print(f"\nReading more from current position\n")
         if self.document is None:

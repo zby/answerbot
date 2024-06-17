@@ -4,6 +4,7 @@ import copy
 from typing import Literal, Union, List, Dict, Annotated, Optional, Callable, Any, Protocol, Iterable, runtime_checkable
 from pprint import pprint
 from dataclasses import dataclass
+import traceback
 
 from openai.types.chat.chat_completion import ChatCompletionMessage
 
@@ -104,13 +105,13 @@ class LLMReactor:
                 args['tool_choice'] = "auto"
 
         completion = self.client.chat.completions.create( **args )
-        message = completion.choices[0].message
 
         if len(schemas) > 0:
-            if len(message.tool_calls) == 0:
-                self.soft_errors.append("No function call")
+            if not completion.choices[0].message.tool_calls:
+                stack_trace = traceback.format_tb()
+                self.soft_errors.append(f"No function call:\n{stack_trace}")
 
-        return message
+        return completion
 
     def query_and_process(self):
         tools = self.get_tools()
@@ -197,14 +198,17 @@ You need to review the information retrieval recorded below."""
 
         new_trace = Trace()
 
-        second_user_prompt = f"""What would you do next? 
-If you have found enough information to answer the question you can call finish.
-Otherwise you can choose from the following options:
+        second_user_prompt = f"""Ny notes:
+{reflection_string}
+
+What would you do next?
+You can choose from the following options:
+- finish: if you have enough information to answer the question
 {result.output.available_tools}
 List five actions - that is function names and their arguments - that could help you answer the user question.
 Please don't list actions that you have already tried.
-Then specify which one of them you would like to do next.
-Please explain your decision.
+Then answer the question if you are on the right page or if you need to use `get_url` or `search` to jump to a new page.
+Finally choose one of the available actions and explain your decision.
         """
         new_trace.append({'role': 'system', 'content': sysprompt})
         new_trace.append({'role': 'user', 'content': user_prompt})

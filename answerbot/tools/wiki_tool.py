@@ -175,7 +175,8 @@ class WikipediaTool:
             quoted_text = self.quote_text(chunk)
             info_pieces.append(InfoPiece("The retrieved page starts with:"))
             info_pieces.append(InfoPiece(quoted_text, source=url, quotable=True))
-            info = "If you want to continue reading the page, you can call `read_more`. "
+            if True:  # TODO: check if this is the full content of the page
+                info = "This was not the full content of the page. If you want to continue reading the page, you can call `read_more`. "
             info += "If you want to jump to a specific keyword on this page (for example a section of the article) `lookup('keyword')`."
             info_pieces.append(InfoPiece(info))
         result = self.mk_observation(info_pieces)

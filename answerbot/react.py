@@ -77,7 +77,6 @@ class LLMReactor:
         self.soft_errors = []
         self.reflection_prompt = []
         self.what_have_we_learned = KnowledgeBase()
-        self.no_tool_calls_message = None
 
     def get_tools(self) -> list[Callable]:
         tools = [self.finish]  # Note for the AI assistant - always include the finish tool
@@ -105,7 +104,13 @@ class LLMReactor:
                 args['tool_choice'] = "auto"
 
         completion = self.client.chat.completions.create( **args )
-        return completion
+        message = completion.choices[0].message
+
+        if len(schemas) > 0:
+            if len(message.tool_calls) == 0:
+                self.soft_errors.append("No function call")
+
+        return message
 
     def query_and_process(self):
         tools = self.get_tools()
@@ -114,11 +119,6 @@ class LLMReactor:
         message = response.choices[0].message
         self.trace.append(message)
         results = process_response(response, tools)
-        if len(tools) > 0 and len(results) == 0:
-            self.soft_errors.append("No function call")
-            if self.no_tool_calls_message is not None:
-                message = { 'role': 'assistant', 'content': self.no_tool_calls_message }
-                self.trace.append(message)
         for result in results:
             if result.error is not None:
                 print(result.error)

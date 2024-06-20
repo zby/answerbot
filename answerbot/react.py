@@ -198,18 +198,17 @@ You need to review the information retrieval recorded below."""
 
         new_trace = Trace()
 
+        available_tools_indented = "\n".join([f"  - {tool}" for tool in result.output.available_tools])
         second_user_prompt = f"""Ny notes:
 {reflection_string}
 
 What would you do next?
-You can choose from the following options:
-- finish: if you have enough information to answer the question
-{result.output.available_tools}
-List five actions - that is function names and their arguments - that could help you answer the user question.
-Please don't list actions that you have already tried.
-Then answer the question if you are on the right page or if you need to use `get_url` or `search` to jump to a new page.
-Finally choose one of the available actions and explain your decision.
-        """
+Please analyze the retrieved data and check if you have enough information to answer the user question. Explain your reasoning.
+
+If you still need more information to retrieve please check if it is probable that that needed information is on current page in a not yet retrieved fragment or if you need to get another page using search or get_url. Then think carefully what the next retrieval action should be out of the available options:
+{available_tools_indented}
+  - finish: Ends the retrieval and answers the question
+"""
         new_trace.append({'role': 'system', 'content': sysprompt})
         new_trace.append({'role': 'user', 'content': user_prompt})
         new_trace.append({'role': 'user', 'content': second_user_prompt})

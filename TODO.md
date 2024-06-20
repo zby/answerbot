@@ -1,10 +1,8 @@
 ## Check what really works in clean reflection
 It seems that clean reflection really improves the process - but do we need the knowledgebase?
 
-## Redesign the trace/context
-We probably need a tree structure for the trace.
-
 ## sub-tasks
+Sub tasks require information copying between contexts. We need to experiment here.
 
 ## Hierarchical documents
 I want to have documents with structure - so that the LLM could move around it.

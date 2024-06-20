@@ -27,10 +27,14 @@ config = dotenv_values(".env")
 client = OpenAI(
      api_key=config['OPENAI_API_KEY'],
      base_url="https://oai.hconeai.com/v1",
-#     default_headers={
-#         "Helicone-Auth": f"Bearer {config['HELICONE_API_KEY']}",
-#     }
+     default_headers={
+         "Helicone-Auth": f"Bearer {config['HELICONE_API_KEY']}",
+     }
 )
+#client = OpenAI(
+#     api_key=config['OPENAI_API_KEY'],
+#     base_url="http://0.0.0.0:4000",
+#)
 
 completion = client.chat.completions.create(
     model='gpt-3.5-turbo',
@@ -87,6 +91,7 @@ if __name__ == "__main__":
     #question = "What government position was held by the woman who portrayed Corliss Archer in the film Kiss and Tell?"
     question = "The arena where the Lewiston Maineiacs played their home games can seat how many people?"
     question = "What is the seating capacity of Androscoggin Bank Colisée?"
+    question = "Who portrayed Corliss Archer in the film Kiss and Tell?"
 
 
     max_llm_calls = 7

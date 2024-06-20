@@ -111,13 +111,13 @@ class WikipediaTool:
     def mk_observation(self, info_pieces):
         tools = self.get_llm_tools()
         schemas = get_tool_defs(tools)
-        result = ''
+        tools = []
         for schema in schemas:
             tool_name = schema['function']['name']
             tool_desc = schema['function']['description']
-            result += f" - {tool_name}: {tool_desc}\n"
+            tools.append(f"{tool_name}: {tool_desc}")
 
-        return Observation(info_pieces, current_url=self.current_url, available_tools=result)
+        return Observation(info_pieces, current_url=self.current_url, available_tools=tools)
 
     @llm_function()
     def get_url(self, url: Annotated[str, "The URL to get"]):

@@ -56,10 +56,13 @@ class DocumentArticle:
 
 
 class EUAIAct:
-    def __init__(self, **_) -> None:
+    def __init__(self, table_of_contents: DocumentSection, **_) -> None:
+        self.table_of_contents = table_of_contents
         self._articles_shown: set[str] = set()
 
-    @llm_function()
+    def get_llm_tools(self) -> list[Callable]:
+        return [self.show_table_of_contents, self.read_eu_ai_act_article_by_article_id]
+
     def show_table_of_contents(self):
         ''' Show EU artificial intelligence act's table of contents
         
@@ -76,7 +79,6 @@ class EUAIAct:
         result = self.table_of_contents.to_string()
         return Observation([InfoPiece('Opening table of contents'), InfoPiece(result)])
 
-    @llm_function()
     def read_eu_ai_act_article_by_article_id(
             self, 
             article_id: Annotated[str, 'Article id from the table of contents']
@@ -107,15 +109,10 @@ class EUAIAct:
                 current_url=article.url
                 )
 
-    @cached_property
-    def table_of_contents(self) -> DocumentSection:
-        return get_eu_act_toc()
 
-
-def get_eu_act_toc() -> DocumentSection:
-    raw = get_eu_act_toc_raw()
+def get_eu_act_toc(raw: list[dict], retrieve: Callable[[str, str, str], str]) -> DocumentSection:
     id_generator = map(str, range(1000000))
-    result = convert_to_document_section(raw, id_generator)
+    result = convert_to_document_section(raw, id_generator, retrieve)
     return DocumentSection(
             title='EU Artificial Intelligence Act',
             children=result,
@@ -165,7 +162,7 @@ def parse_accordion_content(content):
     return children
 
 
-def convert_to_document_section(parsed_data, id_generator):
+def convert_to_document_section(parsed_data, id_generator, retrieve: Callable[[str, str, str], str]):
 
     children = []
     for item in parsed_data:
@@ -175,13 +172,12 @@ def convert_to_document_section(parsed_data, id_generator):
 
         
         if child_elements:
-            section = create_document_section(title, convert_to_document_section(child_elements, id_generator))
+            section = create_document_section(title, convert_to_document_section(child_elements, id_generator, retrieve))
             children.append(section)
 
         else:
             if url:
-
-                article = create_document_article(title, url, id_generator)
+                article = create_document_article(title, url, id_generator, retrieve)
                 children.append(article)
 
             else:
@@ -191,11 +187,10 @@ def convert_to_document_section(parsed_data, id_generator):
     return children
 
 
-def create_document_article(title: str, url: str, id_generator: Iterator[str]) -> DocumentArticle:
-
+def create_document_article(title: str, url: str, id_generator: Iterator[str], retrieve: Callable[[str, str, str], str]) -> DocumentArticle:
     article_id = next(id_generator)
     def _retrieve():
-        return retrieve(url)
+        return retrieve(title, article_id, url)
     return DocumentArticle(title=title, id=article_id, retrieve=_retrieve, url=url)
 
 
@@ -224,4 +219,12 @@ def retrieve(url: str) -> str:
 
     return '\n\n'.join(paragraphs)
 
+
+def sanitize_string(src: str) -> str:
+    return src\
+        .replace('\n', '_')\
+        .replace(' ', '-')\
+        .replace(':','-')\
+        .replace('/', '-')\
+        .replace('\\', '-')
 

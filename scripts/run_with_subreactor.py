@@ -39,10 +39,10 @@ client = OpenAI(
 #    timeout=httpx.Timeout(70.0, read=60.0, write=20.0, connect=6.0)
 #)
 
-sub_reactor_max_llm_calls = 4
-sub_sys_prompt = f"""
+def sub_sys_prompt(max_llm_calls):
+    return f"""
 Please answer the following question. You can use wikipedia for reference - but think carefully about what pages exist at wikipedia.
-You have only {sub_reactor_max_llm_calls - 1} calls to the wikipedia API.
+You have only {max_llm_calls - 1} calls to the wikipedia API.
 After the first call to wikipedia you need to always reflect on the data retrieved in the previous call.
 To retrieve the first document you need to call search.
 
@@ -55,8 +55,8 @@ Remove all explanations from the answer and put them into the reasoning field.
 Always try to answer the question even if it is ambiguous, just note the necessary assumptions.
 """
 
-main_reactor_max_llm_calls = 3
-main_sys_prompt = f"""
+def main_sys_prompt(max_llm_calls):
+    return f"""
 You are to take a role of a researcher. Please answer the users question.
 You can get help from a wikipedia assistant - by calling 'delegate' function
 and passing the question you want to ask him.
@@ -65,7 +65,7 @@ You need to carefully divide the work into tasks that would require the least am
 and then delegate them to the assistant.
 The questions you ask the assistant need to be as simple and specific as possible.
 You can call finish when you think you have enough information to answer the question.
-You can delegate only {main_reactor_max_llm_calls - 1} tasks to the assistant."""
+You can delegate only {max_llm_calls - 1} tasks to the assistant."""
 
 if __name__ == "__main__":
 
@@ -97,7 +97,7 @@ if __name__ == "__main__":
     sub_reactors = {
         'wikipedia researcher': {
             'toolbox': [WikipediaTool(chunk_size=400)],
-            'max_llm_calls': sub_reactor_max_llm_calls,
+            'max_llm_calls': 4,
             'model': 'gpt-3.5-turbo',
             'client': client,
             'sys_prompt': sub_sys_prompt,
@@ -108,7 +108,7 @@ if __name__ == "__main__":
     reactor = LLMReactor.create_reactor(
         model='gpt-3.5-turbo',
         toolbox=[sub_reactor_tool.delegate],
-        max_llm_calls=main_reactor_max_llm_calls,
+        max_llm_calls=7,
         client=client,
         question=question,
         sys_prompt=main_sys_prompt,

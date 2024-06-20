@@ -108,7 +108,7 @@ class LLMReactor:
 
         if len(schemas) > 0:
             if not completion.choices[0].message.tool_calls:
-                stack_trace = traceback.format_tb()
+                stack_trace = traceback.format_stack()
                 self.soft_errors.append(f"No function call:\n{stack_trace}")
 
         return completion
@@ -267,16 +267,16 @@ The answer to the question:"{self.trace.user_question()}" is:
 
     @classmethod
     def create_reactor(self, 
-                       sys_prompt: str,
+                       sys_prompt: Callable[[int], str],
                        question: str,
-                       toolbox: list[Callable],
+                       toolbox: list[Callable|HasLLMTools],
                        max_llm_calls: int,
                        client: object,
                        model: str,
                        question_checks: list[str]
                        ):
         trace = Trace()
-        trace.append({'role': 'system', 'content': sys_prompt})
+        trace.append({'role': 'system', 'content': sys_prompt(max_llm_calls)})
         trace.append(Question(question))
         reactor = LLMReactor(model, toolbox, trace, max_llm_calls, client, question_checks)
         return reactor

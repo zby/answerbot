@@ -6,7 +6,7 @@ from pprint import pformat, pprint
 from dotenv import dotenv_values
 #from answerbot.formatter import format_markdown
 
-from answerbot.react import get_answer
+from answerbot.react import LLMReactor
 
 from answerbot.tools.wiki_tool import WikipediaTool
 from answerbot.replay_client import LLMReplayClient
@@ -25,13 +25,36 @@ config = dotenv_values(".env")
 #client = ReplayClient('data/conversation.json')
 
 client = OpenAI(
-     timeout=httpx.Timeout(70.0, read=60.0, write=20.0, connect=6.0),
      api_key=config['OPENAI_API_KEY'],
      base_url="https://oai.hconeai.com/v1",
-     default_headers={
-         "Helicone-Auth": f"Bearer {config['HELICONE_API_KEY']}",
-     }
+#     default_headers={
+#         "Helicone-Auth": f"Bearer {config['HELICONE_API_KEY']}",
+#     }
 )
+
+completion = client.chat.completions.create(
+    model='gpt-3.5-turbo',
+    messages=[
+        {'role': 'user', 'content': 'Hi there!'},
+    ]
+)
+
+def sys_prompt(max_llm_calls):
+    return f"""
+Please answer the following question. You can use wikipedia for reference - but think carefully about what pages exist at wikipedia.
+You have only {max_llm_calls - 1} calls to the wikipedia API.
+After the first call to wikipedia you need to always reflect on the data retrieved in the previous call.
+To retrieve the first document you need to call search.
+
+When you need to know a property of something or someone - search for that something page instead of using that property in the search.
+The search function automatically retrieves the first search result you don't need to call get for it.
+
+The wikipedia pages are formatted in Markdown.
+When you know the answer call finish. Please make the answer as short as possible. If it can be answered with yes or no that is best.
+Remove all explanations from the answer and put them into the reasoning field.
+Always try to answer the question even if it is ambiguous, just note the necessary assumptions.
+"""
+
 
 #client = OpenAI(
 #    api_key=config['OPENAI_API_KEY'],
@@ -66,22 +89,19 @@ if __name__ == "__main__":
     question = "What is the seating capacity of Androscoggin Bank Colisée?"
 
 
-    config = {
-        "chunk_size": 400,
-        "prompt_class": 'NERP',
-        "max_llm_calls": 7,
-        "model": "gpt-3.5-turbo",
-        #"model": "gpt-4-turbo",
-        #"model": "llama3-8b-8192",
-        #'model': "mixtral-8x7b-32768",
-        "question_check": 'None',
-        'reflection': 'ShortReflectionDetached',
-        'tool': WikipediaTool,
-    }
+    max_llm_calls = 7
 
-    reactor = get_answer(question, config, client)
-    print(f'The answer to the question:"{question}" is:\n')
-    print(str(reactor.answer))
+    reactor = LLMReactor.create_reactor(
+        model='gpt-3.5-turbo',
+        toolbox=[WikipediaTool(chunk_size=400)],
+        max_llm_calls=max_llm_calls,
+        client=client,
+        question=question,
+        sys_prompt=sys_prompt,
+        question_checks=[]
+    )
+    reactor.process()
+    print(reactor.generate_report())
     print()
     print(str(reactor.what_have_we_learned))
     print()

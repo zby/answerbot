@@ -9,13 +9,21 @@ from datetime import datetime
 import itertools
 import traceback
 
-from answerbot.react import get_answer
+from answerbot.react import LLMReactor
+
+from answerbot.tools.sub_reactor import SubReactorTool
+from scripts.answer import sys_prompt
+from scripts.run_with_subreactor import sub_sys_prompt, main_sys_prompt
+from answerbot.tools.wiki_tool import WikipediaTool
+from openai import OpenAI
 
 
 # Constants
 ITERATIONS = 1
-CONFIG_KEYS = ['chunk_size', 'prompt_class', 'max_llm_calls', 'model', 'reflection', 'question_check']
-ADDITIONAL_KEYS = ['question_id', 'answer', 'error', 'error_type', 'soft_errors', 'type', 'steps', ]
+CONFIG_KEYS = ['chunk_size', 'max_llm_calls', 'model']
+ADDITIONAL_KEYS = ['question_id', 'answer', 'error', 'error_type', 'soft_errors', 'type', 'trace_len', ]
+
+client = OpenAI(api_key=os.environ['OPENAI_API_KEY'])
 
 def load_questions_from_file(filename, start_index, end_index):
     with open(filename, 'r') as f:
@@ -48,6 +56,30 @@ def save_constants_to_file(params_file_path, settings):
     with open(params_file_path, "w") as file:
         json.dump(settings, file, indent=4)
 
+def create_reactor(question, config):
+    sub_reactors = {
+        'wikipedia researcher': {
+            'toolbox': [WikipediaTool(chunk_size=config['chunk_size'])],
+            'max_llm_calls': config['max_llm_calls'],
+            'model': config['model'],
+            'client': client,
+            'sys_prompt': sub_sys_prompt,
+            'question_checks': [],
+        }
+    }
+    sub_reactor_tool = SubReactorTool(sub_reactors)
+    toolbox = [sub_reactor_tool]
+    args = {
+        'question': question,
+        'max_llm_calls': 3,
+        'model': config['model'],
+        'sys_prompt': main_sys_prompt,
+        'toolbox': [sub_reactor_tool.delegate],
+        'client': client,
+        'question_checks': ["Please analyze the user question and find the first step in answering it - a task to delegate to a wikipedia researcher that would require the least amount of calls to the wikipedia API. Think step by step."],
+    }
+
+    return LLMReactor.create_reactor(**args)
 
 def eval_question(combo, results_writer, csvfile, prompts_file, error_file):
     question = combo[-1]
@@ -59,15 +91,16 @@ def eval_question(combo, results_writer, csvfile, prompts_file, error_file):
     retry_delay = [360]
     for delay in retry_delay + [0]:  # After last failure we don't wait because we don't repeat
         try:
-            reactor = get_answer(question_text, config)
+            reactor = create_reactor(question_text, config)
+            reactor.process()
             config.update({
                 'answer': reactor.answer,
                 'error': 0,
                 'error_type': '',
-                'soft_errors': len(reactor.reflection_errors),
-                'steps': reactor.step,
+                'soft_errors': len(reactor.soft_errors),
+                'trace_len': reactor.trace.length(),
             })
-            prompts_file.write(f"{log_preamble}\nPrompt:\n{str(reactor.conversation)}\n\n")
+            prompts_file.write(f"{log_preamble}\nPrompt:\n{str(reactor.trace)}\n\n")
             prompts_file.flush()
             os.fsync(prompts_file.fileno())
             results_writer.writerow(config)
@@ -177,18 +210,11 @@ if __name__ == "__main__":
         "chunk_size": [
             400
         ],
-        "prompt_class": [
-#            'TRP',
-#            'FRP',
-            'NERP',
-        ],
         "max_llm_calls": [5],
         "model": [
-            "gpt-4-1106-preview",
-            "gpt-3.5-turbo-1106"
+            "gpt-4o",
+            "gpt-3.5-turbo"
         ],
-        "reflection": ['ShortReflection', 'None', 'separate', 'separate_cot'],
-        "question_check": ['None', 'category', 'amb'],
     }
 
     record_experiment(settings)

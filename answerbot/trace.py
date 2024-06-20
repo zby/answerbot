@@ -46,12 +46,29 @@ class Trace:
             else:
                 raise ValueError(f'Unsupported entry type: {type(entry)}')
         return all_messages
-    
+
     def user_question(self):
         for entry in self.entries:
             if isinstance(entry, Question):
                 return entry.question
         return None
+
+    def __str__(self):
+        entries_str = ''
+        for entry in self.entries:
+            entry_str = str(entry)
+            entry_str = entry_str.replace('\n', '\n    ')
+            entries_str += f"\n    {entry_str}"
+        return f"Trace(\n    entries=[{entries_str}], \n    result={str(self.result)} \n)"
+
+    def length(self):
+        length = 0
+        for entry in self.entries:
+            if isinstance(entry, Trace):
+                length += entry.length()
+            else:
+                length += 1
+        return length
 
 
 
@@ -68,3 +85,5 @@ if __name__ == "__main__":
     pprint(trace.to_messages())
 
     pprint(sub_trace.to_messages())
+
+    print(str(trace))

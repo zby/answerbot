@@ -1,5 +1,6 @@
 import logging
 import httpx
+import litellm
 
 from openai import OpenAI
 from pprint import pformat, pprint
@@ -19,6 +20,8 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 load_dotenv()
+litellm.success_callback=["helicone"]
+#litellm.set_verbose=True
 
 def sub_sys_prompt(max_llm_calls):
     return f"""
@@ -73,20 +76,21 @@ if __name__ == "__main__":
     #question = "What is the name of the fight song of the university whose main campus is in Lawrence, Kansas and whose branch campuses are in the Kansas City metropolitan area?"
     question = "What government position was held by the woman who portrayed Corliss Archer in the film Kiss and Tell?"
     #question = "The arena where the Lewiston Maineiacs played their home games can seat how many people?"
-    
-    
+
+    model="claude-3-5-sonnet-20240620"
+
     sub_reactors = {
         'wikipedia researcher': {
             'toolbox': [WikipediaTool(chunk_size=400)],
             'max_llm_calls': 4,
-            'model': 'gpt-3.5-turbo',
+            'model': model,
             'sys_prompt': sub_sys_prompt,
             'question_checks': [],
         }
     }
     sub_reactor_tool = SubReactorTool(sub_reactors)
     reactor = LLMReactor.create_reactor(
-        model='gpt-3.5-turbo',
+        model=model,
         toolbox=[sub_reactor_tool.delegate],
         max_llm_calls=7,
         question=question,

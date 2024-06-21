@@ -1,10 +1,9 @@
 import logging
 import httpx
 
-from openai import OpenAI
 from pprint import pformat, pprint
 from dotenv import load_dotenv
-#from answerbot.formatter import format_markdown
+import litellm
 
 from answerbot.react import LLMReactor
 
@@ -17,6 +16,9 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 load_dotenv()
+
+litellm.success_callback=["helicone"]
+#litellm.set_verbose=True
 
 def sys_prompt(max_llm_calls):
     return f"""
@@ -68,7 +70,7 @@ if __name__ == "__main__":
     max_llm_calls = 7
 
     reactor = LLMReactor.create_reactor(
-        model='gpt-3.5-turbo',
+        model='claude-3-5-sonnet-20240620',
         toolbox=[WikipediaTool(chunk_size=400)],
         max_llm_calls=max_llm_calls,
         question=question,

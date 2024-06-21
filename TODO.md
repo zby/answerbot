@@ -1,3 +1,6 @@
+## Convert to using LiteLLM SDK
+It looks like LiteLLM is the emerging standard here.
+
 ## Check what really works in clean reflection
 It seems that clean reflection really improves the process - but do we need the knowledgebase?
 

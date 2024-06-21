@@ -14,8 +14,8 @@ def setup_and_teardown():
     yield output_dir
 #    shutil.rmtree(output_dir)  # Cleanup after test
 
-@patch('scripts.run_experiment.get_answer')  # This mocks the get_answer function
-def test_perform_experiments(mock_get_answer, setup_and_teardown):
+@patch('scripts.run_experiment.create_reactor')  # This mocks the get_answer function
+def test_perform_experiments(mock_create_reactor, setup_and_teardown):
     output_dir = setup_and_teardown
 
     # Create a mock prompt and set its to_text return value
@@ -23,9 +23,9 @@ def test_perform_experiments(mock_get_answer, setup_and_teardown):
     mock_reactor = Mock()
     mock_reactor.conversation = mock_prompt
     mock_reactor.answer = "Mocked Answer"
-    mock_reactor.reflection_errors = []
+    mock_reactor.soft_errors = []
     mock_reactor.steps = 0
-    mock_get_answer.return_value = mock_reactor
+    mock_create_reactor.return_value = mock_reactor
 
     question = {
         "id": 0,
@@ -39,12 +39,9 @@ def test_perform_experiments(mock_get_answer, setup_and_teardown):
     config = {
         "question": [question],
         "chunk_size": [400, 800],
-        "prompt_class": ['AAE'],
-        "reflection": ['None'],
         "max_llm_calls": [8, 12],
         "model": ["gpt-3.5-turbo-0613"],
         "question_check": ['category_and_amb'],
-        'reflection': ['SimpleReflection'],
     }
 
     # Perform experiments with the mocked reactor
@@ -57,11 +54,10 @@ def test_perform_experiments(mock_get_answer, setup_and_teardown):
     # Validate the content of prompts.txt
     expected_prompt_fragments = [
         "Question: Test Question\n",
-#        "Config: {'chunk_size': 400, 'prompt': 'AAE', 'max_llm_calls': 8,",
-        "Config: {'chunk_size': 400, 'prompt_class': 'AAE', 'max_llm_calls': 8,",
-        "Config: {'chunk_size': 400, 'prompt_class': 'AAE', 'max_llm_calls': 12,",
-        "Config: {'chunk_size': 800, 'prompt_class': 'AAE', 'max_llm_calls': 8,",
-        "Config: {'chunk_size': 800, 'prompt_class': 'AAE', 'max_llm_calls': 12,",
+        "Config: {'chunk_size': 400, 'max_llm_calls': 8,",
+        "Config: {'chunk_size': 400, 'max_llm_calls': 12,",
+        "Config: {'chunk_size': 800, 'max_llm_calls': 8,",
+        "Config: {'chunk_size': 800, 'max_llm_calls': 12,",
     ]
     with open(os.path.join(output_dir, "prompts.txt"), 'r') as file:
         prompt_content = file.read()

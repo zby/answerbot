@@ -243,6 +243,8 @@ or if you need to get another page using search or get_url. Then think carefully
             response = self.openai_query(trace.to_messages())
             message = response.choices[0].message
             trace.append(message)
+            message = { 'role': 'user', 'content': 'OK' }  # This is because Anthropic cannot handle function calls after an "assistant" message
+            trace.append(message)
 
     def finish(self,
                answer: Annotated[str, "The answer to the user's question"],

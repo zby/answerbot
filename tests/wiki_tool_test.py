@@ -1,6 +1,6 @@
 import pytest
 
-from answerbot.tools.wiki_tool import WikipediaTool, Observation, InfoPiece
+from answerbot.tools.wiki_tool import WikipediaTool, Observation, InfoPiece, BASE_URL
 from answerbot.tools.markdown_document import MarkdownDocument
 from unittest.mock import MagicMock, patch
 
@@ -21,9 +21,9 @@ class MockHttpResponse:
 def test_get_page_success(mock_get):
     mock_get.return_value = MockHttpResponse('<html><div id="bodyContent">Page Content</div></html>', 200)
     wiki_search = WikipediaTool()
-    observation = wiki_search.get_url("https://www.test.test")
+    observation = wiki_search.get_url(BASE_URL)
     assert wiki_search.document is not None
-    assert observation.info_pieces[1].text == "Successfully retrieved document from url: 'https://www.test.test'"
+    assert observation.info_pieces[1].text == f"Successfully retrieved document from url: '{BASE_URL}'"
     assert observation.info_pieces[2].text == "The retrieved page starts with:"
     assert observation.info_pieces[3].text == "> Page Content"
     assert "Page Content" in wiki_search.document.text
@@ -33,7 +33,7 @@ def test_get_page_success(mock_get):
 def test_get_page_404(mock_get):
     mock_get.return_value = MockHttpResponse("Page not found", 404)
     wiki_search = WikipediaTool()
-    observation = wiki_search.get_url("https://www.test.test")
+    observation = wiki_search.get_url(BASE_URL)
     assert wiki_search.document is None
     assert observation.info_pieces[1].text == "Page does not exist."
 
@@ -42,7 +42,7 @@ def test_get_page_404(mock_get):
 def test_get_page_http_error(mock_get):
     mock_get.return_value = MockHttpResponse("Error", 500)
     wiki_search = WikipediaTool()
-    observation = wiki_search.get_url("https://www.test.test")
+    observation = wiki_search.get_url(BASE_URL)
     pprint(observation.info_pieces)
     assert wiki_search.document is None
     assert observation.info_pieces[2].text == "HTTP error occurred: 500"

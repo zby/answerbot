@@ -3,13 +3,12 @@ import httpx
 
 from openai import OpenAI
 from pprint import pformat, pprint
-from dotenv import dotenv_values
+from dotenv import load_dotenv
 #from answerbot.formatter import format_markdown
 
 from answerbot.react import LLMReactor
 
 from answerbot.tools.wiki_tool import WikipediaTool
-from answerbot.replay_client import LLMReplayClient
 
 # Configure basic logging
 logging.basicConfig(level=logging.INFO)
@@ -17,31 +16,7 @@ logging.basicConfig(level=logging.INFO)
 # Get a logger for the current module
 logger = logging.getLogger(__name__)
 
-config = dotenv_values(".env")
-
-#from groq import Groq
-#client = Groq()
-
-#client = ReplayClient('data/conversation.json')
-
-client = OpenAI(
-     api_key=config['OPENAI_API_KEY'],
-     base_url="https://oai.hconeai.com/v1",
-     default_headers={
-         "Helicone-Auth": f"Bearer {config['HELICONE_API_KEY']}",
-     }
-)
-#client = OpenAI(
-#     api_key=config['OPENAI_API_KEY'],
-#     base_url="http://0.0.0.0:4000",
-#)
-
-completion = client.chat.completions.create(
-    model='gpt-3.5-turbo',
-    messages=[
-        {'role': 'user', 'content': 'Hi there!'},
-    ]
-)
+load_dotenv()
 
 def sys_prompt(max_llm_calls):
     return f"""
@@ -60,10 +35,6 @@ Always try to answer the question even if it is ambiguous, just note the necessa
 """
 
 
-#client = OpenAI(
-#    api_key=config['OPENAI_API_KEY'],
-#    timeout=httpx.Timeout(70.0, read=60.0, write=20.0, connect=6.0)
-#)
 
 if __name__ == "__main__":
 
@@ -100,7 +71,6 @@ if __name__ == "__main__":
         model='gpt-3.5-turbo',
         toolbox=[WikipediaTool(chunk_size=400)],
         max_llm_calls=max_llm_calls,
-        client=client,
         question=question,
         sys_prompt=sys_prompt,
         question_checks=[]

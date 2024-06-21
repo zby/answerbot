@@ -6,7 +6,7 @@ from pprint import pprint
 from dataclasses import dataclass
 import traceback
 
-from openai.types.chat.chat_completion import ChatCompletionMessage
+from litellm import completion
 
 from .prompt_templates import QUESTION_CHECKS, PROMPTS, REFLECTIONS 
 
@@ -63,14 +63,12 @@ class LLMReactor:
                 toolbox: list[Callable|HasLLMTools],
                 trace: Trace,
                 max_llm_calls: int,
-                client: object,
                 question_checks=None,
                 ):
         self.model = model
         self.toolbox = toolbox
         self.trace = trace
         self.max_llm_calls = max_llm_calls
-        self.client = client
         self.question_checks = [] if question_checks is None else question_checks
 
         self.step = 0
@@ -104,14 +102,14 @@ class LLMReactor:
             else:
                 args['tool_choice'] = "auto"
 
-        completion = self.client.chat.completions.create( **args )
+        response = completion( **args )
 
         if len(schemas) > 0:
-            if not completion.choices[0].message.tool_calls:
+            if not hasattr(response.choices[0].message, 'tool_calls') or not response.choices[0].message.tool_calls:
                 stack_trace = traceback.format_stack()
                 self.soft_errors.append(f"No function call:\n{stack_trace}")
 
-        return completion
+        return response
 
     def query_and_process(self):
         tools = self.get_tools()
@@ -205,7 +203,8 @@ You need to review the information retrieval recorded below."""
 What would you do next?
 Please analyze the retrieved data and check if you have enough information to answer the user question. Explain your reasoning.
 
-If you still need more information to retrieve please check if it is probable that that needed information is on current page in a not yet retrieved fragment or if you need to get another page using search or get_url. Then think carefully what the next retrieval action should be out of the available options:
+If you still need more information to retrieve please check if it is probable that that needed information is on current page in a not yet retrieved fragment
+or if you need to get another page using search or get_url. Then think carefully what the next retrieval action should be out of the available options:
 {available_tools_indented}
   - finish: Ends the retrieval and answers the question
 """
@@ -270,14 +269,13 @@ The answer to the question:"{self.trace.user_question()}" is:
                        question: str,
                        toolbox: list[Callable|HasLLMTools],
                        max_llm_calls: int,
-                       client: object,
                        model: str,
                        question_checks: list[str]
                        ):
         trace = Trace()
         trace.append({'role': 'system', 'content': sys_prompt(max_llm_calls)})
         trace.append(Question(question))
-        reactor = LLMReactor(model, toolbox, trace, max_llm_calls, client, question_checks)
+        reactor = LLMReactor(model, toolbox, trace, max_llm_calls, question_checks)
         return reactor
 
 

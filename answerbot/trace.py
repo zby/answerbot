@@ -1,4 +1,4 @@
-from openai.types.chat import ChatCompletionMessage
+from litellm.types.utils import Message
 from dataclasses import dataclass, field
 
 from typing import Union, Any, Optional
@@ -15,11 +15,11 @@ class Question:
 
 @dataclass
 class Trace:
-    entries: list[Union[dict, Question, ChatCompletionMessage, ToolResult, 'Trace']] = field(default_factory=list)
+    entries: list[Union[dict, Question, Message, ToolResult, 'Trace']] = field(default_factory=list)
     result: Optional[dict] = None
 
     def __init__(self, entries=None, result=None):
-        self.entries: list[Union[dict, Question, ChatCompletionMessage, ToolResult, Trace]] = [] if entries is None else entries
+        self.entries: list[Union[dict, Question, Message, ToolResult, Trace]] = [] if entries is None else entries
         self.result: Optional[dict] = result
 
     def append(self, entry):
@@ -37,7 +37,7 @@ class Trace:
                     all_messages.append(entry.result)
             elif isinstance(entry, ToolResult):
                 all_messages.append(entry.to_message())
-            elif isinstance(entry, ChatCompletionMessage):
+            elif isinstance(entry, Message):
                 all_messages.append(entry.model_dump())
             elif isinstance(entry, dict):
                 all_messages.append(entry)

@@ -1,7 +1,7 @@
 import pytest
 from answerbot.trace import Trace, Question
 from answerbot.tools.wiki_tool import ToolResult
-from openai.types.chat.chat_completion import ChatCompletionMessage
+from litellm.types.utils import Message
 
 def test_append():
     sample_trace = Trace()

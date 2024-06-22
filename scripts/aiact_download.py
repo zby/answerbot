@@ -30,6 +30,7 @@ def download_from_section(folder: str, items: list[dict]):
             sanitized_title = sanitize_string(title)
             filepath = os.path.join(folder, f'{sanitized_title}.md')
             with open(filepath, 'w', encoding='utf-8') as f:
+                print(f'Downloading {url} to {filepath}')
                 f.write(retrieve(url))
 
 

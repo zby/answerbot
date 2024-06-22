@@ -96,23 +96,22 @@ if __name__ == "__main__":
 
     max_llm_calls = 7
 
-    reactor = LLMReactor.create_reactor(
+    reactor = LLMReactor(
         model='gpt-3.5-turbo',
         toolbox=[WikipediaTool(chunk_size=400)],
         max_llm_calls=max_llm_calls,
         client=client,
-        question=question,
-        sys_prompt=sys_prompt,
+        get_system_prompt=sys_prompt,
         question_checks=[]
     )
-    reactor.process()
-    print(reactor.generate_report())
+    trace = reactor.process(question)
+    print(trace.generate_report())
     print()
-    print(str(reactor.what_have_we_learned))
+    print(str(trace.what_have_we_learned))
     print()
-    pprint(reactor.soft_errors)
+    pprint(trace.soft_errors)
     with open('data/trace.py', 'w') as file:
-        file.write(repr(reactor.trace))
+        file.write(repr(trace))
     with open('data/what_have_we_learned.py', 'w') as file:
-        file.write(repr(reactor.what_have_we_learned))
+        file.write(repr(trace.what_have_we_learned))
 #    print(format_markdown(reactor.conversation))

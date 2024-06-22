@@ -27,3 +27,5 @@ mistune==3.0.2
 tenacity==8.2.3
 
 markdownify==0.12.1
+
+click==8.1.7

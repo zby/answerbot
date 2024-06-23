@@ -6,10 +6,9 @@ from pprint import pformat, pprint
 from dotenv import dotenv_values
 #from answerbot.formatter import format_markdown
 
-from answerbot.react import get_answer, LLMReactor
+from answerbot.react import LLMReactor
 
 from answerbot.tools.wiki_tool import WikipediaTool
-from answerbot.tools.sub_reactor import SubReactorTool
 from answerbot.replay_client import LLMReplayClient
 
 # Configure basic logging
@@ -67,6 +66,24 @@ The questions you ask the assistant need to be as simple and specific as possibl
 You can call finish when you think you have enough information to answer the question.
 You can delegate only {max_llm_calls - 1} tasks to the assistant."""
 
+sub_reactor = LLMReactor(
+    model='gpt-3.5-turbo',
+    toolbox=[WikipediaTool(chunk_size=400)],
+    max_llm_calls=4,
+    client=client,
+    get_system_prompt=sub_sys_prompt,
+)
+
+def delegate_to_expert(question: str):
+    """
+    Delegate the question to a wikipedia expert.
+    """
+
+    print(f'Delegating question: "{question}" to wikipedia expert')
+
+    trace = sub_reactor.process(question)
+    return trace.answer
+
 if __name__ == "__main__":
 
     # question = "What was the first major battle in the Ukrainian War?"
@@ -92,33 +109,21 @@ if __name__ == "__main__":
     #question = "What is the name of the fight song of the university whose main campus is in Lawrence, Kansas and whose branch campuses are in the Kansas City metropolitan area?"
     question = "What government position was held by the woman who portrayed Corliss Archer in the film Kiss and Tell?"
     #question = "The arena where the Lewiston Maineiacs played their home games can seat how many people?"
-    
-    
-    sub_reactors = {
-        'wikipedia researcher': {
-            'toolbox': [WikipediaTool(chunk_size=400)],
-            'max_llm_calls': 4,
-            'model': 'gpt-3.5-turbo',
-            'client': client,
-            'sys_prompt': sub_sys_prompt,
-            'question_checks': [],
-        }
-    }
-    sub_reactor_tool = SubReactorTool(sub_reactors)
-    reactor = LLMReactor.create_reactor(
+
+
+    reactor = LLMReactor(
         model='gpt-3.5-turbo',
-        toolbox=[sub_reactor_tool.delegate],
+        toolbox=[delegate_to_expert],
         max_llm_calls=7,
         client=client,
-        question=question,
-        sys_prompt=main_sys_prompt,
+        get_system_prompt=main_sys_prompt,
         question_checks=["Please analyze the user question and find the first step in answering it - a task to delegate to a wikipedia researcher that would require the least amount of calls to the wikipedia API. Think step by step."],
     )
-    reactor.process()
+    trace = reactor.process(question)
     print(f'The answer to the question:"{question}" is:\n')
-    print(str(reactor.answer))
+    print(str(trace.answer))
     print()
-    print(str(reactor.what_have_we_learned))
+    print(str(trace.what_have_we_learned))
     print()
-    pprint(reactor.soft_errors)
+    pprint(trace.soft_errors)
 

@@ -3,7 +3,7 @@ import logging
 import copy
 from typing import Literal, Union, List, Dict, Annotated, Optional, Callable, Any, Protocol, Iterable, runtime_checkable
 from pprint import pprint
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import traceback
 
 from openai.types.chat.chat_completion import ChatCompletionMessage
@@ -32,8 +32,8 @@ class LLMReactor:
     toolbox: list[Callable|HasLLMTools]
     max_llm_calls: int
     client: object
-    question_checks: list[str]
     get_system_prompt: Callable[[str], str]
+    question_checks: list[str] = field(default_factory=list)
 
     class LLMReactorError(Exception):
         pass
@@ -60,6 +60,11 @@ class LLMReactor:
         schemas = get_tool_defs(tools)
         response = self.openai_query(trace.to_messages(), schemas)
         message = response.choices[0].message
+        if len(schemas) > 0:
+            if not message.tool_calls:
+                stack_trace = traceback.format_stack()
+                trace.soft_errors.append(f"No function call:\n{stack_trace}")
+
         trace.append(message)
         results = process_response(response, tools)
         for result in results:
@@ -162,11 +167,6 @@ If you still need more information, consider the available tools:
                 args['tool_choice'] = "auto"
 
         completion = self.client.chat.completions.create( **args )
-
-        if len(schemas) > 0:
-            if not completion.choices[0].message.tool_calls:
-                stack_trace = traceback.format_stack()
-                self.soft_errors.append(f"No function call:\n{stack_trace}")
 
         return completion
 

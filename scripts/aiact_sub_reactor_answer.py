@@ -20,6 +20,7 @@ question = '''
 How is transparency defined in the AI Act and what transparency requirements apply to low-risk Ai systems?
 '''
 
+model = 'claude-3-5-sonnet-20240620'
 
 def _get_toc_local(folder: str) -> DocumentSection:
     def _retrieve(title) -> str:  # type: ignore
@@ -46,7 +47,7 @@ def _get_toc_web() -> DocumentSection:
 @click.option('--local', '-l', type=str, default=None)
 @click.option('--max-llm-calls', '-m', type=int, default=7)
 def main(local: str|None=None, max_llm_calls: int=7):
-    def _sys_prompt(max_llm_calls):
+    def _sub_sys_prompt(max_llm_calls):
         return f"""
         Please answer the following question, using the tool available.
         You only have {max_llm_calls-1} to the tools.
@@ -55,13 +56,49 @@ def main(local: str|None=None, max_llm_calls: int=7):
 
     toc = _get_toc_web() if not local else _get_toc_local(local)
 
+    def _main_sys_prompt(max_llm_calls):
+        return f"""
+Please answer the following user question. You can get help from an assistant with access to the EU AI Act
+- by calling 'delegate' function and passing the question you want to ask him.
+
+You need to carefully divide the work into tasks that would require the least amount of access to the EU AI Act,
+and then delegate them to the assistant.
+The questions you ask the assistant need to be as simple and specific as possible.
+You can call finish when you think you have enough information to answer the question.
+You can delegate only {max_llm_calls - 1} tasks to the assistant.
+Here is the general structure of the EU AI Act:
+
+----
+{toc.to_string()}
+----
+
+"""
+
+    sub_reactor = LLMReactor(
+        model=model,
+        toolbox=[EUAIAct(toc)],
+        max_llm_calls=max_llm_calls,
+        get_system_prompt=_sub_sys_prompt,
+    )
+
+
+    def delegate_to_expert(question: str):
+        """
+        Delegate the question to a wikipedia expert.
+        """
+
+        print(f'Delegating question: "{question}" to wikipedia expert')
+
+        trace = sub_reactor.process(question)
+        return trace.answer
+
     reactor = LLMReactor(
-            model='claude-3-5-sonnet-20240620',
-            toolbox=[EUAIAct(toc)],
-            max_llm_calls=max_llm_calls,
-            get_system_prompt=_sys_prompt,
-            question_checks=[]
-            )
+        model=model,
+        toolbox=[delegate_to_expert],
+        max_llm_calls=7,
+        get_system_prompt=_main_sys_prompt,
+        question_checks=["Please analyze the user question and find the first step in answering it - a task to delegate to a researcher with access to the EU AI Act, that would require the least amount of information retrievals. Think step by step."],
+    )
 
     trace = reactor.process(question)
     print(trace.generate_report())
@@ -73,3 +110,4 @@ def main(local: str|None=None, max_llm_calls: int=7):
 
 if __name__ == '__main__':
     main()
+m

@@ -2,7 +2,7 @@ import logging
 import os
 import httpx
 from openai import OpenAI
-from answerbot.react import LLMReactor, get_answer
+from answerbot.react import LLMReactor 
 from answerbot.tools.aaext import DocumentSection, EUAIAct, get_eu_act_toc, get_eu_act_toc_raw, retrieve, sanitize_string
 from pprint import pprint
 import click
@@ -64,22 +64,21 @@ def main(local: str|None=None, max_llm_calls: int=7):
          }
     )
 
-    reactor = LLMReactor.create_reactor(
+    reactor = LLMReactor(
             model='gpt-4o',
             toolbox=[EUAIAct(toc)],
             max_llm_calls=max_llm_calls,
             client=client,
-            question=question,
-            sys_prompt=_sys_prompt,
-            question_checks=[],
+            get_system_prompt=_sys_prompt,
+            question_checks=[]
             )
 
-    reactor.process()
-    print(reactor.generate_report())
+    trace = reactor.process(question)
+    print(trace.generate_report())
     print()
-    print(str(reactor.what_have_we_learned))
+    print(str(trace.what_have_we_learned))
     print()
-    pprint(reactor.soft_errors)
+    pprint(trace.soft_errors)
 
 
 if __name__ == '__main__':

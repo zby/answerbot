@@ -2,7 +2,6 @@ import pytest
 from answerbot.trace import Trace, Question
 from answerbot.tools.wiki_tool import Observation, InfoPiece
 from answerbot.clean_reflection import ReflectionResult, KnowledgeBase
-from openai.types.chat.chat_completion import ChatCompletionMessage
 
 def test_append():
     sample_trace = Trace()

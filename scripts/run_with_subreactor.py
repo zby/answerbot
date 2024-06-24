@@ -1,10 +1,9 @@
 import logging
 import httpx
+import litellm
 
-from openai import OpenAI
 from pprint import pformat, pprint
-from dotenv import dotenv_values
-#from answerbot.formatter import format_markdown
+from dotenv import load_dotenv
 
 from answerbot.react import LLMReactor
 
@@ -17,26 +16,11 @@ logging.basicConfig(level=logging.INFO)
 # Get a logger for the current module
 logger = logging.getLogger(__name__)
 
-config = dotenv_values(".env")
+load_dotenv()
+litellm.success_callback=["helicone"]
+#litellm.set_verbose=True
 
-#from groq import Groq
-#client = Groq()
-
-#client = ReplayClient('data/conversation.json')
-
-client = OpenAI(
-     timeout=httpx.Timeout(70.0, read=60.0, write=20.0, connect=6.0),
-     api_key=config['OPENAI_API_KEY'],
-     base_url="https://oai.hconeai.com/v1",
-     default_headers={
-         "Helicone-Auth": f"Bearer {config['HELICONE_API_KEY']}",
-     }
-)
-
-#client = OpenAI(
-#    api_key=config['OPENAI_API_KEY'],
-#    timeout=httpx.Timeout(70.0, read=60.0, write=20.0, connect=6.0)
-#)
+model="claude-3-5-sonnet-20240620"
 
 def sub_sys_prompt(max_llm_calls):
     return f"""
@@ -67,10 +51,9 @@ You can call finish when you think you have enough information to answer the que
 You can delegate only {max_llm_calls - 1} tasks to the assistant."""
 
 sub_reactor = LLMReactor(
-    model='gpt-3.5-turbo',
+    model=model,
     toolbox=[WikipediaTool(chunk_size=400)],
     max_llm_calls=4,
-    client=client,
     get_system_prompt=sub_sys_prompt,
 )
 
@@ -112,10 +95,9 @@ if __name__ == "__main__":
 
 
     reactor = LLMReactor(
-        model='gpt-3.5-turbo',
+        model=model,
         toolbox=[delegate_to_expert],
         max_llm_calls=7,
-        client=client,
         get_system_prompt=main_sys_prompt,
         question_checks=["Please analyze the user question and find the first step in answering it - a task to delegate to a wikipedia researcher that would require the least amount of calls to the wikipedia API. Think step by step."],
     )

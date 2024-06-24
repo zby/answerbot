@@ -1,15 +1,13 @@
 import logging
 import httpx
+import litellm
 
-from openai import OpenAI
 from pprint import pformat, pprint
-from dotenv import dotenv_values
-#from answerbot.formatter import format_markdown
+from dotenv import load_dotenv
 
 from answerbot.react import LLMReactor
 
 from answerbot.tools.wiki_tool import WikipediaTool
-from answerbot.replay_client import LLMReplayClient
 
 # Configure basic logging
 logging.basicConfig(level=logging.INFO)
@@ -17,31 +15,10 @@ logging.basicConfig(level=logging.INFO)
 # Get a logger for the current module
 logger = logging.getLogger(__name__)
 
-config = dotenv_values(".env")
 
-#from groq import Groq
-#client = Groq()
-
-#client = ReplayClient('data/conversation.json')
-
-client = OpenAI(
-     api_key=config['OPENAI_API_KEY'],
-     base_url="https://oai.hconeai.com/v1",
-     default_headers={
-         "Helicone-Auth": f"Bearer {config['HELICONE_API_KEY']}",
-     }
-)
-#client = OpenAI(
-#     api_key=config['OPENAI_API_KEY'],
-#     base_url="http://0.0.0.0:4000",
-#)
-
-completion = client.chat.completions.create(
-    model='gpt-3.5-turbo',
-    messages=[
-        {'role': 'user', 'content': 'Hi there!'},
-    ]
-)
+load_dotenv()
+litellm.success_callback=["helicone"]
+#litellm.set_verbose=True
 
 def sys_prompt(max_llm_calls):
     return f"""
@@ -97,10 +74,10 @@ if __name__ == "__main__":
     max_llm_calls = 7
 
     reactor = LLMReactor(
-        model='gpt-3.5-turbo',
+        #model='gpt-3.5-turbo',
+        model='claude-3-5-sonnet-20240620',
         toolbox=[WikipediaTool(chunk_size=400)],
         max_llm_calls=max_llm_calls,
-        client=client,
         get_system_prompt=sys_prompt,
         question_checks=[]
     )

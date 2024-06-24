@@ -6,7 +6,7 @@ from pprint import pprint
 from dataclasses import dataclass, field
 import traceback
 
-from openai.types.chat.chat_completion import ChatCompletionMessage
+from litellm import completion
 
 from .prompt_templates import QUESTION_CHECKS, PROMPTS, REFLECTIONS 
 
@@ -31,7 +31,6 @@ class LLMReactor:
     model: str
     toolbox: list[Callable|HasLLMTools]
     max_llm_calls: int
-    client: object
     get_system_prompt: Callable[[str], str]
     question_checks: list[str] = field(default_factory=list)
 
@@ -166,9 +165,9 @@ If you still need more information, consider the available tools:
             else:
                 args['tool_choice'] = "auto"
 
-        completion = self.client.chat.completions.create( **args )
+        result = completion(**args)
 
-        return completion
+        return result
 
     def analyze_question(self, trace: Trace):
         for query in self.question_checks:
@@ -178,4 +177,5 @@ If you still need more information, consider the available tools:
             response = self.openai_query(trace.to_messages())
             message = response.choices[0].message
             trace.append(message)
-
+            message = { 'role': 'user', 'content': 'OK' }  # This is because Anthropic cannot handle function calls after an "assistant" message
+            trace.append(message)

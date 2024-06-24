@@ -1,7 +1,7 @@
 import logging
 import httpx
 from openai import OpenAI
-from answerbot.react import get_answer
+from answerbot.react import LLMReactor
 from answerbot.tools.aae import AAESearch
 from pprint import pprint
 
@@ -15,6 +15,17 @@ How is transparency defined in the AI Act and what transparency requirements app
 '''
 
 
+def _sys_prompt(max_llm_calls):
+    return f"""
+    Please answer the following question about the European Artificial Intelligence Act.
+    You are provided with the tools you need to search across the act, but remember, you
+    only have {max_llm_calls-1} attempts to use them.
+
+    When you've found a document, you can use lookup and lookup_next functions to search for
+    keywords in it.
+    """
+
+
 def main():
     env = dotenv_values('.env')
     client = OpenAI(
@@ -25,25 +36,21 @@ def main():
              "Helicone-Auth": f"Bearer {env['HELICONE_API_KEY']}",
          }
     )
-    config = {
-        "chunk_size": 400,
-        "prompt_class": 'AAE',
-        "max_llm_calls": 7,
-        "model": "gpt-4o",
-        "question_check": 'None',
-        'reflection': 'ShortReflectionDetached',
-        'tool': AAESearch,
-    }
-    reactor = get_answer(question, config, client)
-    print(f'The answer to the question:"{question}" is:\n')
-    print(str(reactor.answer))
+
+    reactor = LLMReactor(
+            model='gpt-3.5-turbo',
+            toolbox=[AAESearch(chunk_size=400)],
+            max_llm_calls=7,
+            client=client,
+            get_system_prompt=_sys_prompt,
+
+            )
+    trace = reactor.process(question)
+    print(trace.generate_report())
     print()
-    print(str(reactor.what_have_we_learned))
+    print(str(trace.what_have_we_learned))
     print()
-    pprint(reactor.soft_errors)
-    with open('data/trace.py', 'w') as file:
-        file.write(repr(reactor.trace))
-#    print(format_markdown(reactor.conversation))
+    pprint(trace.soft_errors)
 
 
 if __name__ == '__main__':

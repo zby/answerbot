@@ -20,7 +20,10 @@ question = '''
 How is transparency defined in the AI Act and what transparency requirements apply to low-risk Ai systems?
 '''
 
+question = "Does the deployment of an LLM acting as a proxy to optimize SQL queries fall within the regulatory scope of the EU’s AI Act?"
+
 model = 'claude-3-5-sonnet-20240620'
+model = 'gpt-4o'
 
 def _get_toc_local(folder: str) -> DocumentSection:
     def _retrieve(title) -> str:  # type: ignore
@@ -63,7 +66,10 @@ Please answer the following user question. You can get help from an assistant wi
 
 You need to carefully divide the work into tasks that would require the least amount of access to the EU AI Act,
 and then delegate them to the assistant.
-The questions you ask the assistant need to be as simple and specific as possible.
+The questions you ask the assistant need to be as simple and specific as possible and they should have
+a short answer, don't ask the assistant to retrieve some long piece of information, instead ask him a question
+that can be answered based on the information that can be retrieved. Occasionally you can ask him to summarize
+some information for you, but then always tell him what is the goal of that summarisation.
 You can call finish when you think you have enough information to answer the question.
 You can delegate only {max_llm_calls - 1} tasks to the assistant.
 Here is the general structure of the EU AI Act:

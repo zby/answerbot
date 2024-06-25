@@ -20,6 +20,7 @@ question = '''
 How is transparency defined in the AI Act and what transparency requirements apply to low-risk Ai systems?
 '''
 
+question = "Does the deployment of an LLM acting as a proxy to optimize SQL queries fall within the regulatory scope of the EU’s AI Act?"
 
 def _get_toc_local(folder: str) -> DocumentSection:
     def _retrieve(title) -> str:  # type: ignore

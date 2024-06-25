@@ -60,7 +60,7 @@ class LLMReactor:
         response = self.openai_query(trace.to_messages(), schemas)
         message = response.choices[0].message
         if len(schemas) > 0:
-            if not message.tool_calls:
+            if not hasattr(message, 'tool_calls') or not message.tool_calls:
                 stack_trace = traceback.format_stack()
                 trace.soft_errors.append(f"No function call:\n{stack_trace}")
 

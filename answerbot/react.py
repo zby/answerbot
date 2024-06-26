@@ -37,12 +37,24 @@ class LLMReactor:
     class LLMReactorError(Exception):
         pass
 
+    def delegate(self, question: str) -> str:
+        """
+        Delegate the question to an expert.
+        """
+        # The function docstring is probably not enough information to delegate the question to an expert
+        # So it needs to be overriden by wrapping delegate in LLMFunction
+
+        print(f'Delegating question: "{question}" to an expert')
+
+        trace = self.process(question)
+        return trace.answer
+
+
     def process(self, question: str) -> Trace:
         trace = Trace()
         trace.append({'role': 'system', 'content': self.get_system_prompt(self.max_llm_calls)})
         trace.append(Question(question))
 
-        self.analyze_question(trace)
         while trace.answer is None and trace.step <= self.max_llm_calls + 1:
             self.one_step(trace)
             trace.step += 1
@@ -168,14 +180,3 @@ If you still need more information, consider the available tools:
         result = completion(**args)
 
         return result
-
-    def analyze_question(self, trace: Trace):
-        for query in self.question_checks:
-            question_check = { 'role': 'user', 'content': query }
-            logger.info(str(question_check))
-            trace.append(question_check)
-            response = self.openai_query(trace.to_messages())
-            message = response.choices[0].message
-            trace.append(message)
-            message = { 'role': 'user', 'content': 'OK' }  # This is because Anthropic cannot handle function calls after an "assistant" message
-            trace.append(message)

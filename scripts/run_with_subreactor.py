@@ -5,6 +5,8 @@ import litellm
 from pprint import pformat, pprint
 from dotenv import load_dotenv
 
+from llm_easy_tools import LLMFunction
+
 from answerbot.react import LLMReactor
 
 from answerbot.tools.wiki_tool import WikipediaTool
@@ -21,6 +23,7 @@ litellm.success_callback=["helicone"]
 #litellm.set_verbose=True
 
 model="claude-3-5-sonnet-20240620"
+model="claude-3-haiku-20240307"
 
 def sub_sys_prompt(max_llm_calls):
     return f"""
@@ -57,15 +60,10 @@ sub_reactor = LLMReactor(
     get_system_prompt=sub_sys_prompt,
 )
 
-def delegate_to_expert(question: str):
-    """
-    Delegate the question to a wikipedia expert.
-    """
-
-    print(f'Delegating question: "{question}" to wikipedia expert')
-
-    trace = sub_reactor.process(question)
-    return trace.answer
+delegate_function = LLMFunction(
+    sub_reactor.delegate,
+    description="Delegate the question to a wikipedia expert",
+)
 
 if __name__ == "__main__":
 
@@ -96,10 +94,9 @@ if __name__ == "__main__":
 
     reactor = LLMReactor(
         model=model,
-        toolbox=[delegate_to_expert],
+        toolbox=[delegate_function],
         max_llm_calls=7,
         get_system_prompt=main_sys_prompt,
-        question_checks=["Please analyze the user question and find the first step in answering it - a task to delegate to a wikipedia researcher that would require the least amount of calls to the wikipedia API. Think step by step."],
     )
     trace = reactor.process(question)
     print(f'The answer to the question:"{question}" is:\n')

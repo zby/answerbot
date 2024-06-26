@@ -48,8 +48,8 @@ def _get_toc_web() -> DocumentSection:
 
 @click.command()
 @click.option('--local', '-l', type=str, default=None)
-@click.option('--max-llm-calls', '-m', type=int, default=7)
-def main(local: str|None=None, max_llm_calls: int=7):
+@click.option('--max-llm-calls', '-m', type=int, default=4)
+def main(local: str|None=None, max_llm_calls: int=4):
     def _sub_sys_prompt(max_llm_calls):
         return f"""
         Please answer the following question, using the tool available.
@@ -103,7 +103,6 @@ Here is the general structure of the EU AI Act:
         toolbox=[delegate_to_expert],
         max_llm_calls=7,
         get_system_prompt=_main_sys_prompt,
-        question_checks=["Please analyze the user question and find the first step in answering it - a task to delegate to a researcher with access to the EU AI Act, that would require the least amount of information retrievals. Think step by step."],
     )
 
     trace = reactor.process(question)

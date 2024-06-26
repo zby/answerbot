@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup, NavigableString
 from urllib.parse import urlparse, urljoin
 from pprint import pprint
 
-from llm_easy_tools import llm_function, ToolResult, get_tool_defs
+from llm_easy_tools import LLMFunction, ToolResult, get_tool_defs
 
 from answerbot.tools.observation import Observation, InfoPiece
 from answerbot.clean_reflection import ReflectionResult
@@ -119,7 +119,6 @@ class WikipediaTool:
 
         return Observation(info_pieces, current_url=self.current_url, available_tools=tools)
 
-    @llm_function()
     def get_url(self, url: Annotated[str, "The URL to get"]):
         """
         Retrieves a page from Wikipedia by its URL.
@@ -183,14 +182,12 @@ class WikipediaTool:
         #pprint(result)
         return result
 
-    #@llm_function()
     def get_page(self, title: Annotated[str, "The title of the page to get"]):
         url_title = title.replace(' ', '_')
         url = self.base_url + url_title
         return self._get_url(url, title)
 
 
-    @llm_function()
     def search(self, query: Annotated[str, "The query to search for on Wikipedia"]):
         """
         Searches Wikipedia using the provided search query. Reports the search results and the content of the first page.
@@ -255,7 +252,6 @@ class WikipediaTool:
         quoted_text = "\n".join([f"> {line}" for line in text.split('\n')])
         return quoted_text
 
-    @llm_function()
     def lookup(self, keyword: Annotated[str, "The keyword to search"] ):
         """
         Looks up a word on the current page. Use it if you think you are on the right page and want to jump to a specific word on it.
@@ -286,7 +282,6 @@ class WikipediaTool:
                     info += "\nNote: Your keyword contains spaces. Consider using a single word for more effective lookups, multiple words can be separated by additional text or whitespace, or they might occur in different order."
                 return self.mk_observation([InfoPiece(info)])
 
-    @llm_function('next')
     def next_lookup(self):
         """
         Jumps to the next occurrence of the word searched previously.
@@ -314,7 +309,6 @@ class WikipediaTool:
             ])
 
 
-    @llm_function('read_more')
     def read_chunk(self):
         """
         Reads the next chunk of text from the current location in the current document.
@@ -338,7 +332,7 @@ class WikipediaTool:
         result = [self.search, self.get_url]
 
         if self.document:
-            result.append(self.read_chunk)
+            result.append(LLMFunction(self.read_chunk, name="read_more"))   # changing name to read_more
             result.append(self.lookup)
             if self.document.lookup_results:
                 result.append(self.next_lookup)

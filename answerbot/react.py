@@ -131,7 +131,9 @@ You need to review the information retrieval recorded below."""
 
 You need to plan the next action based on the reflection below."""
 
-        user_prompt = f"""Reflection:
+        user_prompt = f"""{observation}
+
+Reflection:
 {reflection}
 
 What would you do next?
@@ -147,8 +149,10 @@ If you still need more information, consider the available tools:
         response = self.openai_query(planning_trace.to_messages(), [])
         planning_result = response.choices[0].message.content
 
-        planning_trace.append({'role': 'assistant', 'content': planning_result})
+        reflection_string = f"**My Notes**\n{reflection}\n\nHmm what I could do next?\n\n{planning_result}"
+        planning_trace.result = {'role': 'user', 'content': reflection_string}
         return planning_trace
+
 
     def format_available_tools(self, tools: list[str]) -> str:
         return "\n".join([f"  - {tool}" for tool in tools])

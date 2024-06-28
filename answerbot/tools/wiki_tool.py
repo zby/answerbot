@@ -158,7 +158,7 @@ class WikipediaTool:
 
     def get_url(self, url: Annotated[str, "The URL to get"]):
         """
-        Retrieves a page from Wikipedia by its URL.
+        Retrieves a page from Wikipedia by its URL, saves it as the current page and presents the top of that page.
         """
         return self._get_url(url)
 
@@ -222,7 +222,7 @@ class WikipediaTool:
 
     def search(self, query: Annotated[str, "The query to search for on Wikipedia"]):
         """
-        Searches Wikipedia using the provided search query. Reports the search results and a Markdown formatted part of the first page.
+        Searches Wikipedia using the provided search query.
         """
         print(f"\nSearching for '{query}'\n")
         info_pieces = []
@@ -253,10 +253,6 @@ class WikipediaTool:
             if search_results:
                 search_results_text = self.search_result_to_text(query, search_results)
                 info_pieces.append(InfoPiece(text=search_results_text, source=self.api_url))
-                first_title = search_results[0]['title']
-                get_page_observation = self.get_page(first_title)
-                info_pieces.extend(get_page_observation.info_pieces)
-                info_pieces.append(InfoPiece(text="If you want to get a different page you can call `get_url`."))
             else:
                 info_pieces.append(InfoPiece(text="No results found", source=self.api_url))
 
@@ -277,7 +273,7 @@ class WikipediaTool:
             results.append(f"[{item['title']}]({urljoin(self.base_url, item['title'])})")
 
         search_results = "\n- ".join(results)
-        hint = f"\n\n**Hint:** Have a look at the search results - sometimes it is not the first result that is the most interesting."
+        hint = f"\n\n**Hint:** Have a look at the search results - you can use `get_url` to retrieve the page of a result."
         return f"{text}\n- {search_results}\n\n{hint}"
 
     def quote_text(self, text):

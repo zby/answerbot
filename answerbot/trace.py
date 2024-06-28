@@ -11,9 +11,25 @@ from answerbot.tools.observation import Observation
 @dataclass(frozen=True)
 class Question:
     question: str
+    max_llm_calls: int
     
     def to_message(self):
-        return {'role': 'user', 'content': f"Question: {self.question}\n\nPlease think step by step." }
+        content = f"""Question: {self.question}
+
+Please answer the following question. You can use wikipedia for reference - but think carefully about what pages exist at wikipedia.
+You have only {self.max_llm_calls - 1} calls to the wikipedia API.
+When searching wikipedia never make any complex queries, always decide what is the main topic you are searching for and put it in the search query.
+When you want to know a property of an object or person - first find the page of that object or person and then browse it to find the property you need.
+
+When you know the answer call finish. Please make the answer as short as possible. If it can be answered with yes or no that is best.
+Remove all explanations from the answer and put them into the reasoning field.
+
+You need to start by calling search. Think step by step in quiet - then decide about the search query.
+""" 
+        return {
+            'role': 'user', 
+            'content': content.strip()
+        }
 
 @dataclass(frozen=True)
 class Answer:

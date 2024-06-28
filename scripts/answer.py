@@ -22,20 +22,9 @@ litellm.failure_callback = ["langfuse"]
 #litellm.success_callback=["helicone"]
 #litellm.set_verbose=True
 
-def sys_prompt(max_llm_calls):
-    return f"""
-Please answer the following question. You can use wikipedia for reference - but think carefully about what pages exist at wikipedia.
-You have only {max_llm_calls - 1} calls to the wikipedia API.
-After the first call to wikipedia you need to always reflect on the data retrieved in the previous call.
-To retrieve the first document you need to call search.
-When searching wikipedia never make any complex queries, always decide what is the main topic you are searching for and put it in the search query.
-When you want to know a property of an object or person - first find the page of that object or person and then browse it to find the property you need.
-
-The wikipedia pages are formatted in Markdown.
-When you know the answer call finish. Please make the answer as short as possible. If it can be answered with yes or no that is best.
-Remove all explanations from the answer and put them into the reasoning field.
-Always try to answer the question even if it is ambiguous, just note the necessary assumptions.
-"""
+sys_prompt = """You are a helpful assistant.
+Work carefully - never make two calls to wikipedia in the same step.
+Always try to answer the question, even if it is ambiguous, just note the necessary assumptions."""
 
 
 #client = OpenAI(
@@ -80,7 +69,7 @@ if __name__ == "__main__":
         #model="claude-3-haiku-20240307",
         toolbox=[WikipediaTool(chunk_size=400)],
         max_llm_calls=max_llm_calls,
-        get_system_prompt=sys_prompt,
+        system_prompt=sys_prompt,
         question_checks=[]
     )
     trace = reactor.process(question)

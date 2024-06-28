@@ -37,7 +37,7 @@ class LLMReactor:
     model: str
     toolbox: list[Callable|HasLLMTools]
     max_llm_calls: int
-    get_system_prompt: Callable[[str], str]
+    system_prompt: str
     question_checks: list[str] = field(default_factory=list)
 
     class LLMReactorError(Exception):
@@ -58,8 +58,8 @@ class LLMReactor:
 
     def process(self, question: str) -> Trace:
         trace = Trace()
-        trace.append({'role': 'system', 'content': self.get_system_prompt(self.max_llm_calls)})
-        trace.append(Question(question))
+        trace.append({'role': 'system', 'content': self.system_prompt})
+        trace.append(Question(question, self.max_llm_calls))
 
         while trace.answer is None and trace.step <= self.max_llm_calls + 1:
             self.one_step(trace)

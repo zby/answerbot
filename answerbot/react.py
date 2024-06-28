@@ -99,13 +99,15 @@ class LLMReactor:
 
     def create_reflection_trace(self, observation: Observation, trace: Trace) -> Trace:
         new_trace = Trace()
+        sysprompt = "You are a researcher working on a user question in a team with other researchers. You need to check the assumptions that other researchers made."
         learned_stuff = f"\n\nSo far we have some notes on the following urls:{trace.what_have_we_learned.learned()}" if not trace.what_have_we_learned.is_empty() else ""
-        sysprompt = f"""You are a researcher working on the following user question:
-{trace.user_question()}{learned_stuff}
+        user_prompt = f"""The user's question is: {trace.user_question()}{learned_stuff}
 
-You need to review the information retrieval recorded below."""
+We have performed information retrieval with the following results:
+{str(observation)}
 
-        user_prompt = str(observation)
+You need to review the information retrieval recorded above and reflect on it."""
+
         new_trace.append({'role': 'system', 'content': sysprompt})
         new_trace.append({'role': 'user', 'content': user_prompt})
         return new_trace
@@ -126,12 +128,11 @@ You need to review the information retrieval recorded below."""
 
     def plan_next_action(self, reflection: ReflectionResult, observation: Observation, trace: Trace) -> Trace:
         planning_trace = Trace()
-        sysprompt = f"""You are a researcher working on the following user question:
-{trace.user_question()}
+        sysprompt = "You are a researcher working on a user question in a team with other researchers"
+        user_prompt = f"""The user's question is: {trace.user_question()}
 
-You need to plan the next action based on the reflection below."""
-
-        user_prompt = f"""{observation}
+We have performed information retrieval with the following results:
+{observation}
 
 Reflection:
 {reflection}

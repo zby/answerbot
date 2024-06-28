@@ -3,7 +3,7 @@ import html2text
 import time
 import traceback
 
-from typing import Annotated, Optional, Callable
+from typing import Annotated, Optional, Callable, Union
 from answerbot.tools.markdown_document import MarkdownDocument 
 from bs4 import BeautifulSoup, NavigableString
 from urllib.parse import urlparse, urljoin
@@ -31,6 +31,7 @@ class WikipediaTool:
                 chunk_size=CHUNK_SIZE,
                 absolute_base_url=BASE_URL,
                 api_url=API_URL,
+                limit_sections=None,
                 ):
         self.document = document
         self.url_shortener = url_shortener
@@ -41,6 +42,7 @@ class WikipediaTool:
         self.absolute_base_url = absolute_base_url
         self.base_url = self.absolute_base_url + 'wiki/'
         self.api_url = api_url
+        self.limit_sections = limit_sections
 
         self.checked_urls = []
 
@@ -108,16 +110,51 @@ class WikipediaTool:
         cleaned_content = markdown.strip()
         return cleaned_content
 
-    def mk_observation(self, info_pieces):
+    def format_tool_docstrings(self, schemas: list[dict]) -> str:
+        formatted_list = []
+        for schema in schemas:
+            func_name = schema['function']['name']
+            description = schema['function'].get('description', '')
+
+            # Start with function name and description
+            doc = f"- **{func_name}**\n\n"
+            doc += "\n".join(f"  {line}" for line in description.split('\n')) + "\n\n"
+
+            # Add parameters section if present
+            if 'parameters' in schema['function']:
+                doc += "  Parameters\n  ----------\n"
+                properties = schema['function']['parameters'].get('properties', {})
+                for param, details in properties.items():
+                    param_type = details.get('type', 'Any')
+                    param_desc = details.get('description', '')
+                    doc += f"  {param} : {param_type}\n"
+                    doc += "\n".join(f"      {line}" for line in param_desc.split('\n')) + "\n"
+
+            formatted_list.append(doc)
+
+        return "\n".join(formatted_list)
+
+    def mk_observation(self, info_pieces, operation):
         tools = self.get_llm_tools()
         schemas = get_tool_defs(tools)
-        tools = []
-        for schema in schemas:
-            tool_name = schema['function']['name']
-            tool_desc = schema['function']['description']
-            tools.append(f"{tool_name}: {tool_desc}")
+        available_tools = self.format_tool_docstrings(schemas)
 
-        return Observation(info_pieces, current_url=self.current_url, available_tools=tools)
+        return Observation(info_pieces, current_url=self.current_url, available_tools=available_tools, operation=operation)
+
+    def get_sections_infopiece(self) -> Union[InfoPiece, None]:
+        if self.document is None:
+            return None
+
+        sections = self.document.section_titles()
+        if not sections:
+            return None
+        if self.limit_sections is not None:
+            sections = sections[:self.limit_sections]
+        quoted_sections = [f'"{section}"' for section in sections]
+        sections_str = ", ".join(quoted_sections)
+        text = f'The retrieved page contains the following sections:\n{sections_str}\n\n'
+        text += "**Hint:** You can easily jump to any section by using `lookup` function with the section name."
+        return InfoPiece(text=text, source=self.current_url)
 
     def get_url(self, url: Annotated[str, "The URL to get"]):
         """
@@ -162,23 +199,18 @@ class WikipediaTool:
         if document is not None:
             self.document = document
             self.current_url = url
-            sections = document.section_titles()
-            if limit_sections is not None:
-                sections = sections[:limit_sections]
-            sections_list_md = "- " + "\n- ".join(sections) if sections else ""
-            if len(sections) > 0:
-                text = f'The retrieved page contains the following sections:\n{sections_list_md}\n\n'
-                text += "You can easily jump to any section by using `lookup` function with the section name together with the `#` signs, like `lookup('## section_name')`."
-                info_pieces.append(InfoPiece(text=text, source=url))
+            sections_infopiece = self.get_sections_infopiece()
+            if sections_infopiece:
+                info_pieces.append(sections_infopiece)
             chunk = document.read_chunk()
             quoted_text = self.quote_text(chunk)
             info_pieces.append(InfoPiece("The retrieved page starts with:"))
             info_pieces.append(InfoPiece(quoted_text, source=url, quotable=True))
             if True:  # TODO: check if this is the full content of the page
-                info = "This was not the full content of the page. If you want to continue reading the page, you can call `read_more`. "
-            info += "If you want to jump to a specific keyword on this page (for example a section of the article) `lookup('keyword')`."
-            info_pieces.append(InfoPiece(info))
-        result = self.mk_observation(info_pieces)
+                info = "**Hint:** This was not the full content of the page. If you want to continue reading the page, you can call `read_more`. "
+                info += "If you want to jump to a specific keyword on this page (for example a section of the article) `lookup('keyword')`."
+                info_pieces.append(InfoPiece(info))
+        result = self.mk_observation(info_pieces, operation=f"get_url('{url}')")
         #pprint(result)
         return result
 
@@ -190,7 +222,7 @@ class WikipediaTool:
 
     def search(self, query: Annotated[str, "The query to search for on Wikipedia"]):
         """
-        Searches Wikipedia using the provided search query. Reports the search results and the content of the first page.
+        Searches Wikipedia using the provided search query. Reports the search results and a Markdown formatted part of the first page.
         """
         print(f"\nSearching for '{query}'\n")
         info_pieces = []
@@ -230,13 +262,13 @@ class WikipediaTool:
 
         except requests.exceptions.HTTPError as e:
             info_pieces.append(InfoPiece(text=f"HTTP error occurred during search: {e}", source=self.api_url))
-            return self.mk_observation(info_pieces)
+            return self.mk_observation(info_pieces, operation=f"search('{query}')")
         except Exception as e:
             stack_trace = traceback.format_exc()
             info_pieces.append(InfoPiece(text=f"Error during search: {stack_trace}", source=self.api_url))
-            return self.mk_observation(info_pieces)
+            return self.mk_observation(info_pieces, operation=f"search('{query}')")
 
-        return self.mk_observation(info_pieces)
+        return self.mk_observation(info_pieces, operation=f"search('{query}')")
 
     def search_result_to_text(self, query, items):
         text = f"Wikipedia search results for query: '{query}' are:"
@@ -258,7 +290,9 @@ class WikipediaTool:
         """
         print(f"\nLooking up '{keyword}'\n")
         if self.document is None:
-            return self.mk_observation([InfoPiece(text="No document defined, cannot lookup, you need to use search first to retrieve a document", source=self.current_url)])
+            return self.mk_observation(
+                [InfoPiece(text="No document defined, cannot lookup, you need to use search first to retrieve a document", source=self.current_url)],
+                operation=f"lookup('{keyword}')")
         else:
             text = self.document.lookup(keyword)
             current_url = self.current_url
@@ -273,14 +307,12 @@ class WikipediaTool:
                     InfoPiece(quoted_text, source=self.current_url, quotable=True),
                     InfoPiece(f"- *{self.document.lookup_position + 1} of {num_of_results} places*"),
                     InfoPiece(info),
-                ])
-
-                return Observation([InfoPiece(text=info, source=self.current_url, quotable=True)])
+                ], operation=f"lookup('{keyword}')")
             else:
                 info = f'Keyword "{keyword}" not found at "{current_url}". You might try using `lookup` with a modified keyword - for example use synonyms.\n'
                 if " " in keyword:
                     info += "\nNote: Your keyword contains spaces. Consider using a single word for more effective lookups, multiple words can be separated by additional text or whitespace, or they might occur in different order."
-                return self.mk_observation([InfoPiece(info)])
+                return self.mk_observation([InfoPiece(info)], operation=f"lookup('{keyword}')")
 
     def next_lookup(self):
         """
@@ -289,10 +321,10 @@ class WikipediaTool:
         print(f"\nLooking up next occurrence of '{self.document.lookup_word}'\n")
         if self.document is None:
             info = "No document defined, cannot lookup, you need to use search or get_url first to retrieve a document"
-            return self.mk_observation([InfoPiece(text=info, source=self.current_url)])
+            return self.mk_observation([InfoPiece(text=info, source=self.current_url)], operation="next")
         elif not self.document.lookup_results:
             info = "No lookup results found, you need to use lookup first to find the places with the word you are looking for"
-            return self.mk_observation([InfoPiece(text=info, source=self.current_url)])
+            return self.mk_observation([InfoPiece(text=info, source=self.current_url)], operation="next")
         else:
             text = self.document.next_lookup()
             text = text.strip()
@@ -306,17 +338,17 @@ class WikipediaTool:
                 InfoPiece(quoted_text, source=self.current_url, quotable=True),
                 InfoPiece(f"*{self.document.lookup_position} of {num_of_results} places*"),
                 InfoPiece(info),
-            ])
+            ], operation='next()')
 
 
     def read_chunk(self):
         """
-        Reads the next chunk of text from the current location in the current document.
-        Use it if the just received was interesting but seems to be cut short and you want to continue reading.
+Reads the next chunk of text from the current location in the current document.
+Use it if the information just received was interesting but seems to be cut short and you want to continue reading.
         """
         print(f"\nReading more from current position\n")
         if self.document is None:
-            return self.mk_observation([InfoPiece(text="No document defined, cannot read", source=self.current_url)])
+            return self.mk_observation([InfoPiece(text="No document defined, cannot read", source=self.current_url)], operation='read_more()')
         else:
             text = self.document.read_chunk()
             text = text.strip()
@@ -325,7 +357,7 @@ class WikipediaTool:
                 InfoPiece("A new fragment from the current page was read:"),
                 InfoPiece(text=quoted_text, source=self.current_url, quotable=True),
                 InfoPiece("If you want to continue reading the page, you can call `read_more`."),
-            ])
+            ], operation='read_more()')
 
 
     def get_llm_tools(self) -> list[Callable]:
@@ -354,6 +386,9 @@ if __name__ == "__main__":
     #tool.get_url("https://en.wikipedia.org/wiki/Lewiston_Maineiacs")
     #print(str(tool.lookup("arena")))
 
-    tool.get_url("https://en.wikipedia.org/wiki/Kiss_and_Tell_(1945_film)")
-    print(str(tool.lookup("Corliss Archer")))
+    observation = tool.get_url("https://en.wikipedia.org/wiki/Kiss_and_Tell_(1945_film)")
+    print("\nObservation:\n\n")
+    print(str(observation))
+    #print(observation.available_tools)
+    #print(str(tool.lookup("Corliss Archer")))
 

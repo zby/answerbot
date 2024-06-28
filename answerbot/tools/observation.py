@@ -7,7 +7,7 @@ class InfoPiece:
     source: Optional[str] = None
     quotable: bool = False
     def to_markdown(self) -> str:
-        if self.source:
+        if self.source and self.quotable:
             return f"{self.text}\n— *from {self.source}*"
         else:
             return self.text
@@ -21,6 +21,7 @@ class Observation:
     keyword: Optional[str] = None
     available_tools: str = ''
     current_url: Optional[str] = None
+    operation: Optional[str] = None
 
     def clear_info_pieces(self):
         self.info_pieces = []
@@ -30,7 +31,7 @@ class Observation:
 
 
     def __str__(self) -> str:
-        result = ''
+        result = f"**Operation:** {self.operation}"
         for info in self.info_pieces:
             result += f"\n\n{info.to_markdown()}"
         if self.interesting_links:

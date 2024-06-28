@@ -7,6 +7,7 @@ from dataclasses import dataclass, field
 import traceback
 
 from litellm import completion
+import litellm
 
 from .prompt_templates import QUESTION_CHECKS, PROMPTS, REFLECTIONS 
 
@@ -20,6 +21,11 @@ logging.basicConfig(level=logging.ERROR)
 
 # Get a logger for the current module
 logger = logging.getLogger(__name__)
+
+# Global configuration
+litellm.num_retries = 3
+litellm.retry_delay = 10
+litellm.retry_multiplier = 2
 
 @runtime_checkable
 class HasLLMTools(Protocol):
@@ -62,7 +68,7 @@ class LLMReactor:
                 step_info = "\n\nThis was the last data you can get - in the next step you need to formulate your answer"
             else:
                 step_info = f"\n\nThis was {trace.step} out of {self.max_llm_calls} calls for data."
-            trace.append({'role': 'system', 'content': step_info})
+            trace.append({'role': 'user', 'content': step_info})
 
         return trace
 
@@ -101,10 +107,16 @@ class LLMReactor:
         new_trace = Trace()
         sysprompt = "You are a researcher working on a user question in a team with other researchers. You need to check the assumptions that other researchers made."
         learned_stuff = f"\n\nSo far we have some notes on the following urls:{trace.what_have_we_learned.learned()}" if not trace.what_have_we_learned.is_empty() else ""
-        user_prompt = f"""The user's question is: {trace.user_question()}{learned_stuff}
+        user_prompt = f"""# Question
+
+The user's question is: {trace.user_question()}{learned_stuff}
+
+# Retrieval
 
 We have performed information retrieval with the following results:
 {str(observation)}
+
+# Current task
 
 You need to review the information retrieval recorded above and reflect on it."""
 
@@ -128,20 +140,41 @@ You need to review the information retrieval recorded above and reflect on it.""
 
     def plan_next_action(self, reflection: ReflectionResult, observation: Observation, trace: Trace) -> Trace:
         planning_trace = Trace()
-        sysprompt = "You are a researcher working on a user question in a team with other researchers"
-        user_prompt = f"""The user's question is: {trace.user_question()}
+        sysprompt = "You are a researcher working on a user question in a team with other researchers. You need to check the assumptions that the other researchers made."
+        user_prompt = f"""# Question
+
+The user's question is: {trace.user_question()}
+
+# Available tools
+
+{observation.available_tools}
+
+# Retrieval
 
 We have performed information retrieval with the following results:
+
 {observation}
 
-Reflection:
+# Reflection
+
 {reflection}
 
+# Next step
+
 What would you do next?
-Please analyze the retrieved data and check if you have enough information to answer the user question. Explain your reasoning.
+Please analyze the retrieved data and check if you have enough information to answer the user question.
 
 If you still need more information, consider the available tools:
-{self.format_available_tools(observation.available_tools)}
+
+When using `search` please use simple queries. When trying to learn about a property of an object or a person,
+first search for that object then you can browse the page to learn about its properties.
+For example to learn about the nationality of a person, first search for that person.
+If the persons page is retrieved but the information about nationality is not at the top of the page
+you can use `read_more` to continue reading or call `lookup('nationality')` or `lookup('born')` to get more information.
+
+
+Please specify both the tool and the parameters you need to use if applicable.
+Explain your reasoning.
 """
 
         planning_trace.append({'role': 'system', 'content': sysprompt})
@@ -154,9 +187,6 @@ If you still need more information, consider the available tools:
         planning_trace.result = {'role': 'user', 'content': reflection_string}
         return planning_trace
 
-
-    def format_available_tools(self, tools: list[str]) -> str:
-        return "\n".join([f"  - {tool}" for tool in tools])
 
     def get_tools(self, trace: Trace) -> list[Callable]:
         tools = [trace.finish]

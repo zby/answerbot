@@ -17,7 +17,9 @@ logger = logging.getLogger(__name__)
 
 
 load_dotenv()
-litellm.success_callback=["helicone"]
+litellm.success_callback = ["langfuse"]
+litellm.failure_callback = ["langfuse"]
+#litellm.success_callback=["helicone"]
 #litellm.set_verbose=True
 
 def sys_prompt(max_llm_calls):
@@ -26,9 +28,8 @@ Please answer the following question. You can use wikipedia for reference - but 
 You have only {max_llm_calls - 1} calls to the wikipedia API.
 After the first call to wikipedia you need to always reflect on the data retrieved in the previous call.
 To retrieve the first document you need to call search.
-
-When you need to know a property of something or someone - search for that something page instead of using that property in the search.
-The search function automatically retrieves the first search result you don't need to call get for it.
+When searching wikipedia never make any complex queries, always decide what is the main topic you are searching for and put it in the search query.
+When you want to know a property of an object or person - first find the page of that object or person and then browse it to find the property you need.
 
 The wikipedia pages are formatted in Markdown.
 When you know the answer call finish. Please make the answer as short as possible. If it can be answered with yes or no that is best.
@@ -62,20 +63,21 @@ if __name__ == "__main__":
     #question = "Who is older, Annie Morton or Terry Richardson?"
 
     #question = "What are the concrete steps proposed to ensure AI safety?"
-    question = 'What are the steps required to authorize the training of generative AI?'
+    #question = 'What are the steps required to authorize the training of generative AI?'
 
     #question = "What is the name of the fight song of the university whose main campus is in Lawrence, Kansas and whose branch campuses are in the Kansas City metropolitan area?"
-    #question = "What government position was held by the woman who portrayed Corliss Archer in the film Kiss and Tell?"
-    question = "The arena where the Lewiston Maineiacs played their home games can seat how many people?"
-    question = "What is the seating capacity of Androscoggin Bank Colisée?"
-    question = "Who portrayed Corliss Archer in the film Kiss and Tell?"
+    question = "What government position was held by the woman who portrayed Corliss Archer in the film Kiss and Tell?"
+    #question = "The arena where the Lewiston Maineiacs played their home games can seat how many people?"
+    #question = "What is the seating capacity of Androscoggin Bank Colisée?"
+    #question = "Who portrayed Corliss Archer in the film Kiss and Tell?"
 
 
     max_llm_calls = 7
 
     reactor = LLMReactor(
         #model='gpt-3.5-turbo',
-        model='claude-3-5-sonnet-20240620',
+        #model='claude-3-5-sonnet-20240620',
+        model="claude-3-haiku-20240307",
         toolbox=[WikipediaTool(chunk_size=400)],
         max_llm_calls=max_llm_calls,
         get_system_prompt=sys_prompt,

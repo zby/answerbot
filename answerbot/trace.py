@@ -13,7 +13,7 @@ class Question:
     question: str
     
     def to_message(self):
-        return {'role': 'user', 'content': f"Question: {self.question}" }
+        return {'role': 'user', 'content': f"Question: {self.question}\n\nPlease think step by step." }
 
 @dataclass(frozen=True)
 class Answer:

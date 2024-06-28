@@ -118,7 +118,11 @@ We have performed information retrieval with the following results:
 
 # Current task
 
-You need to review the information retrieval recorded above and reflect on it."""
+You need to review the information retrieval recorded above and reflect on it.
+You need to note all information that can help in answering the user question that can be learned from the retrieved fragment,
+together with the quotes that support them.
+Please remember that the retrieved content is only a fragment of the whole page.
+"""
 
         new_trace.append({'role': 'system', 'content': sysprompt})
         new_trace.append({'role': 'user', 'content': user_prompt})
@@ -164,7 +168,10 @@ We have performed information retrieval with the following results:
 What would you do next?
 Please analyze the retrieved data and check if you have enough information to answer the user question.
 
-If you still need more information, consider the available tools:
+If you still need more information, consider the available tools.
+
+You need to decide if the current page is relevant to answer the user question.
+If it is, then you should recommed exploring it further with the `lookup` or `read_more` tools.
 
 When using `search` please use simple queries. When trying to learn about a property of an object or a person,
 first search for that object then you can browse the page to learn about its properties.
@@ -172,10 +179,8 @@ For example to learn about the nationality of a person, first search for that pe
 If the persons page is retrieved but the information about nationality is not at the top of the page
 you can use `read_more` to continue reading or call `lookup('nationality')` or `lookup('born')` to get more information.
 
-
 Please specify both the tool and the parameters you need to use if applicable.
-Explain your reasoning.
-"""
+Explain your reasoning."""
 
         planning_trace.append({'role': 'system', 'content': sysprompt})
         planning_trace.append({'role': 'user', 'content': user_prompt})

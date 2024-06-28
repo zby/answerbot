@@ -72,12 +72,12 @@ if __name__ == "__main__":
     #question = "Who portrayed Corliss Archer in the film Kiss and Tell?"
 
 
-    max_llm_calls = 7
+    max_llm_calls = 5
 
     reactor = LLMReactor(
-        #model='gpt-3.5-turbo',
+        model='gpt-3.5-turbo',
         #model='claude-3-5-sonnet-20240620',
-        model="claude-3-haiku-20240307",
+        #model="claude-3-haiku-20240307",
         toolbox=[WikipediaTool(chunk_size=400)],
         max_llm_calls=max_llm_calls,
         get_system_prompt=sys_prompt,

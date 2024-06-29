@@ -75,20 +75,13 @@ class LLMReactor:
     def one_step(self, trace: Trace) -> None:
         tools = self.get_tools(trace)
         schemas = get_tool_defs(tools)
-        response = self.openai_query(trace.to_messages(), schemas)
-        message = response.choices[0].message
-        if len(schemas) > 0:
-            if not hasattr(message, 'tool_calls') or not message.tool_calls:
-                stack_trace = traceback.format_stack()
-                trace.soft_errors.append(f"No function call:\n{stack_trace}")
-
-        trace.append(message)
+        response = self.openai_query(trace, schemas)
         results = process_response(response, tools)
-        for result in results:
-            if result.error is not None:
-                print(result.error)
-                raise self.LLMReactorError(result.stack_trace)
-            trace.append(result)
+        result = results[0]
+        if result.error is not None:
+            print(result.error)
+            raise self.LLMReactorError(result.stack_trace)
+        trace.append(result)
         for result in results:
             if isinstance(result.output, Observation) and result.output.reflection_needed():
                 self.process_reflection(result.output, trace)
@@ -130,12 +123,8 @@ Please remember that the retrieved content is only a fragment of the whole page.
 
     def analyze_retrieval(self, reflection_trace: Trace) -> ReflectionResult:
         schemas = get_tool_defs([ReflectionResult])
-        response = self.openai_query(reflection_trace.to_messages(), schemas)
-        message = response.choices[0].message
-        reflection_trace.append(message)
+        response = self.openai_query(reflection_trace, schemas)
         results = process_response(response, [ReflectionResult])
-        if len(results) > 1:
-            reflection_trace.soft_errors.append(f"More than one reflection result")
         new_result = results[0]
         reflection_trace.append(new_result)
         if new_result.error is not None:
@@ -185,7 +174,7 @@ Explain your reasoning."""
         planning_trace.append({'role': 'system', 'content': sysprompt})
         planning_trace.append({'role': 'user', 'content': user_prompt})
 
-        response = self.openai_query(planning_trace.to_messages(), [])
+        response = self.openai_query(planning_trace)
         planning_result = response.choices[0].message.content
 
         reflection_string = f"**My Notes**\n{reflection}\n\nHmm what I could do next?\n\n{planning_result}"
@@ -204,7 +193,8 @@ Explain your reasoning."""
                     tools.append(item)
         return tools
 
-    def openai_query(self, messages, schemas=[]):
+    def openai_query(self, trace, schemas=[]):
+        messages = trace.to_messages()
         args = {
             'model': self.model,
             'messages': messages
@@ -218,11 +208,21 @@ Explain your reasoning."""
                 args['tool_choice'] = "auto"
 
         result = completion(**args)
+        message = result.choices[0].message
 
         # Remove all but one tool_call from the result if present
         # With many tool calls the LLM gets confused about the state of the tools
-        if hasattr(result.choices[0].message, 'tool_calls') and result.choices[0].message.tool_calls:
+        if hasattr(message, 'tool_calls') and message.tool_calls:
             #print(f"Tool calls: {result.choices[0].message.tool_calls}")
-            result.choices[0].message.tool_calls = [result.choices[0].message.tool_calls[0]]
+            if len(message.tool_calls) > 1:
+                message.tool_calls = [message.tool_calls[0]]
+                trace.soft_errors.append(f"More than one tool call: {message.tool_calls}")
+
+        if len(schemas) > 0:
+            if not hasattr(message, 'tool_calls') or not message.tool_calls:
+                stack_trace = traceback.format_stack()
+                trace.soft_errors.append(f"No function call:\n{stack_trace}")
+
+        trace.append(message)
 
         return result

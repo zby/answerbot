@@ -214,8 +214,8 @@ Explain your reasoning."""
         if hasattr(message, 'tool_calls') and message.tool_calls:
             #print(f"Tool calls: {result.choices[0].message.tool_calls}")
             if len(message.tool_calls) > 1:
-                message.tool_calls = [message.tool_calls[0]]
                 trace.soft_errors.append(f"More than one tool call: {message.tool_calls}")
+                message.tool_calls = [message.tool_calls[0]]
 
         if len(schemas) > 0:
             if not hasattr(message, 'tool_calls') or not message.tool_calls:

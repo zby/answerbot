@@ -82,9 +82,8 @@ class LLMReactor:
             print(result.error)
             raise self.LLMReactorError(result.stack_trace)
         trace.append(result)
-        for result in results:
-            if isinstance(result.output, Observation) and result.output.reflection_needed():
-                self.process_reflection(result.output, trace)
+        if isinstance(result.output, Observation) and result.output.reflection_needed():
+            self.process_reflection(result.output, trace)
 
     def process_reflection(self, observation: Observation, trace: Trace) -> None:
         reflection_trace = self.create_reflection_trace(observation, trace)

@@ -219,4 +219,10 @@ Explain your reasoning."""
 
         result = completion(**args)
 
+        # Remove all but one tool_call from the result if present
+        # With many tool calls the LLM gets confused about the state of the tools
+        if hasattr(result.choices[0].message, 'tool_calls') and result.choices[0].message.tool_calls:
+            #print(f"Tool calls: {result.choices[0].message.tool_calls}")
+            result.choices[0].message.tool_calls = [result.choices[0].message.tool_calls[0]]
+
         return result

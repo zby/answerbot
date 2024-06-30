@@ -22,28 +22,34 @@ load_dotenv()
 litellm.success_callback=["helicone"]
 #litellm.set_verbose=True
 
-model="claude-3-5-sonnet-20240620"
-model="claude-3-haiku-20240307"
+#model="claude-3-5-sonnet-20240620"
+#model="claude-3-haiku-20240307"
+model='gpt-3.5-turbo'
 
-def sub_sys_prompt(max_llm_calls):
-    return f"""
-Please answer the following question. You can use wikipedia for reference - but think carefully about what pages exist at wikipedia.
-You have only {max_llm_calls - 1} calls to the wikipedia API.
-After the first call to wikipedia you need to always reflect on the data retrieved in the previous call.
-To retrieve the first document you need to call search.
+sub_sys_prompt = """You are a helpful assistant with extensive knowledge of wikipedia.
+You always try to support your knowledge with wikipedia quotes.
+Work carefully - never make two calls to wikipedia in the same step.
+Always try to answer the question, even if it is ambiguous, just note the necessary assumptions."""
 
-When you need to know a property of something or someone - search for that something page instead of using that property in the search.
-The search function automatically retrieves the first search result you don't need to call get for it.
+sub_user_prompt_template = """Please answer the following question. You can use wikipedia for reference - but think carefully about what pages exist at wikipedia.
+You have only {max_llm_calls} calls to the wikipedia API.
+When searching wikipedia never make any complex queries, always decide what is the main topic you are searching for and put it in the search query.
+When you want to know a property of an object or person - first find the page of that object or person and then browse it to find the property you need.
 
-The wikipedia pages are formatted in Markdown.
 When you know the answer call finish. Please make the answer as short as possible. If it can be answered with yes or no that is best.
 Remove all explanations from the answer and put them into the reasoning field.
-Always try to answer the question even if it is ambiguous, just note the necessary assumptions.
+
+You need to start by calling search. Think step by step in quiet - then decide about the search query.
+
+Question: {question}
 """
 
-def main_sys_prompt(max_llm_calls):
-    return f"""
-You are to take a role of a researcher. Please answer the users question.
+main_sys_prompt = """
+You are to take a role of a main researcher delegating work to your assistants.
+Always try to answer the question, even if it is ambiguous, just note the necessary assumptions."""
+
+main_user_prompt_template = """
+Please answer the users question.
 You can get help from a wikipedia assistant - by calling 'delegate' function
 and passing the question you want to ask him.
 
@@ -51,18 +57,22 @@ You need to carefully divide the work into tasks that would require the least am
 and then delegate them to the assistant.
 The questions you ask the assistant need to be as simple and specific as possible.
 You can call finish when you think you have enough information to answer the question.
-You can delegate only {max_llm_calls - 1} tasks to the assistant."""
+You can delegate only {max_llm_calls} tasks to the assistant.
+
+Question: {question}
+"""
 
 sub_reactor = LLMReactor(
     model=model,
     toolbox=[WikipediaTool(chunk_size=400)],
-    max_llm_calls=4,
-    get_system_prompt=sub_sys_prompt,
+    max_llm_calls=7,
+    system_prompt=sub_sys_prompt,
+    user_prompt_template=sub_user_prompt_template,
 )
 
 delegate_function = LLMFunction(
-    sub_reactor.delegate,
-    description="Delegate the question to a wikipedia expert",
+    sub_reactor.process,
+    description="Delegate a question to a wikipedia expert",
 )
 
 if __name__ == "__main__":
@@ -95,8 +105,9 @@ if __name__ == "__main__":
     reactor = LLMReactor(
         model=model,
         toolbox=[delegate_function],
-        max_llm_calls=7,
-        get_system_prompt=main_sys_prompt,
+        max_llm_calls=3,
+        system_prompt=main_sys_prompt,
+        user_prompt_template=main_user_prompt_template,
     )
     trace = reactor.process(question)
     print(f'The answer to the question:"{question}" is:\n')

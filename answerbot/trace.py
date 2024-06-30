@@ -1,35 +1,33 @@
 from litellm.types.utils import Message
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, asdict
 
 from typing import Union, Any, Optional, Annotated
 from pprint import pprint
 
 from llm_easy_tools import ToolResult
+from llm_easy_tools.processor import ToContent
 from answerbot.clean_reflection import ReflectionResult, KnowledgeBase
 from answerbot.tools.observation import Observation
 
+
 @dataclass(frozen=True)
-class Question:
-    question: str
-    max_llm_calls: int
-    
-    def to_message(self):
-        content = f"""Question: {self.question}
+class Prompt:
+    prompt_template: str
 
-Please answer the following question. You can use wikipedia for reference - but think carefully about what pages exist at wikipedia.
-You have only {self.max_llm_calls - 1} calls to the wikipedia API.
-When searching wikipedia never make any complex queries, always decide what is the main topic you are searching for and put it in the search query.
-When you want to know a property of an object or person - first find the page of that object or person and then browse it to find the property you need.
-
-When you know the answer call finish. Please make the answer as short as possible. If it can be answered with yes or no that is best.
-Remove all explanations from the answer and put them into the reasoning field.
-
-You need to start by calling search. Think step by step in quiet - then decide about the search query.
-""" 
+    def to_message(self) -> dict:
+        # Create a dictionary of all fields, excluding prompt_template
+        fields = {k: v for k, v in asdict(self).items() if k != 'prompt_template'}
+        content = self.prompt_template.format(**fields)
         return {
-            'role': 'user', 
+            'role': 'user',
             'content': content.strip()
         }
+
+@dataclass(frozen=True)
+class Question(Prompt):
+    question: str
+    max_llm_calls: int
+
 
 @dataclass(frozen=True)
 class Answer:
@@ -50,16 +48,18 @@ class Answer:
         return f'{self.normalized_answer()}\n\nReasoning: {self.reasoning}'
 
 
-
 @dataclass
-class Trace:
-    entries: list[Union[dict, Question, Message, ToolResult, 'Trace']] = field(default_factory=list)
+class Trace(ToContent):
+    entries: list[Union[dict, Prompt, Message, ToolResult, 'Trace']] = field(default_factory=list)
     result: Optional[dict] = None
     step: int = 0
     answer: Optional[Answer] = None
     soft_errors: list[str] = field(default_factory=list)
     reflection_prompt: list[str] = field(default_factory=list)
     what_have_we_learned: KnowledgeBase = field(default_factory=KnowledgeBase)
+
+    def to_content(self):
+        return self.generate_report()
 
     def append(self, entry):
         self.entries.append(entry)
@@ -75,15 +75,15 @@ class Trace:
         all_messages = []
         for entry in self.entries:
             if isinstance(entry, Trace):
-                if entry.result is not None:
-                    all_messages.append(entry.result)
+                if entry.answer is not None:
+                    all_messages.append({'role': 'assistant', 'content': entry.generate_report()})
             elif isinstance(entry, ToolResult):
                 all_messages.append(entry.to_message())
             elif isinstance(entry, Message):
                 all_messages.append(entry.model_dump())
             elif isinstance(entry, dict):
                 all_messages.append(entry)
-            elif isinstance(entry, Question):
+            elif isinstance(entry, Prompt):
                 all_messages.append(entry.to_message())
             else:
                 raise ValueError(f'Unsupported entry type: {type(entry)}')
@@ -154,16 +154,24 @@ The answer to the question:"{self.user_question()}" is:
 
 # Example usage
 if __name__ == "__main__":
-    trace = Trace([Question('What is the distance from Moscow to Sao Paulo?')])
+    user_prompt_template = "Question: {question}\nMax LLM calls: {max_llm_calls}"
+
+    #question = Question(user_prompt_template, question='What is the distance from Moscow to Sao Paulo?', max_llm_calls=10)
+    #print(question.to_message())
+
+    trace = Trace()
+    trace.append(Question(user_prompt_template, 'What is the distance from Moscow to Sao Paulo?', 10))
     trace.append({'node1': 'value1'})
     trace.append(ToolResult(tool_call_id='tool_call_id', name='tool_name', output='tool_result'))
 
-    sub_trace = Trace([trace.entries[0]], {'role': 'assistant', 'content': 'sub_trace_result'})
-    trace.append(sub_trace)
+    sub_trace = Trace(
+        [Question(user_prompt_template, 'Where is Sao Paulo?', 10)],
+        answer=Answer('sub_trace_result', 'sub_trace_result', 'because'))
+    trace.append(ToolResult(tool_call_id='tool_call_id', name='process', output=sub_trace))
 
     # print main trace messages
     pprint(trace.to_messages())
 
-    pprint(sub_trace.to_messages())
+#    pprint(sub_trace.to_messages())
 
     print(str(trace))

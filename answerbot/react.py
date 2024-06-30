@@ -38,28 +38,18 @@ class LLMReactor:
     toolbox: list[Callable|HasLLMTools]
     max_llm_calls: int
     system_prompt: str
+    user_prompt_template: str
     question_checks: list[str] = field(default_factory=list)
 
     class LLMReactorError(Exception):
         pass
 
-    def delegate(self, question: str) -> str:
-        """
-        Delegate the question to an expert.
-        """
-        # The function docstring is probably not enough information to delegate the question to an expert
-        # So it needs to be overriden by wrapping delegate in LLMFunction
-
-        print(f'Delegating question: "{question}" to an expert')
-
-        trace = self.process(question)
-        return trace.answer
-
 
     def process(self, question: str) -> Trace:
+        print("Processing question:", question)
         trace = Trace()
         trace.append({'role': 'system', 'content': self.system_prompt})
-        trace.append(Question(question, self.max_llm_calls))
+        trace.append(Question(self.user_prompt_template, question, self.max_llm_calls - 1))
 
         while trace.answer is None and trace.step <= self.max_llm_calls + 1:
             self.one_step(trace)

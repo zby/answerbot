@@ -51,8 +51,7 @@ def test_get_page_http_error(mock_get):
 
 # Test successful search
 @patch('answerbot.tools.wiki_tool.requests.get')
-@patch('answerbot.tools.wiki_tool.WikipediaTool.get_page')
-def test_search_success(mock_get_page, mock_get):
+def test_search_success(mock_get):
     mock_http_response = MagicMock()
     mock_http_response.json.return_value = {
         'query': {
@@ -62,13 +61,6 @@ def test_search_success(mock_get_page, mock_get):
     mock_http_response.raise_for_status.return_value = None
     mock_get.return_value = mock_http_response
 
-    # Mock get_page to return a dummy observation
-    mock_get_page.return_value = Observation([
-        InfoPiece(text="mock get page infopiece 1", source="https://en.wikipedia.org/wiki/TestTitle1"),
-        InfoPiece(text="mock get page infopiece 2", source="https://en.wikipedia.org/wiki/TestTitle1")
-        ],
-    )
-
     wiki_tool = WikipediaTool()
     observation = wiki_tool.search("test_query")
 
@@ -76,24 +68,23 @@ def test_search_success(mock_get_page, mock_get):
     assert observation.info_pieces[1].text.startswith("Wikipedia search results for query: 'test_query' are:")
     assert "- [TestTitle1](https://en.wikipedia.org/wiki/TestTitle1)" in observation.info_pieces[1].text
     assert "- [TestTitle2](https://en.wikipedia.org/wiki/TestTitle2)" in observation.info_pieces[1].text
-    mock_get_page.assert_called_once_with('TestTitle1')
-    # Check if the content from get_page is included in the observation
-    assert observation.info_pieces[2].text == "mock get page infopiece 1"
-    assert observation.info_pieces[3].text == "mock get page infopiece 2"
-
 
 def test_observation_stringification():
 
     # Create an Observation with multiple InfoPieces
     info_pieces = [
-        InfoPiece(text="First piece of information\nSecond piece of information", source="First URL"),
-        InfoPiece(text="Third piece of information\nFourth piece of information", source="Second URL")
+        InfoPiece(text="First piece of information\nSecond piece of information", source="First URL", quotable=True),
+        InfoPiece(text="Third piece of information\nFourth piece of information", source="Second URL", quotable=True)
     ]
-    observation = Observation(info_pieces=info_pieces)
+    observation = Observation(info_pieces=info_pieces, operation="search")
 
     # Convert the Observation to string and verify
     observation_str = str(observation)
-    expected_str = """
+    print(observation_str)
+    print()
+    print('-----------------')
+    print()
+    expected_str = """**Operation:** search
 
 First piece of information
 Second piece of information
@@ -103,7 +94,6 @@ Third piece of information
 Fourth piece of information
 — *from Second URL*"""
     assert observation_str == expected_str, "The Observation stringification did not match the expected format."
-    print(observation_str)
 
 
 def test_lookup_method():

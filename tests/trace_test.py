@@ -3,28 +3,74 @@ from answerbot.trace import Trace, Question
 from answerbot.tools.wiki_tool import Observation, InfoPiece
 from answerbot.clean_reflection import ReflectionResult, KnowledgeBase
 
+from llm_easy_tools.processor import ToolResult
+
+
+user_prompt_template = "Question: {question}\nMax LLM calls: {max_llm_calls}"
+user_question = Question(user_prompt_template, "What is the capital of France?", 3)
+
 def test_append():
-    sample_trace = Trace()
+    trace = Trace()
     entry = {"role": "user", "content": "What is the capital of France?"}
-    sample_trace.append(entry)
-    assert sample_trace.entries[-1] == entry
+    trace.append(entry)
+    assert trace.entries[-1] == entry
 
 def test_question():
-    sample_trace = Trace([Question("What is the capital of France?")])
-    assert sample_trace.to_messages()[0] == {"role": "user", "content": "Question: What is the capital of France?"}
-    sample_trace.append({"role": "assistant", "content": "Paris"})
-    assert sample_trace.user_question() == "What is the capital of France?"
+    trace = Trace([user_question])
+    assert trace.to_messages()[0] == {"role": "user", "content": "Question: What is the capital of France?\nMax LLM calls: 3"}
+    trace.append({"role": "assistant", "content": "Paris"})
+    assert trace.user_question() == "What is the capital of France?"
 
 def test_to_messages():
-    sample_trace = Trace([Question("What is the capital of France?")])
-    sample_trace.append(Trace([], result={"role": "assistant", "content": "Paris"}))
-    messages = sample_trace.to_messages()
-    assert messages == [
-        {"role": "user", "content": "Question: What is the capital of France?"},
-        {"role": "assistant", "content": "Paris"}
-    ]
+    main_trace = Trace([user_question])
+
+    # Test simple dictionary entry
+    main_trace.append({"role": "assistant", "content": "The capital of France is Paris."})
+    messages = main_trace.to_messages()
+    assert len(messages) == 2
+    assert messages[1] == {"role": "assistant", "content": "The capital of France is Paris."}
+
+    sub_trace_question = Question(user_prompt_template, "What is the population of Paris?", 3)
+
+    # Test sub_trace without answer
+    sub_trace_no_answer = Trace([sub_trace_question])
+    sub_trace_no_answer.append({"role": "assistant", "content": "I need to look that up."})
+    main_trace.append(sub_trace_no_answer)
+    messages = main_trace.to_messages()
+    assert len(messages) == 2  # adding a sub trace without answer should not mean we add more messages
+
+    # Test sub_trace with answer
+    sub_trace_with_answer = Trace([sub_trace_question])
+    sub_trace_with_answer.append({"role": "assistant", "content": "The population of Paris is approximately 2.2 million."})
+    sub_trace_with_answer.set_answer("2.2 million", "2.2M", "Based on recent census data.")
+    main_trace.append(sub_trace_with_answer)
+    messages = main_trace.to_messages()
+    assert len(messages) == 3
+    report = messages[2]['content']
+    assert "2.2 million" in report
+    assert "Based on recent census data." in report
+
+def test_sub_trace_wrapped_in_tool_result():
+    main_trace = Trace([user_question])
+    sub_trace_question = Question(user_prompt_template, "What is the population of Paris?", 3)
+    sub_trace_with_answer = Trace([sub_trace_question])
+    sub_trace_with_answer.append({"role": "assistant", "content": "The population of Paris is approximately 2.2 million."})
+    sub_trace_with_answer.set_answer("2.2 million", "2.2M", "Based on recent census data.")
+    tool_result = ToolResult(
+        tool_call_id="123",
+        name="population_lookup",
+        output=sub_trace_with_answer
+    )
+    main_trace.append(tool_result)
+
+    messages = main_trace.to_messages()
+    assert len(messages) == 2
+    report = messages[1]['content']
+    assert "2.2 million" in report
+    assert "Based on recent census data." in report
+
 def test_trace_length():
-    trace = Trace([Question("What is the capital of France?"), {"role": "assistant", "content": "Paris"}])
+    trace = Trace([user_question, {"role": "assistant", "content": "Paris"}])
     sub_trace = Trace([{"role": "system", "content": "Sub trace content"}])
     trace.append(sub_trace)
     assert trace.length() == 3  # 2 from main trace + 1 from sub trace

@@ -14,22 +14,30 @@ import re
 _FRONTMATTER_DOCUMENT_RE = re.compile(r'^---\s*\n(.*?)\n---\s*\n(.*)', re.DOTALL)
 
 
-def fm_dumps(content: str, meta: dict[str, Any]) -> str:
+def dump(content: str, meta: dict[str, Any]) -> str:
     if not meta:
         return content
-    metadata_str = yaml.dump(meta, default_flow_style=False)
+    metadata_str = dump_fm(meta)
     return f"---\n{metadata_str}---\n{content}"
 
 
-def fm_parse(src: str) -> tuple[str, dict[str, Any]]:
+def load(src: str) -> tuple[str, dict[str, Any]]:
     match = _FRONTMATTER_DOCUMENT_RE.match(src)
 
     if not match:
         return src, {}
 
     metadata_str, content = match.groups()
-    metadata = yaml.safe_load(metadata_str)
+    metadata = load_fm(metadata_str)
     return content, metadata
+
+
+def dump_fm(meta: dict[str, Any]):
+    return yaml.dump(meta, default_flow_style=False)
+
+
+def load_fm(fm: str) -> dict[str, Any]:
+    return yaml.safe_load(fm)
 
 
 
@@ -46,12 +54,12 @@ tags: ["markdown", "tutorial", "metadata"]
 Metadata helps organize and manage Markdown documents more effectively...
     '''
 
-    content, meta = fm_parse(document) 
+    content, meta = load(document) 
 
     print(f'*** parsed ***:\nmetadata:{meta}\ncontent:\n{content}')
-    print(f'*** parsed w/o metadata ***\n{fm_parse(content)}')
-    dumped = fm_dumps(content, meta)
+    print(f'*** parsed w/o metadata ***\n{load(content)}')
+    dumped = dump(content, meta)
     print(f'*** dumped with metadata ***\n{dumped}')
-    print(f'*** dumped w/o metadata ***\n{fm_dumps(content, {})}')
-    content_meta = fm_parse(dumped)
+    print(f'*** dumped w/o metadata ***\n{dump(content, {})}')
+    content_meta = load(dumped)
     print(f'*** parsed back ***:\nmetadata:{meta}\ncontent:\n{content}')

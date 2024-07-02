@@ -75,6 +75,8 @@ class Trace(ToContent):
         all_messages = []
         for entry in self.entries:
             if isinstance(entry, Trace):
+                if entry.result is not None:
+                    all_messages.append(entry.result)
                 if entry.answer is not None:
                     all_messages.append({'role': 'assistant', 'content': entry.generate_report()})
             elif isinstance(entry, ToolResult):

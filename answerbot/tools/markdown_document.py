@@ -93,14 +93,14 @@ class MarkdownDocument:
         self.lookup_position = -1  # Reset the match index
         self.lookup_word = keyword
 
-        for match in re.finditer(re.escape(keyword), self.text):
+        for match in re.finditer(re.escape(keyword), self.text, re.IGNORECASE):
             self.lookup_results.append(match.start())  # Save the start position of the match
 
         # TODO make this more systematic with other variants of Markdown in keywords
         if keyword.startswith('#') and not self.lookup_results:
             # Insert space after the initial sequence of '#' characters using regexp
             spaced_keyword = re.sub(r'^(#+)', r'\1 ', keyword)
-            for match in re.finditer(re.escape(spaced_keyword), self.text):
+            for match in re.finditer(re.escape(spaced_keyword), self.text, re.IGNORECASE):
                 self.lookup_results.append(match.start())  # Save the start position of the match
 
         return self.next_lookup()

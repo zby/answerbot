@@ -9,6 +9,16 @@ from llm_easy_tools.processor import ToContent
 from answerbot.clean_reflection import ReflectionResult, KnowledgeBase
 from answerbot.tools.observation import Observation
 
+import traceback
+
+from litellm import completion
+import litellm
+
+# Global configuration
+litellm.num_retries = 3
+litellm.retry_delay = 10
+litellm.retry_multiplier = 2
+
 
 @dataclass(frozen=True)
 class Prompt:
@@ -52,11 +62,11 @@ class Answer:
 class Trace(ToContent):
     entries: list[Union[dict, Prompt, Message, ToolResult, 'Trace']] = field(default_factory=list)
     result: Optional[dict] = None
+    hidden_answer: Optional[str] = None
     step: int = 0
     answer: Optional[Answer] = None
     soft_errors: list[str] = field(default_factory=list)
     reflection_prompt: list[str] = field(default_factory=list)
-    what_have_we_learned: KnowledgeBase = field(default_factory=KnowledgeBase)
 
     def to_content(self):
         return self.generate_report()
@@ -110,7 +120,6 @@ class Trace(ToContent):
                 f"    answer={self.answer},\n"
                 f"    soft_errors={self.soft_errors},\n"
                 f"    reflection_prompt={self.reflection_prompt},\n"
-                f"    what_have_we_learned={self.what_have_we_learned}\n"
                 f")")
 
     def length(self):
@@ -121,17 +130,6 @@ class Trace(ToContent):
             else:
                 length += 1
         return length
-
-    def update_knowledge_base(self, reflection: ReflectionResult, observation: Observation) -> str:
-        knowledge_piece = reflection.extract_knowledge(observation)
-        self.what_have_we_learned.add_knowledge_piece(knowledge_piece)
-        reflection.remove_checked_urls(self.what_have_we_learned.urls())
-        reflection_string = f"current url: {knowledge_piece.url}\n"
-        if len(reflection.new_sources) > 0 or not knowledge_piece.is_empty():
-            reflection_string += f"{str(knowledge_piece)}\n"
-            if len(reflection.new_sources) > 0:
-                reflection_string += f"Discovered new sources: {reflection.new_sources}"
-        return reflection_string
 
 
     def generate_report(self) -> str:
@@ -151,6 +149,40 @@ The answer to the question:"{self.user_question()}" is:
         """
         self.set_answer(answer, answer_short, reasoning)
         return answer
+
+    def openai_query(self, model, schemas=[]):
+        messages = self.to_messages()
+        args = {
+            'model': model,
+            'messages': messages
+        }
+
+        if len(schemas) > 0:
+            args['tools'] = schemas
+            if len(schemas) == 1:
+                args['tool_choice'] = {'type': 'function', 'function': {'name': schemas[0]['function']['name']}}
+            else:
+                args['tool_choice'] = "auto"
+
+        result = completion(**args)
+        message = result.choices[0].message
+
+        # Remove all but one tool_call from the result if present
+        # With many tool calls the LLM gets confused about the state of the tools
+        if hasattr(message, 'tool_calls') and message.tool_calls:
+            #print(f"Tool calls: {result.choices[0].message.tool_calls}")
+            if len(message.tool_calls) > 1:
+                self.soft_errors.append(f"More than one tool call: {message.tool_calls}")
+                message.tool_calls = [message.tool_calls[0]]
+
+        if len(schemas) > 0:
+            if not hasattr(message, 'tool_calls') or not message.tool_calls:
+                stack_trace = traceback.format_stack()
+                self.soft_errors.append(f"No function call:\n{stack_trace}")
+
+        self.append(message)
+
+        return result
 
 
 

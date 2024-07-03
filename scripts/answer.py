@@ -17,9 +17,9 @@ logger = logging.getLogger(__name__)
 
 
 load_dotenv()
-#litellm.success_callback = ["langfuse"]
-#litellm.failure_callback = ["langfuse"]
-litellm.success_callback=["helicone"]
+litellm.success_callback = ["langfuse"]
+litellm.failure_callback = ["langfuse"]
+#litellm.success_callback=["helicone"]
 #litellm.set_verbose=True
 
 sys_prompt = """You are a helpful assistant with extensive knowledge of wikipedia.
@@ -74,26 +74,21 @@ if __name__ == "__main__":
     #question = "Who portrayed Corliss Archer in the film Kiss and Tell?"
 
 
-    max_llm_calls = 4
+    max_llm_calls = 7
 
     reactor = LLMReactor(
-        #model='gpt-3.5-turbo',
+        model='gpt-3.5-turbo',
         #model='claude-3-5-sonnet-20240620',
-        model="claude-3-haiku-20240307",
+        #model="claude-3-haiku-20240307",
         toolbox=[WikipediaTool(chunk_size=400)],
         max_llm_calls=max_llm_calls,
         system_prompt=sys_prompt,
         user_prompt_template=user_prompt_template,
-        question_checks=[]
     )
     trace = reactor.process(question)
     print(trace.generate_report())
     print()
-    print(str(trace.what_have_we_learned))
-    print()
     pprint(trace.soft_errors)
     with open('data/trace.py', 'w') as file:
         file.write(repr(trace))
-    with open('data/what_have_we_learned.py', 'w') as file:
-        file.write(repr(trace.what_have_we_learned))
 #    print(format_markdown(reactor.conversation))

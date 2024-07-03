@@ -383,6 +383,8 @@ if __name__ == "__main__":
     #print(str(tool.lookup("arena")))
 
     observation = tool.get_url("https://en.wikipedia.org/wiki/Kiss_and_Tell_(1945_film)")
+    #print(str(observation))
+    observation = tool.lookup("cast")
     print("\nObservation:\n\n")
     print(str(observation))
     #print(observation.available_tools)

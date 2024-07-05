@@ -39,22 +39,10 @@ Please remember that the retrieved content is only a fragment of the whole page.
         if new_result.error is not None:
             raise new_result.error
         reflection = new_result.output
-        reflection_string = self.update_knowledge_base(knowledge_base, reflection, observation)
+        reflection_string = knowledge_base.update_knowledge_base(reflection, observation)
         trace.hidden_result = reflection_string
         print(reflection_string)
         return trace
-
-    def update_knowledge_base(self, knowledge_base: KnowledgeBase, reflection: ReflectionResult, observation: Observation) -> str:
-        knowledge_piece = reflection.extract_knowledge(observation)
-        knowledge_base.add_knowledge_piece(knowledge_piece)
-        reflection.remove_checked_urls(knowledge_base.urls())
-        reflection_string = f"current url: {knowledge_piece.url}\n"
-        if len(reflection.new_sources) > 0 or not knowledge_piece.is_empty():
-            reflection_string += f"{str(knowledge_piece)}\n"
-            if len(reflection.new_sources) > 0:
-                reflection_string += f"Discovered new sources: {reflection.new_sources}"
-        return reflection_string
-
 
 @dataclass(frozen=True)
 class Planner:

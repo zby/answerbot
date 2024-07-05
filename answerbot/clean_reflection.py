@@ -141,6 +141,19 @@ class KnowledgeBase(BaseModel):
                 content += f"\n    No relevant information found"
         return content
 
+    def update_knowledge_base(self, reflection: ReflectionResult, observation: Observation) -> str:
+        knowledge_piece = reflection.extract_knowledge(observation)
+        self.add_knowledge_piece(knowledge_piece)
+        reflection.remove_checked_urls(self.urls())
+        reflection_string = f"current url: {knowledge_piece.url}\n"
+        if len(reflection.new_sources) > 0 or not knowledge_piece.is_empty():
+            reflection_string += f"{str(knowledge_piece)}\n"
+            if len(reflection.new_sources) > 0:
+                reflection_string += f"Discovered new sources: {reflection.new_sources}"
+        return reflection_string
+
+
+
 if __name__ == "__main__":
     # Create KnowledgePiece instances and assign them to variables
     knowledge_piece1 = KnowledgePiece(

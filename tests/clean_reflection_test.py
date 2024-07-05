@@ -1,5 +1,5 @@
 import pytest
-from answerbot.clean_reflection import ReflectionResult 
+from answerbot.clean_reflection import ReflectionResult, KnowledgeBase
 from answerbot.tools.wiki_tool import Observation, InfoPiece
 
 def test_stringification():
@@ -89,4 +89,28 @@ def test_check_base():
     assert "machine learning" in checked_knowledge_piece.quotes, "Should find 'machine learning'"
     assert "revolutionize" in checked_knowledge_piece.quotes, "Should find 'revolutionize'"
     assert len(checked_knowledge_piece.quotes) == 4, "Should have four valid quotes checked"
+
+def test_update_knowledge_base():
+    what_have_we_learned = KnowledgeBase()
+    what_have_we_learned.add_info(
+        url="https://something.com",
+        quotes=["Something is something."],
+        learned="Something is something."
+    )
+
+    observation = Observation(
+        info_pieces=[InfoPiece(text="Paris is the capital of France.", quotable=True)],
+        current_url="https://example.com"
+    )
+
+    reflection_result = ReflectionResult(
+        what_have_we_learned="Paris is the capital of France.",
+        comment="We are learning something new.",
+        new_sources=["https://newsource.com"],
+        relevant_quotes=["Paris is the capital of France."]
+    )
+    knowledge_update_str = what_have_we_learned.update_knowledge_base(reflection_result, observation)
+    assert "https://example.com" in knowledge_update_str
+    print(what_have_we_learned.urls())
+    assert set(what_have_we_learned.urls()) == {"https://something.com", "https://example.com"}
 

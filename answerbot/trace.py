@@ -39,32 +39,13 @@ class Question(Prompt):
     max_llm_calls: int
 
 
-@dataclass(frozen=True)
-class Answer:
-    answer: str
-    answer_short: str
-    reasoning: str
-
-    def normalized_answer(self):
-        answer = self.answer
-        answer = answer.strip(' \n.\'"')
-        answer = answer.replace('’', "'")  # Replace all curly apostrophes with straight single quotes
-        answer = answer.replace('"', "'")  # Replace all double quotes with straight single quotes
-        if answer.lower() == 'yes' or answer.lower() == 'no':
-            answer = answer.lower()
-        return answer
-
-    def __str__(self):
-        return f'{self.normalized_answer()}\n\nReasoning: {self.reasoning}'
-
-
 @dataclass
 class Trace(ToContent):
     entries: list[Union[dict, Prompt, Message, ToolResult, 'Trace']] = field(default_factory=list)
     result: Optional[dict] = None
     hidden_answer: Optional[str] = None
     step: int = 0
-    answer: Optional[Answer] = None
+    answer: Optional[object] = None
     soft_errors: list[str] = field(default_factory=list)
     reflection_prompt: list[str] = field(default_factory=list)
 
@@ -73,9 +54,6 @@ class Trace(ToContent):
 
     def append(self, entry):
         self.entries.append(entry)
-
-    def set_answer(self, answer: str, answer_short: str, reasoning: str):
-        self.answer = Answer(answer, answer_short, reasoning)
 
     def to_messages(self) -> list[dict]:
         """
@@ -139,17 +117,6 @@ The answer to the question:"{self.user_question()}" is:
 '''
         return report
 
-    def finish(self,
-               answer: Annotated[str, "The answer to the user's question"],
-               answer_short: Annotated[str, "A short version of the answer"],
-               reasoning: Annotated[str, "The reasoning behind the answer. Think step by step. Mention all assumptions you make."],
-    ):
-        """
-        Finish the task and return the answer.
-        """
-        self.set_answer(answer, answer_short, reasoning)
-        return answer
-
     def openai_query(self, model, schemas=[]):
         messages = self.to_messages()
         args = {
@@ -199,8 +166,7 @@ if __name__ == "__main__":
     trace.append(ToolResult(tool_call_id='tool_call_id', name='tool_name', output='tool_result'))
 
     sub_trace = Trace(
-        [Question(user_prompt_template, 'Where is Sao Paulo?', 10)],
-        answer=Answer('sub_trace_result', 'sub_trace_result', 'because'))
+        [Question(user_prompt_template, 'Where is Sao Paulo?', 10)],)
     trace.append(ToolResult(tool_call_id='tool_call_id', name='process', output=sub_trace))
 
     # print main trace messages

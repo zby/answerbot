@@ -1,6 +1,6 @@
 import logging
 import copy
-from typing import Literal, Union, Callable, Any, Protocol, Iterable, runtime_checkable, Optional
+from typing import Literal, Union, Callable, Any, Protocol, Iterable, runtime_checkable, Optional, Annotated
 from pprint import pprint
 from dataclasses import dataclass, field
 
@@ -20,6 +20,26 @@ logger = logging.getLogger(__name__)
 class HasLLMTools(Protocol):
     def get_llm_tools(self) -> Iterable[Callable]:
         pass
+
+
+@dataclass(frozen=True)
+class Answer:
+    answer: str
+    answer_short: str
+    reasoning: str
+
+    def normalized_answer(self):
+        answer = self.answer
+        answer = answer.strip(' \n.\'"')
+        answer = answer.replace('’', "'")  # Replace all curly apostrophes with straight single quotes
+        answer = answer.replace('"', "'")  # Replace all double quotes with straight single quotes
+        if answer.lower() == 'yes' or answer.lower() == 'no':
+            answer = answer.lower()
+        return answer
+
+    def __str__(self):
+        return f'{self.normalized_answer()}\n\nReasoning: {self.reasoning}'
+
 
 @dataclass(frozen=True)
 class LLMReactor:
@@ -60,10 +80,13 @@ class LLMReactor:
         response = trace.openai_query(self.model, schemas)
         results = process_response(response, tools)
         result = results[0]
+        trace.append(result)
         if result.error is not None:
             print(result.error)
             raise self.LLMReactorError(result.stack_trace)
-        trace.append(result)
+        if result.name == 'finish':
+            answer = result.output
+            trace.answer = answer
         self.reflect_and_plan(trace, result.output, what_have_we_learned)
 
     def reflect_and_plan(self, trace: Trace, output, what_have_we_learned: KnowledgeBase) -> None:
@@ -77,7 +100,7 @@ class LLMReactor:
             trace.append(planning_trace)
 
     def get_tools(self, trace: Trace) -> list[Callable]:
-        tools = [trace.finish]
+        tools = [self.finish]
         if trace.step < self.max_llm_calls + 1:
             for item in self.toolbox:
                 if isinstance(item, HasLLMTools):
@@ -87,3 +110,13 @@ class LLMReactor:
                     tools.append(item)
         return tools
 
+    def finish(self,
+               answer: Annotated[str, "The answer to the user's question"],
+               answer_short: Annotated[str, "A short version of the answer"],
+               reasoning: Annotated[str, "The reasoning behind the answer. Think step by step. Mention all assumptions you make."],
+    ):
+        """
+        Finish the task and return the answer.
+        """
+        answer = Answer(answer, answer_short, reasoning)
+        return answer

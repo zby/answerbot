@@ -29,3 +29,6 @@ tenacity==8.2.3
 markdownify==0.12.1
 
 click==8.1.7
+litellm~=1.41.8
+fuzzywuzzy~=0.18.0
+langfuse~=2.38.0

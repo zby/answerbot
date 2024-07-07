@@ -87,10 +87,17 @@ class ChatProcessor(BaseModel):
 
         return result
 
+    def process_tools(self, chat: Chat, tools: list[Callable]):
+        schemas = get_tool_defs(tools)
+        response = self.llm_reply(chat, schemas)
+        results = process_response(response, tools)
+        for result in results:
+            chat.append(result.to_message())
+
 @dataclass
 class ToolLoop:
     chat_processor: ChatProcessor
-    tools: list[HasLLMTools|Callable]
+    toolbox: list[HasLLMTools|Callable]
     max_iterations: int = 5
     iteration: int = 0
     result: Any = None
@@ -99,24 +106,23 @@ class ToolLoop:
         return self.iteration >= self.max_iterations
 
     def process(self, chat: Chat):
-        while self.result is None and not self.last_step():
+        while not self.last_step():
             self.iteration += 1
-            self.do_one_step(chat)
+            result = self.do_one_step(chat)
+            if result is not None:
+                return result
 
     def do_one_step(self, chat: Chat):
         tools = self.get_tools()
-        schemas = get_tool_defs(tools)
-        response = self.chat_processor.llm_reply(chat, schemas)
-        results = process_response(response, tools)
+        results = self.chat_processor.process_tools(chat, tools)
         for result in results:
             if result.name == 'finish':
-                self.result = result.output
-                break
+                return result
 
     def get_tools(self) -> list[Callable]:
         tools = [self.finish]
         if not self.last_step():
-            for item in self.tools:
+            for item in self.toolbox:
                 if isinstance(item, HasLLMTools):
                     new_tools = item.get_llm_tools()
                     tools.extend(new_tools)

@@ -45,20 +45,19 @@ def expand_toolbox(toolbox: list[HasLLMTools|LLMFunction|Callable]) -> list[Call
 
 @dataclass(frozen=True)
 class Prompt:
-    pass
 
-@dataclass(frozen=True)
-class Question(Prompt):
-    question: str
-    max_llm_calls: int
+    @classmethod
+    def template(cls) -> str:
+        raise NotImplementedError("Subclasses must implement this method")
 
 @dataclass
 class Chat:
-    entries: list[Prompt|ToolResult|dict]
+    entries: list[Prompt|ToolResult|dict] = field(default_factory=list)
     templates: dict[Type[Prompt], str] = field(default_factory=dict)
+    system_prompt: Optional[Prompt] = None
 
     def make_message(self, prompt: Prompt, role: str = 'user') -> str:
-        template_str = self.templates[type(prompt)]
+        template_str = prompt.template()
         content = render(template_str, prompt, self)
         return {
             'role': role,
@@ -66,7 +65,10 @@ class Chat:
         }
 
     def to_messages(self) -> list[dict]:
-        messages = []
+        if self.system_prompt:
+            messages = [self.make_message(self.system_prompt, 'system')]
+        else:
+            messages = []
         for message in self.entries:
             if isinstance(message, Prompt):
                 messages.append(self.make_message(message))
@@ -127,6 +129,37 @@ class ChatProcessor:
         for result in results:
             chat.entries.append(result)
 
+@dataclass(frozen=True)
+class SystemPrompt(Prompt):
+    """
+    System prompt for the chat.
+    """
+
+    @classmethod
+    def template(cls) -> str:
+        return """You are a helpful assistant with extensive knowledge of wikipedia.
+You always try to support your answer with quotes from wikipedia.
+You remember that the information you receive from the wikipedia api is not the full page - it is just a fragment.
+You always try to answer the user question, even if it is ambiguous, just note the necessary assumptions.
+You Work carefully - never make two calls to wikipedia in the same step."""
+
+@dataclass(frozen=True)
+class Question(Prompt):
+    question: str
+    max_llm_calls: int
+
+    @classmethod
+    def template(cls) -> str:
+        return """Please answer the following question. You can use wikipedia for reference - but think carefully about what pages exist at wikipedia.
+You have only {{max_llm_calls}} calls to the wikipedia API.
+When searching wikipedia never make any complex queries, always decide what is the main topic you are searching for and put it in the search query.
+When you want to know a property of an object or person - first find the page of that object or person and then browse it to find the property you need.
+
+When you know the answer call Answer. Please make the answer as short as possible. If it can be answered with yes or no that is best.
+Remove all explanations from the answer and put them into the reasoning field.
+
+Question: {{question}}"""
+
 @dataclass
 class Answer:
     """
@@ -135,32 +168,38 @@ class Answer:
     answer: str
     reasoning: str
 
+    @classmethod
+    def template(cls) -> str:
+        return """The answer to the question:"{{chat.user_question()}}" is:
+{{ answer }}
+
+Reasoning:
+{{ reasoning }}"""
+
 @dataclass(frozen=True)
 class StepInfo(Prompt):
     step: int
     max_steps: int
+
+    @classmethod
+    def template(cls) -> str:
+        return """
+Step: {{step + 1}} of {{max_steps + 1}}
+{% if step >= max_steps - 1 %}
+This was the last data retrieval in the next step you must provide an answer to the user question
+{% endif %}
+"""
 
 @dataclass
 class QAApp:
     toolbox: list[HasLLMTools|LLMFunction|Callable]
     max_iterations: int
     model: str
-    system_prompt: str
-    user_prompt_template: str
-    answer_template: str
-    step_info_template: str
 
     def __post_init__(self):
         self.step = 0
         self._chat_processor = ChatProcessor(model=self.model, one_tool_per_step=True)
-        self.chat = Chat(
-            templates = {
-                Prompt: self.system_prompt,
-                Question: self.user_prompt_template,
-                Answer: self.answer_template,
-                StepInfo: self.step_info_template
-            },
-            entries=[Prompt()])
+        self.chat = Chat(system_prompt=SystemPrompt())
 
     def get_tools(self) -> list[Callable|LLMFunction]:
         tools = [Answer]
@@ -182,39 +221,10 @@ class QAApp:
                     logging.warning(soft_error)
             if isinstance(result.output, Answer):
                 answer = result.output
-                return render(self.answer_template, answer, chat)
+                return render(Answer.template(), answer, chat)
             chat.entries.append(StepInfo(self.step, self.max_iterations))
             self.step += 1
         return None
-
-sys_prompt = """You are a helpful assistant with extensive knowledge of wikipedia.
-You always try to support your answer with quotes from wikipedia.
-You remember that the information you receive from the wikipedia api is not the full page - it is just a fragment.
-You always try to answer the user question, even if it is ambiguous, just note the necessary assumptions.
-You Work carefully - never make two calls to wikipedia in the same step."""
-
-user_prompt_template = """Please answer the following question. You can use wikipedia for reference - but think carefully about what pages exist at wikipedia.
-You have only {{max_llm_calls}} calls to the wikipedia API.
-When searching wikipedia never make any complex queries, always decide what is the main topic you are searching for and put it in the search query.
-When you want to know a property of an object or person - first find the page of that object or person and then browse it to find the property you need.
-
-When you know the answer call Answer. Please make the answer as short as possible. If it can be answered with yes or no that is best.
-Remove all explanations from the answer and put them into the reasoning field.
-
-Question: {{question}}"""
-
-answer_template = '''The answer to the question:"{{chat.user_question()}}" is:
-{{ answer }}
-
-Reasoning:
-{{ reasoning }}'''
-
-step_info_template = '''
-Step: {{step + 1}} of {{max_steps + 1}}
-{% if step >= max_steps - 1 %}
-This was the last data retrieval in the next step you must provide an answer to the user question
-{% endif %}
-'''
 
 model='claude-3-5-sonnet-20240620'
 #model='gpt-3.5-turbo'
@@ -223,10 +233,6 @@ app = QAApp(
     toolbox=[WikipediaTool(chunk_size=400)],
     max_iterations=5,
     model=model,
-    system_prompt=sys_prompt,
-    user_prompt_template=user_prompt_template,
-    answer_template=answer_template,
-    step_info_template=step_info_template
 )
 
 question = "What government position was held by the woman who portrayed Corliss Archer in the film Kiss and Tell?"

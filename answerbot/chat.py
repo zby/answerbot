@@ -36,10 +36,7 @@ def expand_toolbox(toolbox: list[HasLLMTools|LLMFunction|Callable]) -> list[Call
 
 @dataclass(frozen=True)
 class Prompt:
-
-    @classmethod
-    def template(cls) -> str:
-        raise NotImplementedError("Subclasses must implement this method")
+    pass
 
 @dataclass
 class Chat:
@@ -55,7 +52,7 @@ class Chat:
 
 
     def make_message(self, prompt: Prompt, role: str = 'user') -> str:
-        template_str = prompt.template()
+        template_str = self.templates.get(type(prompt), type(prompt))
         content = render_prompt(template_str, prompt, self.context)
         return {
             'role': role,

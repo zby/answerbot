@@ -8,6 +8,17 @@ from llm_easy_tools import LLMFunction
 from answerbot.tools.wiki_tool import WikipediaTool
 from answerbot.qa_processor import QAProcessor, SystemPrompt, Question, Answer, StepInfo, prompt_templates
 
+# Set logging level to INFO for qa_processor.py
+#logging.getLogger('qa_processor').setLevel(logging.INFO)
+qa_logger = logging.getLogger('qa_processor')
+qa_logger.setLevel(logging.INFO)
+
+# Create a console handler and set its level to INFO
+console_handler = logging.StreamHandler()
+
+# Add the handler to the logger
+qa_logger.addHandler(console_handler)
+
 #model="claude-3-5-sonnet-20240620"
 #model="claude-3-haiku-20240307"
 model='gpt-3.5-turbo'
@@ -58,8 +69,6 @@ main_processor = QAProcessor(
 )
 
 if __name__ == "__main__":
-    # Set logging level to INFO for qa_processor.py
-    #logging.getLogger('qa_processor').setLevel(logging.INFO)
     #logging.basicConfig(level=logging.INFO)
 
     load_dotenv()

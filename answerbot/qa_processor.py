@@ -71,36 +71,34 @@ This was the last data retrieval in the next step you must provide an answer to 
 """
 }
 
-@dataclass
+@dataclass(frozen=True)
 class QAProcessor:
     toolbox: list[HasLLMTools|LLMFunction|Callable]
     max_iterations: int
     model: str
     prompt_templates: dict[type, str]
 
-    def __post_init__(self):
-        self.step = 0
-        self.chat = Chat(
+    def get_tools(self, step: int) -> list[Callable|LLMFunction]:
+        tools = [Answer]
+        if step < self.max_iterations:
+            tools.extend(expand_toolbox(self.toolbox))
+        return tools
+
+    def process(self, question: str):
+        logger.info(f'Processing question: {question}')
+        chat = Chat(
             model=self.model,
             one_tool_per_step=True,
             system_prompt=SystemPrompt(),
             context=self,
             templates=self.prompt_templates
         )
-
-    def get_tools(self) -> list[Callable|LLMFunction]:
-        tools = [Answer]
-        if self.step < self.max_iterations:
-            tools.extend(expand_toolbox(self.toolbox))
-        return tools
-
-    def process(self, question: str):
-        logger.info(f'Processing question: {question}')
-        chat = self.chat
         chat.entries.append(Question(question, self.max_iterations))
-        while(self.step <= self.max_iterations):
-            tools = self.get_tools()
-            self.chat.process(self, tools)
+
+        for step in range(self.max_iterations + 1):
+            logger.info(f"Step: {step} for question: '{question}'")
+            tools = self.get_tools(step)
+            chat.process(self, tools)
             result = chat.entries[-1]
             if result.error:
                 raise Exception(result.error)
@@ -109,9 +107,9 @@ class QAProcessor:
                     logger.warning(soft_error)
             if isinstance(result.output, Answer):
                 answer = result.output
+                logger.info(f"Answer: '{answer}' for question: '{question}'")
                 return render_prompt(prompt_templates[Answer], answer, {'question': question})
-            chat.entries.append(StepInfo(self.step, self.max_iterations))
-            self.step += 1
+            chat.entries.append(StepInfo(step, self.max_iterations))
         return None
 
 if __name__ == "__main__":

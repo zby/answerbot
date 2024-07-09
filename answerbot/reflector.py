@@ -1,69 +1,92 @@
 from dataclasses import dataclass
-from answerbot.trace import Trace, KnowledgeBase
-from answerbot.tools.observation import Observation
+from answerbot.clean_reflection import KnowledgeBase, KnowledgePiece
+from answerbot.tools.observation import Observation, InfoPiece
 from answerbot.clean_reflection import ReflectionResult
 
-from llm_easy_tools import process_response, get_tool_defs
+from answerbot.chat import Chat, Prompt
+from answerbot.qa_prompts import SystemPrompt, prompt_templates
+
 
 @dataclass(frozen=True)
-class Reflector:
-    system_prompt: str = "You are a researcher working on a user question in a team with other researchers. You need to check the assumptions that the other researchers made."
-    user_prompt_template: str = """# Question
+class LearningPrompt(Prompt):
+    memory: KnowledgeBase
+    question: str
+    observation: Observation
 
-The user's question is: {question}{learned_stuff}
+
+learning_templates: dict[str, str] = {
+    SystemPrompt: "You are a researcher working on a user question in a team with other researchers. You need to check the assumptions that the other researchers made.",
+    LearningPrompt: """# Question
+
+The user's question is: {{question}}
+{% if not memory.is_empty() %}
+
+# Notes from previous work
+
+We have some notes on the following urls:
+{{ memory.learned() }}
+{% endif %}
 
 # Retrieval
 
 We have performed information retrieval with the following results:
-{observation}
+{{observation}}
 
 # Current task
 
 You need to review the information retrieval recorded above and reflect on it.
 You need to note all information that can help in answering the user question that can be learned from the retrieved fragment,
 together with the quotes that support them.
-Please remember that the retrieved content is only a fragment of the whole page.
-"""
+Please remember that the retrieved content is only a fragment of the whole page."""
+}
 
-    def reflect(self, model: str, observation: Observation, question: str, knowledge_base: KnowledgeBase) -> None:
-        trace = Trace()
-        learned_stuff = f"\n\nSo far we have some notes on the following urls:{knowledge_base.learned()}" if not knowledge_base.is_empty() else ""
-        user_prompt = self.user_prompt_template.format(question=question, learned_stuff=learned_stuff, observation=str(observation))
-        trace.append({'role': 'system', 'content': self.system_prompt})
-        trace.append({'role': 'user', 'content': user_prompt})
-        schemas = get_tool_defs([ReflectionResult])
-        response = trace.openai_query(model, schemas)
-        results = process_response(response, [ReflectionResult])
-        new_result = results[0]
-        trace.append(new_result)
-        if new_result.error is not None:
-            raise new_result.error
-        reflection = new_result.output
-        reflection_string = knowledge_base.update_knowledge_base(reflection, observation)
-        trace.hidden_result = reflection_string
-        print(reflection_string)
-        return trace
+learning_templates = prompt_templates | learning_templates
+
+
+def reflect(model: str, observation: Observation, question: str, knowledge_base: KnowledgeBase) -> str:
+    chat = Chat(
+        model=model,
+        one_tool_per_step=True,
+        system_prompt=SystemPrompt(),
+        templates=learning_templates
+    )
+    chat.entries.append(LearningPrompt(memory=knowledge_base, question=question, observation=observation))
+
+    reflections = []
+    for reflection in chat.process([ReflectionResult]):
+        if observation.current_url:
+            reflections.append(knowledge_base.update_knowledge_base(reflection, observation))
+    reflection_string = '\n'.join(reflections)
+
+    return reflection_string
+
 
 @dataclass(frozen=True)
-class Planner:
-    system_prompt: str = "You are a researcher working on a user question in a team with other researchers. You need to check the assumptions that the other researchers made."
-    planning_prompt_template: str = """# Question
+class PlanningPrompt(Prompt):
+    question: str
+    available_tools: str
+    observation: Observation
+    reflection: str
 
-The user's question is: {question}
+planning_templates = {
+    SystemPrompt: "You are a researcher working on a user question in a team with other researchers. You need to check the assumptions that the other researchers made.",
+    PlanningPrompt: """# Question
+
+The user's question is: {{question}}
 
 # Available tools
 
-{available_tools}
+{{available_tools}}
 
 # Retrieval
 
 We have performed information retrieval with the following results:
 
-{observation}
+{{observation}}
 
 # Reflection
 
-{reflection}
+{{reflection}}
 
 # Next step
 
@@ -83,25 +106,75 @@ you can use `read_more` to continue reading or call `lookup('nationality')` or `
 
 Please specify both the tool and the parameters you need to use if applicable.
 Explain your reasoning."""
+}
+
+def plan_next_action(model: str, observation: Observation, question: str, reflection_string: str) -> str:
+    chat = Chat(
+        model=model,
+        system_prompt=SystemPrompt(),
+        templates=planning_templates
+    )
+
+    planning_prompt = PlanningPrompt(
+        question=question,
+        available_tools=observation.available_tools,
+        observation=observation,
+        reflection=reflection_string
+    )
+
+    chat.entries.append(planning_prompt)
+
+    response = chat.llm_reply()
+    planning_result = response.choices[0].message.content
+
+    planning_string = f"**My Notes**\n{reflection_string}\n\nHmm what I could do next?\n\n{planning_result}"
+
+    return planning_string
 
 
-    def plan_next_action(self, model, reflection_string: str, observation: Observation, question: str) -> Trace:
-        trace = Trace()
-        sysprompt = self.system_prompt
-        user_prompt = self.planning_prompt_template.format(
-            question=question,
-            available_tools=observation.available_tools,
-            observation=str(observation),
-            reflection=reflection_string
-        )
-        trace.append({'role': 'system', 'content': sysprompt})
-        trace.append({'role': 'user', 'content': user_prompt})
 
-        response = trace.openai_query(model)
-        planning_result = response.choices[0].message.content
+if __name__ == "__main__":
+    # Example usage of reflect and plan_next_action functions
+    from dotenv import load_dotenv
+    import litellm
 
-        planning_string = f"**My Notes**\n{reflection_string}\n\nHmm what I could do next?\n\n{planning_result}"
-        trace.result = {'role': 'user', 'content': planning_string}
+    load_dotenv()
+    litellm.success_callback = ["langfuse"]
+    litellm.failure_callback = ["langfuse"]
 
-        return trace
+    # Set up example data
+    model = "gpt-3.5-turbo"  # or any other model you're using
+    question = "What was the capital of the East Roman Empire?"
 
+    # Create an example Observation
+    observation = Observation(
+        current_url="https://en.wikipedia.org/wiki/Byzantine_Empire",
+        info_pieces=[
+            InfoPiece("Constantinople was the capital of the Byzantine Empire.", source="Wikipedia", quotable=True),
+            InfoPiece("The Byzantine Empire lasted from 330 AD to 1453 AD.", source="History.com", quotable=True)
+        ],
+        available_tools="search, lookup, read_more",
+        operation="Initial search"
+    )
+
+    # Example knowledge base
+    what_have_we_learned = KnowledgeBase()
+    new_knowledge_piece = KnowledgePiece(
+        url="https://www.britannica.com/place/Byzantine-Empire",
+        quotes=["The Byzantine Empire was also known as the Eastern Roman Empire and was a continuation of the Roman Empire in its eastern provinces."],
+        learned="The Byzantine Empire was a continuation of the Roman Empire in its eastern provinces and was also known as the Eastern Roman Empire."
+    )
+
+    # Add the new KnowledgePiece to the knowledge base
+    what_have_we_learned.add_knowledge_piece(new_knowledge_piece)
+
+    # Call reflect function
+    reflection_string = reflect(model, observation, question, what_have_we_learned)
+    print("Reflection:")
+    print(reflection_string)
+    print("\n" + "="*50 + "\n")
+
+    # Call plan_next_action function
+    planning_string = plan_next_action(model, observation, question, reflection_string)
+    print("Planning:")
+    print(planning_string)

@@ -1,7 +1,7 @@
 from typing import Literal, Union, Callable, Any, Protocol, Iterable, runtime_checkable, Optional, Annotated, Type, TypeVar
 from dataclasses import dataclass, asdict, field, is_dataclass
 from pydantic import BaseModel
-from litellm import completion, ModelResponse
+from litellm import completion, ModelResponse, Message
 from jinja2 import Template
 
 from llm_easy_tools import get_tool_defs, process_response, ToolResult, LLMFunction 
@@ -10,13 +10,12 @@ from answerbot.tools.wiki_tool import WikipediaTool
 
 import logging
 
-T = TypeVar('T')
+# Configure logging for this module
+logger = logging.getLogger('anserbot.chat')
 
-def render_prompt(template_str: str, obj: T, context: Optional[object] = None) -> str:
-    if not is_dataclass(obj):
-        raise TypeError("The 'obj' parameter must be a dataclass instance")
+def render_prompt(template_str: str, obj: object, context: Optional[object] = None) -> str:
     template = Template(template_str)
-    fields = asdict(obj)
+    fields = {field.name: getattr(obj, field.name) for field in obj.__dataclass_fields__.values()}
     result = template.render(context=context, **fields)
     return result
 
@@ -41,18 +40,18 @@ class Prompt:
 @dataclass
 class Chat:
     model: str
-    entries: list[Prompt|ToolResult|dict] = field(default_factory=list)
+    entries: list[Prompt|ToolResult|dict|Message] = field(default_factory=list)
     templates: dict[Type[Prompt], str] = field(default_factory=dict)
     system_prompt: Optional[Prompt] = None
     one_tool_per_step: bool = True
     # With statefull tools with many tool calls the LLM gets confused about the state of the tools
     # There should be an option in the litellm api for that
-    context: object = None
+    context: Optional[object] = None
     # for use in prompt templates
 
 
     def make_message(self, prompt: Prompt, role: str = 'user') -> str:
-        template_str = self.templates.get(type(prompt), type(prompt))
+        template_str = self.templates[type(prompt)]
         content = render_prompt(template_str, prompt, self.context)
         return {
             'role': role,
@@ -69,8 +68,10 @@ class Chat:
                 messages.append(self.make_message(message))
             elif isinstance(message, ToolResult):
                 messages.append(message.to_message())
-            else:
+            elif isinstance(message, dict) or isinstance(message, Message):
                 messages.append(message)
+            else:
+                raise ValueError(f"Unsupported message type: {type(message)}")
         return messages
 
     def llm_reply(self, schemas=[]) -> ModelResponse:
@@ -104,11 +105,19 @@ class Chat:
 
         return result
 
-    def process(self, context: object, tools: list[Callable|LLMFunction]):
+    def process(self, tools: list[Callable|LLMFunction]):
         schemas = get_tool_defs(tools)
         response = self.llm_reply(schemas)
         results = process_response(response, tools)
+        outputs = []
         for result in results:
+            if result.soft_errors:
+                for soft_error in result.soft_errors:
+                    logger.warning(soft_error)
             self.entries.append(result)
-        return results
+            if result.error:
+                raise Exception(result.error)
+            outputs.append(result.output)
+
+        return outputs
 

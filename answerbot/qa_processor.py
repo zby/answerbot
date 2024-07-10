@@ -1,11 +1,11 @@
 from dataclasses import dataclass
 from typing import Callable, Any
 
-from llm_easy_tools import LLMFunction
+from llm_easy_tools import LLMFunction, get_tool_defs
 
 import logging
 
-from answerbot.chat import Chat, HasLLMTools, SystemPrompt, render_prompt
+from answerbot.chat import Chat, HasLLMTools, SystemPrompt, render_prompt, expand_toolbox
 from answerbot.tools.observation import Observation
 from answerbot.reflector import reflect, plan_next_action 
 from answerbot.knowledgebase import KnowledgeBase
@@ -52,11 +52,19 @@ class QAProcessor:
             chat.append(StepInfo(step, self.max_iterations))
             if isinstance(output, Observation) and output.reflection_needed():
                 observation = output
-                reflection_string = reflect(self.model, observation, question, what_have_we_learned)
+                reflection_string = reflect(self.model, question, observation, what_have_we_learned)
 
-                planning_string = plan_next_action(self.model, observation, question, reflection_string)
+                available_tools = self.get_tools(step)
+                planning_string = plan_next_action(self.model, question, available_tools, observation, reflection_string)
                 chat.append({'role': 'user', 'content': planning_string})
         return None
+
+    def get_available_tools(self, step: int)-> str:
+        tools = self.get_tools(step)
+        schemas = get_tool_defs(tools)
+        available_tools = self.format_tool_docstrings(schemas)
+        return available_tools
+
 
 @dataclass
 class QAProcessorDeep:

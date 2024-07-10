@@ -109,36 +109,8 @@ class WikipediaTool:
         cleaned_content = markdown.strip()
         return cleaned_content
 
-    def format_tool_docstrings(self, schemas: list[dict]) -> str:
-        formatted_list = []
-        for schema in schemas:
-            func_name = schema['function']['name']
-            description = schema['function'].get('description', '')
-
-            # Start with function name and description
-            doc = f"- **{func_name}**\n\n"
-            doc += "\n".join(f"  {line}" for line in description.split('\n')) + "\n\n"
-
-            # Add parameters section if present
-            if 'parameters' in schema['function']:
-                doc += "  Parameters\n  ----------\n"
-                properties = schema['function']['parameters'].get('properties', {})
-                for param, details in properties.items():
-                    param_type = details.get('type', 'Any')
-                    param_desc = details.get('description', '')
-                    doc += f"  {param} : {param_type}\n"
-                    doc += "\n".join(f"      {line}" for line in param_desc.split('\n')) + "\n"
-
-            formatted_list.append(doc)
-
-        return "\n".join(formatted_list)
-
     def mk_observation(self, info_pieces, operation):
-        tools = self.get_llm_tools()
-        schemas = get_tool_defs(tools)
-        available_tools = self.format_tool_docstrings(schemas)
-
-        return Observation(info_pieces, current_url=self.current_url, available_tools=available_tools, operation=operation)
+        return Observation(info_pieces, current_url=self.current_url, operation=operation)
 
     def get_sections_infopiece(self) -> Union[InfoPiece, None]:
         if self.document is None:

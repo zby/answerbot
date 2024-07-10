@@ -1,12 +1,16 @@
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, Callable
 from pydantic import BaseModel, Field, field_validator
 from fuzzywuzzy import fuzz
+
+from llm_easy_tools import LLMFunction, get_tool_defs 
 
 from answerbot.knowledgebase import KnowledgeBase, KnowledgePiece
 from answerbot.tools.observation import Observation, InfoPiece
 
-from answerbot.chat import Chat, Prompt, SystemPrompt
+from answerbot.chat import Chat, Prompt, SystemPrompt, HasLLMTools, expand_toolbox
+
+import logging
 
 
 class ReflectionResult(BaseModel):
@@ -112,7 +116,7 @@ Please remember that the retrieved content is only a fragment of the whole page.
 }
 
 
-def reflect(model: str, observation: Observation, question: str, knowledge_base: KnowledgeBase) -> str:
+def reflect(model: str, question: str, observation: Observation, knowledge_base: KnowledgeBase) -> str:
     chat = Chat(
         model=model,
         one_tool_per_step=True,
@@ -134,8 +138,8 @@ def reflect(model: str, observation: Observation, question: str, knowledge_base:
 class PlanningPrompt(Prompt):
     question: str
     available_tools: str
-    observation: Observation
-    reflection: str
+    observation: Optional[Observation] = None
+    reflection: Optional[str] = None
 
 planning_templates = {
     SystemPrompt: "You are a researcher working on a user question in a team with other researchers. You need to check the assumptions that the other researchers made.",
@@ -147,6 +151,7 @@ The user's question is: {{question}}
 
 {{available_tools}}
 
+{% if observation %}
 # Retrieval
 
 We have performed information retrieval with the following results:
@@ -156,6 +161,7 @@ We have performed information retrieval with the following results:
 # Reflection
 
 {{reflection}}
+{% endif %}
 
 # Next step
 
@@ -177,22 +183,55 @@ Please specify both the tool and the parameters you need to use if applicable.
 Explain your reasoning."""
 }
 
-def plan_next_action(model: str, observation: Observation, question: str, reflection_string: str) -> str:
+def format_tool_docstrings(schemas: list[dict]) -> str:
+    formatted_list = []
+    for schema in schemas:
+        func_name = schema['function']['name']
+        description = schema['function'].get('description', '')
+
+        # Start with function name and description
+        doc = f"- **{func_name}**\n\n"
+        doc += "\n".join(f"  {line}" for line in description.split('\n')) + "\n\n"
+
+        # Add parameters section if present
+        if 'parameters' in schema['function']:
+            doc += "  Parameters\n  ----------\n"
+            properties = schema['function']['parameters'].get('properties', {})
+            for param, details in properties.items():
+                param_type = details.get('type', 'Any')
+                param_desc = details.get('description', '')
+                doc += f"  {param} : {param_type}\n"
+                doc += "\n".join(f"      {line}" for line in param_desc.split('\n')) + "\n"
+
+        formatted_list.append(doc)
+
+    return "\n".join(formatted_list)
+
+
+def plan_next_action(
+    model: str,
+    question: str,
+    available_tools: list[LLMFunction, Callable, HasLLMTools],
+    observation: Optional[Observation] = None,
+    reflection_string: Optional[str] = None
+) -> str:
     chat = Chat(
         model=model,
         system_prompt=SystemPrompt(),
         templates=planning_templates
     )
 
+    schemas = get_tool_defs(expand_toolbox(available_tools))
+    available_tools_str = format_tool_docstrings(schemas)
+
     planning_prompt = PlanningPrompt(
         question=question,
-        available_tools=observation.available_tools,
+        available_tools=available_tools_str,
         observation=observation,
         reflection=reflection_string
     )
 
     chat.append(planning_prompt)
-
     response = chat.llm_reply()
     planning_result = response.choices[0].message.content
 
@@ -201,15 +240,22 @@ def plan_next_action(model: str, observation: Observation, question: str, reflec
     return planning_string
 
 
-
 if __name__ == "__main__":
     # Example usage of reflect and plan_next_action functions
+
     from dotenv import load_dotenv
     import litellm
+    import sys
 
     load_dotenv()
     litellm.success_callback = ["langfuse"]
     litellm.failure_callback = ["langfuse"]
+
+    # Configure logging for the chat module
+    #chat_logger = logging.getLogger('answerbot.chat')
+    #chat_logger.setLevel(logging.DEBUG)
+    #chat_logger.addHandler(logging.StreamHandler(sys.stdout))
+
 
     # Set up example data
     model = "gpt-3.5-turbo"  # or any other model you're using
@@ -222,7 +268,6 @@ if __name__ == "__main__":
             InfoPiece("Constantinople was the capital of the Byzantine Empire.", source="Wikipedia", quotable=True),
             InfoPiece("The Byzantine Empire lasted from 330 AD to 1453 AD.", source="History.com", quotable=True)
         ],
-        available_tools="search, lookup, read_more",
         operation="Initial search"
     )
 
@@ -238,12 +283,34 @@ if __name__ == "__main__":
     what_have_we_learned.add_knowledge_piece(new_knowledge_piece)
 
     # Call reflect function
-    reflection_string = reflect(model, observation, question, what_have_we_learned)
+    reflection_string = reflect(model, question, observation, what_have_we_learned)
     print("Reflection:")
     print(reflection_string)
     print("\n" + "="*50 + "\n")
 
+    # Define available tools
+    def search(query: str) -> str:
+        """
+        Search for information on a given query.
+        """
+        pass
+
+    def lookup(keyword: str) -> str:
+        """
+        Look up a specific keyword in the current document.
+        """
+        pass
+
+    def read_more() -> str:
+        """
+        Continue reading the current document from where it was left off.
+        """
+        pass
+
+    available_tools = [search, lookup, read_more]
+
+
     # Call plan_next_action function
-    planning_string = plan_next_action(model, observation, question, reflection_string)
+    planning_string = plan_next_action(model, question, available_tools, observation, reflection_string)
     print("Planning:")
     print(planning_string)

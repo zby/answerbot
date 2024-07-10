@@ -3,7 +3,7 @@ from typing import Optional
 from pydantic import BaseModel, Field, field_validator
 from fuzzywuzzy import fuzz
 
-from answerbot.clean_reflection import KnowledgeBase, KnowledgePiece
+from answerbot.knowledgebase import KnowledgeBase, KnowledgePiece
 from answerbot.tools.observation import Observation, InfoPiece
 
 from answerbot.chat import Chat, Prompt

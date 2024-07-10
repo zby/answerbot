@@ -11,7 +11,7 @@ from answerbot.chat import Chat, HasLLMTools, expand_toolbox, render_prompt
 from answerbot.tools.wiki_tool import WikipediaTool
 from answerbot.tools.observation import Observation
 from answerbot.reflector import reflect, plan_next_action 
-from answerbot.clean_reflection import KnowledgeBase
+from answerbot.knowledgebase import KnowledgeBase
 from answerbot.qa_prompts import Question, Answer, StepInfo, SystemPrompt, prompt_templates
 
 # Configure logging for this module

@@ -15,7 +15,7 @@ logger = logging.getLogger('anserbot.chat')
 def render_prompt(template_str: str, obj: object, context: Optional[object] = None) -> str:
     template = Template(template_str)
     fields = {field.name: getattr(obj, field.name) for field in obj.__dataclass_fields__.values()}
-    result = template.render(context=context, **fields)
+    result = template.render(c=context, **fields)
     return result
 
 @runtime_checkable
@@ -56,6 +56,9 @@ class Chat:
 
 
     def make_message(self, prompt: Prompt, role: str = 'user') -> str:
+        # Check if prompt has an attribute 'c'
+        if hasattr(prompt, 'c'):
+            raise ValueError("Prompt object cannot have an attribute named 'c' as it conflicts with the context parameter in render_prompt.")
         template_str = self.templates[type(prompt)]
         content = render_prompt(template_str, prompt, self.context)
         return {
@@ -126,7 +129,6 @@ class Chat:
 
 if __name__ == "__main__":
     from dataclasses import dataclass
-    from typing import List
 
     @dataclass(frozen=True)
     class SystemPrompt(Prompt):

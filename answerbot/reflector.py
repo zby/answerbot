@@ -8,7 +8,8 @@ from llm_easy_tools import LLMFunction, get_tool_defs
 from answerbot.knowledgebase import KnowledgeBase, KnowledgePiece
 from answerbot.tools.observation import Observation, InfoPiece
 
-from answerbot.chat import Chat, Prompt, SystemPrompt, HasLLMTools, expand_toolbox
+from answerbot.chat import Chat, HasLLMTools, expand_toolbox
+from answerbot.qa_prompts import PlanningPrompt, PlanningSystemPrompt, ReflectionPrompt, ReflectionSystemPrompt
 
 import logging
 
@@ -82,48 +83,14 @@ class ReflectionResult(BaseModel):
 
 
 
-@dataclass(frozen=True)
-class LearningPrompt(Prompt):
-    memory: KnowledgeBase
-    question: str
-    observation: Observation
-
-
-learning_templates: dict[str, str] = {
-    SystemPrompt: "You are a researcher working on a user question in a team with other researchers. You need to check the assumptions that the other researchers made.",
-    LearningPrompt: """# Question
-
-The user's question is: {{question}}
-{% if not memory.is_empty() %}
-
-# Notes from previous work
-
-We have some notes on the following urls:
-{{ memory.learned() }}
-{% endif %}
-
-# Retrieval
-
-We have performed information retrieval with the following results:
-{{observation}}
-
-# Current task
-
-You need to review the information retrieval recorded above and reflect on it.
-You need to note all information that can help in answering the user question that can be learned from the retrieved fragment,
-together with the quotes that support them.
-Please remember that the retrieved content is only a fragment of the whole page."""
-}
-
-
-def reflect(model: str, question: str, observation: Observation, knowledge_base: KnowledgeBase) -> str:
+def reflect(model: str, prompt_templates: dict, question: str, observation: Observation, knowledge_base: KnowledgeBase) -> str:
     chat = Chat(
         model=model,
         one_tool_per_step=True,
-        system_prompt=SystemPrompt(),
-        templates=learning_templates
+        system_prompt=ReflectionSystemPrompt(),
+        templates=prompt_templates
     )
-    chat.append(LearningPrompt(memory=knowledge_base, question=question, observation=observation))
+    chat.append(ReflectionPrompt(memory=knowledge_base, question=question, observation=observation))
 
     reflections = []
     for reflection in chat.process([ReflectionResult]):
@@ -133,55 +100,6 @@ def reflect(model: str, question: str, observation: Observation, knowledge_base:
 
     return reflection_string
 
-
-@dataclass(frozen=True)
-class PlanningPrompt(Prompt):
-    question: str
-    available_tools: str
-    observation: Optional[Observation] = None
-    reflection: Optional[str] = None
-
-planning_templates = {
-    SystemPrompt: "You are a researcher working on a user question in a team with other researchers. You need to check the assumptions that the other researchers made.",
-    PlanningPrompt: """# Question
-
-The user's question is: {{question}}
-
-# Available tools
-
-{{available_tools}}
-
-{% if observation %}
-# Retrieval
-
-We have performed information retrieval with the following results:
-
-{{observation}}
-
-# Reflection
-
-{{reflection}}
-{% endif %}
-
-# Next step
-
-What would you do next?
-Please analyze the retrieved data and check if you have enough information to answer the user question.
-
-If you still need more information, consider the available tools.
-
-You need to decide if the current page is relevant to answer the user question.
-If it is, then you should recommed exploring it further with the `lookup` or `read_more` tools.
-
-When using `search` please use simple queries. When trying to learn about a property of an object or a person,
-first search for that object then you can browse the page to learn about its properties.
-For example to learn about the nationality of a person, first search for that person.
-If the persons page is retrieved but the information about nationality is not at the top of the page
-you can use `read_more` to continue reading or call `lookup('nationality')` or `lookup('born')` to get more information.
-
-Please specify both the tool and the parameters you need to use if applicable.
-Explain your reasoning."""
-}
 
 def format_tool_docstrings(schemas: list[dict]) -> str:
     formatted_list = []
@@ -210,6 +128,7 @@ def format_tool_docstrings(schemas: list[dict]) -> str:
 
 def plan_next_action(
     model: str,
+    prompt_templates: dict,
     question: str,
     available_tools: list[LLMFunction, Callable, HasLLMTools],
     observation: Optional[Observation] = None,
@@ -217,8 +136,8 @@ def plan_next_action(
 ) -> str:
     chat = Chat(
         model=model,
-        system_prompt=SystemPrompt(),
-        templates=planning_templates
+        system_prompt=PlanningSystemPrompt(),
+        templates=prompt_templates
     )
 
     schemas = get_tool_defs(expand_toolbox(available_tools))
@@ -242,6 +161,8 @@ def plan_next_action(
 
 if __name__ == "__main__":
     # Example usage of reflect and plan_next_action functions
+    
+    from answerbot.qa_prompts import wiki_researcher_prompts
 
     from dotenv import load_dotenv
     import litellm
@@ -283,7 +204,7 @@ if __name__ == "__main__":
     what_have_we_learned.add_knowledge_piece(new_knowledge_piece)
 
     # Call reflect function
-    reflection_string = reflect(model, question, observation, what_have_we_learned)
+    reflection_string = reflect(model, wiki_researcher_prompts, question, observation, what_have_we_learned)
     print("Reflection:")
     print(reflection_string)
     print("\n" + "="*50 + "\n")
@@ -311,6 +232,6 @@ if __name__ == "__main__":
 
 
     # Call plan_next_action function
-    planning_string = plan_next_action(model, question, available_tools, observation, reflection_string)
+    planning_string = plan_next_action(model, wiki_researcher_prompts, question, available_tools, observation, reflection_string)
     print("Planning:")
     print(planning_string)

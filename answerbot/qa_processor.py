@@ -52,10 +52,10 @@ class QAProcessor:
             chat.append(StepInfo(step, self.max_iterations))
             if isinstance(output, Observation) and output.reflection_needed():
                 observation = output
-                reflection_string = reflect(self.model, question, observation, what_have_we_learned)
+                reflection_string = reflect(self.model, self.prompt_templates, question, observation, what_have_we_learned)
 
                 available_tools = self.get_tools(step)
-                planning_string = plan_next_action(self.model, question, available_tools, observation, reflection_string)
+                planning_string = plan_next_action(self.model, self.prompt_templates, question, available_tools, observation, reflection_string)
                 chat.append({'role': 'user', 'content': planning_string})
         return None
 

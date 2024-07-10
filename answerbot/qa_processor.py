@@ -28,7 +28,7 @@ class QAProcessor:
     def get_tools(self, step: int) -> list[Callable|LLMFunction]:
         tools = [Answer]
         if step < self.max_iterations:
-            tools.extend(expand_toolbox(self.toolbox))
+            tools.extend(self.toolbox)
         return tools
 
     def process(self, question: str):
@@ -40,7 +40,7 @@ class QAProcessor:
             context=self,
             templates=self.prompt_templates
         )
-        chat.entries.append(Question(question, self.max_iterations))
+        chat.append(Question(question, self.max_iterations))
 
         what_have_we_learned = KnowledgeBase()
 
@@ -52,13 +52,13 @@ class QAProcessor:
                 answer = output
                 logger.info(f"Answer: '{answer}' for question: '{question}'")
                 return render_prompt(prompt_templates[Answer], answer, {'question': question})
-            chat.entries.append(StepInfo(step, self.max_iterations))
+            chat.append(StepInfo(step, self.max_iterations))
             if isinstance(output, Observation) and output.reflection_needed():
                 observation = output
                 reflection_string = reflect(self.model, observation, question, what_have_we_learned)
 
-                planning_string = plan_next_action(self.model, observation, question, reflection_string) 
-                chat.entries.append({'role': 'user', 'content': planning_string})
+                planning_string = plan_next_action(self.model, observation, question, reflection_string)
+                chat.append({'role': 'user', 'content': planning_string})
         return None
 
 if __name__ == "__main__":

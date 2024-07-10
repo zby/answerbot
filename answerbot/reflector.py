@@ -50,7 +50,7 @@ def reflect(model: str, observation: Observation, question: str, knowledge_base:
         system_prompt=SystemPrompt(),
         templates=learning_templates
     )
-    chat.entries.append(LearningPrompt(memory=knowledge_base, question=question, observation=observation))
+    chat.append(LearningPrompt(memory=knowledge_base, question=question, observation=observation))
 
     reflections = []
     for reflection in chat.process([ReflectionResult]):
@@ -122,7 +122,7 @@ def plan_next_action(model: str, observation: Observation, question: str, reflec
         reflection=reflection_string
     )
 
-    chat.entries.append(planning_prompt)
+    chat.append(planning_prompt)
 
     response = chat.llm_reply()
     planning_result = response.choices[0].message.content

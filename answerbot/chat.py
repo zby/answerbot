@@ -1,6 +1,5 @@
 from typing import Literal, Union, Callable, Any, Protocol, Iterable, runtime_checkable, Optional, Annotated, Type, TypeVar
-from dataclasses import dataclass, asdict, field, is_dataclass
-from pydantic import BaseModel
+from dataclasses import dataclass, field
 from litellm import completion, ModelResponse, Message
 from jinja2 import Template
 
@@ -40,14 +39,20 @@ class Prompt:
 @dataclass
 class Chat:
     model: str
-    entries: list[Prompt|ToolResult|dict|Message] = field(default_factory=list)
+    messages: list[dict|Message] = field(default_factory=list)
     templates: dict[Type[Prompt], str] = field(default_factory=dict)
     system_prompt: Optional[Prompt] = None
     one_tool_per_step: bool = True
     # With statefull tools with many tool calls the LLM gets confused about the state of the tools
     # There should be an option in the litellm api for that
+    # TODO: Add a fork of the process if that happens - and then collect all resolutions from all forks at the end (like with an Non Deterministic Finit Automaton)
     context: Optional[object] = None
     # for use in prompt templates
+
+    def __post_init__(self):
+        if self.system_prompt:
+            system_message = self.make_message(self.system_prompt, 'system')
+            self.messages.insert(0, system_message)
 
 
     def make_message(self, prompt: Prompt, role: str = 'user') -> str:
@@ -58,27 +63,23 @@ class Chat:
             'content': content.strip()
         }
 
-    def to_messages(self) -> list[dict]:
-        if self.system_prompt:
-            messages = [self.make_message(self.system_prompt, 'system')]
+    def append(self, message: Prompt|ToolResult|dict|Message, role: Optional[str] = None):
+        if isinstance(message, Prompt):
+            message_dict = self.make_message(message)
+        elif isinstance(message, ToolResult):
+            message_dict = message.to_message()
+        elif isinstance(message, dict) or isinstance(message, Message):
+            message_dict = message
         else:
-            messages = []
-        for message in self.entries:
-            if isinstance(message, Prompt):
-                messages.append(self.make_message(message))
-            elif isinstance(message, ToolResult):
-                messages.append(message.to_message())
-            elif isinstance(message, dict) or isinstance(message, Message):
-                messages.append(message)
-            else:
-                raise ValueError(f"Unsupported message type: {type(message)}")
-        return messages
+            raise ValueError(f"Unsupported message type: {type(message)}")
+        if role:
+            message_dict['role'] = role
+        self.messages.append(message_dict)
 
     def llm_reply(self, schemas=[]) -> ModelResponse:
-        messages = self.to_messages()
         args = {
             'model': self.model,
-            'messages': messages
+            'messages': self.messages
         }
 
         if len(schemas) > 0:
@@ -101,11 +102,12 @@ class Chat:
             if not hasattr(message, 'tool_calls') or not message.tool_calls:
                 logging.warning(f"No function call:\n")
 
-        self.entries.append(message)
+        self.append(message)
 
         return result
 
-    def process(self, tools: list[Callable|LLMFunction]):
+    def process(self, toolbox: list[HasLLMTools|LLMFunction|Callable]):
+        tools = expand_toolbox(toolbox)
         schemas = get_tool_defs(tools)
         response = self.llm_reply(schemas)
         results = process_response(response, tools)
@@ -114,10 +116,59 @@ class Chat:
             if result.soft_errors:
                 for soft_error in result.soft_errors:
                     logger.warning(soft_error)
-            self.entries.append(result)
+            self.append(result)
             if result.error:
                 raise Exception(result.error)
             outputs.append(result.output)
 
         return outputs
+
+
+if __name__ == "__main__":
+    from dataclasses import dataclass
+    from typing import List
+
+    @dataclass(frozen=True)
+    class SystemPrompt(Prompt):
+        pass
+
+    @dataclass(frozen=True)
+    class UserPrompt(Prompt):
+        question: str
+
+    @dataclass(frozen=True)
+    class AssistantPrompt(Prompt):
+        answer: str
+
+    # Create example prompts
+    system_prompt = SystemPrompt()
+    user_prompt = UserPrompt(question="What is the capital of France?")
+    assistant_prompt = AssistantPrompt(answer="The capital of France is Paris.")
+    tool_result = ToolResult(
+        tool_call_id="123",
+        name="population_lookup",
+        output="The population of Paris is 2,148,276 inhabitants."
+    )
+
+
+    # Create a Chat instance
+    chat = Chat(
+        model="gpt-3.5-turbo",
+        system_prompt=system_prompt,
+        templates={
+            SystemPrompt: "You are a helpful assistant.",
+            UserPrompt: "User: {{question}}",
+            AssistantPrompt: "Assistant: {{answer}}"
+        }
+    )
+
+    # Add prompts to the chat
+    chat.append(user_prompt)
+    chat.append(assistant_prompt, 'ASSISTANT')
+    chat.append(tool_result)
+
+    # Print out entries from the Chat
+    print("Chat entries:")
+    for i, message in enumerate(chat.messages):
+        print(f"{i + 1}. {message['role']}: {message['content']}")
 

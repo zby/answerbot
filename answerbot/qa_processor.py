@@ -41,7 +41,13 @@ class QAProcessor:
 
         what_have_we_learned = KnowledgeBase()
 
+        observation = None
+        reflection_string = None
         for step in range(self.max_iterations + 1):
+            available_tools = self.get_tools(step)
+            planning_string = plan_next_action(self.model, self.prompt_templates, question, available_tools, observation, reflection_string)
+            print(planning_string)
+            chat.append({'role': 'user', 'content': planning_string})
             logger.info(f"Step: {step} for question: '{question}'")
             tools = self.get_tools(step)
             output = chat.process(tools)[0]
@@ -50,13 +56,11 @@ class QAProcessor:
                 logger.info(f"Answer: '{answer}' for question: '{question}'")
                 return render_prompt(self.prompt_templates[Answer], answer, {'question': question})
             chat.append(StepInfo(step, self.max_iterations))
-            if isinstance(output, Observation) and output.reflection_needed():
+            if isinstance(output, Observation):
                 observation = output
-                reflection_string = reflect(self.model, self.prompt_templates, question, observation, what_have_we_learned)
+                if observation.reflection_needed():
+                    reflection_string = reflect(self.model, self.prompt_templates, question, observation, what_have_we_learned)
 
-                available_tools = self.get_tools(step)
-                planning_string = plan_next_action(self.model, self.prompt_templates, question, available_tools, observation, reflection_string)
-                chat.append({'role': 'user', 'content': planning_string})
         return None
 
     def get_available_tools(self, step: int)-> str:

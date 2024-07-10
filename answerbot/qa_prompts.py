@@ -48,15 +48,15 @@ class ReflectionPrompt(Prompt):
 
 # dictionary for prompt templates
 wiki_researcher_prompts = {
-    SystemPrompt: """You are a helpful assistant with extensive knowledge of wikipedia.
-You always try to support your answer with quotes from wikipedia.
-You remember that the information you receive from the wikipedia api is not the full page - it is just a fragment.
+    SystemPrompt: """You are a helpful assistant with extensive knowledge of Wikipedia.
+You always try to support your answer with quotes from Wikipedia.
+You remember that the information you receive from the Wikipedia API is not the full page - it is just a fragment.
 You always try to answer the user question, even if it is ambiguous, just note the necessary assumptions.
-You Work carefully - never make two calls to wikipedia in the same step.""",
+You Work carefully - never make two calls to Wikipedia in the same step.""",
 
-    Question: """Please answer the following question. You can use wikipedia for reference - but think carefully about what pages exist at wikipedia.
-You have only {{max_llm_calls}} calls to the wikipedia API.
-When searching wikipedia never make any complex queries, always decide what is the main topic you are searching for and put it in the search query.
+    Question: """Please answer the following question. You can use Wikipedia for reference - but think carefully about what pages exist at Wikipedia.
+You have only {{max_llm_calls}} calls to the Wikipedia API.
+When searching Wikipedia never make any complex queries, always decide what is the main topic you are searching for and put it in the search query.
 When you want to know a property of an object or person - first find the page of that object or person and then browse it to find the property you need.
 
 When you know the answer call Answer. Please make the answer as short as possible. If it can be answered with yes or no that is best.
@@ -76,7 +76,7 @@ Step: {{step + 1}} of {{max_steps + 1}}
 This was the last data retrieval in the next step you must provide an answer to the user question
 {% endif %}""",
 
-    PlanningSystemPrompt: "You are a researcher working on a user question in a team with other researchers. You need to check the assumptions that the other researchers made.",
+    PlanningSystemPrompt: """You are a Wikipedia expert working on a user question in a team with other researchers.""",
     PlanningPrompt: """# Question
 
 The user's question is: {{question}}
@@ -100,21 +100,35 @@ We have performed information retrieval with the following results:
 # Next step
 
 What would you do next?
+{% if observation %}
 Please analyze the retrieved data and check if you have enough information to answer the user question.
 
 If you still need more information, consider the available tools.
+{% else %}
+Consider the available tools.
+{% endif %}
 
+{% if observation.current_url %}
 You need to decide if the current page is relevant to answer the user question.
 If it is, then you should recommed exploring it further with the `lookup` or `read_more` tools.
+{% endif %}
 
-When using `search` please use simple queries. When trying to learn about a property of an object or a person,
-first search for that object then you can browse the page to learn about its properties.
+When using `search` please use simple queries. Think about what kind of pages exist at Wikipedia and what is the main topic of the user question.
+Never put two proper nouns into the same query - always start from one of them.
+
+When trying to learn about a property of an object or a person,
+first search for that object then use `get_url` to retrieve the Wikipedia page about that object,
+then you can browse the page to learn about its properties.
 For example to learn about the nationality of a person, first search for that person.
+Choose an url from the search results and then use `get_url` to retrieve the Wikipedia page about that person.
 If the persons page is retrieved but the information about nationality is not at the top of the page
 you can use `read_more` to continue reading or call `lookup('nationality')` or `lookup('born')` to get more information.
 
-Please specify both the tool and the parameters you need to use if applicable.
-Explain your reasoning.""",
+For now specify only the next step. Use Markdown syntax.
+Explain your reasoning.
+
+Please be precise and specify both the tool together with the parameters you need as a function call, something like `function(parameter)`.
+""",
     ReflectionSystemPrompt: "You are a researcher working on a user question in a team with other researchers. You need to check the assumptions that the other researchers made.",
     ReflectionPrompt: """# Question
 
@@ -149,7 +163,7 @@ Always try to answer the question, even if it is ambiguous, just note the necess
     Question: """
 Please answer the users question.
 
-You need to carefully divide the work into tasks that would require the least amount of calls to the wikipedia API,
+You need to carefully divide the work into tasks that would require the least amount of calls to the Wikipedia API,
 and then delegate them to the assistant.
 The questions you ask the assistant need to be as simple and specific as possible and it should be a grammatical question.
 You can call finish when you think you have enough information to answer the question.

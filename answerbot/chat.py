@@ -2,13 +2,15 @@ from typing import Callable, Protocol, Iterable, runtime_checkable, Optional, Ty
 from dataclasses import dataclass, field
 from litellm import completion, ModelResponse, Message
 from jinja2 import Template
+from pprint import pformat
 
 from llm_easy_tools import get_tool_defs, process_response, ToolResult, LLMFunction 
 
 import logging
 
+
 # Configure logging for this module
-logger = logging.getLogger('anserbot.chat')
+logger = logging.getLogger('answerbot.chat')
 
 def render_prompt(template_str: str, obj: object, context: Optional[object] = None) -> str:
     template = Template(template_str)
@@ -96,6 +98,8 @@ class Chat:
                 args['tool_choice'] = {'type': 'function', 'function': {'name': schemas[0]['function']['name']}}
             else:
                 args['tool_choice'] = "auto"
+
+        logger.debug(f"Args: {pformat(args)}")
 
         result = completion(**args)
         message = result.choices[0].message

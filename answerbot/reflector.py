@@ -6,8 +6,7 @@ from fuzzywuzzy import fuzz
 from answerbot.knowledgebase import KnowledgeBase, KnowledgePiece
 from answerbot.tools.observation import Observation, InfoPiece
 
-from answerbot.chat import Chat, Prompt
-from answerbot.qa_prompts import SystemPrompt, prompt_templates
+from answerbot.chat import Chat, Prompt, SystemPrompt
 
 
 class ReflectionResult(BaseModel):
@@ -111,8 +110,6 @@ You need to note all information that can help in answering the user question th
 together with the quotes that support them.
 Please remember that the retrieved content is only a fragment of the whole page."""
 }
-
-learning_templates = prompt_templates | learning_templates
 
 
 def reflect(model: str, observation: Observation, question: str, knowledge_base: KnowledgeBase) -> str:

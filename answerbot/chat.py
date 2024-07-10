@@ -1,11 +1,9 @@
-from typing import Literal, Union, Callable, Any, Protocol, Iterable, runtime_checkable, Optional, Annotated, Type, TypeVar
+from typing import Callable, Protocol, Iterable, runtime_checkable, Optional, Type
 from dataclasses import dataclass, field
 from litellm import completion, ModelResponse, Message
 from jinja2 import Template
 
 from llm_easy_tools import get_tool_defs, process_response, ToolResult, LLMFunction 
-
-from answerbot.tools.wiki_tool import WikipediaTool
 
 import logging
 
@@ -34,6 +32,13 @@ def expand_toolbox(toolbox: list[HasLLMTools|LLMFunction|Callable]) -> list[Call
 
 @dataclass(frozen=True)
 class Prompt:
+    pass
+
+@dataclass(frozen=True)
+class SystemPrompt(Prompt):
+    """
+    System prompt for the chat.
+    """
     pass
 
 @dataclass

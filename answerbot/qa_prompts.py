@@ -1,14 +1,6 @@
 from dataclasses import dataclass
-from answerbot.chat import Prompt
+from answerbot.chat import Prompt, SystemPrompt
 
-
-
-@dataclass(frozen=True)
-class SystemPrompt(Prompt):
-    """
-    System prompt for the chat.
-    """
-    pass
 
 @dataclass(frozen=True)
 class Question(Prompt):
@@ -29,7 +21,7 @@ class StepInfo(Prompt):
     max_steps: int
 
 # dictionary for prompt templates
-prompt_templates = {
+wiki_researcher_prompts = {
     SystemPrompt: """You are a helpful assistant with extensive knowledge of wikipedia.
 You always try to support your answer with quotes from wikipedia.
 You remember that the information you receive from the wikipedia api is not the full page - it is just a fragment.
@@ -46,7 +38,7 @@ Remove all explanations from the answer and put them into the reasoning field.
 
 Question: {{question}}""",
 
-    Answer: """The answer to the question:"{{context.question}}" is:
+    Answer: """The answer to the question:"{{c.question}}" is:
 {{ answer }}
 
 Reasoning:
@@ -60,3 +52,22 @@ This was the last data retrieval in the next step you must provide an answer to 
 """
 }
 
+main_researcher_prompts = {
+    SystemPrompt: """
+You are to take a role of a main researcher dividing work and delegating tasks to your assistants.
+You always try to make the delegated tasks as simple as possible.
+Always try to answer the question, even if it is ambiguous, just note the necessary assumptions.""",
+
+    Question: """
+Please answer the users question.
+
+You need to carefully divide the work into tasks that would require the least amount of calls to the wikipedia API,
+and then delegate them to the assistant.
+The questions you ask the assistant need to be as simple and specific as possible and it should be a grammatical question.
+You can call finish when you think you have enough information to answer the question.
+You can delegate only {{max_llm_calls}} tasks to the assistant.
+
+Question: {{question}}"""
+}
+
+main_researcher_prompts = wiki_researcher_prompts | main_researcher_prompts

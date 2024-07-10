@@ -1,18 +1,15 @@
 from dataclasses import dataclass
-from typing import Callable
+from typing import Callable, Any
 
 from llm_easy_tools import LLMFunction
 
 import logging
-import litellm
-from dotenv import load_dotenv
 
-from answerbot.chat import Chat, HasLLMTools, expand_toolbox, render_prompt
-from answerbot.tools.wiki_tool import WikipediaTool
+from answerbot.chat import Chat, HasLLMTools, SystemPrompt, render_prompt
 from answerbot.tools.observation import Observation
 from answerbot.reflector import reflect, plan_next_action 
 from answerbot.knowledgebase import KnowledgeBase
-from answerbot.qa_prompts import Question, Answer, StepInfo, SystemPrompt, prompt_templates
+from answerbot.qa_prompts import Question, Answer, StepInfo
 
 # Configure logging for this module
 logger = logging.getLogger('qa_processor')
@@ -51,7 +48,7 @@ class QAProcessor:
             if isinstance(output, Answer):
                 answer = output
                 logger.info(f"Answer: '{answer}' for question: '{question}'")
-                return render_prompt(prompt_templates[Answer], answer, {'question': question})
+                return render_prompt(self.prompt_templates[Answer], answer, {'question': question})
             chat.append(StepInfo(step, self.max_iterations))
             if isinstance(output, Observation) and output.reflection_needed():
                 observation = output
@@ -61,28 +58,21 @@ class QAProcessor:
                 chat.append({'role': 'user', 'content': planning_string})
         return None
 
-if __name__ == "__main__":
+@dataclass
+class QAProcessorDeep:
+    main_processor_config: dict[str, Any]
+    sub_processor_config: dict[str, Any]
 
-    load_dotenv()
-    litellm.success_callback = ["langfuse"]
-    litellm.failure_callback = ["langfuse"]
-    #litellm.success_callback=["helicone"]
-    #litellm.set_verbose=True
+    def __post_init__(self):
+        sub_processor =  QAProcessor(**self.sub_processor_config)
 
-    #model='claude-3-5-sonnet-20240620'
-    model="claude-3-haiku-20240307"
-    #model='gpt-3.5-turbo'
-    question = "What government position was held by the woman who portrayed Corliss Archer in the film Kiss and Tell?"
+        def delegate(sub_question: str):
+            """Delegate a question to a wikipedia expert"""
+            logger.info(f"Delegate a question to a wikipedia expert: '{sub_question}'")
+            return sub_processor.process(sub_question)
 
-    app = QAProcessor(
-        toolbox=[WikipediaTool(chunk_size=400)],
-        max_iterations=5,
-        model=model,
-        prompt_templates=prompt_templates
-    )
+        self.main_processor_config['toolbox'] = [delegate]
+        self.main_processor = QAProcessor(**self.main_processor_config)
 
-    #answer = Answer(answer="Something", reasoning="Because")
-    #print(render_prompt(Answer.template(), answer, app))
-    #print(app.question)
-
-    print(app.process(question))
+    def process(self, question: str):
+        return self.main_processor.process(question)

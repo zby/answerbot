@@ -4,7 +4,7 @@ import litellm
 from dotenv import load_dotenv
 
 from answerbot.tools.wiki_tool import WikipediaTool
-from answerbot.qa_prompts import prompt_templates
+from answerbot.qa_prompts import wiki_researcher_prompts
 from answerbot.qa_processor import QAProcessor
 
 # Set logging level to INFO for qa_processor.py
@@ -13,10 +13,10 @@ qa_logger = logging.getLogger('qa_processor')
 qa_logger.setLevel(logging.INFO)
 
 # Create a console handler
-console_handler = logging.StreamHandler()
+#console_handler = logging.StreamHandler()
 
 # Add the handler to the logger
-qa_logger.addHandler(console_handler)
+#qa_logger.addHandler(console_handler)
 
 
 
@@ -66,7 +66,7 @@ if __name__ == "__main__":
         model='gpt-3.5-turbo',
         #model='claude-3-5-sonnet-20240620',
         #model="claude-3-haiku-20240307",
-        prompt_templates=prompt_templates
+        prompt_templates=wiki_researcher_prompts
     )
 
     print()

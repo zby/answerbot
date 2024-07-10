@@ -9,9 +9,7 @@ from datetime import datetime
 import itertools
 import traceback
 
-from answerbot.react import LLMReactor
-
-from answerbot.tools.sub_reactor import SubReactorTool
+from answerbot.qa_processor import QAProcessor
 from scripts.answer import sys_prompt
 from scripts.run_with_subreactor import sub_sys_prompt, main_sys_prompt
 from answerbot.tools.wiki_tool import WikipediaTool
@@ -57,16 +55,7 @@ def save_constants_to_file(params_file_path, settings):
         json.dump(settings, file, indent=4)
 
 def create_reactor(question, config):
-    sub_reactors = {
-        'wikipedia researcher': {
-            'toolbox': [WikipediaTool(chunk_size=config['chunk_size'])],
-            'max_llm_calls': config['max_llm_calls'],
-            'model': config['model'],
-            'client': client,
-            'sys_prompt': sub_sys_prompt,
-            'question_checks': [],
-        }
-    }
+    
     sub_reactor_tool = SubReactorTool(sub_reactors)
     toolbox = [sub_reactor_tool]
     args = {

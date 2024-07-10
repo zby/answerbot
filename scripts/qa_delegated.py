@@ -1,71 +1,43 @@
 import logging
 import litellm
 
-from pprint import pformat, pprint
 from dotenv import load_dotenv
-from llm_easy_tools import LLMFunction
 
 from answerbot.tools.wiki_tool import WikipediaTool
-from answerbot.qa_processor import QAProcessor, SystemPrompt, Question, Answer, StepInfo, prompt_templates
+from answerbot.qa_processor import QAProcessorDeep
+from answerbot.qa_prompts import wiki_researcher_prompts, main_researcher_prompts
 
 # Set logging level to INFO for qa_processor.py
 #logging.getLogger('qa_processor').setLevel(logging.INFO)
 qa_logger = logging.getLogger('qa_processor')
 qa_logger.setLevel(logging.INFO)
 
-# Create a console handler and set its level to INFO
 console_handler = logging.StreamHandler()
 
-# Add the handler to the logger
 qa_logger.addHandler(console_handler)
+
+
+load_dotenv()
+#litellm.success_callback = ["helicone"]
+litellm.success_callback = ["langfuse"]
+litellm.failure_callback = ["langfuse"]
 
 #model="claude-3-5-sonnet-20240620"
 #model="claude-3-haiku-20240307"
 model='gpt-3.5-turbo'
 
-sub_processor =  QAProcessor(
-    toolbox=[WikipediaTool(chunk_size=400)],
-    max_iterations=5,
-    model=model,
-    prompt_templates=prompt_templates
-)
-
-main_prompts = {
-    SystemPrompt: """
-You are to take a role of a main researcher delegating work to your assistants.
-Always try to answer the question, even if it is ambiguous, just note the necessary assumptions.""",
-
-    Question: """
-Please answer the users question.
-You can get help from a wikipedia assistant - by calling 'delegate' function
-and passing the question you want to ask him.
-
-You need to carefully divide the work into tasks that would require the least amount of calls to the wikipedia API,
-and then delegate them to the assistant.
-The questions you ask the assistant need to be as simple and specific as possible.
-You can call finish when you think you have enough information to answer the question.
-You can delegate only {{max_llm_calls}} tasks to the assistant.
-
-Question: {{question}}"""
-}
-
-
-# Add all entries from prompt_templates for keys that are not in delegated_prompts
-for key, value in prompt_templates.items():
-    if key not in main_prompts:
-        main_prompts[key] = value
-
-
-delegate_function = LLMFunction(
-    sub_processor.process,
-    description="Delegate a question to a wikipedia expert",
-)
-
-main_processor = QAProcessor(
-    toolbox=[delegate_function],
-    max_iterations=3,
-    model=model,
-    prompt_templates=main_prompts
+main_processor = QAProcessorDeep(
+    main_processor_config={
+        'model': model,
+        'prompt_templates': main_researcher_prompts,
+        'max_iterations': 3
+    },
+    sub_processor_config={
+        'toolbox': [WikipediaTool(chunk_size=400)],
+        'model': model,
+        'prompt_templates': wiki_researcher_prompts,
+        'max_iterations': 4
+    }
 )
 
 if __name__ == "__main__":

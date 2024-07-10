@@ -12,7 +12,6 @@ from pprint import pprint
 from llm_easy_tools import LLMFunction, ToolResult, get_tool_defs
 
 from answerbot.tools.observation import Observation, InfoPiece
-from answerbot.clean_reflection import ReflectionResult
 
 MAX_RETRIES = 3
 # BASE_URL = 'https://pl.wikipedia.org/wiki/'

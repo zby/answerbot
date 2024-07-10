@@ -28,7 +28,7 @@ class StepInfo(Prompt):
     step: int
     max_steps: int
 
-# New dictionary for prompt templates
+# dictionary for prompt templates
 prompt_templates = {
     SystemPrompt: """You are a helpful assistant with extensive knowledge of wikipedia.
 You always try to support your answer with quotes from wikipedia.

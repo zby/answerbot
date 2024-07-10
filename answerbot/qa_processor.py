@@ -25,11 +25,11 @@ class QAProcessor:
     model: str
     prompt_templates: dict[type, str]
 
-    def get_tools(self, step: int) -> list[Callable|LLMFunction]:
-        tools = [Answer]
+    def get_tools(self, step: int) -> list[Callable|LLMFunction|HasLLMTools]:
         if step < self.max_iterations:
-            tools.extend(self.toolbox)
-        return tools
+            return[Answer, *self.toolbox]
+        else:
+            return [Answer]
 
     def process(self, question: str):
         logger.info(f'Processing question: {question}')

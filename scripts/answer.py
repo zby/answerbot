@@ -1,19 +1,23 @@
 import logging
-import httpx
 import litellm
 
-from pprint import pformat, pprint
 from dotenv import load_dotenv
 
-from answerbot.react import LLMReactor
-
 from answerbot.tools.wiki_tool import WikipediaTool
+from answerbot.qa_prompts import prompt_templates
+from answerbot.qa_processor import QAProcessor
 
-# Configure basic logging
-logging.basicConfig(level=logging.INFO)
+# Set logging level to INFO for qa_processor.py
+#logging.getLogger('qa_processor').setLevel(logging.INFO)
+qa_logger = logging.getLogger('qa_processor')
+qa_logger.setLevel(logging.INFO)
 
-# Get a logger for the current module
-logger = logging.getLogger(__name__)
+# Create a console handler
+console_handler = logging.StreamHandler()
+
+# Add the handler to the logger
+qa_logger.addHandler(console_handler)
+
 
 
 load_dotenv()
@@ -21,24 +25,6 @@ litellm.success_callback = ["langfuse"]
 litellm.failure_callback = ["langfuse"]
 #litellm.success_callback=["helicone"]
 #litellm.set_verbose=True
-
-sys_prompt = """You are a helpful assistant with extensive knowledge of wikipedia.
-You always try to support your answer with quotes from wikipedia.
-You remember that the information you receive from the wikipedia api is not the full page - it is just a fragment.
-You always try to answer the user question, even if it is ambiguous, just note the necessary assumptions.
-You Work carefully - never make two calls to wikipedia in the same step.
-"""
-
-user_prompt_template = """Please answer the following question. You can use wikipedia for reference - but think carefully about what pages exist at wikipedia.
-You have only {max_llm_calls} calls to the wikipedia API.
-When searching wikipedia never make any complex queries, always decide what is the main topic you are searching for and put it in the search query.
-When you want to know a property of an object or person - first find the page of that object or person and then browse it to find the property you need.
-
-When you know the answer call finish. Please make the answer as short as possible. If it can be answered with yes or no that is best.
-Remove all explanations from the answer and put them into the reasoning field.
-
-Question: {question}
-"""
 
 #client = OpenAI(
 #    api_key=config['OPENAI_API_KEY'],
@@ -74,21 +60,14 @@ if __name__ == "__main__":
     #question = "Who portrayed Corliss Archer in the film Kiss and Tell?"
 
 
-    max_llm_calls = 7
-
-    reactor = LLMReactor(
+    app = QAProcessor(
+        toolbox=[WikipediaTool(chunk_size=400)],
+        max_iterations=5,
         model='gpt-3.5-turbo',
         #model='claude-3-5-sonnet-20240620',
         #model="claude-3-haiku-20240307",
-        toolbox=[WikipediaTool(chunk_size=400)],
-        max_llm_calls=max_llm_calls,
-        system_prompt=sys_prompt,
-        user_prompt_template=user_prompt_template,
+        prompt_templates=prompt_templates
     )
-    trace = reactor.process(question)
-    print(trace.generate_report())
+
     print()
-    pprint(trace.soft_errors)
-    with open('data/trace.py', 'w') as file:
-        file.write(repr(trace))
-#    print(format_markdown(reactor.conversation))
+    print(app.process(question))

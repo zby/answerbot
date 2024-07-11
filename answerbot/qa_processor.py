@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Callable, Any
+from typing import Callable, Any, Optional
 
 from llm_easy_tools import LLMFunction, get_tool_defs
 
@@ -21,6 +21,7 @@ class QAProcessor:
     max_iterations: int
     model: str
     prompt_templates: dict[type, str]
+    name: Optional[str] = None
 
     def get_tools(self, step: int) -> list[Callable|LLMFunction|HasLLMTools]:
         if step < self.max_iterations:
@@ -35,8 +36,10 @@ class QAProcessor:
             one_tool_per_step=True,
             system_prompt=SystemPrompt(),
             context=self,
-            templates=self.prompt_templates
+            templates=self.prompt_templates,
         )
+        if self.name:
+            chat.metadata = {"tags": [self.name]}
         chat.append(Question(question, self.max_iterations))
 
         what_have_we_learned = KnowledgeBase()
@@ -44,11 +47,6 @@ class QAProcessor:
         observation = None
         reflection_string = None
         for step in range(self.max_iterations + 1):
-            available_tools = self.get_tools(step)
-            planning_string = plan_next_action(self.model, self.prompt_templates, question, available_tools, observation, reflection_string)
-            print(planning_string)
-            chat.append({'role': 'user', 'content': planning_string})
-            logger.info(f"Step: {step} for question: '{question}'")
             tools = self.get_tools(step)
             output = chat.process(tools)[0]
             if isinstance(output, Answer):
@@ -56,10 +54,15 @@ class QAProcessor:
                 logger.info(f"Answer: '{answer}' for question: '{question}'")
                 return render_prompt(self.prompt_templates[Answer], answer, {'question': question})
             chat.append(StepInfo(step, self.max_iterations))
+            observation = output
             if isinstance(output, Observation):
-                observation = output
                 if observation.reflection_needed():
                     reflection_string = reflect(self.model, self.prompt_templates, question, observation, what_have_we_learned)
+            available_tools = self.get_tools(step)
+            planning_string = plan_next_action(self.model, self.prompt_templates, question, available_tools, observation, reflection_string)
+            print(planning_string)
+            chat.append({'role': 'user', 'content': planning_string})
+            logger.info(f"Step: {step} for question: '{question}'")
 
         return None
 

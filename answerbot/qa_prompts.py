@@ -158,18 +158,26 @@ main_researcher_prompts = {
     SystemPrompt: """
 You are to take a role of a main researcher dividing work and delegating tasks to your assistants.
 You always try to make the delegated tasks as simple as possible.
-Always try to answer the question, even if it is ambiguous, just note the necessary assumptions.""",
+""",
 
     Question: """
-Please answer the users question.
-
-You need to carefully divide the work into tasks that would require the least amount of calls to the Wikipedia API,
+Your assistant can search wikipedia. Your task is to analyze the user question,
+split the work into tasks that would require the least amount of Wikipedia searches,
 and then delegate them to the assistant.
-The questions you ask the assistant need to be as simple and specific as possible and it should be a grammatical question.
-You can call finish when you think you have enough information to answer the question.
-You can delegate only {{max_llm_calls}} tasks to the assistant.
 
-Question: {{question}}"""
+Question: {{question}}
+""",
+    PlanningPrompt: """# Question
+
+The user's question is: {{question}}
+
+# Reports from previously delegated work:
+
+{{observation}}
+
+Please think about 5 simple questions that would help you answer the user question and which can be answered with the help of Wikipedia.
+Choose the one question that you think is the simplest one.
+""",
 }
 
 main_researcher_prompts = wiki_researcher_prompts | main_researcher_prompts

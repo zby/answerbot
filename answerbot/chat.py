@@ -55,6 +55,7 @@ class Chat:
     # TODO: Add a fork of the process if that happens - and then collect all resolutions from all forks at the end (like with an Non Deterministic Finit Automaton)
     context: Optional[object] = None
     # for use in prompt templates
+    metadata: Optional[dict] = None
 
     def __post_init__(self):
         if self.system_prompt:
@@ -91,6 +92,8 @@ class Chat:
             'model': self.model,
             'messages': self.messages
         }
+        if self.metadata:
+            args['metadata'] = self.metadata
 
         if len(schemas) > 0:
             args['tools'] = schemas

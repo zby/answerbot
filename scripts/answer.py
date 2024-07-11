@@ -56,7 +56,7 @@ if __name__ == "__main__":
     #question = "What is the name of the fight song of the university whose main campus is in Lawrence, Kansas and whose branch campuses are in the Kansas City metropolitan area?"
     question = "What government position was held by the woman who portrayed Corliss Archer in the film Kiss and Tell?"
     #question = "The arena where the Lewiston Maineiacs played their home games can seat how many people?"
-    #question = "What is the seating capacity of Androscoggin Bank Colisée?"
+    question = "What is the seating capacity of Androscoggin Bank Colisée?"
     #question = "Who portrayed Corliss Archer in the film Kiss and Tell?"
 
 

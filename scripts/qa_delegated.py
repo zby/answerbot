@@ -23,20 +23,24 @@ litellm.success_callback = ["langfuse"]
 litellm.failure_callback = ["langfuse"]
 
 #model="claude-3-5-sonnet-20240620"
-#model="claude-3-haiku-20240307"
+model="claude-3-haiku-20240307"
+model="gpt-3.5-turbo-1106"
+model="gpt-3.5-turbo-0125"
 model='gpt-3.5-turbo'
 
 main_processor = QAProcessorDeep(
     main_processor_config={
         'model': model,
         'prompt_templates': main_researcher_prompts,
-        'max_iterations': 3
+        'max_iterations': 3,
+        'name': 'main_processor'
     },
     sub_processor_config={
         'toolbox': [WikipediaTool(chunk_size=400)],
         'model': model,
         'prompt_templates': wiki_researcher_prompts,
-        'max_iterations': 4
+        'max_iterations': 4,
+        'name': 'sub_processor'
     }
 )
 

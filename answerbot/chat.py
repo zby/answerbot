@@ -14,7 +14,8 @@ logger = logging.getLogger('answerbot.chat')
 
 def render_prompt(template_str: str, obj: object, context: Optional[object] = None) -> str:
     template = Template(template_str)
-    fields = {field.name: getattr(obj, field.name) for field in obj.__dataclass_fields__.values()}
+    fields = {name: value for name, value in obj.__dict__.items()}
+    fields.update({name: getattr(obj, name) for name in dir(obj) if isinstance(getattr(type(obj), name, None), property)})
     result = template.render(c=context, **fields)
     return result
 
@@ -34,14 +35,16 @@ def expand_toolbox(toolbox: list[HasLLMTools|LLMFunction|Callable]) -> list[Call
 
 @dataclass(frozen=True)
 class Prompt:
-    pass
+    def role(self) -> str:
+        return 'user'
 
 @dataclass(frozen=True)
 class SystemPrompt(Prompt):
     """
     System prompt for the chat.
     """
-    pass
+    def role(self) -> str:
+        return 'system'
 
 @dataclass
 class Chat:
@@ -59,22 +62,22 @@ class Chat:
 
     def __post_init__(self):
         if self.system_prompt:
-            system_message = self.make_message(self.system_prompt, 'system')
+            system_message = self.make_message(self.system_prompt)
             self.messages.insert(0, system_message)
 
 
-    def make_message(self, prompt: Prompt, role: str = 'user') -> str:
+    def make_message(self, prompt: Prompt) -> str:
         # Check if prompt has an attribute 'c'
         if hasattr(prompt, 'c'):
             raise ValueError("Prompt object cannot have an attribute named 'c' as it conflicts with the context parameter in render_prompt.")
         template_str = self.templates[type(prompt)]
         content = render_prompt(template_str, prompt, self.context)
         return {
-            'role': role,
+            'role': prompt.role(),
             'content': content.strip()
         }
 
-    def append(self, message: Prompt|ToolResult|dict|Message, role: Optional[str] = None):
+    def append(self, message: Prompt|ToolResult|dict|Message):
         if isinstance(message, Prompt):
             message_dict = self.make_message(message)
         elif isinstance(message, ToolResult):
@@ -83,8 +86,6 @@ class Chat:
             message_dict = message
         else:
             raise ValueError(f"Unsupported message type: {type(message)}")
-        if role:
-            message_dict['role'] = role
         self.messages.append(message_dict)
 
     def llm_reply(self, schemas=[]) -> ModelResponse:

@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 from llm_easy_tools import ToolResult
 
-from answerbot.chat import expand_toolbox, HasLLMTools, LLMFunction, Chat, Prompt
+from answerbot.chat import expand_toolbox, HasLLMTools, LLMFunction, Chat, Prompt, SystemPrompt
 
 
 def test_expand_toolbox():
@@ -34,13 +34,17 @@ class GreetingPrompt(Prompt):
     name: str
     time_of_day: str
 
+    @property
+    def hello(self):
+        return "Hello"
+
 @dataclass(frozen=True)
 class QueryPrompt(Prompt):
     question: str
     context: str
 
 templates = {
-    GreetingPrompt: "Hello {{name}}! Good {{time_of_day}}.",
+    GreetingPrompt: "{{hello}} {{name}}! Good {{time_of_day}}.",
     QueryPrompt: "Question: {{question}}\nContext: {{context}}"
 }
 
@@ -59,16 +63,14 @@ def test_chat_with_custom_prompts():
 
 def test_chat_with_system_message():
     @dataclass(frozen=True)
-    class SystemPrompt(Prompt):
-        role: str
+    class SpecialSystemPrompt(SystemPrompt):
         capabilities: str
 
     templates = {
-        SystemPrompt: "You are a {{role}}. Your capabilities include: {{capabilities}}"
+        SpecialSystemPrompt: "You are a helpful AI assistant. Your capabilities include: {{capabilities}}."
     }
 
-    system_prompt = SystemPrompt(
-        role="helpful AI assistant",
+    system_prompt = SpecialSystemPrompt(
         capabilities="answering questions, providing information, and assisting with tasks"
     )
 
@@ -82,7 +84,7 @@ def test_chat_with_system_message():
     assert chat.messages[0]['role'] == 'system'
     assert chat.messages[0]['content'] == (
         "You are a helpful AI assistant. Your capabilities include: "
-        "answering questions, providing information, and assisting with tasks"
+        "answering questions, providing information, and assisting with tasks."
     )
 
     # Test adding a user message after system prompt

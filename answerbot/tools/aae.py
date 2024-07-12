@@ -1,5 +1,4 @@
 from answerbot.tools.observation import InfoPiece, Observation
-from llm_easy_tools import llm_function
 from typing import Annotated, Callable
 import requests
 import html2text
@@ -45,7 +44,6 @@ class AAESearch:
         return result
 
 
-    @llm_function()
     def search_aae(self, query: Annotated[str, 'The query to search for']):
         """
         Searches Artificial Intelligence Act EU website, and return a list of documents
@@ -54,7 +52,6 @@ class AAESearch:
         print(f'Searching for "{query}"')
         return retry(stop=stop_after_attempt(self._max_retries))(_aae_search)(query, self._base_url)
 
-    @llm_function()
     def lookup(self, keyword: Annotated[str, 'The keyword to search for']) -> Observation:
         """
         Look up a word on the current page.
@@ -76,7 +73,6 @@ class AAESearch:
         else:
             return Observation([InfoPiece(f'Keyword "{keyword}" not found on current page')])
 
-    @llm_function()
     def lookup_next(self) -> Observation:
         """
         Jumps to the next occurrence of the word searched previously.
@@ -93,7 +89,6 @@ class AAESearch:
                 )
         return Observation([InfoPiece(result, quotable=True, source=self._document[1])])
 
-    @llm_function()
     def read_chunk(self) -> Observation:
         """
         Reads the next chunk of text from the current location in the current document.
@@ -105,7 +100,6 @@ class AAESearch:
                 current_url=self._document[1],
                 )
 
-    @llm_function()
     def goto_url(self, url: Annotated[str, "The url to go to"] ) -> Observation:
         """
         Retreive a page at url and saves the retrieved page as the next current page
@@ -122,8 +116,6 @@ class AAESearch:
         document = MarkdownDocument(cleaned_content, max_size=self._chunk_size, min_size=self._min_chunk_size)
         self._document = (document, url)
         return Observation([InfoPiece(f'{url} retrieved successfully')])
-
-
 
 def _aae_search(query: str, base_url: str = BASE_URL) -> str:
     params = {

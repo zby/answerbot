@@ -29,19 +29,19 @@ model="gpt-3.5-turbo-0125"
 model='gpt-3.5-turbo'
 
 main_processor = QAProcessorDeep(
-    main_processor_config={
-        'model': model,
-        'prompt_templates': main_researcher_prompts,
-        'max_iterations': 3,
-        'name': 'main_processor'
-    },
+    toolbox=[],
+    model=model,
+    prompt_templates=main_researcher_prompts,
+    max_iterations=3,
+    name='main_processor',
     sub_processor_config={
         'toolbox': [WikipediaTool(chunk_size=400)],
         'model': model,
         'prompt_templates': wiki_researcher_prompts,
         'max_iterations': 4,
         'name': 'sub_processor'
-    }
+    },
+    delegate_description="Delegate to a Wikipedia expert"
 )
 
 if __name__ == "__main__":

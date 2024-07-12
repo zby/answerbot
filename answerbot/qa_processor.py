@@ -47,47 +47,47 @@ class QAProcessor:
         observation = None
         reflection_string = None
         for step in range(self.max_iterations + 1):
-            tools = self.get_tools(step)
-            output = chat.process(tools)[0]
-            if isinstance(output, Answer):
-                answer = output
-                logger.info(f"Answer: '{answer}' for question: '{question}'")
-                return render_prompt(self.prompt_templates[Answer], answer, {'question': question})
             chat.append(StepInfo(step, self.max_iterations))
-            observation = output
-            if isinstance(output, Observation):
-                if observation.reflection_needed():
-                    reflection_string = reflect(self.model, self.prompt_templates, question, observation, what_have_we_learned)
-            available_tools = self.get_tools(step)
-            planning_string = plan_next_action(self.model, self.prompt_templates, question, available_tools, observation, reflection_string)
-            print(planning_string)
-            chat.append({'role': 'user', 'content': planning_string})
+            tools = self.get_tools(step)
+            results = chat.process(tools)
+            if not results:
+                logger.warn("No tool call in a tool loop")
+            else:
+                output = results[0]
+                if isinstance(output, Answer):
+                    answer = output
+                    logger.info(f"Answer: '{answer}' for question: '{question}'")
+                    return render_prompt(self.prompt_templates[Answer], answer, {'question': question})
+                observation = output
+                if isinstance(output, Observation):
+                    if observation.reflection_needed():
+                        reflection_string = reflect(self.model, self.prompt_templates, question, observation, what_have_we_learned)
+                available_tools = self.get_tools(step)
+                planning_string = plan_next_action(self.model, self.prompt_templates, question, available_tools, observation, reflection_string)
+                chat.append({'role': 'user', 'content': planning_string})
             logger.info(f"Step: {step} for question: '{question}'")
 
         return None
 
-    def get_available_tools(self, step: int)-> str:
-        tools = self.get_tools(step)
-        schemas = get_tool_defs(tools)
-        available_tools = self.format_tool_docstrings(schemas)
-        return available_tools
 
-
-@dataclass
-class QAProcessorDeep:
-    main_processor_config: dict[str, Any]
-    sub_processor_config: dict[str, Any]
+@dataclass(frozen=True)
+class QAProcessorDeep(QAProcessor):
+    sub_processor_config: Optional[dict[str, Any]] = None
+    delegate_description: Optional[str] = None
 
     def __post_init__(self):
-        sub_processor =  QAProcessor(**self.sub_processor_config)
+        if self.sub_processor_config:
+            if self.toolbox:
+                raise(Exception("Cannot set toolbox when using sub processor"))
+            if self.delegate_description is None:
+                raise(Exception("Must set deletage_description when usign sub processor"))
 
-        def delegate(sub_question: str):
-            """Delegate a question to a wikipedia expert"""
-            logger.info(f"Delegate a question to a wikipedia expert: '{sub_question}'")
-            return sub_processor.process(sub_question)
+            sub_processor =  QAProcessor(**self.sub_processor_config)
 
-        self.main_processor_config['toolbox'] = [delegate]
-        self.main_processor = QAProcessor(**self.main_processor_config)
+            def delegate(sub_question: str):
+                logger.info(f"{self.delegate_description}: '{sub_question}'")
+                return sub_processor.process(sub_question)
 
-    def process(self, question: str):
-        return self.main_processor.process(question)
+            delegate_fun = LLMFunction(delegate, description=self.delegate_description)
+
+            object.__setattr__(self, 'toolbox', [delegate_fun])

@@ -56,9 +56,8 @@ class Chat:
     # With statefull tools with many tool calls the LLM gets confused about the state of the tools
     # There should be an option in the litellm api for that
     # TODO: Add a fork of the process if that happens - and then collect all resolutions from all forks at the end (like with an Non Deterministic Finit Automaton)
-    context: Optional[object] = None
-    # for use in prompt templates
-    metadata: Optional[dict] = None
+    context: Optional[object] = None  # for use in prompt templates
+    metadata: Optional[dict] = None   # passed to litellm completion - useful for tagging prompts in langfuse
 
     def __post_init__(self):
         if self.system_prompt:

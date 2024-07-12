@@ -8,20 +8,46 @@ import time
 from datetime import datetime
 import itertools
 import traceback
+import logging
 
-from answerbot.qa_processor import QAProcessor
-from scripts.answer import sys_prompt
-from scripts.run_with_subreactor import sub_sys_prompt, main_sys_prompt
+from answerbot.qa_processor import QAProcessor, QAProcessorDeep
+from answerbot.qa_prompts import wiki_researcher_prompts, main_researcher_prompts, Answer
+
 from answerbot.tools.wiki_tool import WikipediaTool
-from openai import OpenAI
 
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Constants
 ITERATIONS = 1
-CONFIG_KEYS = ['chunk_size', 'max_llm_calls', 'model']
-ADDITIONAL_KEYS = ['question_id', 'answer', 'error', 'error_type', 'soft_errors', 'type', 'trace_len', ]
+CONFIG_KEYS = ['deep', 'chunk_size', 'max_llm_calls', 'model']
+ADDITIONAL_KEYS = ['question_id', 'answer', 'error', 'error_type', 'warnings']
 
-client = OpenAI(api_key=os.environ['OPENAI_API_KEY'])
+wiki_researcher_prompts[Answer] = "{{answer}}"
+main_researcher_prompts[Answer] = "{{answer}}"
+
+def create_reactor(config):
+    wiki_processor_config = {
+        'max_iterations': config['max_llm_calls'],
+        'model': config['model'],
+        'prompt_templates': wiki_researcher_prompts,
+        'toolbox': [WikipediaTool(chunk_size=config['chunk_size'])],
+        'name': 'wiki_processor'
+    }
+    if config['deep']:
+        return QAProcessorDeep(
+            toolbox=[],
+            max_iterations=3,
+            model=config['model'],
+            prompt_templates=main_researcher_prompts,
+            name='main_processor',
+            sub_processor_config=wiki_processor_config,
+            delegate_description="Delegate a question to a Wikipedia expert."
+        )
+    else:
+        return QAProcessor(**wiki_processor_config)
+
 
 def load_questions_from_file(filename, start_index, end_index):
     with open(filename, 'r') as f:
@@ -54,23 +80,8 @@ def save_constants_to_file(params_file_path, settings):
     with open(params_file_path, "w") as file:
         json.dump(settings, file, indent=4)
 
-def create_reactor(question, config):
-    
-    sub_reactor_tool = SubReactorTool(sub_reactors)
-    toolbox = [sub_reactor_tool]
-    args = {
-        'question': question,
-        'max_llm_calls': 3,
-        'model': config['model'],
-        'sys_prompt': main_sys_prompt,
-        'toolbox': [sub_reactor_tool.delegate],
-        'client': client,
-        'question_checks': ["Please analyze the user question and find the first step in answering it - a task to delegate to a wikipedia researcher that would require the least amount of calls to the wikipedia API. Think step by step."],
-    }
 
-    return LLMReactor.create_reactor(**args)
-
-def eval_question(combo, results_writer, csvfile, prompts_file, error_file):
+def eval_question(combo, results_writer, csvfile, error_file):
     question = combo[-1]
     config = dict(zip(CONFIG_KEYS, combo[:-1]))
     config['question_id'] = question['id']
@@ -80,18 +91,25 @@ def eval_question(combo, results_writer, csvfile, prompts_file, error_file):
     retry_delay = [360]
     for delay in retry_delay + [0]:  # After last failure we don't wait because we don't repeat
         try:
-            reactor = create_reactor(question_text, config)
-            reactor.process()
+            reactor = create_reactor(config)
+            answer = reactor.process(question_text)
+
+            # More robust warning counting
+            qa_logger = logging.getLogger('qa_processor')
+            chat_logger = logging.getLogger('answerbot.chat')
+
+            warning_count = sum(1 for handler in qa_logger.handlers for record in handler.records
+                                if record.levelno == logging.WARNING)
+            chat_warning_count = sum(1 for handler in chat_logger.handlers for record in handler.records
+                                     if record.levelno == logging.WARNING)
+            total_warning_count = warning_count + chat_warning_count
+
             config.update({
-                'answer': reactor.answer,
+                'answer': answer,
                 'error': 0,
                 'error_type': '',
-                'soft_errors': len(reactor.soft_errors),
-                'trace_len': reactor.trace.length(),
+                'warnings': total_warning_count,
             })
-            prompts_file.write(f"{log_preamble}\nPrompt:\n{str(reactor.trace)}\n\n")
-            prompts_file.flush()
-            os.fsync(prompts_file.fileno())
             results_writer.writerow(config)
             csvfile.flush()
             os.fsync(csvfile.fileno())
@@ -117,12 +135,10 @@ def eval_question(combo, results_writer, csvfile, prompts_file, error_file):
 
 
 def perform_experiments(settings, output_dir):
-    prompts_file_path = os.path.join(output_dir, "prompts.txt")
     file_path = os.path.join(output_dir, "results.csv")
     errors_file_path = os.path.join(output_dir, "errors.txt")
 
-    with open(file_path, 'w', newline='') as csvfile, open(errors_file_path, 'w') as error_file, open(prompts_file_path,
-                                                                                                      'w') as prompts_file:
+    with open(file_path, 'w', newline='') as csvfile, open(errors_file_path, 'w') as error_file:
         writer = csv.DictWriter(csvfile, fieldnames=CONFIG_KEYS + ADDITIONAL_KEYS)
         writer.writeheader()
 
@@ -132,7 +148,7 @@ def perform_experiments(settings, output_dir):
 
         for combo in combinations:
             for _ in range(ITERATIONS):
-                eval_question(combo, writer, csvfile ,prompts_file, error_file)
+                eval_question(combo, writer, csvfile, error_file)
 
     if os.path.getsize(errors_file_path) == 0:  # If the error file is empty, remove it.
         os.remove(errors_file_path)
@@ -195,16 +211,19 @@ if __name__ == "__main__":
         ]
 
     settings = {
+        "deep": [
+            True,
+            False
+        ],
         "question": questions_list,
         "chunk_size": [
             400
         ],
         "max_llm_calls": [5],
         "model": [
-            "gpt-4o",
+            "claude-3-haiku-20240307",
             "gpt-3.5-turbo"
         ],
     }
 
     record_experiment(settings)
-

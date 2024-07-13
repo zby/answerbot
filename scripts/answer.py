@@ -4,7 +4,6 @@ import litellm
 from dotenv import load_dotenv
 
 from answerbot.tools.wiki_tool import WikipediaTool
-from answerbot.qa_prompts import wiki_researcher_prompts
 from answerbot.qa_processor import QAProcessor
 
 # Set logging level to INFO for qa_processor.py
@@ -66,7 +65,7 @@ if __name__ == "__main__":
         model='gpt-3.5-turbo',
         #model='claude-3-5-sonnet-20240620',
         #model="claude-3-haiku-20240307",
-        prompt_templates=wiki_researcher_prompts
+        prompt_templates_dirs=['answerbot/templates/wiki_researcher']
     )
 
     print()

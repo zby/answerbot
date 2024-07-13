@@ -5,7 +5,6 @@ from dotenv import load_dotenv
 
 from answerbot.tools.wiki_tool import WikipediaTool
 from answerbot.qa_processor import QAProcessorDeep
-from answerbot.qa_prompts import wiki_researcher_prompts, main_researcher_prompts
 
 # Set logging level to INFO for qa_processor.py
 #logging.getLogger('qa_processor').setLevel(logging.INFO)
@@ -29,19 +28,19 @@ model="gpt-3.5-turbo-0125"
 model='gpt-3.5-turbo'
 
 main_processor = QAProcessorDeep(
-    toolbox=[],
     model=model,
-    prompt_templates=main_researcher_prompts,
+    prompt_templates_dirs=['answerbot/templates/main_researcher', 'answerbot/templates/wiki_researcher'],
     max_iterations=3,
     name='main_processor',
+    toolbox=[],
     sub_processor_config={
         'toolbox': [WikipediaTool(chunk_size=400)],
         'model': model,
-        'prompt_templates': wiki_researcher_prompts,
+        'prompt_templates_dirs': ['answerbot/templates/wiki_researcher'],
         'max_iterations': 4,
         'name': 'sub_processor'
     },
-    delegate_description="Delegate to a Wikipedia expert"
+    delegate_description='Delegate a question to a Wikipedia expert'
 )
 
 if __name__ == "__main__":

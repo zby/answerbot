@@ -1,0 +1,51 @@
+# Question
+
+The user's question is: {{question}}
+
+# Available tools
+
+{{available_tools}}
+
+{% if observation %}
+# Retrieval
+
+We have performed information retrieval with the following results:
+
+{{observation}}
+
+# Reflection
+
+{{reflection}}
+{% endif %}
+
+# Next step
+
+What would you do next?
+{% if observation %}
+Please analyze the retrieved data and check if you have enough information to answer the user question.
+
+If you still need more information, consider the available tools.
+{% else %}
+Consider the available tools.
+{% endif %}
+
+{% if observation.current_url %}
+You need to decide if the current page is relevant to answer the user question.
+If it is, then you should recommed exploring it further with the `lookup` or `read_more` tools.
+{% endif %}
+
+When using `search` please use simple queries. Think about what kind of pages exist at Wikipedia and what is the main topic of the user question.
+Never put two proper nouns into the same query - always start from one of them.
+
+When trying to learn about a property of an object or a person,
+first search for that object then use `get_url` to retrieve the Wikipedia page about that object,
+then you can browse the page to learn about its properties.
+For example to learn about the nationality of a person, first search for that person.
+Choose an url from the search results and then use `get_url` to retrieve the Wikipedia page about that person.
+If the persons page is retrieved but the information about nationality is not at the top of the page
+you can use `read_more` to continue reading or call `lookup('nationality')` or `lookup('born')` to get more information.
+
+For now specify only the next step. Use Markdown syntax.
+Explain your reasoning.
+
+Please be precise and specify both the tool together with the parameters you need as a function call, something like `function(parameter)`.

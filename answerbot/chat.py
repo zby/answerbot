@@ -7,17 +7,11 @@ from pprint import pformat
 from llm_easy_tools import get_tool_defs, process_response, ToolResult, LLMFunction 
 
 import logging
+import os
 
 
 # Configure logging for this module
 logger = logging.getLogger('answerbot.chat')
-
-def render_prompt(template_str: str, obj: object, context: Optional[object] = None) -> str:
-    template = Template(template_str)
-    fields = {name: value for name, value in obj.__dict__.items()}
-    fields.update({name: getattr(obj, name) for name in dir(obj) if isinstance(getattr(type(obj), name, None), property)})
-    result = template.render(c=context, **fields)
-    return result
 
 @runtime_checkable
 class HasLLMTools(Protocol):
@@ -50,7 +44,8 @@ class SystemPrompt(Prompt):
 class Chat:
     model: str
     messages: list[dict|Message] = field(default_factory=list)
-    templates: dict[Type[Prompt], str] = field(default_factory=dict)
+    templates: dict[str, str] = field(default_factory=dict)
+    templates_dirs: list[str] = field(default_factory=list)
     system_prompt: Optional[Prompt] = None
     one_tool_per_step: bool = True
     # With statefull tools with many tool calls the LLM gets confused about the state of the tools
@@ -63,14 +58,36 @@ class Chat:
         if self.system_prompt:
             system_message = self.make_message(self.system_prompt)
             self.messages.insert(0, system_message)
+        templates_in_files = self.load_templates(self.templates_dirs)
+        templates_in_files.update(self.templates)
+        self.templates = templates_in_files
+
+    def load_templates(self, templates_dirs: list[str]) -> dict[str, str]:
+        templates_in_files = {}
+        for templates_dir in templates_dirs:
+            for filename in os.listdir(templates_dir):
+                class_name, file_type = os.path.splitext(filename)
+                if file_type == '.jinja2':
+                    class_name = os.path.basename(class_name)  # Remove any path components
+                    if class_name not in templates_in_files:  # Only load if not already found
+                        with open(os.path.join(templates_dir, filename), 'r') as file:
+                            templates_in_files[class_name] = file.read()
+        return templates_in_files
+
+    def render_prompt(self, obj: object, context: Optional[object] = None) -> str:
+        template_str = self.templates[type(obj).__name__]
+        template = Template(template_str)
+        fields = {name: value for name, value in obj.__dict__.items()}
+        fields.update({name: getattr(obj, name) for name in dir(obj) if isinstance(getattr(type(obj), name, None), property)})
+        result = template.render(c=context, **fields)
+        return result
 
 
     def make_message(self, prompt: Prompt) -> str:
         # Check if prompt has an attribute 'c'
         if hasattr(prompt, 'c'):
             raise ValueError("Prompt object cannot have an attribute named 'c' as it conflicts with the context parameter in render_prompt.")
-        template_str = self.templates[type(prompt)]
-        content = render_prompt(template_str, prompt, self.context)
+        content = self.render_prompt(prompt, self.context)
         return {
             'role': prompt.role(),
             'content': content.strip()
@@ -185,4 +202,3 @@ if __name__ == "__main__":
     print("Chat entries:")
     for i, message in enumerate(chat.messages):
         print(f"{i + 1}. {message['role']}: {message['content']}")
-

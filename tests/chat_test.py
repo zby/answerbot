@@ -44,8 +44,8 @@ class QueryPrompt(Prompt):
     context: str
 
 templates = {
-    GreetingPrompt: "{{hello}} {{name}}! Good {{time_of_day}}.",
-    QueryPrompt: "Question: {{question}}\nContext: {{context}}"
+    'GreetingPrompt': "{{hello}} {{name}}! Good {{time_of_day}}.",
+    'QueryPrompt': "Question: {{question}}\nContext: {{context}}"
 }
 
 def test_chat_with_custom_prompts():
@@ -67,7 +67,7 @@ def test_chat_with_system_message():
         capabilities: str
 
     templates = {
-        SpecialSystemPrompt: "You are a helpful AI assistant. Your capabilities include: {{capabilities}}."
+        'SpecialSystemPrompt': "You are a helpful AI assistant. Your capabilities include: {{capabilities}}."
     }
 
     system_prompt = SpecialSystemPrompt(
@@ -129,3 +129,84 @@ def test_chat_append_prompt_with_c_attribute():
         chat.append(invalid_prompt)
 
     assert str(excinfo.value) == "Prompt object cannot have an attribute named 'c' as it conflicts with the context parameter in render_prompt."
+
+def test_chat_load_templates():
+    # Create a Chat instance with templates_dirs
+    chat = Chat(
+        model="gpt-3.5-turbo",
+        templates_dirs=["tests/data/prompts1", "tests/data/prompts2"]
+    )
+
+    # Check if the templates were loaded correctly
+    assert "Prompt1" in chat.templates
+    assert chat.templates["Prompt1"] == "This is Prompt1 from prompts1\nSome value {{value}}\n"
+    assert "Prompt2" in chat.templates
+    assert chat.templates["Prompt2"] == "This is Prompt2.\nSome value {{value}}\n"
+
+    # Create a Chat instance with only one template directory
+    chat = Chat(
+        model="gpt-3.5-turbo",
+        templates_dirs=["tests/data/prompts2", "tests/data/prompts1"]
+    )
+
+    # Check if the templates were loaded correctly
+    assert "Prompt1" in chat.templates
+    assert chat.templates["Prompt1"] == "This is Prompt1 from prompts2.\n"
+    assert "Prompt2" in chat.templates
+    assert chat.templates["Prompt2"] == "This is Prompt2.\nSome value {{value}}\n"
+
+def test_chat_template_initialization():
+    # Create a Chat instance with both templates_dirs and templates
+    chat = Chat(
+        model="gpt-3.5-turbo",
+        templates_dirs=["tests/data/prompts2", "tests/data/prompts1"],
+        templates={
+            "Prompt1": "Overwritten template {{value}}",
+            "Prompt3": "New template {{value}}"
+        }
+    )
+
+    # Check if the templates were loaded and overwritten correctly
+    assert chat.templates["Prompt1"] == "Overwritten template {{value}}"
+    assert chat.templates["Prompt2"] == "This is Prompt2.\nSome value {{value}}\n"
+    assert chat.templates["Prompt3"] == "New template {{value}}"
+
+    # Create Prompt classes that match the templates
+    @dataclass(frozen=True)
+    class Prompt1(Prompt):
+        value: str
+
+    @dataclass(frozen=True)
+    class Prompt2(Prompt):
+        value: str
+
+    @dataclass(frozen=True)
+    class Prompt3(Prompt):
+        value: str
+
+    # Test rendering the templates
+    prompt1 = Prompt1(value="test1")
+    message1 = chat.make_message(prompt1)
+
+    assert message1['role'] == 'user'
+    assert message1['content'] == "Overwritten template test1"
+
+    prompt2 = Prompt2(value="test2")
+    message2 = chat.make_message(prompt2)
+
+    assert message2['role'] == 'user'
+    assert message2['content'] == "This is Prompt2.\nSome value test2"
+
+    prompt3 = Prompt3(value="test3")
+    message3 = chat.make_message(prompt3)
+
+    assert message3['role'] == 'user'
+    assert message3['content'] == "New template test3"
+
+    # Test that a template not present in either source raises a KeyError
+    @dataclass(frozen=True)
+    class NonexistentPrompt(Prompt):
+        value: str
+
+    with pytest.raises(KeyError):
+        chat.make_message(NonexistentPrompt(value="test"))

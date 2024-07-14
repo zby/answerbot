@@ -109,12 +109,16 @@ class Chat:
             system_message = self.make_message(self.system_prompt)
             self.messages.insert(0, system_message)
 
-    def make_message(self, prompt: Prompt) -> str:
+    def make_message(self, prompt: object) -> str:
         if hasattr(prompt, 'c'):
             raise ValueError("Prompt object cannot have an attribute named 'c' as it conflicts with the context parameter in render_prompt.")
         content = self.template_manager.render_prompt(prompt, self.context)
+        if hasattr(prompt, 'role'):
+            role = prompt.role()
+        else:
+            role = 'user'
         return {
-            'role': prompt.role(),
+            'role': role,
             'content': content.strip()
         }
 

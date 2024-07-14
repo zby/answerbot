@@ -9,6 +9,25 @@ from answerbot.tools.observation import Observation, InfoPiece
 
 load_dotenv()
 
+# Set logging level to INFO for qa_processor.py
+#logging.getLogger('qa_processor').setLevel(logging.INFO)
+import logging
+import litellm
+qa_logger = logging.getLogger('qa_processor')
+qa_logger.setLevel(logging.INFO)
+chat_logger = logging.getLogger('answerbot.chat')
+chat_logger.setLevel(logging.DEBUG)
+
+# Create a console handler
+console_handler = logging.StreamHandler()
+
+# Add the handler to the logger
+qa_logger.addHandler(console_handler)
+chat_logger.addHandler(console_handler)
+
+litellm.success_callback = ["langfuse"]
+litellm.failure_callback = ["langfuse"]
+
 
 def execute(code: str) -> str:
     """Run python code and return the captured stdout and stderr. Don't forget to use a print statement to see the results."""

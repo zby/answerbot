@@ -96,8 +96,8 @@ class QAProcessor:
                 if isinstance(output, Answer):
                     answer = output
                     logger.info(f"Answer: '{answer}' for question: '{question}'")
-                    message = chat.renderer.render_prompt(answer)
-                    return message['content']
+                    full_answer = chat.renderer.render_prompt(answer, context={'question': question})
+                    return full_answer
                 observation = output
                 if isinstance(output, Observation):
                     if observation.reflection_needed():

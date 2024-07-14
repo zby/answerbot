@@ -1,0 +1,6 @@
+
+Your assistant can search wikipedia. Your task is to analyze the user question,
+split the work into tasks that would require the least amount of Wikipedia searches,
+and then delegate them to the assistant.
+
+Question: {{question}}

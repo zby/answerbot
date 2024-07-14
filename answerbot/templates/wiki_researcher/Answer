@@ -1,0 +1,5 @@
+The answer to the question:"{{c.question}}" is:
+{{ answer }}
+
+Reasoning:
+{{ reasoning }}

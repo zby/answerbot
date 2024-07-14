@@ -2,8 +2,8 @@ import pytest
 from dataclasses import dataclass
 
 from llm_easy_tools import ToolResult
-
-from answerbot.chat import expand_toolbox, HasLLMTools, LLMFunction, Chat, Prompt, SystemPrompt
+import jinja2
+from answerbot.chat import expand_toolbox, HasLLMTools, LLMFunction, Chat, Prompt, SystemPrompt, TemplateManager
 
 
 def test_expand_toolbox():
@@ -130,30 +130,65 @@ def test_chat_append_prompt_with_c_attribute():
 
     assert str(excinfo.value) == "Prompt object cannot have an attribute named 'c' as it conflicts with the context parameter in render_prompt."
 
-def test_chat_load_templates():
-    # Create a Chat instance with templates_dirs
-    chat = Chat(
-        model="gpt-3.5-turbo",
+def test_load_templates():
+    # Create a TemplateManager instance with templates_dirs
+    template_manager = TemplateManager(
         templates_dirs=["tests/data/prompts1", "tests/data/prompts2"]
     )
 
     # Check if the templates were loaded correctly
-    assert "Prompt1" in chat.templates
-    assert chat.templates["Prompt1"] == "This is Prompt1 from prompts1\nSome value {{value}}\n"
-    assert "Prompt2" in chat.templates
-    assert chat.templates["Prompt2"] == "This is Prompt2.\nSome value {{value}}\n"
+    t = template_manager.env.get_template("Prompt1")
+    assert t.render({"value": "test"}) == 'This is Prompt1 from prompts1\nSome value: "test"'
+    t = template_manager.env.get_template("Prompt2")
+    assert t.render({"value": "test"}) == 'This is Prompt2.\nSome value: "test"'
 
-    # Create a Chat instance with only one template directory
-    chat = Chat(
-        model="gpt-3.5-turbo",
+    # Create a TemplateManager instance with prompts2 first
+    template_manager = TemplateManager(
         templates_dirs=["tests/data/prompts2", "tests/data/prompts1"]
     )
 
     # Check if the templates were loaded correctly
-    assert "Prompt1" in chat.templates
-    assert chat.templates["Prompt1"] == "This is Prompt1 from prompts2.\n"
-    assert "Prompt2" in chat.templates
-    assert chat.templates["Prompt2"] == "This is Prompt2.\nSome value {{value}}\n"
+    t = template_manager.env.get_template("Prompt1")
+    assert t.render({}) == "This is Prompt1 from prompts2."
+    t = template_manager.env.get_template("Prompt2")
+    assert t.render({"value": "test"}) == 'This is Prompt2.\nSome value: "test"'
+
+def test_template_manager_with_templates_dict():
+    # Create a TemplateManager instance with templates dictionary and a template directory
+    template_manager = TemplateManager(
+        templates={
+            "CustomPrompt1": "This is a custom prompt: {{value}}",
+            "CustomPrompt2": "Another custom prompt: {{name}}",
+            "Prompt1": "Overridden Prompt1: {{value}}"  # This should override the one from disk
+        },
+        templates_dirs=["tests/data/prompts1"]
+    )
+
+    # Check if the templates were loaded correctly
+    t1 = template_manager.env.get_template("CustomPrompt1")
+    assert t1.render({"value": "test"}) == 'This is a custom prompt: test'
+
+    t2 = template_manager.env.get_template("CustomPrompt2")
+    assert t2.render({"name": "John"}) == 'Another custom prompt: John'
+
+    # Test that the template from disk is loaded
+    t3 = template_manager.env.get_template("Prompt2")
+    assert t3.render({"value": "test"}) == 'This is Prompt2.\nSome value: "test"'
+
+    # Test that Prompt1 is overridden
+    t4 = template_manager.env.get_template("Prompt1")
+    assert t4.render({"value": "test"}) == 'Overridden Prompt1: test'
+
+    # Test non-existent template
+    t2 = template_manager.env.get_template("NonExistentPrompt")
+    assert isinstance(t2, jinja2.Template)
+    
+    class TestObject:
+        def __str__(self):
+            return "TestObject string representation"
+
+    assert template_manager.render_prompt(TestObject()) == 'TestObject string representation'
+
 
 def test_chat_template_initialization():
     # Create a Chat instance with both templates_dirs and templates
@@ -165,11 +200,6 @@ def test_chat_template_initialization():
             "Prompt3": "New template {{value}}"
         }
     )
-
-    # Check if the templates were loaded and overwritten correctly
-    assert chat.templates["Prompt1"] == "Overwritten template {{value}}"
-    assert chat.templates["Prompt2"] == "This is Prompt2.\nSome value {{value}}\n"
-    assert chat.templates["Prompt3"] == "New template {{value}}"
 
     # Create Prompt classes that match the templates
     @dataclass(frozen=True)
@@ -195,7 +225,7 @@ def test_chat_template_initialization():
     message2 = chat.make_message(prompt2)
 
     assert message2['role'] == 'user'
-    assert message2['content'] == "This is Prompt2.\nSome value test2"
+    assert message2['content'] == 'This is Prompt2.\nSome value: "test2"'
 
     prompt3 = Prompt3(value="test3")
     message3 = chat.make_message(prompt3)
@@ -203,10 +233,12 @@ def test_chat_template_initialization():
     assert message3['role'] == 'user'
     assert message3['content'] == "New template test3"
 
-    # Test that a template not present in either source raises a KeyError
     @dataclass(frozen=True)
     class NonexistentPrompt(Prompt):
         value: str
+        def __str__(self):
+            return "This is a nonexistent prompt"
 
-    with pytest.raises(KeyError):
-        chat.make_message(NonexistentPrompt(value="test"))
+    message4 = chat.make_message(NonexistentPrompt(value="test"))
+    assert message4['role'] == 'user'
+    assert message4['content'] == "This is a nonexistent prompt"

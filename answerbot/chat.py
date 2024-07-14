@@ -111,6 +111,9 @@ class Chat:
             self.messages.insert(0, system_message)
 
     def make_message(self, prompt: Prompt) -> dict:
+        """
+        Create a message dictionary from a Prompt object.
+        """
         if hasattr(prompt, 'c'):
             raise ValueError("Prompt object cannot have an attribute named 'c' as it conflicts with the context parameter in render_prompt.")
         content = self.renderer.render_prompt(prompt, self.context)
@@ -119,7 +122,10 @@ class Chat:
             'content': content.strip()  #TODO: is .strip() needed here?
         }
 
-    def append(self, message: Prompt|ToolResult|dict|Message):
+    def append(self, message: Prompt|ToolResult|dict|Message) -> None:
+        """
+        Append a message to the chat.
+        """
         if isinstance(message, Prompt):
             message_dict = self.make_message(message)
         elif isinstance(message, ToolResult):

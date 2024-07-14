@@ -96,7 +96,7 @@ class QAProcessor:
                 if isinstance(output, Answer):
                     answer = output
                     logger.info(f"Answer: '{answer}' for question: '{question}'")
-                    message = chat.make_message(answer)
+                    message = chat.renderer.render_prompt(answer)
                     return message['content']
                 observation = output
                 if isinstance(output, Observation):

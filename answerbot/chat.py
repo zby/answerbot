@@ -8,10 +8,7 @@ from llm_easy_tools import get_tool_defs, process_response, ToolResult, LLMFunct
 
 import logging
 
-# One problem with the current implementation is that Prompt objects cannot have an attribute named 'c'
-# and using {{role}} in the templates might be a bit confusing
-# because the role method is used to initialize the message role,
-
+# One problem with the current implementation is that Prompt objects cannot have an attributes named 'c' or 'role'
 
 
 # Configure logging for this module
@@ -113,16 +110,12 @@ class Chat:
             system_message = self.make_message(self.system_prompt)
             self.messages.insert(0, system_message)
 
-    def make_message(self, prompt: object) -> dict:
+    def make_message(self, prompt: Prompt) -> dict:
         if hasattr(prompt, 'c'):
             raise ValueError("Prompt object cannot have an attribute named 'c' as it conflicts with the context parameter in render_prompt.")
         content = self.renderer.render_prompt(prompt, self.context)
-        if hasattr(prompt, 'role') and callable(prompt.role):
-            role = prompt.role()
-        else:
-            role = 'user'
         return {
-            'role': role,
+            'role': prompt.role(),
             'content': content.strip()  #TODO: is .strip() needed here?
         }
 
@@ -260,3 +253,14 @@ if __name__ == "__main__":
     print("Chat entries:")
     for i, message in enumerate(chat.messages):
         print(f"{i + 1}. {message['role']}: {message['content']}")
+
+    # This does ot work!!!
+    @dataclass(frozen=True)
+    class TestPrompt(Prompt):
+        role: str
+
+    test_prompt = TestPrompt(role="some role")
+    try:
+        chat.make_message(test_prompt)
+    except ValueError as e:
+        print(f"Error message: {str(e)}")

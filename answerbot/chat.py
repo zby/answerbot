@@ -7,7 +7,6 @@ from pprint import pformat
 from llm_easy_tools import get_tool_defs, process_response, ToolResult, LLMFunction 
 
 import logging
-import os
 
 
 # Configure logging for this module
@@ -85,13 +84,13 @@ class Chat:
     model: str
     messages: list[dict|Message] = field(default_factory=list)
     template_manager: Optional[TemplateManager] = None
+    templates: dict[str, str] = field(default_factory=dict)    # when you don't want to create a template manager yourself
+    templates_dirs: list[str] = field(default_factory=list)    # ^^^^
     system_prompt: Optional[Prompt] = None
-    one_tool_per_step: bool = True
-    context: Optional[object] = None
-    metadata: Optional[dict] = None
-    fail_on_tool_error: bool = True
-    templates: dict[str, str] = field(default_factory=dict)
-    templates_dirs: list[str] = field(default_factory=list)
+    context: Optional[object] = None # passed as 'c' to the template
+    metadata: Optional[dict] = None  # passed to completion() - I use it for observability (tagging traces in langfuse)
+    fail_on_tool_error: bool = True  # if False the error message is passed to the LLM to fix the call, if True exception is raised
+    one_tool_per_step: bool = True  # for stateful tools executing more than one tool call per step is often confusing for the LLM
 
     def __post_init__(self):
         if self.template_manager and (self.templates or self.templates_dirs):
@@ -119,7 +118,7 @@ class Chat:
             role = 'user'
         return {
             'role': role,
-            'content': content.strip()
+            'content': content.strip()  #TODO: is .strip() needed here?
         }
 
     def append(self, message: Prompt|ToolResult|dict|Message):
@@ -148,7 +147,7 @@ class Chat:
             else:
                 args['tool_choice'] = "auto"
 
-        logger.debug(f"Args: {pformat(args)}")
+        logger.debug(f"llm_reply args: {pformat(args)}")
 
         result = completion(**args)
         message = result.choices[0].message
@@ -185,7 +184,6 @@ class Chat:
 
 
 if __name__ == "__main__":
-    from dataclasses import dataclass
 
     @dataclass(frozen=True)
     class AssistantPrompt(Prompt):
@@ -209,20 +207,16 @@ if __name__ == "__main__":
     class Prompt2(Prompt):
         value: str
 
-    # Create a TemplateManager with the provided templates and custom templates
-    template_manager = TemplateManager(
+    # create Chat with default template manager
+    chat = Chat(
+        model="gpt-3.5-turbo",
+        system_prompt=SystemPrompt(),
         templates_dirs=["tests/data/prompts1", "tests/data/prompts2"],
         templates={
             "SystemPrompt": "You are a helpful assistant.",
             "AssistantPrompt": "Assistant: {{answer}}",
             "SpecialPrompt": "{{__str__()}}"
         }
-    )
-
-    chat = Chat(
-        model="gpt-3.5-turbo",
-        template_manager=template_manager,
-        system_prompt=SystemPrompt()
     )
 
     # Create example prompts
@@ -242,20 +236,15 @@ if __name__ == "__main__":
     for i, message in enumerate(chat.messages):
         print(f"{i + 1}. {message['role']}: {message['content']}")
 
-    # Create a TemplateManager where the Prompt1 template from prompts2 is not overwritten
-    template_manager = TemplateManager(
+    chat = Chat(
+        model="gpt-3.5-turbo",
+        system_prompt=SystemPrompt(),
         templates_dirs=["tests/data/prompts2"],
         templates={
             "SystemPrompt": "You are a helpful assistant.",
             "AssistantPrompt": "Assistant: {{answer}}",
             "SpecialPrompt": "{{__str__()}}"
         }
-    )
-
-    chat = Chat(
-        model="gpt-3.5-turbo",
-        template_manager=template_manager,
-        system_prompt=SystemPrompt()
     )
     # Create example prompts
     prompt1_from_prompts2 = Prompt1(value="Example1")

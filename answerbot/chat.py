@@ -8,6 +8,11 @@ from llm_easy_tools import get_tool_defs, process_response, ToolResult, LLMFunct
 
 import logging
 
+# One problem with the current implementation is that Prompt objects cannot have an attribute named 'c'
+# and using {{role}} in the templates might be a bit confusing
+# because the role method is used to initialize the message role,
+
+
 
 # Configure logging for this module
 logger = logging.getLogger('answerbot.chat')
@@ -112,7 +117,10 @@ class Chat:
         if hasattr(prompt, 'c'):
             raise ValueError("Prompt object cannot have an attribute named 'c' as it conflicts with the context parameter in render_prompt.")
         content = self.template_manager.render_prompt(prompt, self.context)
-        role = getattr(prompt, 'role', 'user')
+        if hasattr(prompt, 'role') and callable(prompt.role):
+            role = prompt.role()
+        else:
+            role = 'user'
         return {
             'role': role,
             'content': content.strip()  #TODO: is .strip() needed here?

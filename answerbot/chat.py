@@ -54,7 +54,7 @@ class StringLoader(BaseLoader):
         return self.template_string, None, lambda: True
 
 @dataclass
-class TemplateManager:
+class Jinja2Renderer:
     templates: dict[str, str] = field(default_factory=dict)
     templates_dirs: list[str] = field(default_factory=list)
     fallback_template: str = "{{ __str__() }}"  # Default fallback template using __str__
@@ -88,7 +88,7 @@ class TemplateManager:
 class Chat:
     model: str
     messages: list[dict|Message] = field(default_factory=list)
-    template_manager: Optional[TemplateManager] = None
+    renderer: Optional[Jinja2Renderer] = None
     templates: dict[str, str] = field(default_factory=dict)    # when you don't want to create a template manager yourself
     templates_dirs: list[str] = field(default_factory=list)    # ^^^^
     system_prompt: Optional[Prompt] = None
@@ -98,16 +98,16 @@ class Chat:
     one_tool_per_step: bool = True  # for stateful tools executing more than one tool call per step is often confusing for the LLM
 
     def __post_init__(self):
-        if self.template_manager and (self.templates or self.templates_dirs):
+        if self.renderer and (self.templates or self.templates_dirs):
             raise ValueError("Cannot specify both template_manager and templates/templates_dirs")
 
         if self.templates or self.templates_dirs:
-            self.template_manager = TemplateManager(
+            self.renderer = Jinja2Renderer(
                 templates=self.templates,
                 templates_dirs=self.templates_dirs
             )
-        elif self.template_manager is None:
-            self.template_manager = TemplateManager()
+        elif self.renderer is None:
+            self.renderer = Jinja2Renderer()
 
         if self.system_prompt:
             system_message = self.make_message(self.system_prompt)
@@ -116,7 +116,7 @@ class Chat:
     def make_message(self, prompt: object) -> dict:
         if hasattr(prompt, 'c'):
             raise ValueError("Prompt object cannot have an attribute named 'c' as it conflicts with the context parameter in render_prompt.")
-        content = self.template_manager.render_prompt(prompt, self.context)
+        content = self.renderer.render_prompt(prompt, self.context)
         if hasattr(prompt, 'role') and callable(prompt.role):
             role = prompt.role()
         else:

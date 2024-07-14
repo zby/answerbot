@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 from llm_easy_tools import ToolResult
 import jinja2
-from answerbot.chat import expand_toolbox, HasLLMTools, LLMFunction, Chat, Prompt, SystemPrompt, TemplateManager
+from answerbot.chat import expand_toolbox, HasLLMTools, LLMFunction, Chat, Prompt, SystemPrompt, Jinja2Renderer
 
 
 def test_expand_toolbox():
@@ -132,7 +132,7 @@ def test_chat_append_prompt_with_c_attribute():
 
 def test_load_templates():
     # Create a TemplateManager instance with templates_dirs
-    template_manager = TemplateManager(
+    template_manager = Jinja2Renderer(
         templates_dirs=["tests/data/prompts1", "tests/data/prompts2"]
     )
 
@@ -143,7 +143,7 @@ def test_load_templates():
     assert t.render({"value": "test"}) == 'This is Prompt2.\nSome value: "test"'
 
     # Create a TemplateManager instance with prompts2 first
-    template_manager = TemplateManager(
+    template_manager = Jinja2Renderer(
         templates_dirs=["tests/data/prompts2", "tests/data/prompts1"]
     )
 
@@ -155,7 +155,7 @@ def test_load_templates():
 
 def test_template_manager_with_templates_dict():
     # Create a TemplateManager instance with templates dictionary and a template directory
-    template_manager = TemplateManager(
+    template_manager = Jinja2Renderer(
         templates={
             "CustomPrompt1": "This is a custom prompt: {{value}}",
             "CustomPrompt2": "Another custom prompt: {{name}}",

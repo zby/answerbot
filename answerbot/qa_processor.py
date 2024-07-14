@@ -47,6 +47,7 @@ class QAProcessor:
     prompt_templates: dict[str, str] = field(default_factory=dict)
     prompt_templates_dirs: list[str] = field(default_factory=list)
     name: Optional[str] = None
+    fail_on_tool_error: bool = False
 
     def get_tools(self, step: int) -> list[Callable|LLMFunction|HasLLMTools]:
         if step < self.max_iterations:
@@ -54,16 +55,22 @@ class QAProcessor:
         else:
             return [Answer]
 
-    def make_chat(self) -> Chat:
+    def make_chat(self, tags: Optional[list[str]] = None) -> Chat:
+        tags = tags or []
+        if self.name:
+            tags.append(self.name)
+        metadata = {}
+        if tags:
+            metadata['tags'] = tags
         chat = Chat(
             model=self.model,
             one_tool_per_step=True,
             templates=self.prompt_templates,
             templates_dirs=self.prompt_templates_dirs,
             context=self,
+            fail_on_tool_error=self.fail_on_tool_error,
+            metadata=metadata
         )
-        if self.name:
-            chat.metadata = {"tags": [self.name]}
         return chat
 
     def process(self, question: str):
@@ -77,6 +84,8 @@ class QAProcessor:
         observation = None
         reflection_string = None
         for step in range(self.max_iterations + 1):
+            planning_string = self.plan_next_action(question, observation, reflection_string)
+            chat.append({'role': 'user', 'content': planning_string})
             chat.append(StepInfo(step, self.max_iterations))
             tools = self.get_tools(step)
             results = chat.process(tools)
@@ -92,8 +101,6 @@ class QAProcessor:
                 if isinstance(output, Observation):
                     if observation.reflection_needed():
                         reflection_string = self.reflect(question, observation, what_have_we_learned)
-                planning_string = self.plan_next_action(question, observation, reflection_string)
-                chat.append({'role': 'user', 'content': planning_string})
             logger.info(f"Step: {step} for question: '{question}'")
 
         return None
@@ -112,8 +119,9 @@ class QAProcessor:
         return reflection_string
 
     def plan_next_action(self, question: str, observation: Optional[Observation] = None, reflection_string: Optional[str] = None) -> str:
-        chat = self.make_chat()
-        chat.append(PlanningSystemPrompt())
+        chat = self.make_chat(['planning'])
+        if chat.templates.get('PlanningSystemPrompt'):
+            chat.append(PlanningSystemPrompt())
 
         schemas = get_tool_defs(expand_toolbox(self.get_tools(0)))
         available_tools_str = format_tool_docstrings(schemas)

@@ -53,6 +53,7 @@ class Chat:
     # TODO: Add a fork of the process if that happens - and then collect all resolutions from all forks at the end (like with an Non Deterministic Finit Automaton)
     context: Optional[object] = None  # for use in prompt templates
     metadata: Optional[dict] = None   # passed to litellm completion - useful for tagging prompts in langfuse
+    fail_on_tool_error: bool = True
 
     def __post_init__(self):
         if self.system_prompt:
@@ -149,7 +150,7 @@ class Chat:
                 for soft_error in result.soft_errors:
                     logger.warning(soft_error)
             self.append(result)
-            if result.error:
+            if result.error and self.fail_on_tool_error:
                 raise Exception(result.error)
             outputs.append(result.output)
 

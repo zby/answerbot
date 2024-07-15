@@ -1,0 +1,40 @@
+# Question
+
+The user's question is: {{question}}
+
+# Available tools
+
+{{available_tools}}
+
+{% if observation %}
+# Retrieval
+
+We have performed information retrieval with the following results:
+
+{{observation}}
+
+# Reflection
+
+{{reflection}}
+{% endif %}
+
+# Next step
+
+What would you do next?
+{% if observation %}
+Please analyze the retrieved data and check if you have enough information to answer the user question.
+
+If you still need more information, consider the available tools.
+{% else %}
+Consider the available tools.
+{% endif %}
+
+{% if observation.current_url %}
+You need to decide if the current page is relevant to answer the user question.
+If it is, then you should recommed exploring it further with the `lookup` or `read_more` tools.
+{% endif %}
+
+For now specify only the next step. Use Markdown syntax.
+Explain your reasoning.
+
+Please be precise and specify both the tool together with the parameters you need as a function call, something like `function(parameter)`.

@@ -2,19 +2,21 @@ import logging
 import os
 import httpx
 from openai import OpenAI
-from answerbot.react import LLMReactor 
+from answerbot.qa_processor import QAProcessor
 from answerbot.tools.aaext import DocumentSection, EUAIAct, get_eu_act_toc, get_eu_act_toc_raw, retrieve, sanitize_string
 from pprint import pprint
 import click
 import json
+import litellm
 
 from dotenv import load_dotenv
 load_dotenv()
 
 logging.basicConfig(level=logging.INFO)
+logging.getLogger('LiteLLM').setLevel(logging.WARNING)
 
-
-
+litellm.success_callback = ["langfuse"]
+litellm.failure_callback = ["langfuse"]
 
 question = '''
 How is transparency defined in the AI Act and what transparency requirements apply to low-risk Ai systems?
@@ -42,35 +44,23 @@ def _get_toc_web() -> DocumentSection:
             )
 
 
-
 @click.command()
 @click.option('--local', '-l', type=str, default=None)
 @click.option('--max-llm-calls', '-m', type=int, default=7)
 def main(local: str|None=None, max_llm_calls: int=7):
-    def _sys_prompt(max_llm_calls):
-        return f"""
-        Please answer the following question, using the tool available.
-        You only have {max_llm_calls-1} to the tools.
-        """
-
-
     toc = _get_toc_web() if not local else _get_toc_local(local)
+    app = QAProcessor(
+        model="claude-3-5-sonnet-20240620",
+        toolbox=[EUAIAct(toc)],
+        max_iterations=max_llm_calls,
+        prompt_templates_dirs=[
+            "answerbot/templates/common",
+            "answerbot/templates/aiact",
+        ],
+    )
 
-    reactor = LLMReactor(
-            model='claude-3-5-sonnet-20240620',
-            toolbox=[EUAIAct(toc)],
-            max_llm_calls=max_llm_calls,
-            get_system_prompt=_sys_prompt,
-            question_checks=[]
-            )
-
-    trace = reactor.process(question)
-    print(trace.generate_report())
     print()
-    print(str(trace.what_have_we_learned))
-    print()
-    pprint(trace.soft_errors)
-
+    print(app.process(question))
 
 if __name__ == '__main__':
     main()

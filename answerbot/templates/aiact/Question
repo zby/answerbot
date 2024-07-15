@@ -1,0 +1,6 @@
+Please answer the following question. You can use the available tools - but you ca only use them {{max_llm_calls - 1}} times.
+
+When you know the answer call Answer.
+Remove all explanations from the answer and put them into the reasoning field.
+
+Question: {{question}}

@@ -1,6 +1,5 @@
 
 from functools import cached_property
-from llm_easy_tools import llm_function
 from typing import Annotated, Callable, Iterator
 import requests
 from bs4 import BeautifulSoup, PageElement, Tag

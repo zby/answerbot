@@ -3,7 +3,7 @@ import os
 from dataclasses import dataclass
 from typing import List, Dict, Optional, Union
 
-from answerbot.tools.observation import Observation, InfoPiece
+from answerbot.tools.observation import Observation
 
 @dataclass(frozen=True)
 class Document:
@@ -15,9 +15,10 @@ class Document:
         if 1 <= page_number <= len(self.content):
             page_content = self.content[page_number - 1]['md']
             return Observation(
-                info_pieces=[InfoPiece(text=page_content, quotable=True)],
-                current_url=self.metadata['filename'],
-                available_tools="get_page: Returns the content of the page with the given number."
+                content=page_content,
+                source=self.metadata['filename'],
+                operation="get_page",
+                quotable=True
             )
         else:
             error_message = f"Error: Page {page_number} does not exist. Valid page numbers are 1 to {len(self.content)}."

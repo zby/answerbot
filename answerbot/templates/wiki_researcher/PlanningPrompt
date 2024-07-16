@@ -12,7 +12,9 @@ The user's question is: {{question}}
 We have performed information retrieval with the following results:
 
 {{observation}}
+{% endif %}
 
+{% if reflection %}
 # Reflection
 
 {{reflection}}
@@ -22,7 +24,8 @@ We have performed information retrieval with the following results:
 
 What would you do next?
 {% if observation %}
-Please analyze the retrieved data and check if you have enough information to answer the user question.
+Please analyze the retrieval and check if you have enough information to answer the user question.
+Always look for hints in the retrieval log.
 
 If you still need more information, consider the available tools.
 {% else %}

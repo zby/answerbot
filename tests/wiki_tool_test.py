@@ -1,6 +1,6 @@
 import pytest
 
-from answerbot.tools.wiki_tool import WikipediaTool, Observation, InfoPiece, BASE_URL
+from answerbot.tools.wiki_tool import WikipediaTool, Observation, BASE_URL
 from answerbot.tools.markdown_document import MarkdownDocument
 from unittest.mock import MagicMock, patch
 
@@ -23,9 +23,9 @@ def test_get_page_success(mock_get):
     wiki_search = WikipediaTool()
     observation = wiki_search.get_url(BASE_URL)
     assert wiki_search.document is not None
-    assert observation.info_pieces[1].text == f"Successfully retrieved document from url: '{BASE_URL}'"
-    assert observation.info_pieces[2].text == "The retrieved page starts with:"
-    assert observation.info_pieces[3].text == "> Page Content"
+    assert f"Successfully retrieved document from url: '{BASE_URL}'" in observation.content
+    assert "The retrieved page starts with:" in observation.content
+    assert "> Page Content" in observation.content
     assert "Page Content" in wiki_search.document.text
 
 
@@ -35,7 +35,7 @@ def test_get_page_404(mock_get):
     wiki_search = WikipediaTool()
     observation = wiki_search.get_url(BASE_URL)
     assert wiki_search.document is None
-    assert observation.info_pieces[1].text == "Page does not exist."
+    assert "Page does not exist." in observation.content
 
 # Test other HTTP errors
 @patch('answerbot.tools.wiki_tool.requests.get')
@@ -43,11 +43,9 @@ def test_get_page_http_error(mock_get):
     mock_get.return_value = MockHttpResponse("Error", 500)
     wiki_search = WikipediaTool()
     observation = wiki_search.get_url(BASE_URL)
-    pprint(observation.info_pieces)
     assert wiki_search.document is None
-    assert observation.info_pieces[2].text == "HTTP error occurred: 500"
-    assert observation.info_pieces[3].text == "HTTP error occurred: 500"
-    assert observation.info_pieces[wiki_search.max_retries + 1].text == "Retries exhausted. No options available."
+    assert "HTTP error occurred: 500" in observation.content
+    assert "Retries exhausted. No options available." in observation.content
 
 # Test successful search
 @patch('answerbot.tools.wiki_tool.requests.get')
@@ -65,34 +63,26 @@ def test_search_success(mock_get):
     observation = wiki_tool.search("test_query")
 
     # Check if the search results text is correct
-    assert observation.info_pieces[1].text.startswith("Wikipedia search results for query: 'test_query' are:")
-    assert "- [TestTitle1](https://en.wikipedia.org/wiki/TestTitle1)" in observation.info_pieces[1].text
-    assert "- [TestTitle2](https://en.wikipedia.org/wiki/TestTitle2)" in observation.info_pieces[1].text
+    assert "Wikipedia search results for query: 'test_query' are:" in observation.content
+    assert "- [TestTitle1](https://en.wikipedia.org/wiki/TestTitle1)" in observation.content
+    assert "- [TestTitle2](https://en.wikipedia.org/wiki/TestTitle2)" in observation.content
 
 def test_observation_stringification():
-
-    # Create an Observation with multiple InfoPieces
-    info_pieces = [
-        InfoPiece(text="First piece of information\nSecond piece of information", source="First URL", quotable=True),
-        InfoPiece(text="Third piece of information\nFourth piece of information", source="Second URL", quotable=True)
-    ]
-    observation = Observation(info_pieces=info_pieces, operation="search")
+    # Create an Observation
+    observation = Observation(
+        content="First piece of information\nSecond piece of information",
+        source="Test URL",
+        operation="search",
+        quotable=True
+    )
 
     # Convert the Observation to string and verify
     observation_str = str(observation)
-    print(observation_str)
-    print()
-    print('-----------------')
-    print()
     expected_str = """**Operation:** search
 
-First piece of information
-Second piece of information
-— *from First URL*
 
-Third piece of information
-Fourth piece of information
-— *from Second URL*"""
+First piece of information
+Second piece of information"""
     assert observation_str == expected_str, "The Observation stringification did not match the expected format."
 
 
@@ -119,12 +109,12 @@ def test_lookup_method():
 
     result = wiki_tool.lookup("test_keyword")
 
-    assert 'Keyword "test_keyword" found' in result.info_pieces[0].text
-    assert 'in 1 places' in result.info_pieces[0].text
-    assert 'https://en.wikipedia.org' in result.info_pieces[0].text
-    assert result.info_pieces[1].text == "> This is a test lookup result for the keyword."
-    assert result.info_pieces[2].text == "- *1 of 1 places*"
-    assert result.info_pieces[3].text == "If you want to continue reading from this point, you can call `read_more`."
+    assert 'Keyword "test_keyword" found' in result.content
+    assert 'in 1 places' in result.content
+    assert 'https://en.wikipedia.org' in result.content
+    assert '> This is a test lookup result for the keyword.' in result.content
+    assert '- *1 of 1 places*' in result.content
+    assert "If you want to continue reading from this point, you can call `read_more`." in result.content
 
     # two lookup results
     mock_document = MockDocument(["This is a test lookup result for the keyword.", "This is a test lookup result for the keyword."])
@@ -132,12 +122,12 @@ def test_lookup_method():
 
     result = wiki_tool.lookup("test_keyword")
 
-    assert 'Keyword "test_keyword" found' in result.info_pieces[0].text
-    assert 'in 2 places' in result.info_pieces[0].text
-    assert result.info_pieces[1].text == "> This is a test lookup result for the keyword."
-    assert result.info_pieces[2].text == "- *1 of 2 places*"
-    assert "If you want to jump to the next occurence of the keyword you can call `next`." in result.info_pieces[3].text
-    assert "If you want to continue reading from this point, you can call `read_more`." in result.info_pieces[3].text
+    assert 'Keyword "test_keyword" found' in result.content
+    assert 'in 2 places' in result.content
+    assert '> This is a test lookup result for the keyword.' in result.content
+    assert '- *1 of 2 places*' in result.content
+    assert "If you want to jump to the next occurence of the keyword you can call `next`." in result.content
+    assert "If you want to continue reading from this point, you can call `read_more`." in result.content
 
     # no lookup results
     mock_document = MockDocument([])
@@ -145,7 +135,7 @@ def test_lookup_method():
 
     result = wiki_tool.lookup("test_keyword")
 
-    assert f'Keyword "test_keyword" not found at' in result.info_pieces[0].text
+    assert f'Keyword "test_keyword" not found at' in result.content
     result = wiki_tool.lookup("test keyword")
-    assert f'Keyword "test keyword" not found at' in result.info_pieces[0].text
-    assert 'Note: Your keyword contains spaces.' in result.info_pieces[0].text
+    assert f'Keyword "test keyword" not found at' in result.content
+    assert 'Note: Your keyword contains spaces.' in result.content

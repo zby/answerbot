@@ -1,4 +1,4 @@
-from answerbot.tools.observation import InfoPiece, Observation
+from answerbot.tools.observation import Observation
 from typing import Annotated, Callable
 import requests
 import html2text
@@ -50,54 +50,55 @@ class AAESearch:
         matching the query, with short blocks of texts containing the query
         """
         print(f'Searching for "{query}"')
-        return retry(stop=stop_after_attempt(self._max_retries))(_aae_search)(query, self._base_url)
+        result = retry(stop=stop_after_attempt(self._max_retries))(_aae_search)(query, self._base_url)
+        return Observation(content=result, operation='search_aae')
 
     def lookup(self, keyword: Annotated[str, 'The keyword to search for']) -> Observation:
         """
         Look up a word on the current page.
         """
         if self._document is None:
-            return Observation(
-                    [InfoPiece('No document defined, cannot lookup')]
-                    )
+            return Observation(content='No document defined, cannot lookup', operation='lookup')
 
         text = self._document[0].lookup(keyword)
         if text:
             result = (
-                    f'Keyword "{keyword}" found in current page in' 
-                    f'{len(self._document[0].lookup_results)} places.'
-                    f'The first occurence:\n {text}'
+                    f'Keyword "{keyword}" found in current page in '
+                    f'{len(self._document[0].lookup_results)} places. '
+                    f'The first occurrence:\n{text}'
                     )
             url = self._document[1]
-            return Observation([InfoPiece(result, quotable=True, source=url)], current_url=url)
+            return Observation(content=result, source=url, operation='lookup', quotable=True)
         else:
-            return Observation([InfoPiece(f'Keyword "{keyword}" not found on current page')])
+            return Observation(content=f'Keyword "{keyword}" not found on current page', operation='lookup')
 
     def lookup_next(self) -> Observation:
         """
         Jumps to the next occurrence of the word searched previously.
         """
         if self._document is None:
-            return Observation([InfoPiece('No document defined, cannot lookup')])
+            return Observation(content='No document defined, cannot lookup', operation='lookup_next')
         if not self._document[0].lookup_results:
-            return Observation([InfoPiece('No lookup results found')])
+            return Observation(content='No lookup results found', operation='lookup_next')
         text = self._document[0].next_lookup()
         result = (
                 f'Keyword "{self._document[0].lookup_word}" found in: \n'
                 f'{text}\n'
                 f'{self._document[0].lookup_position} of {len(self._document[0].lookup_results)}'
                 )
-        return Observation([InfoPiece(result, quotable=True, source=self._document[1])])
+        return Observation(content=result, source=self._document[1], operation='lookup_next', quotable=True)
 
     def read_chunk(self) -> Observation:
         """
         Reads the next chunk of text from the current location in the current document.
         """
         if self._document is None:
-            return Observation([InfoPiece('No document defined, cannot read')])
+            return Observation(content='No document defined, cannot read', operation='read_chunk')
         return Observation(
-                [InfoPiece(self._document[0].read_chunk(), quotable=True, source=self._document[1])],
-                current_url=self._document[1],
+                content=self._document[0].read_chunk(),
+                source=self._document[1],
+                operation='read_chunk',
+                quotable=True
                 )
 
     def goto_url(self, url: Annotated[str, "The url to go to"] ) -> Observation:
@@ -106,16 +107,16 @@ class AAESearch:
         """
         response = requests.get(url)
         if response.status_code == 404:
-            return Observation([InfoPiece('Page does not Exist')])
+            return Observation(content='Page does not Exist', operation='goto_url')
         try:
             response.raise_for_status()
         except:
-            return Observation([InfoPiece('Could not open the page')])
+            return Observation(content='Could not open the page', operation='goto_url')
         html = response.text
         cleaned_content = clean_html_and_textify(html)
         document = MarkdownDocument(cleaned_content, max_size=self._chunk_size, min_size=self._min_chunk_size)
         self._document = (document, url)
-        return Observation([InfoPiece(f'{url} retrieved successfully')])
+        return Observation(content=f'{url} retrieved successfully', operation='goto_url')
 
 def _aae_search(query: str, base_url: str = BASE_URL) -> str:
     params = {

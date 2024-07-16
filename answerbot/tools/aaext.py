@@ -1,4 +1,3 @@
-
 from functools import cached_property
 from typing import Annotated, Callable, Iterator
 import requests
@@ -9,7 +8,7 @@ from markdownify import markdownify
 
 from tenacity import retry, stop_after_attempt
 
-from answerbot.tools.observation import InfoPiece, Observation
+from answerbot.tools.observation import Observation
 
 import logging
 
@@ -76,7 +75,7 @@ class EUAIAct:
         '''
         logging.getLogger(__name__).info('Opening table of contents')
         result = self.table_of_contents.to_string()
-        return Observation([InfoPiece('Opening table of contents'), InfoPiece(result)])
+        return Observation(content='Opening table of contents\n\n' + result, operation='show_table_of_contents')
 
     def read_eu_ai_act_article_by_article_id(
             self, 
@@ -84,12 +83,12 @@ class EUAIAct:
             ):
         ''' Show an article from the EU Artificial intelligence act '''
         if article_id in self._articles_shown:
-            return Observation([InfoPiece('You have already seen this article')])
+            return Observation(content='You have already seen this article', operation='read_eu_ai_act_article_by_article_id')
         logging.getLogger(__name__).info(f'Showing article with id: {article_id}')
         article = self.table_of_contents.find_article(article_id)
         if article is None:
             logging.getLogger(__name__).info(f'No article found with id: {article_id}')
-            return Observation([InfoPiece('No Article found with this id')])
+            return Observation(content='No Article found with this id', operation='read_eu_ai_act_article_by_article_id')
 
         logging.getLogger(__name__).info(f'Found article with id: {article_id} ({article.url})')
         try:
@@ -97,15 +96,15 @@ class EUAIAct:
         except Exception as e:
             logging.getLogger(__name__).exception(e)
             return Observation(
-                    [InfoPiece(f"Couldn't open the article due to exception: {e}")]
+                    content=f"Couldn't open the article due to exception: {e}",
+                    operation='read_eu_ai_act_article_by_article_id'
                     )
         self._articles_shown.add(article_id)
         return Observation(
-                [
-                    InfoPiece(f'Opening article: {article.title}'),
-                    InfoPiece(result, quotable=True, source=article.url),
-                ],
-                current_url=article.url
+                content=f'Opening article: {article.title}\n\n{result}',
+                source=article.url,
+                operation='read_eu_ai_act_article_by_article_id',
+                quotable=True
                 )
 
 
@@ -226,4 +225,3 @@ def sanitize_string(src: str) -> str:
         .replace(':','-')\
         .replace('/', '-')\
         .replace('\\', '-')
-

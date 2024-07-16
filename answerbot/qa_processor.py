@@ -6,7 +6,7 @@ from llm_easy_tools import LLMFunction, get_tool_defs
 import logging
 
 from answerbot.chat import Chat, HasLLMTools, SystemPrompt, expand_toolbox
-from answerbot.tools.observation import Observation, InfoPiece
+from answerbot.tools.observation import Observation
 from answerbot.reflection_result import ReflectionResult 
 from answerbot.knowledgebase import KnowledgeBase, KnowledgePiece
 from answerbot.qa_prompts import Question, Answer, StepInfo, ReflectionPrompt, ReflectionSystemPrompt, PlanningPrompt, PlanningSystemPrompt
@@ -99,21 +99,22 @@ class QAProcessor:
                     full_answer = chat.renderer.render_prompt(answer, context={'question': question})
                     return full_answer
                 observation = output
+                reflection_string = None
                 if isinstance(output, Observation):
-                    if observation.reflection_needed():
+                    if observation.quotable:
                         reflection_string = self.reflect(question, observation, what_have_we_learned)
             logger.info(f"Step: {step} for question: '{question}'")
 
         return None
 
     def reflect(self, question: str, observation: Observation, knowledge_base: KnowledgeBase) -> str:
-        chat = self.make_chat()
+        chat = self.make_chat(['reflection'])
         chat.append(ReflectionSystemPrompt())
         chat.append(ReflectionPrompt(memory=knowledge_base, question=question, observation=observation))
 
         reflections = []
         for reflection in chat.process([ReflectionResult]):
-            if observation.current_url:
+            if observation.source:
                 reflections.append(reflection.update_knowledge_base(knowledge_base, observation))
         reflection_string = '\n'.join(reflections)
 
@@ -169,6 +170,7 @@ class QAProcessorDeep(QAProcessor):
 if __name__ == "__main__":
     from dotenv import load_dotenv
     import litellm
+    import sys
 
     load_dotenv()
     litellm.success_callback = ["langfuse"]
@@ -179,23 +181,20 @@ if __name__ == "__main__":
     #chat_logger.setLevel(logging.DEBUG)
     #chat_logger.addHandler(logging.StreamHandler(sys.stdout))
 
-
     qa_processor = QAProcessor(
         toolbox=[],
         max_iterations=1,
         model='gpt-3.5-turbo',
-        prompt_templates_dirs=['answerbot/templates/wiki_researcher/'],
+        prompt_templates_dirs=['answerbot/templates/common/', 'answerbot/templates/wiki_researcher/'],
         name='test'
     )
 
     # Create an example Observation
     observation = Observation(
-        current_url="https://en.wikipedia.org/wiki/Byzantine_Empire",
-        info_pieces=[
-            InfoPiece("Constantinople was the capital of the Byzantine Empire.", source="Wikipedia", quotable=True),
-            InfoPiece("The Byzantine Empire lasted from 330 AD to 1453 AD.", source="History.com", quotable=True)
-        ],
-        operation="Initial search"
+        content="Constantinople was the capital of the Byzantine Empire. The Byzantine Empire lasted from 330 AD to 1453 AD.",
+        source="https://en.wikipedia.org/wiki/Byzantine_Empire",
+        operation="Initial search",
+        quotable=True
     )
 
     # Example knowledge base

@@ -63,6 +63,7 @@ if __name__ == "__main__":
         toolbox=[WikipediaTool(chunk_size=400)],
         max_iterations=5,
         model='gpt-3.5-turbo',
+        #model='gpt-4o',
         #model='claude-3-5-sonnet-20240620',
         #model="claude-3-haiku-20240307",
         prompt_templates_dirs=['answerbot/templates/common', 'answerbot/templates/wiki_researcher']

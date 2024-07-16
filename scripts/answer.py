@@ -65,7 +65,7 @@ if __name__ == "__main__":
         model='gpt-3.5-turbo',
         #model='claude-3-5-sonnet-20240620',
         #model="claude-3-haiku-20240307",
-        prompt_templates_dirs=['answerbot/templates/wiki_researcher']
+        prompt_templates_dirs=['answerbot/templates/common', 'answerbot/templates/wiki_researcher']
     )
 
     print()

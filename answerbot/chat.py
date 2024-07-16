@@ -42,19 +42,10 @@ class SystemPrompt(Prompt):
         return 'system'
 
 
-class StringLoader(BaseLoader):
-    def __init__(self, template_string):
-        self.template_string = template_string
-
-    def get_source(self, environment, template):
-        # Always return the template string, regardless of the requested name
-        return self.template_string, None, lambda: True
-
 @dataclass
 class Jinja2Renderer:
     templates: dict[str, str] = field(default_factory=dict)
     templates_dirs: list[str] = field(default_factory=list)
-    fallback_template: str = "{{ __str__() }}"  # Default fallback template using __str__
 
     def __post_init__(self):
         self.env = self._create_environment()
@@ -63,7 +54,6 @@ class Jinja2Renderer:
         loaders = [
             DictLoader(self.templates),
             FileSystemLoader(self.templates_dirs),
-            StringLoader(self.fallback_template)
         ]
         return Environment(loader=ChoiceLoader(loaders))
 

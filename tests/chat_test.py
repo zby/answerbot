@@ -179,17 +179,6 @@ def test_template_manager_with_templates_dict():
     t4 = template_manager.env.get_template("Prompt1")
     assert t4.render({"value": "test"}) == 'Overridden Prompt1: test'
 
-    # Test non-existent template
-    t2 = template_manager.env.get_template("NonExistentPrompt")
-    assert isinstance(t2, jinja2.Template)
-    
-    class TestObject:
-        def __str__(self):
-            return "TestObject string representation"
-
-    assert template_manager.render_prompt(TestObject()) == 'TestObject string representation'
-
-
 def test_chat_template_initialization():
     # Create a Chat instance with both templates_dirs and templates
     chat = Chat(
@@ -232,13 +221,3 @@ def test_chat_template_initialization():
 
     assert message3['role'] == 'user'
     assert message3['content'] == "New template test3"
-
-    @dataclass(frozen=True)
-    class NonexistentPrompt(Prompt):
-        value: str
-        def __str__(self):
-            return "This is a nonexistent prompt"
-
-    message4 = chat.make_message(NonexistentPrompt(value="test"))
-    assert message4['role'] == 'user'
-    assert message4['content'] == "This is a nonexistent prompt"

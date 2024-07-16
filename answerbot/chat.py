@@ -190,7 +190,7 @@ if __name__ == "__main__":
     class SpecialPrompt(Prompt):
         content: str
 
-        def __str__(self):
+        def render(self):
             return f"Special prompt: {self.content.upper()}"
 
     @dataclass(frozen=True)
@@ -217,13 +217,11 @@ if __name__ == "__main__":
     prompt1_from_prompts1 = Prompt1(value="Example1")
     prompt2 = Prompt2(value="Example2")
     assistant_prompt = AssistantPrompt(answer="This is an assistant response.")
-    special_prompt = SpecialPrompt(content="This is a special message")
 
     # Add prompts to the chat
     chat.append(prompt1_from_prompts1)
     chat.append(prompt2)
     chat.append(assistant_prompt)
-    chat.append(special_prompt)
 
     # Print out entries from the Chat
     print("Chat entries:")

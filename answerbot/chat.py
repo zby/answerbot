@@ -112,14 +112,12 @@ class Chat:
             'content': content.strip()  #TODO: is .strip() needed here?
         }
 
-    def append(self, message: Prompt|ToolResult|dict|Message) -> None:
+    def append(self, message: Prompt|dict|Message) -> None:
         """
         Append a message to the chat.
         """
         if isinstance(message, Prompt):
             message_dict = self.make_message(message)
-        elif isinstance(message, ToolResult):
-            message_dict = message.to_message()
         elif isinstance(message, dict) or isinstance(message, Message):
             message_dict = message
         else:
@@ -169,7 +167,7 @@ class Chat:
             if result.soft_errors:
                 for soft_error in result.soft_errors:
                     logger.warning(soft_error)
-            self.append(result)
+            self.append(result.to_message())
             if result.error and self.fail_on_tool_error:
                 raise Exception(result.error)
             outputs.append(result.output)

@@ -105,7 +105,7 @@ def test_chat_append_tool_result():
     )
     
     # Append the ToolResult to the chat
-    chat.append(tool_result)
+    chat.append(tool_result.to_message())
     
     # Assert that the message was added correctly
     assert len(chat.messages) == 1

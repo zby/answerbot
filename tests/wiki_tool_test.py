@@ -138,4 +138,4 @@ def test_lookup_method():
     assert f'Keyword "test_keyword" not found at' in result.content
     result = wiki_tool.lookup("test keyword")
     assert f'Keyword "test keyword" not found at' in result.content
-    assert 'Note: Your keyword contains spaces.' in result.content
+    assert '**Hint:** Your keyword contains spaces.' in result.content

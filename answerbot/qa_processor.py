@@ -26,13 +26,13 @@ def format_tool_docstrings(schemas: list[dict]) -> str:
 
         # Add parameters section if present
         if 'parameters' in schema['function']:
-            doc += "  Parameters\n  ----------\n"
+            doc += "  Parameters:\n\n"
             properties = schema['function']['parameters'].get('properties', {})
             for param, details in properties.items():
                 param_type = details.get('type', 'Any')
                 param_desc = details.get('description', '')
                 doc += f"  {param} : {param_type}\n"
-                doc += "\n\n".join(f"      {line}" for line in param_desc.split('\n')) + "\n"
+                doc += "\n\n".join(f"      {line}" for line in param_desc.split('\n')) + "\n\n"
 
         formatted_list.append(doc)
 

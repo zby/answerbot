@@ -27,6 +27,7 @@ class KnowledgePiece(BaseModel):
         if len(self.quotes) > 0:
             text = "\n" + self.quoted_quotes()
             text = text.replace("\n", "\n    ")
+            content += '\n\n'
             content += f"Quotes:{text}\n"
         return content
 

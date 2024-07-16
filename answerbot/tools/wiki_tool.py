@@ -109,8 +109,8 @@ class WikipediaTool:
         cleaned_content = markdown.strip()
         return cleaned_content
 
-    def mk_observation(self, content, operation, quotable=False):
-        return Observation(content, source=self.current_url, operation=operation, quotable=quotable)
+    def mk_observation(self, content, operation, quotable=False, goal=None):
+        return Observation(content, source=self.current_url, operation=operation, quotable=quotable, goal=goal)
 
     def make_hint(self, text):
         return f"\n\n**Hint:** {text}\n"
@@ -130,13 +130,13 @@ class WikipediaTool:
         text += self.make_hint("You can easily jump to any section by using `lookup` function with the section name.")
         return text
 
-    def get_url(self, url: Annotated[str, "The URL to get"]):
+    def get_url(self, url: Annotated[str, "The URL to get"], goal: Annotated[str, "What information do you expect to find on this page and why did you choose this url?"]):
         """
         Retrieves a page from Wikipedia by its URL, saves it as the current page and presents the top of that page.
         """
-        return self._get_url(url)
+        return self._get_url(url, goal)
 
-    def _get_url(self, url: str, title=None, limit_sections = None):
+    def _get_url(self, url: str, goal=None, title=None, limit_sections = None):
         self.current_url = None
         document = None
         quotable = False
@@ -184,7 +184,7 @@ class WikipediaTool:
             if True:  # TODO: check if this is the full content of the page
                 content += self.make_hint("This was not the full content of the page. If you want to continue reading the page, you can call `read_more`."
                 "If you want to jump to a specific keyword on this page (for example a section of the article) `lookup('keyword')`.")
-        return self.mk_observation(content, f"get_url('{url}')", quotable)
+        return self.mk_observation(content, f"get_url('{url}')", quotable, goal)
 
     def get_page(self, title: Annotated[str, "The title of the page to get"]):
         url_title = title.replace(' ', '_')

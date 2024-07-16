@@ -1,6 +1,14 @@
 # Question
 
 The user's question is: {{question}}
+
+{% if history %}
+# History of operations:
+{% for operation in history %}
+- {{ operation }}
+{% endfor %}
+{% endif %}
+
 {% if not memory.is_empty() %}
 
 # Notes from previous work
@@ -12,6 +20,7 @@ We have some notes on the following urls:
 # Retrieval
 
 We have performed information retrieval with the following results:
+
 {{observation}}
 
 # Current task

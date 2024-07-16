@@ -32,7 +32,7 @@ def format_tool_docstrings(schemas: list[dict]) -> str:
                 param_type = details.get('type', 'Any')
                 param_desc = details.get('description', '')
                 doc += f"  {param} : {param_type}\n"
-                doc += "\n".join(f"      {line}" for line in param_desc.split('\n')) + "\n"
+                doc += "\n\n".join(f"      {line}" for line in param_desc.split('\n')) + "\n"
 
         formatted_list.append(doc)
 
@@ -48,6 +48,7 @@ class QAProcessor:
     prompt_templates_dirs: list[str] = field(default_factory=list)
     name: Optional[str] = None
     fail_on_tool_error: bool = False
+    history: list[str] = field(default_factory=list)
 
     def get_tools(self, step: int) -> list[Callable|LLMFunction|HasLLMTools]:
         if step < self.max_iterations:
@@ -56,20 +57,12 @@ class QAProcessor:
             return [Answer]
 
     def make_chat(self, tags: Optional[list[str]] = None) -> Chat:
-        tags = tags or []
-        if self.name:
-            tags.append(self.name)
-        metadata = {}
-        if tags:
-            metadata['tags'] = tags
         chat = Chat(
             model=self.model,
             one_tool_per_step=True,
             templates=self.prompt_templates,
             templates_dirs=self.prompt_templates_dirs,
-            context=self,
             fail_on_tool_error=self.fail_on_tool_error,
-            metadata=metadata
         )
         return chat
 
@@ -78,6 +71,8 @@ class QAProcessor:
         chat = self.make_chat()
         chat.append(SystemPrompt())
         chat.append(Question(question, self.max_iterations))
+
+        metadata = self.mk_metadata()
 
         what_have_we_learned = KnowledgeBase()
 
@@ -88,7 +83,7 @@ class QAProcessor:
             chat.append({'role': 'user', 'content': planning_string})
             chat.append(StepInfo(step, self.max_iterations))
             tools = self.get_tools(step)
-            results = chat.process(tools)
+            results = chat.process(tools, metadata=metadata)
             if not results:
                 logger.warn("No tool call in a tool loop")
             else:
@@ -99,7 +94,11 @@ class QAProcessor:
                     full_answer = chat.renderer.render_prompt(answer, context={'question': question})
                     return full_answer
                 observation = output
+                history_line = f"Operation: {observation.operation}"
+                if observation.goal:
+                    history_line += f"\n\nGoal: {observation.goal}"
                 reflection_string = None
+                self.history.append(history_line)
                 if isinstance(output, Observation):
                     if observation.quotable:
                         reflection_string = self.reflect(question, observation, what_have_we_learned)
@@ -107,13 +106,29 @@ class QAProcessor:
 
         return None
 
+    def mk_metadata(self, tags: Optional[list[str]] = None) -> dict:
+        metadata_tags = []
+        if tags:
+            metadata_tags.extend(tags)
+        if self.name:
+            metadata_tags.append(self.name)
+        if metadata_tags:
+            metadata = {'tags': metadata_tags}
+        else:
+            metadata = {}
+        return metadata
+
     def reflect(self, question: str, observation: Observation, knowledge_base: KnowledgeBase) -> str:
-        chat = self.make_chat(['reflection'])
+        chat = self.make_chat()
         chat.append(ReflectionSystemPrompt())
-        chat.append(ReflectionPrompt(memory=knowledge_base, question=question, observation=observation))
+        history = self.history.copy()
+        if history:
+            history.pop()
+        chat.append(ReflectionPrompt(memory=knowledge_base, question=question, observation=observation, history=history))
 
         reflections = []
-        for reflection in chat.process([ReflectionResult]):
+        metadata = self.mk_metadata(['reflection'])
+        for reflection in chat.process([ReflectionResult], metadata=metadata):
             if observation.source:
                 reflections.append(reflection.update_knowledge_base(knowledge_base, observation))
         reflection_string = '\n'.join(reflections)
@@ -128,15 +143,21 @@ class QAProcessor:
         schemas = get_tool_defs(expand_toolbox(self.get_tools(0)))
         available_tools_str = format_tool_docstrings(schemas)
 
+        history = self.history.copy()
+        if history:
+            history.pop()
+
         planning_prompt = PlanningPrompt(
             question=question,
             available_tools=available_tools_str,
             observation=observation,
-            reflection=reflection_string
+            reflection=reflection_string,
+            history=history
         )
 
         chat.append(planning_prompt)
-        response = chat.llm_reply()
+        metadata = self.mk_metadata(['planning'])
+        response = chat.llm_reply(metadata=metadata)
         planning_result = response.choices[0].message.content
 
         planning_string = f"**My Notes**\n{reflection_string}\n\nHmm what I could do next?\n\n{planning_result}"

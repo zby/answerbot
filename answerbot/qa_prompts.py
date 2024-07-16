@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional
 
 from answerbot.chat import Prompt, SystemPrompt
@@ -30,6 +30,7 @@ class PlanningPrompt(Prompt):
     available_tools: str
     observation: Optional[Observation] = None
     reflection: Optional[str] = None
+    history: list[str] = field(default_factory=list)
 
 @dataclass(frozen=True)
 class PlanningSystemPrompt(Prompt):
@@ -44,3 +45,4 @@ class ReflectionPrompt(Prompt):
     memory: KnowledgeBase
     question: str
     observation: Observation
+    history: list[str] = field(default_factory=list)

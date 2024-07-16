@@ -79,8 +79,6 @@ class Chat:
     templates: dict[str, str] = field(default_factory=dict)    # when you don't want to create a template manager yourself
     templates_dirs: list[str] = field(default_factory=list)    # ^^^^
     system_prompt: Optional[Prompt] = None
-    context: Optional[object] = None # passed as 'c' to the template
-    metadata: Optional[dict] = None  # passed to completion() - I use it for observability (tagging traces in langfuse)
     fail_on_tool_error: bool = True  # if False the error message is passed to the LLM to fix the call, if True exception is raised
     one_tool_per_step: bool = True  # for stateful tools executing more than one tool call per step is often confusing for the LLM
 
@@ -106,7 +104,7 @@ class Chat:
         """
         if hasattr(prompt, 'c'):
             raise ValueError("Prompt object cannot have an attribute named 'c' as it conflicts with the context parameter in render_prompt.")
-        content = self.renderer.render_prompt(prompt, self.context)
+        content = self.renderer.render_prompt(prompt)
         return {
             'role': prompt.role(),
             'content': content.strip()  #TODO: is .strip() needed here?
@@ -124,13 +122,12 @@ class Chat:
             raise ValueError(f"Unsupported message type: {type(message)}")
         self.messages.append(message_dict)
 
-    def llm_reply(self, schemas=[]) -> ModelResponse:
+    def llm_reply(self, schemas=[], **kwargs) -> ModelResponse:
         args = {
             'model': self.model,
-            'messages': self.messages
+            'messages': self.messages,
+            **kwargs
         }
-        if self.metadata:
-            args['metadata'] = self.metadata
 
         if len(schemas) > 0:
             args['tools'] = schemas
@@ -157,10 +154,10 @@ class Chat:
 
         return result
 
-    def process(self, toolbox: list[HasLLMTools|LLMFunction|Callable]):
+    def process(self, toolbox: list[HasLLMTools|LLMFunction|Callable], **kwargs):
         tools = expand_toolbox(toolbox)
         schemas = get_tool_defs(tools)
-        response = self.llm_reply(schemas)
+        response = self.llm_reply(schemas, **kwargs)
         results = process_response(response, tools)
         outputs = []
         for result in results:

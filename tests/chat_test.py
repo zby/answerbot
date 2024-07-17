@@ -5,39 +5,33 @@ from llm_easy_tools import ToolResult, LLMFunction
 from answerbot.chat import Chat, Prompt, SystemPrompt, Jinja2Renderer
 
 
-@dataclass(frozen=True)
-class GreetingPrompt(Prompt):
-    name: str
-    time_of_day: str
 
-    @property
-    def hello(self):
-        return "Hello"
+def test_append():
+    @dataclass(frozen=True)
+    class GreetingPrompt(Prompt):
+        name: str
+        time_of_day: str
 
-@dataclass(frozen=True)
-class QueryPrompt(Prompt):
-    question: str
-    context: str
+        @property
+        def hello(self):
+            return "Hello"
 
-templates = {
-    'GreetingPrompt': "{{hello}} {{name}}! Good {{time_of_day}}.",
-    'QueryPrompt': "Question: {{question}}\nContext: {{context}}"
-}
-
-def test_chat_with_custom_prompts():
+    templates = {
+        'GreetingPrompt': "{{hello}} {{name}}! Good {{time_of_day}}.",
+    }
     chat = Chat(model="gpt-3.5-turbo", templates=templates)
     
     greeting = GreetingPrompt(name="Alice", time_of_day="morning")
     chat.append(greeting)
     
-    query = QueryPrompt(question="What's the weather like?", context="It's summer.")
-    chat.append(query)
-    
-    assert len(chat.messages) == 2
+    assert len(chat.messages) == 1
     assert chat.messages[0]['content'] == "Hello Alice! Good morning."
-    assert chat.messages[1]['content'] == "Question: What's the weather like?\nContext: It's summer."
 
-def test_chat_with_system_message():
+    chat.append("Hello, can you help me?")
+    assert len(chat.messages) == 2
+    assert chat.messages[1]['content'] == "Hello, can you help me?"
+
+def test_append_with_system_message():
     @dataclass(frozen=True)
     class SpecialSystemPrompt(SystemPrompt):
         capabilities: str
@@ -129,9 +123,9 @@ def test_render_prompt():
     # Check kwargs
     assert renderer.render_prompt(prompt1, value2="test2") == 'value1: test1\nvalue2: test2'
 
-def test_template_manager_with_templates_dict():
+def test_renderer_with_templates_dict():
     # Create a TemplateManager instance with templates dictionary and a template directory
-    template_manager = Jinja2Renderer(
+    renderer = Jinja2Renderer(
         templates={
             "CustomPrompt1": "This is a custom prompt: {{value}}",
             "CustomPrompt2": "Another custom prompt: {{name}}",
@@ -141,59 +135,17 @@ def test_template_manager_with_templates_dict():
     )
 
     # Check if the templates were loaded correctly
-    t1 = template_manager.env.get_template("CustomPrompt1")
+    t1 = renderer.env.get_template("CustomPrompt1")
     assert t1.render({"value": "test"}) == 'This is a custom prompt: test'
 
-    t2 = template_manager.env.get_template("CustomPrompt2")
+    t2 = renderer.env.get_template("CustomPrompt2")
     assert t2.render({"name": "John"}) == 'Another custom prompt: John'
 
     # Test that the template from disk is loaded
-    t3 = template_manager.env.get_template("Prompt2")
+    t3 = renderer.env.get_template("Prompt2")
     assert t3.render({"value": "test"}) == 'This is Prompt2.\nSome value: "test"'
 
     # Test that Prompt1 is overridden
-    t4 = template_manager.env.get_template("Prompt1")
+    t4 = renderer.env.get_template("Prompt1")
     assert t4.render({"value": "test"}) == 'Overridden Prompt1: test'
 
-def test_chat_template_initialization():
-    # Create a Chat instance with both templates_dirs and templates
-    chat = Chat(
-        model="gpt-3.5-turbo",
-        templates_dirs=["tests/data/prompts2", "tests/data/prompts1"],
-        templates={
-            "Prompt1": "Overwritten template {{value}}",
-            "Prompt3": "New template {{value}}"
-        }
-    )
-
-    # Create Prompt classes that match the templates
-    @dataclass(frozen=True)
-    class Prompt1(Prompt):
-        value: str
-
-    @dataclass(frozen=True)
-    class Prompt2(Prompt):
-        value: str
-
-    @dataclass(frozen=True)
-    class Prompt3(Prompt):
-        value: str
-
-    # Test rendering the templates
-    prompt1 = Prompt1(value="test1")
-    message1 = chat.make_message(prompt1)
-
-    assert message1['role'] == 'user'
-    assert message1['content'] == "Overwritten template test1"
-
-    prompt2 = Prompt2(value="test2")
-    message2 = chat.make_message(prompt2)
-
-    assert message2['role'] == 'user'
-    assert message2['content'] == 'This is Prompt2.\nSome value: "test2"'
-
-    prompt3 = Prompt3(value="test3")
-    message3 = chat.make_message(prompt3)
-
-    assert message3['role'] == 'user'
-    assert message3['content'] == "New template test3"

@@ -91,7 +91,7 @@ class Chat:
             'content': content.strip()  #TODO: is .strip() needed here?
         }
 
-    def append(self, message: Prompt|dict|Message) -> None:
+    def append(self, message: Prompt|dict|Message|str) -> None:
         """
         Append a message to the chat.
         """
@@ -99,6 +99,8 @@ class Chat:
             message_dict = self.make_message(message)
         elif isinstance(message, dict) or isinstance(message, Message):
             message_dict = message
+        elif isinstance(message, str):
+            message_dict = {'role': 'user', 'content': message}
         else:
             raise ValueError(f"Unsupported message type: {type(message)}")
         self.messages.append(message_dict)

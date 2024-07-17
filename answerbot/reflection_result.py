@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from typing import Optional, Callable
 from pydantic import BaseModel, Field, field_validator
-from fuzzywuzzy import fuzz
 
 from answerbot.knowledgebase import KnowledgeBase, KnowledgePiece
 from answerbot.tools.observation import Observation

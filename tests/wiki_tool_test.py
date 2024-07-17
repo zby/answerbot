@@ -21,7 +21,7 @@ class MockHttpResponse:
 def test_get_page_success(mock_get):
     mock_get.return_value = MockHttpResponse('<html><div id="bodyContent">Page Content</div></html>', 200)
     wiki_search = WikipediaTool()
-    observation = wiki_search.get_url(BASE_URL)
+    observation = wiki_search.get_url(BASE_URL, '')
     assert wiki_search.document is not None
     assert f"Successfully retrieved document from url: '{BASE_URL}'" in observation.content
     assert "The retrieved page starts with:" in observation.content
@@ -33,7 +33,7 @@ def test_get_page_success(mock_get):
 def test_get_page_404(mock_get):
     mock_get.return_value = MockHttpResponse("Page not found", 404)
     wiki_search = WikipediaTool()
-    observation = wiki_search.get_url(BASE_URL)
+    observation = wiki_search.get_url(BASE_URL, '')
     assert wiki_search.document is None
     assert "Page does not exist." in observation.content
 
@@ -42,7 +42,7 @@ def test_get_page_404(mock_get):
 def test_get_page_http_error(mock_get):
     mock_get.return_value = MockHttpResponse("Error", 500)
     wiki_search = WikipediaTool()
-    observation = wiki_search.get_url(BASE_URL)
+    observation = wiki_search.get_url(BASE_URL, '')
     assert wiki_search.document is None
     assert "HTTP error occurred: 500" in observation.content
     assert "Retries exhausted. No options available." in observation.content
@@ -79,7 +79,6 @@ def test_observation_stringification():
     # Convert the Observation to string and verify
     observation_str = str(observation)
     expected_str = """**Operation:** search
-
 
 First piece of information
 Second piece of information"""

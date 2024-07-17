@@ -5,11 +5,10 @@ from llm_easy_tools import LLMFunction, get_tool_defs
 
 import logging
 
-from answerbot.chat import Chat, HasLLMTools, SystemPrompt, expand_toolbox
+from answerbot.chat import Chat, HasLLMTools, SystemPrompt, expand_toolbox, Prompt, SystemPrompt
 from answerbot.tools.observation import Observation
 from answerbot.reflection_result import ReflectionResult 
 from answerbot.knowledgebase import KnowledgeBase, KnowledgePiece
-from answerbot.qa_prompts import Question, Answer, StepInfo, ReflectionPrompt, ReflectionSystemPrompt, PlanningPrompt, PlanningSystemPrompt
 
 # Configure logging for this module
 logger = logging.getLogger('qa_processor')
@@ -37,6 +36,45 @@ def format_tool_docstrings(schemas: list[dict]) -> str:
         formatted_list.append(doc)
 
     return "\n".join(formatted_list)
+
+@dataclass(frozen=True)
+class Question(Prompt):
+    question: str
+    max_llm_calls: int
+
+@dataclass
+class Answer:
+    """
+    Answer to the question.
+    """
+    answer: str
+    reasoning: str
+
+@dataclass(frozen=True)
+class StepInfo(Prompt):
+    step: int
+    max_steps: int
+
+@dataclass(frozen=True)
+class PlanningPrompt(Prompt):
+    question: str
+    available_tools: str
+    observations: list[Observation] = field(default_factory=list)
+    reflection: Optional[str] = None
+
+@dataclass(frozen=True)
+class PlanningSystemPrompt(Prompt):
+    pass
+
+@dataclass(frozen=True)
+class ReflectionSystemPrompt(Prompt):
+    pass
+
+@dataclass(frozen=True)
+class ReflectionPrompt(Prompt):
+    memory: KnowledgeBase
+    question: str
+    observations: list[Observation]
 
 
 @dataclass(frozen=True)

@@ -113,45 +113,45 @@ def test_chat_append_tool_result():
     assert chat.messages[0]['name'] == 'TestTool'
     assert chat.messages[0]['content'] == "This is the result of the test tool."
 
-def test_chat_append_prompt_with_c_attribute():
-    @dataclass(frozen=True)
-    class InvalidPrompt(Prompt):
-        c: str  # This attribute will cause a conflict
-
-    chat = Chat(
-        model="gpt-3.5-turbo",
-        templates={InvalidPrompt: "This is an invalid prompt: {{c}}"}
-    )
-
-    invalid_prompt = InvalidPrompt(c="This will cause an error")
-
-    with pytest.raises(ValueError) as excinfo:
-        chat.append(invalid_prompt)
-
-    assert str(excinfo.value) == "Prompt object cannot have an attribute named 'c' as it conflicts with the context parameter in render_prompt."
-
-def test_load_templates():
+def test_template_loading():
     # Create a TemplateManager instance with templates_dirs
-    template_manager = Jinja2Renderer(
+    renderer = Jinja2Renderer(
         templates_dirs=["tests/data/prompts1", "tests/data/prompts2"]
     )
 
     # Check if the templates were loaded correctly
-    t = template_manager.env.get_template("Prompt1")
+    t = renderer.env.get_template("Prompt1")
     assert t.render({"value": "test"}) == 'This is Prompt1 from prompts1\nSome value: "test"'
-    t = template_manager.env.get_template("Prompt2")
+    t = renderer.env.get_template("Prompt2")
     assert t.render({"value": "test"}) == 'This is Prompt2.\nSome value: "test"'
 
     # Create a TemplateManager instance with prompts2 first
-    template_manager = Jinja2Renderer(
+    renderer = Jinja2Renderer(
         templates_dirs=["tests/data/prompts2", "tests/data/prompts1"]
     )
 
     # Check if the templates were loaded correctly
-    t = template_manager.env.get_template("Prompt1")
+    t = renderer.env.get_template("Prompt1")
     assert t.render({}) == "This is Prompt1 from prompts2."
-    t = template_manager.env.get_template("Prompt2")
+    t = renderer.env.get_template("Prompt2")
     assert t.render({"value": "test"}) == 'This is Prompt2.\nSome value: "test"'
+
+def test_render_prompt():
+    renderer = Jinja2Renderer(
+        templates={
+            "TwoValsPrompt": "value1: {{value1}}\nvalue2: {{value2}}"
+        },
+    )
+    @dataclass(frozen=True)
+    class TwoValsPrompt(Prompt):
+        value1: str
+
+    prompt1 = TwoValsPrompt(value1="test1")
+
+    assert renderer.render_prompt(prompt1) == 'value1: test1\nvalue2: '
+
+    # Check kwargs
+    assert renderer.render_prompt(prompt1, value2="test2") == 'value1: test1\nvalue2: test2'
 
 def test_template_manager_with_templates_dict():
     # Create a TemplateManager instance with templates dictionary and a template directory

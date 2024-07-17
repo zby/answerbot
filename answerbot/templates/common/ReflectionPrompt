@@ -15,7 +15,7 @@ The user's question is: {{question}}
 {% endif %}
 {% endfor %}
 
-# Latest Retrieval
+# Latest Retrieval Results
 
 We have performed information retrieval with the following results:
 

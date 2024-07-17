@@ -1,4 +1,4 @@
-The answer to the question:"{{c.question}}" is:
+The answer to the question:"{{question}}" is:
 {{ answer }}
 
 Reasoning:

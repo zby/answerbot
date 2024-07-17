@@ -57,16 +57,15 @@ class Jinja2Renderer:
         ]
         return Environment(loader=ChoiceLoader(loaders))
 
-    def render_prompt(self, obj: object, context: Optional[object] = None) -> str:
+    def render_prompt(self, obj: object, **kwargs) -> str:
         template_name = type(obj).__name__
         template = self.env.get_template(template_name)
 
         # Create a context dictionary with the object's attributes and methods
         obj_context = {name: getattr(obj, name) for name in dir(obj)}
 
-        # Merge with the provided context, if any
-        if context:
-            obj_context.update({'c': context})
+        # Merge with kwargs
+        obj_context.update(kwargs)
 
         result = template.render(**obj_context)
         return result
@@ -102,8 +101,6 @@ class Chat:
         """
         Create a message dictionary from a Prompt object.
         """
-        if hasattr(prompt, 'c'):
-            raise ValueError("Prompt object cannot have an attribute named 'c' as it conflicts with the context parameter in render_prompt.")
         content = self.renderer.render_prompt(prompt)
         return {
             'role': prompt.role(),

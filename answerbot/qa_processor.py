@@ -1,17 +1,32 @@
 from dataclasses import dataclass, field
-from typing import Callable, Any, Optional
+from typing import Callable, Any, Optional, Iterable, runtime_checkable, Protocol
 
 from llm_easy_tools import LLMFunction, get_tool_defs
 
 import logging
 
-from answerbot.chat import Chat, HasLLMTools, SystemPrompt, expand_toolbox, Prompt, SystemPrompt
+from answerbot.chat import Chat, SystemPrompt, Prompt, SystemPrompt
 from answerbot.tools.observation import Observation
 from answerbot.reflection_result import ReflectionResult 
 from answerbot.knowledgebase import KnowledgeBase, KnowledgePiece
 
 # Configure logging for this module
 logger = logging.getLogger('qa_processor')
+
+@runtime_checkable
+class HasLLMTools(Protocol):
+    def get_llm_tools(self) -> Iterable[Callable]:
+        pass
+
+def expand_toolbox(toolbox: list[HasLLMTools|LLMFunction|Callable]) -> list[Callable|LLMFunction]:
+    tools = []
+    for item in toolbox:
+        if isinstance(item, HasLLMTools):
+            tools.extend(item.get_llm_tools())
+        else:
+            tools.append(item)
+    return tools
+
 
 @dataclass(frozen=True)
 class Question(Prompt):
@@ -63,9 +78,10 @@ class QAProcessor:
     name: Optional[str] = None
     fail_on_tool_error: bool = False
 
-    def get_tools(self, step: int) -> list[Callable|LLMFunction|HasLLMTools]:
+    def get_tools(self, step: int) -> list[Callable|LLMFunction]:
+        tools = expand_toolbox(self.toolbox)
         if step < self.max_iterations:
-            return[Answer, *self.toolbox]
+            return[Answer, *tools]
         else:
             return [Answer]
 
@@ -146,7 +162,7 @@ class QAProcessor:
         if chat.templates.get('PlanningSystemPrompt'):
             chat.append(PlanningSystemPrompt())
 
-        schemas = get_tool_defs(expand_toolbox(self.get_tools(0)))
+        schemas = get_tool_defs(self.get_tools(0))
 
         planning_prompt = PlanningPrompt(
             question=question,

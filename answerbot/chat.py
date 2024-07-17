@@ -1,4 +1,4 @@
-from typing import Callable, Protocol, Iterable, runtime_checkable, Optional, Type
+from typing import Callable, Optional, Type
 from dataclasses import dataclass, field
 from litellm import completion, ModelResponse, Message
 from jinja2 import Template, Environment, ChoiceLoader, FileSystemLoader, DictLoader, BaseLoader
@@ -8,25 +8,9 @@ from llm_easy_tools import get_tool_defs, process_response, ToolResult, LLMFunct
 
 import logging
 
-# One problem with the current implementation is that Prompt objects cannot have an attributes named 'c' or 'role'
-
 
 # Configure logging for this module
 logger = logging.getLogger('answerbot.chat')
-
-@runtime_checkable
-class HasLLMTools(Protocol):
-    def get_llm_tools(self) -> Iterable[Callable]:
-        pass
-
-def expand_toolbox(toolbox: list[HasLLMTools|LLMFunction|Callable]) -> list[Callable|LLMFunction]:
-    tools = []
-    for item in toolbox:
-        if isinstance(item, HasLLMTools):
-            tools.extend(item.get_llm_tools())
-        else:
-            tools.append(item)
-    return tools
 
 @dataclass(frozen=True)
 class Prompt:
@@ -151,8 +135,7 @@ class Chat:
 
         return result
 
-    def process(self, toolbox: list[HasLLMTools|LLMFunction|Callable], **kwargs):
-        tools = expand_toolbox(toolbox)
+    def process(self, tools: list[LLMFunction|Callable], **kwargs):
         schemas = get_tool_defs(tools)
         response = self.llm_reply(schemas, **kwargs)
         results = process_response(response, tools)
@@ -214,26 +197,6 @@ if __name__ == "__main__":
     chat.append(prompt1_from_prompts1)
     chat.append(prompt2)
     chat.append(assistant_prompt)
-
-    # Print out entries from the Chat
-    print("Chat entries:")
-    for i, message in enumerate(chat.messages):
-        print(f"{i + 1}. {message['role']}: {message['content']}")
-
-    chat = Chat(
-        model="gpt-3.5-turbo",
-        system_prompt=SystemPrompt(),
-        templates_dirs=["tests/data/prompts2"],
-        templates={
-            "SystemPrompt": "You are a helpful assistant.",
-            "AssistantPrompt": "Assistant: {{answer}}",
-            "SpecialPrompt": "{{__str__()}}"
-        }
-    )
-    # Create example prompts
-    prompt1_from_prompts2 = Prompt1(value="Example1")
-    # Add prompts to the chat
-    chat.append(prompt1_from_prompts2)
 
     # Print out entries from the Chat
     print("Chat entries:")

@@ -13,30 +13,6 @@ from answerbot.knowledgebase import KnowledgeBase, KnowledgePiece
 # Configure logging for this module
 logger = logging.getLogger('qa_processor')
 
-def format_tool_docstrings(schemas: list[dict]) -> str:
-    formatted_list = []
-    for schema in schemas:
-        func_name = schema['function']['name']
-        description = schema['function'].get('description', '')
-
-        # Start with function name and description
-        doc = f"- **{func_name}**\n\n"
-        doc += "\n".join(f"  {line}" for line in description.split('\n')) + "\n\n"
-
-        # Add parameters section if present
-        if 'parameters' in schema['function']:
-            doc += "  Parameters:\n\n"
-            properties = schema['function']['parameters'].get('properties', {})
-            for param, details in properties.items():
-                param_type = details.get('type', 'Any')
-                param_desc = details.get('description', '')
-                doc += f"  {param} : {param_type}\n"
-                doc += "\n\n".join(f"      {line}" for line in param_desc.split('\n')) + "\n\n"
-
-        formatted_list.append(doc)
-
-    return "\n".join(formatted_list)
-
 @dataclass(frozen=True)
 class Question(Prompt):
     question: str
@@ -58,7 +34,7 @@ class StepInfo(Prompt):
 @dataclass(frozen=True)
 class PlanningPrompt(Prompt):
     question: str
-    available_tools: str
+    available_tools: list[dict]
     observations: list[Observation] = field(default_factory=list)
     reflection: Optional[str] = None
 
@@ -171,11 +147,10 @@ class QAProcessor:
             chat.append(PlanningSystemPrompt())
 
         schemas = get_tool_defs(expand_toolbox(self.get_tools(0)))
-        available_tools_str = format_tool_docstrings(schemas)
 
         planning_prompt = PlanningPrompt(
             question=question,
-            available_tools=available_tools_str,
+            available_tools=schemas,
             observations=observations,
             reflection=reflection_string,
         )
@@ -188,7 +163,6 @@ class QAProcessor:
         planning_string = f"**My Notes**\n{reflection_string}\n\nHmm what I could do next?\n\n{planning_result}"
 
         return planning_string
-
 
 
 @dataclass(frozen=True)

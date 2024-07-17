@@ -4,7 +4,8 @@ from litellm import completion, ModelResponse, Message
 from jinja2 import Template, Environment, ChoiceLoader, FileSystemLoader, DictLoader, BaseLoader
 from pprint import pformat
 
-from llm_easy_tools import get_tool_defs, process_response, ToolResult, LLMFunction 
+from llm_easy_tools import get_tool_defs, LLMFunction
+from llm_easy_tools.processor import process_message
 
 import logging
 
@@ -64,6 +65,7 @@ class Chat:
     system_prompt: Optional[Prompt] = None
     fail_on_tool_error: bool = True  # if False the error message is passed to the LLM to fix the call, if True exception is raised
     one_tool_per_step: bool = True  # for stateful tools executing more than one tool call per step is often confusing for the LLM
+    saved_tools: list[LLMFunction|Callable] = field(default_factory=list)
 
     def __post_init__(self):
         if self.renderer and (self.templates or self.templates_dirs):
@@ -80,6 +82,17 @@ class Chat:
         if self.system_prompt:
             system_message = self.make_message(self.system_prompt)
             self.messages.insert(0, system_message)
+
+    def __call__(self, message: Prompt|dict|Message|str, **kwargs) -> str:
+        """
+        Allow the Chat object to be called as a function.
+        Appends the given message and calls llm_reply with the provided kwargs.
+        Returns the content of the response message as a string.
+        """
+        self.append(message)
+        response = self.llm_reply(**kwargs)
+        return response.choices[0].message.content
+
 
     def make_message(self, prompt: Prompt) -> dict:
         """
@@ -105,7 +118,9 @@ class Chat:
             raise ValueError(f"Unsupported message type: {type(message)}")
         self.messages.append(message_dict)
 
-    def llm_reply(self, schemas=[], **kwargs) -> ModelResponse:
+    def llm_reply(self, tools=[], **kwargs) -> ModelResponse:
+        self.saved_tools = tools
+        schemas = get_tool_defs(tools)
         args = {
             'model': self.model,
             'messages': self.messages,
@@ -137,10 +152,11 @@ class Chat:
 
         return result
 
-    def process(self, tools: list[LLMFunction|Callable], **kwargs):
-        schemas = get_tool_defs(tools)
-        response = self.llm_reply(schemas, **kwargs)
-        results = process_response(response, tools)
+    def process(self, **kwargs):
+        if not self.messages:
+            raise ValueError("No messages to process")
+        message = self.messages[-1]
+        results = process_message(message, self.saved_tools, **kwargs)
         outputs = []
         for result in results:
             if result.soft_errors:
@@ -206,12 +222,13 @@ if __name__ == "__main__":
         print(f"{i + 1}. {message['role']}: {message['content']}")
 
     # This does ot work!!!
-    @dataclass(frozen=True)
-    class TestPrompt(Prompt):
-        role: str
-
-    test_prompt = TestPrompt(role="some role")
-    try:
-        chat.make_message(test_prompt)
-    except ValueError as e:
-        print(f"Error message: {str(e)}")
+#    @dataclass(frozen=True)
+#    class TestPrompt(Prompt):
+#        role: str
+#
+#    test_prompt = TestPrompt(role="some role")
+#    try:
+#        chat.make_message(test_prompt)
+#    except ValueError as e:
+#        print(f"Error message: {str(e)}")
+#

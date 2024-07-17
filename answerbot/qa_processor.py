@@ -85,20 +85,20 @@ class QAProcessor:
         else:
             return [Answer]
 
-    def make_chat(self, tags: Optional[list[str]] = None) -> Chat:
+    def make_chat(self, system_prompt: Optional[Prompt] = None) -> Chat:
         chat = Chat(
             model=self.model,
             one_tool_per_step=True,
             templates=self.prompt_templates,
             templates_dirs=self.prompt_templates_dirs,
             fail_on_tool_error=self.fail_on_tool_error,
+            system_prompt=system_prompt,
         )
         return chat
 
     def process(self, question: str):
         logger.info(f'Processing question: {question}')
-        chat = self.make_chat()
-        chat.append(SystemPrompt())
+        chat = self.make_chat(system_prompt=SystemPrompt())
         chat.append(Question(question, self.max_iterations))
 
         metadata = self.mk_metadata()
@@ -109,10 +109,10 @@ class QAProcessor:
         reflection_string = None
         for step in range(self.max_iterations + 1):
             planning_string = self.plan_next_action(question, observations, reflection_string)
-            chat.append({'role': 'user', 'content': planning_string})
-            chat.append(StepInfo(step, self.max_iterations))
+            chat.append(planning_string)
             tools = self.get_tools(step)
-            results = chat.process(tools, metadata=metadata)
+            chat(StepInfo(step, self.max_iterations), tools=tools, metadata=metadata)
+            results = chat.process()
             reflection_string = None
             if not results:
                 logger.warn("No tool call in a tool loop")
@@ -144,13 +144,15 @@ class QAProcessor:
         return metadata
 
     def reflect(self, question: str, observations: list[Observation], knowledge_base: KnowledgeBase) -> str:
-        chat = self.make_chat()
-        chat.append(ReflectionSystemPrompt())
-        chat.append(ReflectionPrompt(memory=knowledge_base, question=question, observations=observations))
+        chat = self.make_chat(system_prompt=ReflectionSystemPrompt())
+        chat(
+            ReflectionPrompt(memory=knowledge_base, question=question, observations=observations),
+            metadata=self.mk_metadata(['reflection']),
+            tools=[ReflectionResult]
+        )
 
         reflections = []
-        metadata = self.mk_metadata(['reflection'])
-        for reflection in chat.process([ReflectionResult], metadata=metadata):
+        for reflection in chat.process():
             if observations[-1].source:
                 reflections.append(reflection.update_knowledge_base(knowledge_base, observations[-1]))
         reflection_string = '\n'.join(reflections)
@@ -158,9 +160,7 @@ class QAProcessor:
         return reflection_string
 
     def plan_next_action(self, question: str, observations: list[Observation], reflection_string: Optional[str] = None) -> str:
-        chat = self.make_chat(['planning'])
-        if chat.templates.get('PlanningSystemPrompt'):
-            chat.append(PlanningSystemPrompt())
+        chat = self.make_chat(system_prompt=PlanningSystemPrompt())
 
         schemas = get_tool_defs(self.get_tools(0))
 
@@ -171,10 +171,7 @@ class QAProcessor:
             reflection=reflection_string,
         )
 
-        chat.append(planning_prompt)
-        metadata = self.mk_metadata(['planning'])
-        response = chat.llm_reply(metadata=metadata)
-        planning_result = response.choices[0].message.content
+        planning_result = chat(planning_prompt, metadata=self.mk_metadata(['planning']))
 
         planning_string = f"**My Notes**\n{reflection_string}\n\nHmm what I could do next?\n\n{planning_result}"
 

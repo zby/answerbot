@@ -2,11 +2,24 @@
 
 The user's question is: {{question}}
 
-{% if history %}
+{% if observations %}
+
 # History of operations:
-{% for operation in history %}
-- {{ operation }}
+{% for observation in observations %}
+- Operation: {{ observation.operation }}
+{% if observation.goal %}
+  Goal: {{ observation.goal }}
+{% endif %}
+{% if observation.quotable and observation.source %}
+  Retrieved: {{ observation.source }}
+{% endif %}
 {% endfor %}
+
+# Latest Retrieval
+
+We have performed information retrieval with the following results:
+
+{{observations[-1]}}
 {% endif %}
 
 {% if not memory.is_empty() %}
@@ -17,15 +30,9 @@ We have some notes on the following urls:
 {{ memory.learned() }}
 {% endif %}
 
-# Retrieval
-
-We have performed information retrieval with the following results:
-
-{{observation}}
-
 # Current task
 
 You need to review the information retrieval recorded above and reflect on it.
 You need to note all information that can help in answering the user question that can be learned from the retrieved fragment,
 together with the quotes that support them.
-Please remember that the retrieved content is only a fragment of the whole page.
+Please remember that the retrieved content is only a fragment of the whole page, you need to speculate if the needed information is available in the whole page.

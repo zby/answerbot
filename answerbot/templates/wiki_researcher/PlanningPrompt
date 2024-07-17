@@ -6,20 +6,24 @@ The user's question is: {{question}}
 
 {{available_tools}}
 
-{% if observation %}
+{% if observations %}
 
-{% if history %}
 # History of operations:
-{% for operation in history %}
-- {{ operation }}
-{% endfor %}
+{% for observation in observations %}
+- Operation: {{ observation.operation }}
+{% if observation.goal %}
+  Goal: {{ observation.goal }}
 {% endif %}
+{% if observation.quotable and observation.source %}
+  Retrieved: {{ observation.source }}
+{% endif %}
+{% endfor %}
 
 # Latest Retrieval
 
 We have performed information retrieval with the following results:
 
-{{observation}}
+{{observations[-1]}}
 {% endif %}
 
 {% if reflection %}
@@ -34,11 +38,11 @@ What would you do next?
 
 Now you need to decide what would be the next step. You don't need to bother much about actions beyond the next step.
 Please explain your reasoning.
-{% if observation %}
+{% if observations %}
 Start by analyzing the retrieval log presented above together with information learned previously.
 Please decide if you have enough information to answer the user question.
 If you still need more information, consider the available tools.
-{% if observation.quotable %} Comment if the current page is relevant to answer the user question and
+{% if observations[-1].quotable %} Comment if the current page is relevant to answer the user question and
 if there might be more relevant information hidden in not yet analyzed parts.
 If it is, then you should recommed exploring it further with the `lookup` or `read_more` tools.
 {% endif %}

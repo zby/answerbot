@@ -48,7 +48,6 @@ class QAProcessor:
     prompt_templates_dirs: list[str] = field(default_factory=list)
     name: Optional[str] = None
     fail_on_tool_error: bool = False
-    history: list[str] = field(default_factory=list)
 
     def get_tools(self, step: int) -> list[Callable|LLMFunction|HasLLMTools]:
         if step < self.max_iterations:
@@ -76,14 +75,15 @@ class QAProcessor:
 
         what_have_we_learned = KnowledgeBase()
 
-        observation = None
+        observations = []
         reflection_string = None
         for step in range(self.max_iterations + 1):
-            planning_string = self.plan_next_action(question, observation, reflection_string)
+            planning_string = self.plan_next_action(question, observations, reflection_string)
             chat.append({'role': 'user', 'content': planning_string})
             chat.append(StepInfo(step, self.max_iterations))
             tools = self.get_tools(step)
             results = chat.process(tools, metadata=metadata)
+            reflection_string = None
             if not results:
                 logger.warn("No tool call in a tool loop")
             else:
@@ -93,15 +93,10 @@ class QAProcessor:
                     logger.info(f"Answer: '{answer}' for question: '{question}'")
                     full_answer = chat.renderer.render_prompt(answer, context={'question': question})
                     return full_answer
-                observation = output
-                history_line = f"Operation: {observation.operation}"
-                if observation.goal:
-                    history_line += f"\n\nGoal: {observation.goal}"
-                reflection_string = None
-                self.history.append(history_line)
+                observations.append(output)  # Add new observation to the list
                 if isinstance(output, Observation):
-                    if observation.quotable:
-                        reflection_string = self.reflect(question, observation, what_have_we_learned)
+                    if output.quotable:
+                        reflection_string = self.reflect(question, observations, what_have_we_learned)
             logger.info(f"Step: {step} for question: '{question}'")
 
         return None
@@ -118,24 +113,21 @@ class QAProcessor:
             metadata = {}
         return metadata
 
-    def reflect(self, question: str, observation: Observation, knowledge_base: KnowledgeBase) -> str:
+    def reflect(self, question: str, observations: list[Observation], knowledge_base: KnowledgeBase) -> str:
         chat = self.make_chat()
         chat.append(ReflectionSystemPrompt())
-        history = self.history.copy()
-        if history:
-            history.pop()
-        chat.append(ReflectionPrompt(memory=knowledge_base, question=question, observation=observation, history=history))
+        chat.append(ReflectionPrompt(memory=knowledge_base, question=question, observations=observations))
 
         reflections = []
         metadata = self.mk_metadata(['reflection'])
         for reflection in chat.process([ReflectionResult], metadata=metadata):
-            if observation.source:
-                reflections.append(reflection.update_knowledge_base(knowledge_base, observation))
+            if observations[-1].source:
+                reflections.append(reflection.update_knowledge_base(knowledge_base, observations[-1]))
         reflection_string = '\n'.join(reflections)
 
         return reflection_string
 
-    def plan_next_action(self, question: str, observation: Optional[Observation] = None, reflection_string: Optional[str] = None) -> str:
+    def plan_next_action(self, question: str, observations: list[Observation], reflection_string: Optional[str] = None) -> str:
         chat = self.make_chat(['planning'])
         if chat.templates.get('PlanningSystemPrompt'):
             chat.append(PlanningSystemPrompt())
@@ -143,16 +135,11 @@ class QAProcessor:
         schemas = get_tool_defs(expand_toolbox(self.get_tools(0)))
         available_tools_str = format_tool_docstrings(schemas)
 
-        history = self.history.copy()
-        if history:
-            history.pop()
-
         planning_prompt = PlanningPrompt(
             question=question,
             available_tools=available_tools_str,
-            observation=observation,
+            observations=observations,
             reflection=reflection_string,
-            history=history
         )
 
         chat.append(planning_prompt)
@@ -231,9 +218,9 @@ if __name__ == "__main__":
 
     question = 'What is the capital of the Eastern Roman Empire?'
 
-    reflection_string = qa_processor.reflect(question, observation, what_have_we_learned)
+    reflection_string = qa_processor.reflect(question, [observation], what_have_we_learned)
 
     print()
     print(reflection_string)
     print()
-    print(qa_processor.plan_next_action(question, observation, reflection_string))
+    print(qa_processor.plan_next_action(question, [observation], reflection_string))

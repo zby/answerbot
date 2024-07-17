@@ -84,6 +84,7 @@ class ReflectionResult(BaseModel):
             reflection_string += f"{str(knowledge_piece)}\n"
             if len(self.new_sources) > 0:
                 reflection_string += f"Discovered new sources: {self.new_sources}"
+        reflection_string += f"\n\n{self.comment}"
         return reflection_string
 
 if __name__ == "__main__":

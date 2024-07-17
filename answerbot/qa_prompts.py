@@ -28,9 +28,8 @@ class StepInfo(Prompt):
 class PlanningPrompt(Prompt):
     question: str
     available_tools: str
-    observation: Optional[Observation] = None
+    observations: list[Observation] = field(default_factory=list)
     reflection: Optional[str] = None
-    history: list[str] = field(default_factory=list)
 
 @dataclass(frozen=True)
 class PlanningSystemPrompt(Prompt):
@@ -44,5 +43,4 @@ class ReflectionSystemPrompt(Prompt):
 class ReflectionPrompt(Prompt):
     memory: KnowledgeBase
     question: str
-    observation: Observation
-    history: list[str] = field(default_factory=list)
+    observations: list[Observation]

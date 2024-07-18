@@ -12,6 +12,7 @@ class TickerPrices(Prompt):
     ticker_prices: dict[str, float]
 
 def join_with_and(value):
+    # This is a custom Jinja2 filter that joins a list of values with "and" at end
     if not value:
         return ""
     elif len(value) == 1:
@@ -32,7 +33,7 @@ ticker_tempalte = """
 # Define templates
 templates = {
     "SystemPrompt": "You are a helpful assistant that can look up stock prices.",
-    "UserPrompt": "What are the prices of {{tickers|join_with_and}}?",
+    "UserPrompt": "What are the prices of {{tickers|join_with_and}}?",  # here we use the custom filter
     "TickerPrices": ticker_tempalte,
 }
 
@@ -43,12 +44,12 @@ env.filters['join_with_and'] = join_with_and
 
 
 def get_nasdaq_price(ticker: str):
-    """Get the current price of a NASDAQ ticker"""
     ticker = yf.Ticker(ticker)
     current_price = ticker.history(period="1d")['Close'].iloc[0]
     return current_price
 
 def get_ticker_prices(tickers: list[str]):
+    """Get the current prices of a NASDAQ tickers"""
     return TickerPrices({ticker: get_nasdaq_price(ticker) for ticker in tickers})
 
 # Create Chat instance
@@ -59,6 +60,7 @@ chat = Chat(
 )
 
 # Add user question
+# this sends the chat to the LLM and gets a response
 chat(UserPrompt(tickers=["AAPL", "GOOGL", "MSFT"]), tools=[get_ticker_prices])
 
 # Process the response

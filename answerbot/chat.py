@@ -1,7 +1,7 @@
 from typing import Callable, Optional, Type
 from dataclasses import dataclass, field
 from litellm import completion, ModelResponse, Message
-from jinja2 import Template, Environment, ChoiceLoader, FileSystemLoader, DictLoader, BaseLoader
+from jinja2 import Environment, ChoiceLoader, FileSystemLoader, DictLoader, BaseLoader
 from pprint import pformat
 
 from llm_easy_tools import get_tool_defs, LLMFunction
@@ -28,12 +28,30 @@ class SystemPrompt(Prompt):
 
 
 @dataclass
-class Jinja2Renderer:
+class Chat:
+    model: str
+    messages: list[dict|Message] = field(default_factory=list)
+    template_env: Optional[Environment] = None
     templates: dict[str, str] = field(default_factory=dict)
     templates_dirs: list[str] = field(default_factory=list)
+    system_prompt: Optional[Prompt] = None
+    fail_on_tool_error: bool = True  # if False the error message is passed to the LLM to fix the call, if True exception is raised
+    one_tool_per_step: bool = True  # for stateful tools executing more than one tool call per step is often confusing for the LLM
+    saved_tools: list[LLMFunction|Callable] = field(default_factory=list)
 
     def __post_init__(self):
-        self.env = self._create_environment()
+        if self.template_env and (self.templates or self.templates_dirs):
+            raise ValueError("Cannot specify both template_env and templates/templates_dirs")
+
+        if not self.template_env:
+            self.template_env = self._create_environment()
+
+        if self.system_prompt:
+            if isinstance(self.system_prompt, str):
+                system_prompt = {'role': 'system', 'content': self.system_prompt}  # the default role is 'user'
+            else:
+                system_prompt = self.system_prompt
+            self.append(system_prompt)
 
     def _create_environment(self) -> Environment:
         loaders = [
@@ -44,10 +62,10 @@ class Jinja2Renderer:
 
     def render_prompt(self, obj: object, **kwargs) -> str:
         template_name = type(obj).__name__
-        template = self.env.get_template(template_name)
+        template = self.template_env.get_template(template_name)
 
-        # Create a context dictionary with the object's attributes and methods
-        obj_context = {name: getattr(obj, name) for name in dir(obj)}
+        # Create a context dictionary with the object's public attributes and methods
+        obj_context = {name: getattr(obj, name) for name in dir(obj) if not name.startswith('_')}
 
         # Merge with kwargs
         obj_context.update(kwargs)
@@ -55,33 +73,12 @@ class Jinja2Renderer:
         result = template.render(**obj_context)
         return result
 
-@dataclass
-class Chat:
-    model: str
-    messages: list[dict|Message] = field(default_factory=list)
-    renderer: Optional[Jinja2Renderer] = None
-    templates: dict[str, str] = field(default_factory=dict)    # when you don't want to create a template manager yourself
-    templates_dirs: list[str] = field(default_factory=list)    # ^^^^
-    system_prompt: Optional[Prompt] = None
-    fail_on_tool_error: bool = True  # if False the error message is passed to the LLM to fix the call, if True exception is raised
-    one_tool_per_step: bool = True  # for stateful tools executing more than one tool call per step is often confusing for the LLM
-    saved_tools: list[LLMFunction|Callable] = field(default_factory=list)
-
-    def __post_init__(self):
-        if self.renderer and (self.templates or self.templates_dirs):
-            raise ValueError("Cannot specify both template_manager and templates/templates_dirs")
-
-        if self.templates or self.templates_dirs:
-            self.renderer = Jinja2Renderer(
-                templates=self.templates,
-                templates_dirs=self.templates_dirs
-            )
-        elif self.renderer is None:
-            self.renderer = Jinja2Renderer()
-
-        if self.system_prompt:
-            system_message = self.make_message(self.system_prompt)
-            self.messages.insert(0, system_message)
+    def make_message(self, prompt: Prompt) -> dict:
+        content = self.render_prompt(prompt)
+        return {
+            'role': prompt.role(),
+            'content': content.strip()
+        }
 
     def __call__(self, message: Prompt|dict|Message|str, **kwargs) -> str:
         """
@@ -93,16 +90,6 @@ class Chat:
         response = self.llm_reply(**kwargs)
         return response.choices[0].message.content
 
-
-    def make_message(self, prompt: Prompt) -> dict:
-        """
-        Create a message dictionary from a Prompt object.
-        """
-        content = self.renderer.render_prompt(prompt)
-        return {
-            'role': prompt.role(),
-            'content': content.strip()  #TODO: is .strip() needed here?
-        }
 
     def append(self, message: Prompt|dict|Message|str) -> None:
         """
@@ -165,7 +152,11 @@ class Chat:
             self.append(result.to_message())
             if result.error and self.fail_on_tool_error:
                 raise Exception(result.error)
-            outputs.append(result.output)
+            if isinstance(result.output, Prompt):
+                output = self.render_prompt(result.output)
+                outputs.append(output)
+            else:
+                outputs.append(result.output)
 
         return outputs
 

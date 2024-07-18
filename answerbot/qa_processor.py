@@ -121,7 +121,7 @@ class QAProcessor:
                 if isinstance(output, Answer):
                     answer = output
                     logger.info(f"Answer: '{answer}' for question: '{question}'")
-                    full_answer = chat.renderer.render_prompt(answer, question=question)
+                    full_answer = chat.render_prompt(answer, question=question)
                     return full_answer
                 observations.append(output)  # Add new observation to the list
                 if isinstance(output, Observation):

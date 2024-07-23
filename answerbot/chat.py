@@ -42,6 +42,8 @@ class Chat:
     def __post_init__(self):
         if self.template_env and (self.templates or self.templates_dirs):
             raise ValueError("Cannot specify both template_env and templates/templates_dirs")
+        if not self.template_env and not self.templates and not self.templates_dirs:
+            raise ValueError("Must specify either template_env or templates/templates_dirs")
 
         if not self.template_env:
             self.template_env = self._create_environment()

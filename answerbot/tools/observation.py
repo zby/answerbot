@@ -24,6 +24,24 @@ class KnowledgePiece:
     content: str
     quotes: list[str] = field(default_factory=list)
 
+    def is_empty(self) -> bool:
+        return not len(self.content) and not len(self.quotes)
+
+    def __str__(self):
+        if self.is_empty():
+            return ""
+        content = '\n'
+        if self.content is not None:
+            text = "\n" + self.content
+            text = text.replace("\n", "\n    ")
+            content += f"Learned:{text}\n"
+        if len(self.quotes) > 0:
+            text = "\n" + self.quoted_quotes()
+            text = text.replace("\n", "\n    ")
+            content += '\n\n'
+            content += f"Quotes:{text}\n"
+        return content
+
 
 @dataclass
 class History:
@@ -38,3 +56,11 @@ class History:
 
     def find_related_knowledge_pieces(self, observation: Observation) -> list[KnowledgePiece]:
         return [kp for kp in self.knowledge_pieces if kp.source == observation]
+
+    def latest_knowledge(self) -> list[KnowledgePiece]:
+        if len(self.observations) == 0:
+            return []
+        return self.find_related_knowledge_pieces(self.observations[-1])
+
+    def sources(self) -> list[str]:
+        return [o.source for o in self.observations]

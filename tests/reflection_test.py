@@ -1,41 +1,7 @@
 import pytest
-from answerbot.knowledgebase import KnowledgeBase
 from answerbot.reflection_result import ReflectionResult
 
-from answerbot.tools.observation import Observation
-
-def test_stringification():
-    reflection_result = ReflectionResult(
-        what_have_we_learned="NEW INFORMATION",
-        relevant_quotes=[
-            "Fictional teenage girl Corliss Archer ..."
-        ],
-        new_sources=[
-            "Janet Waldo",
-            "Kiss and Tell (1945 film)"
-        ],
-        comment="The relevant quotes provide background ...",
-    )
-
-    # Stringify the object
-    reflection_result_str = str(reflection_result)
-    assert "Fictional teenage girl Corliss Archer" in reflection_result_str
-    assert "Janet Waldo" in reflection_result_str
-    assert "Kiss and Tell (1945 film)" in reflection_result_str
-    assert "The relevant quotes provide background ..." in reflection_result_str
-    #assert "NEW INFORMATION" in reflection_result_str
-
-def test_empty_reflection_result_stringify():
-    reflection_result_page = ReflectionResult(
-        what_have_we_learned="",
-        relevant_quotes=[],
-        new_sources=[],
-        comment="",
-    )
-
-    # Stringify the object
-    reflection_result_page_str = str(reflection_result_page)
-    assert reflection_result_page_str == ""
+from answerbot.tools.observation import Observation, KnowledgePiece, History
 
 def test_remove_source_from_reflection_result():
     # Setup
@@ -47,7 +13,7 @@ def test_remove_source_from_reflection_result():
     )
 
     # Action
-    reflection_result.remove_checked_urls(["http://source1.com"])
+    reflection_result.remove_checked_sources(["http://source1.com"])
 
     # Assert
     assert "http://source1.com" not in reflection_result.new_sources
@@ -83,20 +49,15 @@ Artificial intelligence could revolutionize many sectors.""",
     assert "revolutionize" in ' '.join(checked_knowledge_piece.quotes), "Should find 'revolutionize'"
     assert len(checked_knowledge_piece.quotes) == 4, "Should have four valid quotes checked"
 
-def test_update_knowledge_base():
-    what_have_we_learned = KnowledgeBase()
-    what_have_we_learned.add_info(
-        url="https://something.com",
-        quotes=["Something is something."],
-        learned="Something is something."
-    )
-
+def test_update_history():
+    history = History()
     observation = Observation(
         content="Paris is the capital of France.",
         operation="test_operation",
         source="https://example.com",
         quotable=True
     )
+    history.add_observation(observation)
 
     reflection_result = ReflectionResult(
         what_have_we_learned="Paris is the capital of France.",
@@ -104,7 +65,5 @@ def test_update_knowledge_base():
         new_sources=["https://newsource.com"],
         relevant_quotes=["Paris is the capital of France."]
     )
-    knowledge_update_str = reflection_result.update_knowledge_base(what_have_we_learned, observation)
-    assert "https://example.com" in knowledge_update_str
-    print(what_have_we_learned.urls())
-    assert set(what_have_we_learned.urls()) == {"https://something.com", "https://example.com"}
+    reflection_result.update_history(history)
+    assert history.knowledge_pieces[0].source == observation

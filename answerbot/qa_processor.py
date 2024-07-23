@@ -6,9 +6,9 @@ from llm_easy_tools import LLMFunction, get_tool_defs
 import logging
 
 from answerbot.chat import Chat, SystemPrompt, Prompt, SystemPrompt
-from answerbot.tools.observation import Observation
+from answerbot.tools.observation import Observation, KnowledgePiece, History
 from answerbot.reflection_result import ReflectionResult 
-from answerbot.knowledgebase import KnowledgeBase, KnowledgePiece
+from answerbot.qa_prompts import Question, Answer, StepInfo, PlanningInsert, ReflectionPrompt, PlanningPrompt, ReflectionSystemPrompt, PlanningSystemPrompt, indent_and_quote
 
 # Configure logging for this module
 logger = logging.getLogger('qa_processor')
@@ -26,47 +26,6 @@ def expand_toolbox(toolbox: list[HasLLMTools|LLMFunction|Callable]) -> list[Call
         else:
             tools.append(item)
     return tools
-
-
-@dataclass(frozen=True)
-class Question(Prompt):
-    question: str
-    max_llm_calls: int
-
-@dataclass
-class Answer:
-    """
-    Answer to the question.
-    """
-    answer: str
-    reasoning: str
-
-@dataclass(frozen=True)
-class StepInfo(Prompt):
-    step: int
-    max_steps: int
-
-@dataclass(frozen=True)
-class PlanningPrompt(Prompt):
-    question: str
-    available_tools: list[dict]
-    observations: list[Observation] = field(default_factory=list)
-    reflection: Optional[str] = None
-
-@dataclass(frozen=True)
-class PlanningSystemPrompt(Prompt):
-    pass
-
-@dataclass(frozen=True)
-class ReflectionSystemPrompt(Prompt):
-    pass
-
-@dataclass(frozen=True)
-class ReflectionPrompt(Prompt):
-    memory: KnowledgeBase
-    question: str
-    observations: list[Observation]
-
 
 @dataclass(frozen=True)
 class QAProcessor:
@@ -86,14 +45,16 @@ class QAProcessor:
             return [Answer]
 
     def make_chat(self, system_prompt: Optional[Prompt] = None) -> Chat:
+        template_dirs = ['answerbot/templates/common/'] + self.prompt_templates_dirs
         chat = Chat(
             model=self.model,
             one_tool_per_step=True,
             templates=self.prompt_templates,
-            templates_dirs=self.prompt_templates_dirs,
+            templates_dirs=template_dirs,
             fail_on_tool_error=self.fail_on_tool_error,
             system_prompt=system_prompt,
         )
+        chat.template_env.filters['indent_and_quote'] = indent_and_quote
         return chat
 
     def process(self, question: str):
@@ -102,18 +63,16 @@ class QAProcessor:
         chat.append(Question(question, self.max_iterations))
 
         metadata = self.mk_metadata()
+        history = History()
+        new_sources = []
 
-        what_have_we_learned = KnowledgeBase()
-
-        observations = []
-        reflection_string = None
         for step in range(self.max_iterations + 1):
-            planning_string = self.plan_next_action(question, observations, reflection_string)
-            chat.append(planning_string)
+            planning_string = self.plan_next_action(question, history, new_sources)
+            chat.append(PlanningInsert(planning_string, history.latest_knowledge(), new_sources))
+            new_sources = []
             tools = self.get_tools(step)
             chat(StepInfo(step, self.max_iterations), tools=tools, metadata=metadata)
             results = chat.process()
-            reflection_string = None
             if not results:
                 logger.warn("No tool call in a tool loop")
             else:
@@ -123,10 +82,10 @@ class QAProcessor:
                     logger.info(f"Answer: '{answer}' for question: '{question}'")
                     full_answer = chat.render_prompt(answer, question=question)
                     return full_answer
-                observations.append(output)  # Add new observation to the list
+                history.add_observation(output)
                 if isinstance(output, Observation):
                     if output.quotable:
-                        reflection_string = self.reflect(question, observations, what_have_we_learned)
+                        new_sources = self.reflect(question, history)
             logger.info(f"Step: {step} for question: '{question}'")
 
         return None
@@ -143,23 +102,21 @@ class QAProcessor:
             metadata = {}
         return metadata
 
-    def reflect(self, question: str, observations: list[Observation], knowledge_base: KnowledgeBase) -> str:
+    def reflect(self, question: str, history: History) -> list[str]:
+        reflection_prompt = ReflectionPrompt(history=history, question=question)
         chat = self.make_chat(system_prompt=ReflectionSystemPrompt())
         chat(
-            ReflectionPrompt(memory=knowledge_base, question=question, observations=observations),
+            reflection_prompt,
             metadata=self.mk_metadata(['reflection']),
             tools=[ReflectionResult]
         )
-
-        reflections = []
+        new_sources = []
         for reflection in chat.process():
-            if observations[-1].source:
-                reflections.append(reflection.update_knowledge_base(knowledge_base, observations[-1]))
-        reflection_string = '\n'.join(reflections)
+            reflection.update_history(history)
+            new_sources.extend(reflection.new_sources)
+        return new_sources
 
-        return reflection_string
-
-    def plan_next_action(self, question: str, observations: list[Observation], reflection_string: Optional[str] = None) -> str:
+    def plan_next_action(self, question: str, history: History, new_sources: list[str]) -> str:
         chat = self.make_chat(system_prompt=PlanningSystemPrompt())
 
         schemas = get_tool_defs(self.get_tools(0))
@@ -167,15 +124,12 @@ class QAProcessor:
         planning_prompt = PlanningPrompt(
             question=question,
             available_tools=schemas,
-            observations=observations,
-            reflection=reflection_string,
+            history=history,
+            new_sources=new_sources
         )
 
-        planning_result = chat(planning_prompt, metadata=self.mk_metadata(['planning']))
+        return chat(planning_prompt, metadata=self.mk_metadata(['planning']))
 
-        planning_string = f"**My Notes**\n{reflection_string}\n\nHmm what I could do next?\n\n{planning_result}"
-
-        return planning_string
 
 
 @dataclass(frozen=True)
@@ -210,9 +164,9 @@ if __name__ == "__main__":
     litellm.failure_callback = ["langfuse"]
 
     # Configure logging for the chat module
-    #chat_logger = logging.getLogger('answerbot.chat')
-    #chat_logger.setLevel(logging.DEBUG)
-    #chat_logger.addHandler(logging.StreamHandler(sys.stdout))
+    chat_logger = logging.getLogger('answerbot.chat')
+    chat_logger.setLevel(logging.INFO)
+    chat_logger.addHandler(logging.StreamHandler(sys.stdout))
 
     qa_processor = QAProcessor(
         toolbox=[],
@@ -222,30 +176,36 @@ if __name__ == "__main__":
         name='test'
     )
 
+    history = History()
+
     # Create an example Observation
-    observation = Observation(
-        content="Constantinople was the capital of the Byzantine Empire. The Byzantine Empire lasted from 330 AD to 1453 AD.",
+    observation1 = Observation(
+        content="The Byzantine Empire was also known as the Eastern Roman Empire and was a continuation of the Roman Empire in its eastern provinces.",
         source="https://en.wikipedia.org/wiki/Byzantine_Empire",
         operation="Initial search",
         quotable=True
     )
+    history.add_observation(observation1)
 
     # Example knowledge base
-    what_have_we_learned = KnowledgeBase()
     new_knowledge_piece = KnowledgePiece(
-        url="https://www.britannica.com/place/Byzantine-Empire",
+        source=observation1,
         quotes=["The Byzantine Empire was also known as the Eastern Roman Empire and was a continuation of the Roman Empire in its eastern provinces."],
-        learned="The Byzantine Empire was a continuation of the Roman Empire in its eastern provinces and was also known as the Eastern Roman Empire."
+        content="The Byzantine Empire was a continuation of the Roman Empire in its eastern provinces and was also known as the Eastern Roman Empire."
     )
 
-    # Add the new KnowledgePiece to the knowledge base
-    what_have_we_learned.add_knowledge_piece(new_knowledge_piece)
+    history.add_knowledge_piece(new_knowledge_piece)
+
+    observation2 = Observation(
+        content="Constantinople was the capital of the Byzantine Empire.",
+        source="https://en.wikipedia.org/wiki/Byzantine_Empire",
+        operation="read more",
+        quotable=True
+    )
+    history.add_observation(observation2)
 
     question = 'What is the capital of the Eastern Roman Empire?'
 
-    reflection_string = qa_processor.reflect(question, [observation], what_have_we_learned)
+    new_sources = qa_processor.reflect(question, history)
 
-    print()
-    print(reflection_string)
-    print()
-    print(qa_processor.plan_next_action(question, [observation], reflection_string))
+    print(qa_processor.plan_next_action(question, history, new_sources))

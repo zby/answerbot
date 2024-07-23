@@ -2,32 +2,8 @@
 
 The user's question is: {{question}}
 
-{% if observations %}
-
-# History of operations:
-{% for observation in observations %}
-- Operation: {{ observation.operation }}
-{% if observation.goal %}
-  Goal: {{ observation.goal }}
-{% endif %}
-{% if observation.quotable and observation.source %}
-  Retrieved: {{ observation.source }}
-{% endif %}
-{% endfor %}
-
-# Latest Retrieval Results
-
-We have performed information retrieval with the following results:
-
-{{observations[-1]}}
-{% endif %}
-
-{% if not memory.is_empty() %}
-
-# Notes from previous work
-
-We have some notes on the following urls:
-{{ memory.learned() }}
+{% if history %}
+{% include "history.jinja2" %}
 {% endif %}
 
 # Current task

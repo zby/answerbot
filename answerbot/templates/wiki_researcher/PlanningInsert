@@ -1,0 +1,22 @@
+# My Notes
+{% for kp in knowledge_pieces %}
+## Learned: 
+{{ kp.content | indent }}
+{% if kp.quotes %}
+Supporting quotes:
+{% for quote in kp.quotes %}
+{{ quote | indent_and_quote }}
+{% endfor %}
+{% endif %}
+{% endfor %}
+{% if new_sources %}
+## Discovered new sources:
+{% for source in new_sources %}
+- {{ source }}
+{% endfor %}
+{% endif %}
+
+## Plan
+Hmm what I could do next?
+
+{{ planning_string }}

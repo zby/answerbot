@@ -1,0 +1,22 @@
+**Operation:** {{ observation.operation }}
+{%- if observation.goal %}
+**Goal:** {{ observation.goal }}
+{%- endif %}
+**Source:** {{ observation.source or 'N/A' }}
+{%- if with_content %}
+
+**Content:**
+{{ observation.content | indent_and_quote(0) }}
+{% endif -%}
+
+{%- set related_kps = history.find_related_knowledge_pieces(observation) -%}
+{%- if related_kps %}
+
+### What have we learned:
+{% for kp in related_kps %}
+- {{ kp.content }}
+  {%- for quote in kp.quotes %}
+{{ quote | indent_and_quote }}
+  {%- endfor %}
+{%- endfor %}
+{%- endif %}

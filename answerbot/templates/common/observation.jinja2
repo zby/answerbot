@@ -6,7 +6,7 @@
 {%- if with_content %}
 
 **Content:**
-{{ observation.content | indent_and_quote(0) }}
+{{ observation.content }}
 {% endif -%}
 
 {%- set related_kps = history.find_related_knowledge_pieces(observation) -%}

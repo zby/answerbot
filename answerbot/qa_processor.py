@@ -131,6 +131,48 @@ class QAProcessor:
         return chat(planning_prompt, metadata=self.mk_metadata(['planning']))
 
 
+@dataclass(frozen=True)
+class QAProcessorNew(QAProcessor):
+    def process(self, question: str):
+        logger.info(f'Processing question: {question}')
+        metadata = self.mk_metadata()
+        history = History()
+        new_sources = []
+
+        for step in range(self.max_iterations + 1):
+            chat = self.make_chat(system_prompt=SystemPrompt())
+
+            schemas = get_tool_defs(self.get_tools(0))
+
+            planning_prompt = PlanningPrompt(
+                question=question,
+                available_tools=schemas,
+                history=history,
+                new_sources=new_sources
+            )
+            chat(planning_prompt, metadata=self.mk_metadata(['planning']))
+
+            new_sources = []
+            tools = self.get_tools(step)
+            chat(StepInfo(step, self.max_iterations), tools=tools, metadata=metadata)
+            results = chat.process()
+            if not results:
+                logger.warn("No tool call in a tool loop")
+            else:
+                output = results[0]
+                if isinstance(output, Answer):
+                    answer = output
+                    logger.info(f"Answer: '{answer}' for question: '{question}'")
+                    full_answer = chat.render_prompt(answer, question=question)
+                    return full_answer
+                history.add_observation(output)
+                if isinstance(output, Observation):
+                    if output.quotable:
+                        new_sources = self.reflect(question, history)
+            logger.info(f"Step: {step} for question: '{question}'")
+
+        return None
+
 
 @dataclass(frozen=True)
 class QAProcessorDeep(QAProcessor):

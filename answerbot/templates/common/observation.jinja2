@@ -3,7 +3,7 @@
 **Goal:** {{ observation.goal }}
 {%- endif %}
 **Source:** {{ observation.source or 'N/A' }}
-{%- if with_content %}
+{%- if not short %}
 
 **Content:**
 {{ observation.content }}

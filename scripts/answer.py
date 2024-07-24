@@ -4,7 +4,7 @@ import litellm
 from dotenv import load_dotenv
 
 from answerbot.tools.wiki_tool import WikipediaTool
-from answerbot.qa_processor import QAProcessor
+from answerbot.qa_processor import QAProcessor, QAProcessorNew
 
 # Set logging level to INFO for qa_processor.py
 #logging.getLogger('qa_processor').setLevel(logging.INFO)
@@ -59,7 +59,7 @@ if __name__ == "__main__":
     #question = "Who portrayed Corliss Archer in the film Kiss and Tell?"
 
 
-    app = QAProcessor(
+    app = QAProcessorNew(
         toolbox=[WikipediaTool(chunk_size=400)],
         max_iterations=5,
         model='gpt-3.5-turbo',

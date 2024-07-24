@@ -1,5 +1,6 @@
 
-Step: {{step + 1}} of {{max_steps + 1}}
-{% if step >= max_steps - 1 %}
+{% if step <= max_steps %}
+You have {{max_steps - step}} steps left. Please continue with answering the question.
+{% else %}
 This was the last data retrieval in the next step you must provide an answer to the user question
 {% endif %}

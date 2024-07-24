@@ -3,13 +3,12 @@
 {% for observation in history.observations[:-1] %}
 
 ## Observation {{ loop.index }}
-
 {% include "observation.jinja2" %}
 {%- endfor %}
 {%- endif %}
 {% if history.observations|length > 0 %}
-# Current Retrieval
-{% with observation = history.observations[-1], with_content=True %}
+# Current Observation
+{% with observation = history.observations[-1] %}
 {%- include "observation.jinja2" %}
 {%- endwith %}
 {%- else %}

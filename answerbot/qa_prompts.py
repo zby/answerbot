@@ -77,6 +77,7 @@ if __name__ == '__main__':
         print(chat.render_prompt(prompt))
 
     history = History()
-    observation = Observation("France is a country in Europe", "research")
+    observation2 = Observation("Germany is a country in Europe", "research")
     history.add_observation(observation)
+    history.add_observation(observation2)
     print(chat.render_prompt(PlanningPrompt('What is the capital of France?', [], history, [])))

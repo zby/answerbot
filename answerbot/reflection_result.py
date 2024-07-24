@@ -13,8 +13,10 @@ def find_similar_fragments(text, quote):
     # Convert quote to lowercase for case-insensitive matching
     quote_lower = quote.lower()
 
+    escaped_words = [re.escape(word) for word in quote_lower.split()]
+
     # Create a pattern that allows for up to 5 non-word, non-whitespace characters between words
-    pattern = r'[^\w\s]{0,5}\b' + r'\W{0,5}'.join(re.escape(word) for word in quote_lower.split()) + r'\b[^\w\s]{0,5}'
+    pattern = r'[^\w\s]{0,5}' + r'\W{0,5}'.join(escaped_words) + r'[^\w\s]{0,5}'
 
     # Find all matches, case-insensitive
     matches = re.finditer(pattern, text, re.IGNORECASE)

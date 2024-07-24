@@ -1,5 +1,5 @@
 import pytest
-from answerbot.reflection_result import ReflectionResult
+from answerbot.reflection_result import ReflectionResult, find_similar_fragments
 
 from answerbot.tools.observation import Observation, KnowledgePiece, History
 
@@ -67,3 +67,7 @@ def test_update_history():
     )
     reflection_result.update_history(history)
     assert history.knowledge_pieces[0].source == observation
+
+def test_find_similar_fragments():
+    text = "Maine, U.S."
+    assert find_similar_fragments(text, 'U.S.') == ['U.S.']

@@ -1,6 +1,6 @@
 
 {% if step <= max_steps %}
-You have {{max_steps - step}} steps left. Please continue with answering the question.
+You have {{max_steps - step}} steps left. Now please use the available tools to answer the question.
 {% else %}
 This was the last data retrieval in the next step you must provide an answer to the user question
 {% endif %}

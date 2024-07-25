@@ -17,8 +17,11 @@
 {%- if kp.content %}
 - {{ kp.content }}
 {%- endif %}
+{%- if kp.quotes %}
+  Quotes extracted from the source:
   {%- for quote in kp.quotes %}
 {{ quote | indent_and_quote }}
   {%- endfor %}
+{%- endif %}
 {%- endfor %}
 {%- endif %}

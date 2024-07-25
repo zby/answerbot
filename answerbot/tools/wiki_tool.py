@@ -132,7 +132,7 @@ class WikipediaTool:
 
     def get_url(self, url: Annotated[str, "The URL to get"], goal: Annotated[str, "What information do you expect to find on this page and why did you choose this url?"]):
         """
-        Retrieves a page from Wikipedia by its URL, saves it as the current page and presents the top of that page.
+        Retrieves a page from Wikipedia by its URL, saves it as the current page and shows the top of that page. You need to use `lookup` or `read_more` to read the rest of the page.
         """
         return self._get_url(url, goal)
 

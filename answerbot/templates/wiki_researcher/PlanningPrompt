@@ -19,10 +19,10 @@ In the retrieved information we found the following new sources:
 
 What would you do next?
 
-Now you need to decide what tool would you use in the the next step. You don't need any detailed plan beyond that next step,
-but you need to explain your choice.
+Now you need to decide what tool would you use in the the next step.
 {% if history.observations %}
-Please start by analyzing the log of previous and the current observations log.
+Please start by analyzing the recorded observations.
+Pay attention to hints!
 Then decide if you have enough information to answer the user question.
 If you still need more information, consider the available tools.
 
@@ -39,3 +39,4 @@ Consider the available tools.
 ## Response completness
 
 Please be precise and specify both the tool together with the parameters you need as a function call, something like `function(parameter)`.
+Don't do detailed plans beyond the next step - only provide the reasoning why the chosen tool and its parameters are the best choice.

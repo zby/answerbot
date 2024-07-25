@@ -8,21 +8,28 @@ import logging
 
 import re
 from difflib import SequenceMatcher
+MARKDOWN_LINK_PATTERN = r'\[([^\]]+)\]\(([^\)]+)\)'
 
 def find_similar_fragments(text, quote):
+    # Remove markdown links
+    text_without_links = re.sub(MARKDOWN_LINK_PATTERN, r'\1', text)
+
+    similar_fragments = []
+
     # Convert quote to lowercase for case-insensitive matching
     quote_lower = quote.lower()
 
-    escaped_words = [re.escape(word) for word in quote_lower.split()]
+    # Split the quote into sequences of word characters
+    words = re.findall(r'\w+', quote_lower)
+    escaped_words = [re.escape(word) for word in words]
 
     # Create a pattern that allows for up to 5 non-word, non-whitespace characters between words
-    pattern = r'[^\w\s]{0,5}' + r'\W{0,5}'.join(escaped_words) + r'[^\w\s]{0,5}'
+    pattern = r'[^\w\s]{0,5}' + r'.{0,5}'.join(escaped_words) + r'[^\w\s]{0,5}'
 
     # Find all matches, case-insensitive
-    matches = re.finditer(pattern, text, re.IGNORECASE)
-
-    # Extract the exact matches from the original text
-    similar_fragments = [text[m.start():m.end()] for m in matches]
+    for match in re.finditer(pattern, text_without_links, re.IGNORECASE):
+        fragment = text_without_links[match.start():match.end()]
+        similar_fragments.append(fragment)
 
     return similar_fragments
 

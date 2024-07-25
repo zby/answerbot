@@ -71,3 +71,6 @@ def test_update_history():
 def test_find_similar_fragments():
     text = "Maine, U.S."
     assert find_similar_fragments(text, 'U.S.') == ['U.S.']
+    text = "[Capacity](https://en.wikipedia.org/wiki/Seating_capacity)| 3,677 (2,634 hockey)  \n> Construction  \n"
+    quote = "Capacity: 3,677 (2,634 hockey)"
+    assert find_similar_fragments(text, quote) == ['Capacity| 3,677 (2,634 hockey)']

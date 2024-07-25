@@ -1,4 +1,5 @@
 import pytest
+from pytest_mock import MockerFixture
 
 from answerbot.tools.wiki_tool import WikipediaTool, Observation, BASE_URL
 from answerbot.tools.markdown_document import MarkdownDocument
@@ -10,6 +11,7 @@ class MockHttpResponse:
     def __init__(self, text, status_code):
         self.text = text
         self.status_code = status_code
+        self.url = 'https://en.wikipedia.org/'
 
     def raise_for_status(self):
         if self.status_code != 200:
@@ -84,24 +86,23 @@ First piece of information
 Second piece of information"""
     assert observation_str == expected_str, "The Observation stringification did not match the expected format."
 
+# A special document object with a controlled lookup method
+class MockDocument:
+    def __init__(self, lookup_results):
+        self.lookup_results = lookup_results
+        self.lookup_word = None
+        self.lookup_position = None
+
+    def lookup(self, keyword):
+        self.lookup_word = keyword
+        self.lookup_position = 0
+        if len(self.lookup_results) > 0:
+            return self.lookup_results[self.lookup_position]
+        else:
+            return None
+
 
 def test_lookup_method():
-    # Create a special document object with a controlled lookup method
-    class MockDocument:
-        def __init__(self, lookup_results):
-            self.lookup_results = lookup_results
-            self.lookup_word = None
-            self.lookup_position = None
-
-        def lookup(self, keyword):
-            self.lookup_word = keyword
-            self.lookup_position = 0
-            if len(self.lookup_results) > 0:
-                return self.lookup_results[self.lookup_position]
-            else:
-                return None
-
-
     # one lookup result
     mock_document = MockDocument(["This is a test lookup result for the keyword."])
     wiki_tool = WikipediaTool(document=mock_document, current_url="https://en.wikipedia.org")
@@ -138,3 +139,48 @@ def test_lookup_method():
     result = wiki_tool.lookup("test keyword")
     assert f'Keyword "test keyword" not found at' in result.content
     assert '**Hint:** Your keyword contains spaces.' in result.content
+
+
+def test_get_llm_tools():
+    # Test with no document
+    wiki_tool = WikipediaTool()
+    tools = wiki_tool.get_llm_tools()
+    tool_names = set(tool.__name__ for tool in tools)
+    assert tool_names == {'search', 'get_url'}
+
+    # Test with document but no lookup results
+    mock_document = MockDocument([])
+    wiki_tool = WikipediaTool(document=mock_document)
+    tools = wiki_tool.get_llm_tools()
+    tool_names = set(tool.__name__ for tool in tools)
+    assert tool_names == {'search', 'get_url', 'read_chunk', 'lookup'}
+    # here we use read_chunk because we take the __name__ attribute instead of the translated name
+
+    # Test with document and lookup results
+    mock_document = MockDocument(["This is a test lookup result."])
+    wiki_tool = WikipediaTool(document=mock_document)
+    wiki_tool.lookup("test")  # Perform a lookup to populate lookup_results
+    tools = wiki_tool.get_llm_tools()
+    tool_names = set(tool.__name__ for tool in tools)
+    assert tool_names == {'search', 'get_url', 'read_chunk', 'lookup', 'next_lookup'}
+
+def test_get_url_with_redirection(mocker: MockerFixture):
+    # Mock the requests.get function
+    mock_response = mocker.Mock()
+    mock_response.status_code = 200
+    mock_response.url = 'https://en.wikipedia.org/wiki/Redirected_Page'
+    mock_response.text = '<html><body><div id="bodyContent">Redirected content</div></body></html>'
+    mocker.patch('requests.get', return_value=mock_response)
+
+    # Create a WikipediaTool instance
+    wiki_tool = WikipediaTool()
+
+    # Call get_url with a URL that will be redirected
+    original_url = 'https://en.wikipedia.org/wiki/Original_Page'
+    observation = wiki_tool.get_url(original_url, 'Test goal')
+
+    # Assert that the current_url has been updated to the redirected URL
+    assert wiki_tool.current_url == 'https://en.wikipedia.org/wiki/Redirected_Page'
+
+    # Assert that the observation content mentions the successful retrieval and redirection
+    assert "Successfully retrieved document from url" in observation.content

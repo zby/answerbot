@@ -31,3 +31,5 @@ markdownify==0.12.1
 click==8.1.7
 litellm~=1.41.8
 langfuse~=2.38.0
+pytest-mock~=3.14.0
+

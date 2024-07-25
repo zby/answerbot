@@ -149,11 +149,12 @@ class WikipediaTool:
         self.checked_urls.append(url)
         content = ""
         while retries < self.max_retries:
-            response = requests.get(url)
+            response = requests.get(url, allow_redirects=True)
             if response.status_code == 404:
                 content += "Page does not exist."
                 break
             elif response.status_code == 200:
+                self.current_url = response.url  # this takes into account redirections
                 html = response.text
                 cleaned_content = self.clean_html_and_textify(html)
 
@@ -173,7 +174,6 @@ class WikipediaTool:
         if document is not None:
             quotable = True
             self.document = document
-            self.current_url = url
             sections_info = self.get_sections_infopiece()
             if sections_info:
                 content += sections_info + "\n"
@@ -251,7 +251,7 @@ class WikipediaTool:
     def lookup(self, keyword: Annotated[str, "The keyword to search"] ):
         """
         Looks up a word on the current page. Use it if you think you are on the right page and want to jump to a specific word on it.
-        """
+Be careful with using multiple words as a keyword - it might be better to choose one of them."""
         print(f"\nLooking up '{keyword}'\n")
         if self.document is None:
             return self.mk_observation(
@@ -324,10 +324,14 @@ class WikipediaTool:
         return result
 
 if __name__ == "__main__":
+    tool = WikipediaTool(chunk_size=400)
+    observation = tool.get_url("https://en.wikipedia.org/wiki/Androscoggin_Bank_Colisée", 'aa')
+    pprint(observation)
+
+    exit()
     from answerbot.tools.url_shortener import UrlShortener
     url_shortener = UrlShortener()
-    tool = WikipediaTool(url_shortener=url_shortener, chunk_size=400)
-    observation = tool.get_url("https://en.wikipedia.org/wiki/Kiss_and_Tell_(1945_film)")
+    observation = tool.get_url("https://en.wikipedia.org/wiki/Kiss_and_Tell_(1945_film)", '')
     print(str(observation))
     print()
     print('-'*100)

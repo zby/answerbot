@@ -193,7 +193,10 @@ class WikipediaTool:
 
     def search(self, query: Annotated[str, "The query to search for on Wikipedia"]):
         """
-        Searches Wikipedia using the provided search query. It is a keyword search and works best with simple queries.
+Searches Wikipedia using the provided search query. It is a keyword search and works best with simple queries.
+Think about what pages exist on wikipedia and search accordingly. Never put two proper nouns into the same query,
+because there are no wikipedia pages about two topics. When trying to learn about a property of an object or a person,
+first search for that object then use other tools to locate the needed information.
         """
         self.current_url = self.api_url
         print(f"\nSearching for '{query}'\n")
@@ -250,8 +253,11 @@ class WikipediaTool:
 
     def lookup(self, keyword: Annotated[str, "The keyword to search"] ):
         """
-        Looks up a word on the current page. Use it if you think you are on the right page and want to jump to a specific word on it.
-Be careful with using multiple words as a keyword - it might be better to choose one of them."""
+Looks up a word on the current page. Use it if you think you are on the right page and want to jump to a specific word on it.
+Don't use it for searching for new pages - use `search` for that.
+Be careful with using multiple words as a keyword - it might be better to choose one of them because it often
+happens that the words appear in different order or separated by a word or a formatting in the text."""
+
         print(f"\nLooking up '{keyword}'\n")
         if self.document is None:
             return self.mk_observation(
@@ -277,8 +283,8 @@ Be careful with using multiple words as a keyword - it might be better to choose
 
     def next_lookup(self):
         """
-        Jumps to the next occurrence of the word searched previously.
-        """
+Jumps to the next occurrence of the word searched previously."""
+
         print(f"\nLooking up next occurrence of '{self.document.lookup_word}'\n")
         if self.document is None:
             return self.mk_observation("No document defined, cannot lookup, you need to use search or get_url first to retrieve a document", "next")
@@ -298,9 +304,9 @@ Be careful with using multiple words as a keyword - it might be better to choose
 
     def read_chunk(self):
         """
-        Reads the next chunk of text from the current location in the current document.
-        Use it if the information just received was interesting but seems to be cut short and you want to continue reading.
-        """
+Reads the next chunk of text from the current location in the current page.
+Use it if the information just received was interesting but seems to be cut short and you want to continue reading.
+"""
         print(f"\nReading more from current position\n")
         if self.document is None:
             return self.mk_observation("No document defined, cannot read", 'read_more()')

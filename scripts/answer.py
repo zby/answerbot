@@ -61,7 +61,7 @@ if __name__ == "__main__":
 
     app = QAProcessor(
         toolbox=[WikipediaTool(chunk_size=400)],
-        max_iterations=5,
+        max_iterations=7,
         model='gpt-3.5-turbo',
         #model='gpt-4o',
         #model='claude-3-5-sonnet-20240620',

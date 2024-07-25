@@ -25,6 +25,7 @@ but you need to explain your choice.
 Please start by analyzing the log of previous and the current observations log.
 Then decide if you have enough information to answer the user question.
 If you still need more information, consider the available tools.
+
 Don't assume that the fragments of the retrieved pages that you are presented are the whole information on these pages.
 {% if history.observations[-1].quotable %} Comment if the current page is relevant to answer the user question and
 if there might be more relevant information hidden in not yet analyzed parts.
@@ -35,17 +36,6 @@ If it is, then you should recommed exploring it further with the `lookup` or `re
 Consider the available tools.
 {% endif %}
 
-### Additional tips on how to use the tools:
-
-When using `search` please use simple queries. Think about what kind of pages exist at Wikipedia and what is the main topic of the user question.
-Never put two proper nouns into the same query - always start from one of them.
-
-When trying to learn about a property of an object or a person,
-first search for that object then use `get_url` to retrieve the Wikipedia page about that object,
-then you can browse the page to learn about its properties.
-For example to learn about the nationality of a person, first search for that person.
-Choose an url from the search results and then use `get_url` to retrieve the Wikipedia page about that person.
-If the persons page is retrieved but the information about nationality is not at the top of the page
-you can use `read_more` to continue reading or call `lookup('nationality')` or `lookup('born')` to get more information.
+## Response completness
 
 Please be precise and specify both the tool together with the parameters you need as a function call, something like `function(parameter)`.

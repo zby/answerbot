@@ -23,4 +23,4 @@ Edit the file to change the question.
 
 
 ## Compatibility
-I currently work only on OpenAI llms.
+Uses LiteLLM. I use it with OpenAI GPTs and Anthropic Claude. Llama 3 via Groq had too many errors around tool use - I need to test 3.1 and/or other providers of maybe finetuned models.

@@ -14,9 +14,11 @@
 
 ### What have we learned:
 {% for kp in related_kps %}
+{%- if kp.content %}
 - {{ kp.content }}
   {%- for quote in kp.quotes %}
 {{ quote | indent_and_quote }}
   {%- endfor %}
+{%- endif %}
 {%- endfor %}
 {%- endif %}

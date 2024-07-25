@@ -135,7 +135,6 @@ class QAProcessor:
 class QAProcessorNew(QAProcessor):
     def process(self, question: str):
         logger.info(f'Processing question: {question}')
-        metadata = self.mk_metadata()
         history = History()
         new_sources = []
 
@@ -150,11 +149,11 @@ class QAProcessorNew(QAProcessor):
                 history=history,
                 new_sources=new_sources
             )
-            chat(planning_prompt, metadata=self.mk_metadata(['planning']))
 
             new_sources = []
             tools = self.get_tools(step)
-            chat(StepInfo(step, self.max_iterations), tools=tools, metadata=metadata)
+            chat(planning_prompt, metadata=self.mk_metadata(['planning']))
+            chat(StepInfo(step, self.max_iterations), tools=tools, metadata=self.mk_metadata([f'Step {step}']))
             results = chat.process()
             if not results:
                 logger.warn("No tool call in a tool loop")

@@ -8,8 +8,8 @@
 {%- endif %}
 {% if history.observations|length > 0 %}
 # Current Observation
-{% with observation = history.observations[-1] %}
-{%- include "observation.jinja2" %}
+{%- with observation = history.observations[-1] %}
+{% include "observation.jinja2" %}
 {%- endwith %}
 {%- else %}
 No previous operations recorded.

@@ -25,7 +25,7 @@ class KnowledgePiece:
     quotes: list[str] = field(default_factory=list)
 
     def is_empty(self) -> bool:
-        return not len(self.content) and not len(self.quotes)
+        return (self.content is None or not len(self.content)) and not len(self.quotes)
 
     def __str__(self):
         if self.is_empty():

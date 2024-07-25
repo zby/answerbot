@@ -2,8 +2,6 @@
 
 The user's question is: {{question}}
 
-# Available tools
-
 {% include "tools" %}
 
 {% include "history.jinja2" %}
@@ -21,12 +19,13 @@ In the retrieved information we found the following new sources:
 
 What would you do next?
 
-Now you need to decide what would be the next step. You don't need to bother much about actions beyond the next step.
-Please explain your reasoning.
+Now you need to decide what tool would you use in the the next step. You don't need any detailed plan beyond that next step,
+but you need to explain your choice.
 {% if history.observations %}
-Start by analyzing the retrieval log presented above together with information learned previously.
-Please decide if you have enough information to answer the user question.
+Please start by analyzing the log of previous and the current observations log.
+Then decide if you have enough information to answer the user question.
 If you still need more information, consider the available tools.
+Don't assume that the fragments of the retrieved pages that you are presented are the whole information on these pages.
 {% if history.observations[-1].quotable %} Comment if the current page is relevant to answer the user question and
 if there might be more relevant information hidden in not yet analyzed parts.
 If it is, then you should recommed exploring it further with the `lookup` or `read_more` tools.

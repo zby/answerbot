@@ -1,6 +1,9 @@
 from dataclasses import dataclass, field
 from answerbot.chat import Prompt, Chat
 from answerbot.tools.observation import KnowledgePiece, History, Observation
+from answerbot.tools.wiki_tool import WikipediaTool
+
+from llm_easy_tools import get_tool_defs
 
 @dataclass(frozen=True)
 class Question(Prompt):
@@ -54,6 +57,10 @@ def indent_and_quote(text, indent=4, quote_char='>', width=70):
     return '\n'.join(result)
 
 if __name__ == '__main__':
+    wikipedia_tool = WikipediaTool()
+    tools = wikipedia_tool.get_llm_tools()
+    schemas = get_tool_defs(tools)
+
     templates_dirs = ['answerbot/templates/common/', 'answerbot/templates/wiki_researcher/'] 
     chat = Chat(
         model='gpt-4o',
@@ -67,7 +74,7 @@ if __name__ == '__main__':
         Question('What is the capital of France?', 3),
         Answer('Paris', 'According to sources'),
         StepInfo(1, 3),
-        PlanningPrompt('What is the capital of France?', [], History(), []),
+        PlanningPrompt('What is the capital of France?', schemas, History(), []),
         PlanningInsert('I would do search', [KnowledgePiece(observation, "France is a country", ["France is a country in Europe"])], ['https://www.google.com']),
         PlanningSystemPrompt(),
         ReflectionSystemPrompt(),
@@ -80,4 +87,4 @@ if __name__ == '__main__':
     observation2 = Observation("Germany is a country in Europe", "research")
     history.add_observation(observation)
     history.add_observation(observation2)
-    print(chat.render_prompt(PlanningPrompt('What is the capital of France?', [], history, [])))
+    print(chat.render_prompt(PlanningPrompt('What is the capital of France?', schemas, history, [])))

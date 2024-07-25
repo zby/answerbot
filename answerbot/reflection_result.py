@@ -34,7 +34,7 @@ def find_similar_fragments(text, quote):
     return similar_fragments
 
 class ReflectionResult(BaseModel):
-    what_have_we_learned: Optional[str] = Field(..., description="Have we learned anything that would help us answer the user question from the retrieved information and why?")
+    what_have_we_learned: Optional[str] = Field('', description="Have we learned anything that would help us answer the user question from the retrieved information and why?")
     comment: str = Field(..., description="A comment on the retrieved information.")
     relevant_quotes: list[str] = Field(..., description="A list of relevant literal quotes from the source that should be saved.")
     new_sources: list[str] = Field(..., description="A list of new urls mentioned in the notes that should be checked later.")

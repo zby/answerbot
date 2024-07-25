@@ -193,7 +193,7 @@ class WikipediaTool:
 
     def search(self, query: Annotated[str, "The query to search for on Wikipedia"]):
         """
-        Searches Wikipedia using the provided search query.
+        Searches Wikipedia using the provided search query. It is a keyword search and works best with simple queries.
         """
         self.current_url = self.api_url
         print(f"\nSearching for '{query}'\n")

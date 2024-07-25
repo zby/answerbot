@@ -1,12 +1,16 @@
+# Available tools
+
+This is a list of functions that you can use to answer the question.
+
 {% for schema in available_tools %}
-- **{{ schema.function.name }}**
-  {{ schema.function.description | indent(2) }}
+**{{ schema.function.name }}:**
+    {{ schema.function.description }}
 
-  {% if 'parameters' in schema.function %}
-  Parameters:
-  {% for param, details in schema.function.parameters.properties.items() %}
-  {{ param }}: {{ details.type | default('Any') }}; {% if details.description %} {{ details.description }} {% endif %}
+    {% if 'parameters' in schema.function %}
+    Args:
+        {% for param, details in schema.function.parameters.properties.items() %}
+        {{ param }} ({{ details.type | default('Any') }}): {% if details.description %}{{ details.description }}{% endif %}
+        {% endfor %}
+    {% endif %}
 
-  {% endfor %}
-  {% endif %}
 {% endfor %}

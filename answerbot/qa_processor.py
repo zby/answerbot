@@ -28,7 +28,7 @@ def expand_toolbox(toolbox: list[HasLLMTools|LLMFunction|Callable]) -> list[Call
     return tools
 
 @dataclass(frozen=True)
-class QAProcessor:
+class QAProcessorOld:
     toolbox: list[HasLLMTools|LLMFunction|Callable]
     max_iterations: int
     model: str
@@ -132,7 +132,15 @@ class QAProcessor:
 
 
 @dataclass(frozen=True)
-class QAProcessorNew(QAProcessor):
+class QAProcessor:
+    toolbox: list[HasLLMTools|LLMFunction|Callable]
+    max_iterations: int
+    model: str
+    prompt_templates: dict[str, str] = field(default_factory=dict)
+    prompt_templates_dirs: list[str] = field(default_factory=list)
+    name: Optional[str] = None
+    fail_on_tool_error: bool = False
+
     def process(self, question: str):
         logger.info(f'Processing question: {question}')
         history = History()
@@ -171,6 +179,52 @@ class QAProcessorNew(QAProcessor):
             logger.info(f"Step: {step} for question: '{question}'")
 
         return None
+
+    def get_tools(self, step: int) -> list[Callable|LLMFunction]:
+        tools = expand_toolbox(self.toolbox)
+        if step < self.max_iterations:
+            return[Answer, *tools]
+        else:
+            return [Answer]
+
+    def make_chat(self, system_prompt: Optional[Prompt] = None) -> Chat:
+        template_dirs = ['answerbot/templates/common/'] + self.prompt_templates_dirs
+        chat = Chat(
+            model=self.model,
+            one_tool_per_step=True,
+            templates=self.prompt_templates,
+            templates_dirs=template_dirs,
+            fail_on_tool_error=self.fail_on_tool_error,
+            system_prompt=system_prompt,
+        )
+        chat.template_env.filters['indent_and_quote'] = indent_and_quote
+        return chat
+
+    def mk_metadata(self, tags: Optional[list[str]] = None) -> dict:
+        metadata_tags = []
+        if tags:
+            metadata_tags.extend(tags)
+        if self.name:
+            metadata_tags.append(self.name)
+        if metadata_tags:
+            metadata = {'tags': metadata_tags}
+        else:
+            metadata = {}
+        return metadata
+
+    def reflect(self, question: str, history: History) -> list[str]:
+        reflection_prompt = ReflectionPrompt(history=history, question=question)
+        chat = self.make_chat(system_prompt=ReflectionSystemPrompt())
+        chat(
+            reflection_prompt,
+            metadata=self.mk_metadata(['reflection']),
+            tools=[ReflectionResult]
+        )
+        new_sources = []
+        for reflection in chat.process():
+            reflection.update_history(history)
+            new_sources.extend(reflection.new_sources)
+        return new_sources
 
 
 @dataclass(frozen=True)

@@ -1,5 +1,6 @@
 import pytest
 from dataclasses import dataclass
+from litellm import Message
 
 from llm_easy_tools import ToolResult, LLMFunction
 from answerbot.chat import Chat, Prompt, SystemPrompt
@@ -220,3 +221,42 @@ def test_render_prompt():
 
     # Check kwargs
     assert chat.render_prompt(prompt1, value2="test2") == 'value1: test1\nvalue2: test2'
+
+def test_llm_reply_with_tool_choice(mocker):
+    # Mock the litellm completion function
+    mock_completion = mocker.patch('answerbot.chat.completion')
+    
+    # Create a more detailed mock response using litellm.Message
+    mock_message = Message(
+        content="Test response",
+        role="assistant",
+        tool_calls=[]
+    )
+    
+    mock_choice = mocker.Mock()
+    mock_choice.message = mock_message
+    
+    mock_response = mocker.Mock()
+    mock_response.choices = [mock_choice]
+    
+    mock_completion.return_value = mock_response
+
+    # Create a Chat instance
+    chat = Chat(model="gpt-3.5-turbo")
+
+    # Call llm_reply with a tool_choice parameter
+    tool_choice = {"type": "function", "function": {"name": "get_weather"}}
+    response = chat.llm_reply(tool_choice=tool_choice)
+
+    # Assert that the completion was called with the correct parameters
+    mock_completion.assert_called_once_with(
+        model="gpt-3.5-turbo",
+        messages=mocker.ANY,
+        tool_choice=tool_choice
+    )
+
+    # Assert that the response is correct
+    assert response.choices[0].message.content == "Test response"
+
+    # Assert that the message was appended to the chat
+    assert chat.messages[-1] == mock_message

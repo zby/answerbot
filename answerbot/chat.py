@@ -115,7 +115,6 @@ class Chat:
         args = {
             'model': self.model,
             'messages': self.messages,
-            **kwargs
         }
 
         if len(schemas) > 0:
@@ -126,6 +125,8 @@ class Chat:
                 args['tool_choice'] = "auto"
 
         logger.debug(f"llm_reply args: {pformat(args)}")
+
+        args.update(kwargs)
 
         result = completion(**args)
         message = result.choices[0].message

@@ -12,7 +12,7 @@ MARKDOWN_LINK_PATTERN = r'\[([^\]]+)\]\(([^\)]+)\)'
 
 def find_similar_fragments(text, quote):
     # Remove markdown links
-    text_without_links = re.sub(MARKDOWN_LINK_PATTERN, r'\1', text)
+    text_without_links = re.sub(MARKDOWN_LINK_PATTERN, r'\1 ', text)
 
     similar_fragments = []
 

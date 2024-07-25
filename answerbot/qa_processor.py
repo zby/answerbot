@@ -148,19 +148,8 @@ class QAProcessor:
 
         for step in range(self.max_iterations + 1):
             chat = self.make_chat(system_prompt=SystemPrompt())
-
-            schemas = get_tool_defs(self.get_tools(0))
-
-            planning_prompt = PlanningPrompt(
-                question=question,
-                available_tools=schemas,
-                history=history,
-                new_sources=new_sources
-            )
-
-            new_sources = []
+            self.plan_next_action(chat, question, history, new_sources)
             tools = self.get_tools(step)
-            chat(planning_prompt, metadata=self.mk_metadata(['planning']))
             chat(StepInfo(step, self.max_iterations), tools=tools, metadata=self.mk_metadata([f'Step {step}']))
             results = chat.process()
             if not results:
@@ -179,6 +168,19 @@ class QAProcessor:
             logger.info(f"Step: {step} for question: '{question}'")
 
         return None
+
+    def plan_next_action(self, chat: Chat, question: str, history: History, new_sources: list[str]) -> str:
+        schemas = get_tool_defs(self.get_tools(0))
+
+        planning_prompt = PlanningPrompt(
+            question=question,
+            available_tools=schemas,
+            history=history,
+            new_sources=new_sources
+        )
+
+        new_sources = []
+        return chat(planning_prompt, metadata=self.mk_metadata(['planning']))
 
     def get_tools(self, step: int) -> list[Callable|LLMFunction]:
         tools = expand_toolbox(self.toolbox)
@@ -243,7 +245,9 @@ class QAProcessorDeep(QAProcessor):
 
             def delegate(sub_question: str):
                 logger.info(f"{self.delegate_description}: '{sub_question}'")
-                return sub_processor.process(sub_question)
+                content = sub_processor.process(sub_question)
+                observation = Observation(content, source="wikipedia expert", operation=f'delegate("{sub_question}")', quotable=True)
+                return observation
 
             delegate_fun = LLMFunction(delegate, description=self.delegate_description)
 
@@ -303,4 +307,5 @@ if __name__ == "__main__":
 
     new_sources = qa_processor.reflect(question, history)
 
-    print(qa_processor.plan_next_action(question, history, new_sources))
+    chat = qa_processor.make_chat()
+    print(qa_processor.plan_next_action(chat, question, history, new_sources))

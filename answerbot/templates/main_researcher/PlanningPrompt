@@ -2,9 +2,30 @@
 
 The user's question is: {{question}}
 
-# Reports from previously delegated work:
+{% include "tools" %}
 
-{{observation}}
+{% include "history.jinja2" %}
 
-Please think about 5 simple questions that would help you answer the user question and which can be answered with the help of Wikipedia.
+{% if new_sources %}
+# New sources
+
+In the retrieved information we found the following new sources:
+{%- for source in new_sources %}
+- {{source}}
+{%- endfor %}
+{% endif %}
+
+# Next step
+
+What would you do next?
+
+Now you need to decide if you have enough information to answer the user question or you need to gather more information.
+You don't need any detailed plan beyond that next step, but you need to explain your choice.
+{% if history.observations %}
+Please start by analyzing the log of previous and the current observations log.
+Then decide if you have enough information to answer the user question.
+If you still need more information, consider the available tools.
+{% endif %}
+
+If you need to gather more information, please think about 5 simple questions that would help you answer the user question and which can be answered with the help of Wikipedia.
 Choose the one question that you think is the simplest one.

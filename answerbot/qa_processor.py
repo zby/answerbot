@@ -149,6 +149,7 @@ class QAProcessor:
         for step in range(self.max_iterations + 1):
             chat = self.make_chat(system_prompt=SystemPrompt())
             self.plan_next_action(chat, question, history, new_sources)
+            new_sources = []
             tools = self.get_tools(step)
             chat(StepInfo(step, self.max_iterations), tools=tools, metadata=self.mk_metadata([f'Step {step}']))
             results = chat.process()
@@ -179,7 +180,6 @@ class QAProcessor:
             new_sources=new_sources
         )
 
-        new_sources = []
         return chat(planning_prompt, metadata=self.mk_metadata(['planning']))
 
     def get_tools(self, step: int) -> list[Callable|LLMFunction]:

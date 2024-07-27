@@ -1,0 +1,4006 @@
+{
+  "version": "1.0",
+  "split": "test",
+  "data": [
+    {
+      "id": "cc7f51db8fe15d93a9649b9336cc186444e64767",
+      "question": "How much correspondence did Tesla send Morgan in the five years following 1901?"
+    },
+    {
+      "id": "2de665d74cad75ed1d272a388fe4068d5778762b",
+      "question": "What are chares?"
+    },
+    {
+      "id": "cf530692dc234cc180a2998adfce173b82e47eca",
+      "question": "Were all of the following artists born in the same month: Elton John, Stevie Wonder, or Cher?"
+    },
+    {
+      "id": "585bf27eb844316301b94555650420eb8f63e15e",
+      "question": "In 1992, what percentage of East German students attended private schools?"
+    },
+    {
+      "id": "dc245622030a33167685ba303e00a1777215b83c",
+      "question": " Videoplasty is composed mostly of highlights from a live show performed in a city that is how many miles north of San Francisco?"
+    },
+    {
+      "id": "600836575ebcd82c1fd385508a918d26b663232e",
+      "question": "Whwn forces are at right ngles to each other what can they be broken down to?"
+    },
+    {
+      "id": "4f0525e1e4191d89966f035e1d98d227ada98aa4",
+      "question": "What nationality is the actress who stars in Manhood with Nestor Carbonell and John Ritter ?"
+    },
+    {
+      "id": "83c01dec6dcfb72ac318d259d8bdfe07a4b02f48",
+      "question": "How many students are in the school district that serves the city where the author of The Beautiful and Damned was born?"
+    },
+    {
+      "id": "5b871893efc7f1e0bdba91cabbf3eed2d3b8f36d",
+      "question": "Which music-related professions do David Paton and Grant Hart have in common?"
+    },
+    {
+      "id": "ce988e317fbc6202b91e4ebd3107a15dd727670e",
+      "question": "In what year did Doctor Who state that he was the last Time Lord?"
+    },
+    {
+      "id": "2f8d95d98366b1794a8393886fc4a4440329fa7d",
+      "question": "What are stators attached to?"
+    },
+    {
+      "id": "8f32de220002c7bc0aae5fd7fff3fc05c8b2b48b",
+      "question": "Which novel illustrated by Ricardo Cortes is described as a children's book for adults?"
+    },
+    {
+      "id": "1a2897a653483750559989b73e88888fa16a16d2",
+      "question": "Which Russian composer is responsible for the song cycle The Nursery"
+    },
+    {
+      "id": "512c1fa5de70b870296db06b8f18a7529d887b50",
+      "question": "How much Victorian farmland is farmed in grains?"
+    },
+    {
+      "id": "73fe20add666c4f70af72acb98a7241e877b331a",
+      "question": "Which alcoholic drink has more ingredients, Black Nail or Yorsh?"
+    },
+    {
+      "id": "db4183bf788d136003bb510890e9c2460286387b",
+      "question": "\"The Doors of Perception\" was written by an author who graduated from what college at University of Oxford?"
+    },
+    {
+      "id": "72f4f92281abfc5d90da03e55899e208a6eba886",
+      "question": "When did England formally declare war on France?"
+    },
+    {
+      "id": "5ddc82c02832388e2ced687a5768135ea424f35b",
+      "question": "Who is the series protagonist of Prison break who received A golden globe award nomination for best actor in a leading role?"
+    },
+    {
+      "id": "c36de2b5c951afa999374e5b1456576519d81cf3",
+      "question": "What does the pleurobrachia have on opposite sides of its body?"
+    },
+    {
+      "id": "d5c4f7263d5328d1a9375836869f02e3e09ed97e",
+      "question": "Does the American Cocker Spaniel or the Braque Saint-Germain have the name that means \"pointing dogs\"?"
+    },
+    {
+      "id": "6ca4d94ddbfa99551c23c032fe46df8225ee8804",
+      "question": "What motor did they end up using instead of the one Tesla wanted? "
+    },
+    {
+      "id": "ec727d3244dcfc05b5fb3a06975f04ae63dd1f90",
+      "question": "Which dog would be more fun for a child to play with, a Miniature American Shepherd, or a Broholmer?"
+    },
+    {
+      "id": "2549dd2c5cafed9ebb650a73e348d12f51d468dd",
+      "question": "Was \"The Island at the Top of the World\" released before \"Ratatouille\"?"
+    },
+    {
+      "id": "50706e07ec524044cdd4bc1b2d94425875e77f48",
+      "question": "What diagrams are used to simplify particle interactions on a fundamental level?"
+    },
+    {
+      "id": "0399c0c7e2826c5162efb07f59c307d0e793e435",
+      "question": "What remained an important issue in Scottish national identity for many years?"
+    },
+    {
+      "id": "a600d087cd29fb3db8a34cc5305dbe95c9e8dc99",
+      "question": "What mathematician was also apart of the university's faculty?"
+    },
+    {
+      "id": "bcf5c052ee6d9937b6b2d04db50d055685633923",
+      "question": "Mohammad Iqbal was what type of father to the State of Pakistan?"
+    },
+    {
+      "id": "1b582c1fa681307cf1502cec3f5dd8f022810e97",
+      "question": "Along with solar, coal and nuclear, what sort of plants notable use the Rankine process?"
+    },
+    {
+      "id": "d53cf9d8a2dfb1b7b15630076d89b9f45bebfca6",
+      "question": "Which of Temüjin's brothers took up the role of male leader of the family?"
+    },
+    {
+      "id": "fcf32a5685edd5cac81e889684cd79b1d4f3d2f4",
+      "question": "When did Astor provide the money?"
+    },
+    {
+      "id": "6fb4bc63a31b14b386d81cf8e2d38945ad218f20",
+      "question": "Are Baghdad ER and Super Size Me documentaries with the same subject?"
+    },
+    {
+      "id": "5f16e2cd104129fef59672a556580213fc3b33d3",
+      "question": "Who was UPT forced to separate themselves from in 1949?"
+    },
+    {
+      "id": "dca184b73dc70fc0431bc1b2df5548d8bd12d291",
+      "question": "Who directed the 2010 and 2013 movies based the Icon Comincs comic book series featuring Macready and Big Daddy?"
+    },
+    {
+      "id": "dfa2a5fb85975a1e45557e7dff2a0becfb61a5f9",
+      "question": "What ended the need for ABC to maintain interests in other countries?"
+    },
+    {
+      "id": "e392ae2ce348b7cb517b6989344aed823e724e88",
+      "question": "Where was the famous artist Tamara de Lempicka born?"
+    },
+    {
+      "id": "cf5ca1f3822f8d055e2ca3041da2d3322587cc3e",
+      "question": "What British actor is a character in The Rat Pack?"
+    },
+    {
+      "id": "8119bb24f5f43da6f81faa8a2e4a4f3f4e55420b",
+      "question": "What year did a notable college football player for The Pennsylvania State University star in a Marlo Thomas production?"
+    },
+    {
+      "id": "bc8f95c83c464ba5c5559e9b16fedef3a65392f0",
+      "question": "The actor that voiced Montana Max in \"Tiny Toon Adventures\" also belonged to what band?"
+    },
+    {
+      "id": "336acdfd6468c519f11b4fc68aa7004304e08a93",
+      "question": "How many members are on the Warsaw City Counil?"
+    },
+    {
+      "id": "d1f5d8ec42f32e8b96a5c915c9a7b51f271f52db",
+      "question": "The Sunlight on the Garden is a 24-line poem by a poet whose body of work was widely appreciated by who?"
+    },
+    {
+      "id": "38bb1eae6a11148b3d87324b5edd4ff4985ee679",
+      "question": "Which land animal weigh the least in their typical adult form, african bush elephants, asian elephants, or woolly mammoths?"
+    },
+    {
+      "id": "b88a1a3925ac43fa7634c2a8e6015db55ce06383",
+      "question": "What is another term for shortening the admission event?"
+    },
+    {
+      "id": "f414bb52027e2db26c91e7cf65160896881838f2",
+      "question": "Who wanted Israel to withdraw from its border?"
+    },
+    {
+      "id": "8ccff0c6388acc125baf8d2c77f997ed452126ab",
+      "question": "Civil Disobedience is mainly performed by what population group?"
+    },
+    {
+      "id": "72501ab518c4525a52f7338ba38e4e69b8d99201",
+      "question": "Who served his dinner?"
+    },
+    {
+      "id": "eb219fd2887c15bd8c81639fbfed5cafa9f4f246",
+      "question": "How did Vaudreuil react when Johnson was seen as larger threat?"
+    },
+    {
+      "id": "159a25ab8052a96e03c7595a2bd8a0f8587d2328",
+      "question": "The superfight between Floyd Mayweather and Juan Manuel Marquez took place at what Las Vegas event center?"
+    },
+    {
+      "id": "f4f9b7221c3aeacbe3fbe3cd25852d9ce17c44bf",
+      "question": "What was the first Disney program televised on ABC as a result of the Disney-ABC agreement?"
+    },
+    {
+      "id": "4ab5a3392fa2514ca841c09992ee22129b2c77d8",
+      "question": "What was the name of the time the Upper Rhine form a border between France and Germany?"
+    },
+    {
+      "id": "e638aad11420e41aca67840dec3083e26c888c5a",
+      "question": "Which company held a contest whereupon contestants could enter for a chance to have their own commercial shown during Super Bowl 50?"
+    },
+    {
+      "id": "3b6f5304dfae353d523eab219f4a8a28a88f9ced",
+      "question": "What is the Inuktitut name for the Artic mammals introduced into Hiorthhamn in 1929?"
+    },
+    {
+      "id": "7452e7f26b367eb67e7eef40abb317265da1bfb5",
+      "question": "What kind of structure is a carboxysome?"
+    },
+    {
+      "id": "c582e0c90518cf4946afe7e55ee01136350375aa",
+      "question": "What does a writer for the International Crisis Group think the concept of political Islam is a creation of?"
+    },
+    {
+      "id": "3803d820c69e3d2ff45b109f5a65c5517eac1234",
+      "question": "How many of the four field goal attempts did McManus succeed at during SUper Bowl 50?"
+    },
+    {
+      "id": "7dcaab50b00675e3ced3e1db883f8c624223a18f",
+      "question": "What is the effect of beta decay?"
+    },
+    {
+      "id": "4200b5819d8b2dcef49179846c3b5bc84ae294ae",
+      "question": "Andreas Walzer won the gold medal at the 1992 Summer Olympics along with a German footballer who holds the UEFA Champions League record for what?"
+    },
+    {
+      "id": "9a075672285d078ba3119af6a17c3e7fa1e606b3",
+      "question": "In a platoon style teaching, what gives the children security?"
+    },
+    {
+      "id": "41e8e7a6bbc656e968de26c15c0ad7c9f3a51b96",
+      "question": "Why is breathing oxygen in space craft not dangerous to health?"
+    },
+    {
+      "id": "7158fb0cfdaf52c0b8550c7105431a31496aa022",
+      "question": "Were the stars of the 1989 film, When Harry Met Sally, born within ten years of each other?"
+    },
+    {
+      "id": "f65c5fe5aace1e6a2415a13686b9092276ca8b15",
+      "question": "Who was a prominent Huguenot in Holland?"
+    },
+    {
+      "id": "3c347980a3c9f4c27d9f192307289766f08d27c6",
+      "question": "What did these flights test on the CM?"
+    },
+    {
+      "id": "6ec445dadf12cf52d43374a7c05b51980116455c",
+      "question": "When is the Members Debate held?"
+    },
+    {
+      "id": "891c16d9b28ac01d04e7961e47d357d2903bb772",
+      "question": "What is the capital city of this nation whose border with Nambia is close to Outapi?"
+    },
+    {
+      "id": "6972bc6b5b22a69d70a045b1b5bcc20906ecbba6",
+      "question": "Which  American announcer did they trade to the Minnesota Timberwolves for Luc Longley in 1993–94 Chicago Bulls season"
+    },
+    {
+      "id": "e27f61877e01e4c67f1ad4fbe2362315bb550516",
+      "question": "What is the name of San Francisco's stadium when looked at as a possibility for Super Bowl 50?"
+    },
+    {
+      "id": "02f20d6c5b49e8df60ea8ad289d951e0314a7cb1",
+      "question": "What type of vote must the Parliament have to either block or suggest changes to the Commission's proposals?"
+    },
+    {
+      "id": "0aaca005828ac7cfce0b1bf1281e939490cdf1a2",
+      "question": "WEAT's transmitter is located in what county?"
+    },
+    {
+      "id": "84ac11d9ec68378ef914d064020a636fbfa66478",
+      "question": "What protects the statocyst?"
+    },
+    {
+      "id": "0217efb8ea6b5ae869c04738dbdd9821002de060",
+      "question": "are Sorghastrum and Artabotrys found in the same areas"
+    },
+    {
+      "id": "193999a1dfee232c6fb1bb6e23fd6b87539e0d94",
+      "question": "Are Kurt Vonnegut and Virginia Woolf both writers?"
+    },
+    {
+      "id": "4a84003662ce486b7b1d0a07dc5c2f93b638eade",
+      "question": "Mark Buehrle pitched 200 innings in 14 consecutie seasons, tying what hall-of-famer who is nicknamed \"Knucksie\", and was inducted into the hall of fame in 1997?"
+    },
+    {
+      "id": "3bcfdd861f8fae185b2fa3d5aa23515b7eeb362d",
+      "question": "What is the name of the third, permanent Huguenot church in New Rochelle?"
+    },
+    {
+      "id": "84a2b37167a596f3918af697158dce4aae1cb5cd",
+      "question": "Who was born first, Rudolf Schwarzkogler or Jacobo Morales?"
+    },
+    {
+      "id": "301dfa14978dccdabeb7be6092cadd8231ec86d6",
+      "question": "In what country would find Yıldız Park and the  Eyüp Sultan Mosque?"
+    },
+    {
+      "id": "fe5dcc9f0e1533e4d4346cb4f02d0a480e382990",
+      "question": "According to Oxfam, the 85 richest people have wealth equal to how many average people?"
+    },
+    {
+      "id": "7e1db4cdf61a355ae1b46197775c2452b4fbf35f",
+      "question": "Carmen Twillie was a vocalist in the 1997 comedy film distributed by whom?"
+    },
+    {
+      "id": "f9a4f83f23a9f9e89b2399206215e10c0a038883",
+      "question": "How many hours can one expect to ride the train from Newcastle to King's Cross?"
+    },
+    {
+      "id": "95ac9092987c1022bd86bbdebce8702c4dd11242",
+      "question": "What British-Dutch oil company used to own a refinery on the Manchester Ship Canal?"
+    },
+    {
+      "id": "fcfca4d0577042f0d26cdd85019aa2195c6e6c02",
+      "question": "Which of Temüjin's childhood friends did Toghrul suggest he also enlist?"
+    },
+    {
+      "id": "f81901614df7c24591ee95443d69365c5a26acfc",
+      "question": "Which University, The University of Saskatchewan or The University of Detroit Mercy was founded first ?"
+    },
+    {
+      "id": "c4199b58ab40936edbd43e063048c94c871dca1e",
+      "question": "What political group began to gain support following the corruption scandal?"
+    },
+    {
+      "id": "148c90831151c8163260e37290a353c68acfe8e2",
+      "question": "What two resources commonly consumed by alternate models are typically known to vary?"
+    },
+    {
+      "id": "f4d5a86068ae1a5d1bd82558a46ffe64f4beba7d",
+      "question": "How many rival princes were involved in assassinating Gegeen?"
+    },
+    {
+      "id": "a6dc778eadef6803fd440083d5a3b3672079fabd",
+      "question": "Which hotel did the Panthers stay at for the Super Bowl?"
+    },
+    {
+      "id": "8576c2c93031c50a3499e28a5381f0c65b8cc656",
+      "question": "Marc Forster is known for directing a British-American historical fantasy film that was released in 2004, and had a screenplay by who?"
+    },
+    {
+      "id": "5942bf2259e34772b8ece331d74f85183db99433",
+      "question": "In which county was this Irish singer, songwriter, musician, and producer born who performed at 2001 World Music Awards?"
+    },
+    {
+      "id": "2b642306f0f693bf578abd5573e4cbb5aba16d92",
+      "question": "The Angel was sung by Springsteen, who sung a song covered by which band in 1973?"
+    },
+    {
+      "id": "39e2b0037bdb03b4a2a2892da45fe88c54824399",
+      "question": "Dominick Cerrone got his experience from serving as chef at what French restaurant located at One Beacon Court?"
+    },
+    {
+      "id": "5f96b2ef31c5ccb2f1935e8a0c542fe9f994da64",
+      "question": "What was the average budget for ABC Movie of the Week films?"
+    },
+    {
+      "id": "37360b0a5530189f88e30f179e7f575c88dfca5c",
+      "question": "What is another term for university-preparatory schools?"
+    },
+    {
+      "id": "2683f26aa9e6e21fcabaa9be128ea475936875b1",
+      "question": "Damien Le Tallec is the cousin of a  professional footballer that plays what position?"
+    },
+    {
+      "id": "0acbd88b59b31f2be836ddd97ffbeb8aede68a6b",
+      "question": "Who discovered the Compton Effect?"
+    },
+    {
+      "id": "fc553d482e84429e6af199d7ab4657543fef44eb",
+      "question": "When dating rocks, what is the absolute isotopic date applied to?"
+    },
+    {
+      "id": "84b21f110452a04a7d04827bf65b67d4c5263b39",
+      "question": "What song did the founder of Diddy - Dirty Money write to pay tribute to the death of The Notorious B.I.G.?"
+    },
+    {
+      "id": "139b89543bb3ac49b285d12367c7d20803a32511",
+      "question": "When was the large work published?"
+    },
+    {
+      "id": "1b2faa11b7ed49e196ee0f110f13edc1b87d0fc8",
+      "question": "What resource was mined in the Newcastle area?"
+    },
+    {
+      "id": "bed9a6bc4516a2ee345956061311aefff52ce7f5",
+      "question": "In what color was the dot represented in ABC's 1977 ID sequence?"
+    },
+    {
+      "id": "f8040e7a15403be48771df33e6f7acac600ea454",
+      "question": "When was the IPCC Fourth Assessment Report published?"
+    },
+    {
+      "id": "ca451b82bceb1430c01d1731298caa54698778ae",
+      "question": "Which theorem would be invalid if the number 1 were considered prime?"
+    },
+    {
+      "id": "530774999efdb288810d5b23f0867c28f54b964f",
+      "question": "The band that recorded \"My Gun\" consists of how many members ?"
+    },
+    {
+      "id": "830203636b9d7d393a5e2f5307dfc6c71e12c372",
+      "question": "Are 88th, 89th, and 90th Academy awards hosted by the same person?"
+    },
+    {
+      "id": "cca28cbdb4c6581913ac4220f73d326a52946a37",
+      "question": "What English new wave and synth-pop band formed in 1978 released its thirteenth single in 1985?"
+    },
+    {
+      "id": "140fd3c1dd6f3fe22e23daa36a14e71fe12e9bc7",
+      "question": "What is used to quantify the intuitive undestanding of forces?"
+    },
+    {
+      "id": "492c55c190bdb4e564efe5975230d9a18d154025",
+      "question": "Who did the current University of Pittsburgh offensive coordinator run the offense with in his 2015 season with the Texas Longhorns?"
+    },
+    {
+      "id": "4fa362aefa967e3a9300f8545961b3c9338e9927",
+      "question": "Warsaw Summer Jazz Days is one of the many what hosted by Warsaw?"
+    },
+    {
+      "id": "77c0cd0c24c97dd3be36faa923b9281323454572",
+      "question": "Which professional racing driver placed third place at the 2017 New York City ePrix?"
+    },
+    {
+      "id": "4e5128804a14a7be8fd3c35562d0a0566c12c0d9",
+      "question": "In the mid 18th century, who did not concur that 1 should be the first prime number?"
+    },
+    {
+      "id": "3e2ee709f563b15b38750ab05f415d0c071c358e",
+      "question": "Ōfuna prisoner-of-war camp had as a prisoner the evangelist who became what sporting figure?"
+    },
+    {
+      "id": "4b4a2b67db0da9fe80a444368e118820a96f1e6e",
+      "question": "The Super Bowl 50 Host Committee said it would be the most what ever?"
+    },
+    {
+      "id": "af7bcc6ac963b71e0765036f83aa8d6b186279d8",
+      "question": "What service is a VideoGuard UK equipped receiver dedicated to decrypt?"
+    },
+    {
+      "id": "5438f177bbb60968a25456aec020c9586a62a28f",
+      "question": "Was the Skylab assembled on Earth's surface or in space?"
+    },
+    {
+      "id": "e48f18576b3b4c4b8cdc739838adf65d3d385129",
+      "question": "Which department houses the works on paper of the costume collection?"
+    },
+    {
+      "id": "5eccca0aec8ce50a6f4e9d97bf87654a17644723",
+      "question": "Who is responsible for ensuring the Parliament works smoothly?"
+    },
+    {
+      "id": "58e8f7dc37e66f3fce9397e94b52f69b0ce97acb",
+      "question": "What did Luther think was required to stop the violence?"
+    },
+    {
+      "id": "adb2b0ed837b9ac8c381ebadb2e84d2598860c39",
+      "question": "Were the bands The Cult and Spirit of the West formed in the same year?"
+    },
+    {
+      "id": "3e5d41f9e3c7f79a6f8c655a7efb2714603da551",
+      "question": "Which sitcom ended its broadcast run for ABC in 1983?"
+    },
+    {
+      "id": "d7c922afa63a3da22d9729430bac86fd5aa24ddd",
+      "question": "What song by a musician who started his career at age 14 with the Sydney band Noise Addict was released in 2004?"
+    },
+    {
+      "id": "e30659c14f3a65b24f93ac2a5f356361ed3fd0a7",
+      "question": "What type of media is Queer as Folk?"
+    },
+    {
+      "id": "70df0a7f9ca58823b9d0ee41fc355a19d0d24124",
+      "question": "What was the first feature film of the actress who played Jenny in 2009's \"Education\"?"
+    },
+    {
+      "id": "8d80f612d28640b4584dcf42f9b939f34ad774e6",
+      "question": "What type of rock is found at the Grand Canyon?"
+    },
+    {
+      "id": "dba879e230edfe09bbb4d8fe2f308fad03a76cdd",
+      "question": "What year did King Sigismund III Vasa move his court to Warsaw?"
+    },
+    {
+      "id": "c9676e7c8e68d9154c963cd1f5b5d26759f814c2",
+      "question": "In which article does the Treaty of Lisbon prohibit anti-competitive agreements?"
+    },
+    {
+      "id": "a67ecfebc9d9515d6e137e9a0cda429f7363814a",
+      "question": "Who manufactured the aircraft that Joep Lange died on?"
+    },
+    {
+      "id": "f1214dca8ab97e704d9de82a5b6d04e7ecf4a5bb",
+      "question": "Stealing Harvard is a 2002 American criminal comedy film that starred an American actor who was a former Chicgo what?"
+    },
+    {
+      "id": "957691087c18a71d069fbb744db800f9edaee6ea",
+      "question": "Who designed the \"50\"?"
+    },
+    {
+      "id": "a31439bfe225d5adaf1b07b88e758532f2708524",
+      "question": "What carries a significant amount of the Rhine flow through France?"
+    },
+    {
+      "id": "debaff9493342e6aefe9fa45f7383bee710784d1",
+      "question": "What physical condition can acute oxygen toxicity cause?"
+    },
+    {
+      "id": "4c6b5489d80e9f400a9c4a48aaf560e340b03c69",
+      "question": "What was Genghis Khan's tribes burial custom?"
+    },
+    {
+      "id": "645b600e0b9832aaf1f7f6b360d9d4ec2a938c97",
+      "question": "What is impact melt that some samples of moon rocks show?"
+    },
+    {
+      "id": "559b714be30e221a4443ed8dbc552b4ba9bb7740",
+      "question": "Who did the U.S. collaborate with on an Earth orbit mission in 1975?"
+    },
+    {
+      "id": "51b43ce838ef7cc1e1718eee69cf1efbb9570442",
+      "question": "In what country is a background check required?"
+    },
+    {
+      "id": "f598308a6fc0c93239a92f30c2b95e66f8d6f268",
+      "question": "What does lack of education lead directly to?"
+    },
+    {
+      "id": "253024f53313a9e158e28f564164ace31188f791",
+      "question": "What year did the largest shopping complex in the state of Iowa in the United States open?"
+    },
+    {
+      "id": "72799ee33ced4f73dacb83af2a6a0e05c027bf83",
+      "question": "Harold W. Clark was inspired to pursue science and religion by what Canadian creationist?"
+    },
+    {
+      "id": "f99705cc778118ca432f579d5e1da27e21a4e545",
+      "question": "How many first downs did the Broncos have in Super Bowl 50?"
+    },
+    {
+      "id": "9ea02e04e83dd72a18eb3d6164e0cb71aa69d99c",
+      "question": "What monarchy did western troops protect?"
+    },
+    {
+      "id": "1eddfae8d24bf39af1e2b0cc66a2c07a5f13d444",
+      "question": "Where in Central Asia did the Han Chinese move?"
+    },
+    {
+      "id": "81a8eeecada0e0e3aa2b93a097db334a6e995385",
+      "question": "What was the publisher of a New York Times bestseller that gives an account of a registered nurse transitioning to the humanitarian work of reducing poverty and promoting education for girls in Pakistan and Afghanistan?"
+    },
+    {
+      "id": "5e90dd6a8b10056abe47c6b972d327c8dbd12bc3",
+      "question": "How did Luther describe the University of Erfurt?"
+    },
+    {
+      "id": "c48355b8903c6a9779d7a67ba81ec5f9aefa2e81",
+      "question": "What car was the highly modified version of Plymouth's lower cost alternative to the GTX following up after a year of stock car racing?"
+    },
+    {
+      "id": "8158d1e1304eb38af1ff12ce5574a49dea879a1f",
+      "question": "Who did Peyton Manning play for as a rookie?"
+    },
+    {
+      "id": "c286031b9f1d3736e000aaaa4de333b857f86f7b",
+      "question": "What directly opposes the force applied to move an object across a surface?"
+    },
+    {
+      "id": "f49ae6309a910077de9ace4c6c99dfe993f2e7ca",
+      "question": "How has this debate been proven?"
+    },
+    {
+      "id": "00216cabdd034c07a30d4d8c2e1de0c145f36d07",
+      "question": "What river does Warsaw straddle?"
+    },
+    {
+      "id": "bcb9fcce2f7d1a67e5fd17b958bb7d77a9de45f7",
+      "question": "In what episode was the Fifth Doctor confirmed?"
+    },
+    {
+      "id": "d9f38a5ec230aea239621df4639aa4e25a27a6d6",
+      "question": "What was the population at the 2010 census of the town in which Plymouth Regional High School is located?"
+    },
+    {
+      "id": "1c01bca534a98bb74825a2426f61cdf66d263cbe",
+      "question": "What must a project adhere to?"
+    },
+    {
+      "id": "28c7592de2bfb4f1808b6068d20a76d9392989ac",
+      "question": "Who was the 4th to rule the Yuan dynasty?"
+    },
+    {
+      "id": "3f27269b3814d8be8fa252fde522fb4916aec6f8",
+      "question": "Marie Osmond covered the song of which former brand ambassador for the Florida Citrus Commission?"
+    },
+    {
+      "id": "e37a22b6248acc9b0e9fa92aa91a24ef1f9b5b82",
+      "question": "Who was NASA's administrator?"
+    },
+    {
+      "id": "09946d1b155341d4d2f53d581c9f1b937d3b2ba5",
+      "question": "What is Norman art's most well known piece?"
+    },
+    {
+      "id": "1e22892cdeb4636ca26396624f7557bb7da5a08c",
+      "question": "Who did the Ottoman empire ally with in WW I?"
+    },
+    {
+      "id": "c5f1c3e5fd848ed8a631190da66917dcc4ba1116",
+      "question": "Are both Honey locust and Amsonia harmful to other regions outside North America?"
+    },
+    {
+      "id": "32d5aa14e43964a1a81f12c4cf398a81d8efaabd",
+      "question": "What is the mineral wustite?"
+    },
+    {
+      "id": "d1d827808008266b4c4108811f801a5270a21d56",
+      "question": "What percent of the labor force work in agriculture?"
+    },
+    {
+      "id": "6a76024b4fe6030333a4efd3e197486af464146a",
+      "question": "The adaptive immune system must distinguish between what types of molecules?"
+    },
+    {
+      "id": "e4542e8c97b5b9459993e5610466720fe1a54ecc",
+      "question": "Which star of the 1967 Bonnie and Clyde biographical film was born first?"
+    },
+    {
+      "id": "93d119b8756d940dabb1080974ccb778fec56e65",
+      "question": "What was the percentage of Non-Hispanic Whites in 2010? "
+    },
+    {
+      "id": "86844573724f433138f2a9978c91765a8e139fb9",
+      "question": "In which state is the winner of the 2017 NBA Finals based?"
+    },
+    {
+      "id": "595b9d07c9b9bd04fe89e7cd9d019476b943e95c",
+      "question": "What is the current population of the city that was home to the winners of the 2013 NBA Finals?"
+    },
+    {
+      "id": "96189da22f16ab95590334e84eb2b39418ac1959",
+      "question": "The Mexican Cession led to the incorporation of which numbered state into the union?"
+    },
+    {
+      "id": "68462032422d362c5ee06fe207e25ac3ee386297",
+      "question": "ABC created what company as a production company in response to fin-syn rules?"
+    },
+    {
+      "id": "85d45c6d80781fed41f75b3d798b3df29376f339",
+      "question": "How was the efficiency of a steam engine typically evaluated?"
+    },
+    {
+      "id": "29e6980973dbac4ee39f96355308e0f5f3ea0684",
+      "question": "In what year was the American banjo player who's playing was influenced by Cousin Emmy born?"
+    },
+    {
+      "id": "a5b37f311ec9ce0280aedc72cb696d5b50839916",
+      "question": "Where is the museum Kurt Wise works for located?"
+    },
+    {
+      "id": "a8ded61df600b1e83f75b074fe0e458e7979475d",
+      "question": "What is the population of the city that was home to the losers of the 2010 NBA Finals?"
+    },
+    {
+      "id": "e5be9283f747f808e0455c56943dae4e0e85b6c7",
+      "question": "Do Alfred L. Werker and Robert Clouse work during the similar time period?"
+    },
+    {
+      "id": "06673b8ae0a04b9747d6fb98771238fbc2ad3988",
+      "question": "What was the official magazine of the art movement for which Vladimir Vidrić was considered one of the major figures?"
+    },
+    {
+      "id": "9ee234ffda9d9a242a9afb71671b3cd0225986e1",
+      "question": "On what scale would scientists show measurements of vegetation?"
+    },
+    {
+      "id": "14b9034aff44c642b7725c0bf543f5f8b76ee5b4",
+      "question": "King Harald V and Queen Sonja."
+    },
+    {
+      "id": "f89ad27d135ecc0e0ef40192d453451a2f0a157c",
+      "question": "With which museum does the V&A co-owns Canova's The Three Graces?"
+    },
+    {
+      "id": "3e038454640d1af9cc14c4fb9e7f829fd3f2dbee",
+      "question": "Who was born first, Claudia Hürtgen or Sabine Schmitz?"
+    },
+    {
+      "id": "ee249b4762cb67394ac80a8808f8ca973a36db7b",
+      "question": "When did Japan release a statement to tell Israelis to withdraw from the Palestine?"
+    },
+    {
+      "id": "1cb6f36e7fb93c55301b440e71da6d8f2d2288a4",
+      "question": "Why do these defections occur?"
+    },
+    {
+      "id": "0dadcf3883785d877bfcf5dc5e0b6734e143a605",
+      "question": "How much did Saudi Arabia spend on spreading Wahhabism?"
+    },
+    {
+      "id": "b5b11bc7b1724a81d543f00c8ac528dfcab88d08",
+      "question": "Which Mongol leader completed the conquest of Kievan Rus'?"
+    },
+    {
+      "id": "a685c6fb819467dc4d996faac508030374f84828",
+      "question": "What cast member of Spartacus: Gods of the Arena was born August 27, 1959?"
+    },
+    {
+      "id": "f709105746ca0c6faa26296cde75d57524240e3e",
+      "question": "Which of two founders of Google imigrated from Soviet Union?"
+    },
+    {
+      "id": "372546fd752af11a8c9f4d519f66a1ac9c5b14ad",
+      "question": "The Works is a compilation of many Faith No More songs including some from this 1989 album."
+    },
+    {
+      "id": "48a4b9bfe8b2b1d0bdef737a8fb6fcc3c25348bf",
+      "question": "Who was the head coach of the Broncos in Super Bowl XLVIII?"
+    },
+    {
+      "id": "43efa8dc09496cdfac5cee194462ad745d69c974",
+      "question": "Does the University of Minnesota and Pomona College both have a student body over 1,000 students?"
+    },
+    {
+      "id": "812b4d942619651ffb0d24733edfddea261d6dbf",
+      "question": "What occurs when electron clouds overlap from different atoms?"
+    },
+    {
+      "id": "3f5634bdf4901ab19febdfe2720e0d1cd38f7d71",
+      "question": "Which Irish cities had large Huguenot enclaves?"
+    },
+    {
+      "id": "da0acd4aac3316b055b6427ae8c4555263a9478b",
+      "question": "What did the Court of Justice reason were controlled in all member states in Josemans v Burgemeester van Maastricht?"
+    },
+    {
+      "id": "33c046de413ed5835cb0c370cb37613d0fd3eb06",
+      "question": "What restaurant sponsors the Peach Bowl that is held in Georgia?"
+    },
+    {
+      "id": "de03d0a947af7e1a1cc54d9a6593a652c6ede25a",
+      "question": "Classifying the stages of what is important to mapping aspects of the Amazon?"
+    },
+    {
+      "id": "853ee791135ff14a638dda84dfb7cd74668b9fe6",
+      "question": "Of what region was Saxony a part?"
+    },
+    {
+      "id": "78047f75597f27d3da1b0276f5260c3ac2e0b329",
+      "question": "How many separate burial grounds are located at the cemetery associated with an historic, active, well-endowed parish church in the Episcopal Diocese of New York?"
+    },
+    {
+      "id": "fbaad0e791dc3ce82c67cf567a3e733c03fb969b",
+      "question": "When violence is used, what is civil disobedience sometimes called?"
+    },
+    {
+      "id": "616d3733c91f90e411b1c217e361ae9ad1549c59",
+      "question": "The Human Equation by Dutch musician Arjen Anthony Lucasse features a guest appearance by lead vocalist, guitarist and songwriter of what Swedish heavy metal band? "
+    },
+    {
+      "id": "63f1ee519d52ab1016dca3cdc7c3112e02d52475",
+      "question": "Where did one of Triton's daughters decide she wanted to hang out and stay?"
+    },
+    {
+      "id": "0e47513a7f11d40e29aeac3ab0c903cccfb6bb6c",
+      "question": "What number oldest university in Austria contains the The Kanzelhoehe Solar Observatory?"
+    },
+    {
+      "id": "0358cc6611d0743a07f11146c680127ac934db7d",
+      "question": "What is the name of the American writer and satirist who is also a university alumni?"
+    },
+    {
+      "id": "d4b47f27bcac7866f729526f69d2d320ed05c90c",
+      "question": "Who was the director of the movie for whih the song Nanga Punga Dost was written for?"
+    },
+    {
+      "id": "9423af23436bca96c6a0c3d3124f27c433c5d9dd",
+      "question": "What small spiritual group has a population of over 5,000 and is documented in film from the year 2000?"
+    },
+    {
+      "id": "0a442e299cadb00dddb6d5cf76cadeb4a5dc2d4c",
+      "question": "What is an apicoplast?"
+    },
+    {
+      "id": "9a4515ef8ac2e272d8337873e793c8ca0c5919a2",
+      "question": "In which district of Lancashire was Thomas Talbot born?"
+    },
+    {
+      "id": "45fdd2e0b3aa15d9f7c667dfb1b6baaa7157dd68",
+      "question": "Which country besides the Cuba did the United states try to annex in 1898?"
+    },
+    {
+      "id": "6b74011646453fd3a2637efff3a0a57b5655d6ab",
+      "question": "What team was defeated by KSU when Collin Klein first started as quarterback?"
+    },
+    {
+      "id": "317e57f71e2abcd31ab9d3951b6959c7c95aaad2",
+      "question": "What style of delivery that resembles sung ordinary speech is commonly confused with Arioso?"
+    },
+    {
+      "id": "5a1c92a187415493106b68a074478f6882f02248",
+      "question": "Besides viniculture, what's a dominant economic sector of the Middle Rhine?"
+    },
+    {
+      "id": "38260a0a052a71f3737cfb942b416b64d5c51655",
+      "question": "What applies to equally to constant velocity motion as it does to rest."
+    },
+    {
+      "id": "bb75f54aa440d1716ba966c36d6d8cbd13b3a633",
+      "question": "In April 2014, how many New Zealand students attended private schools?"
+    },
+    {
+      "id": "59f4d40c51c2b6e0f302b7bce42c41572709d0f6",
+      "question": "Who was born first, Martin Kober of Anna Jagiellon?"
+    },
+    {
+      "id": "13efae6ab3f613659f6cf20aeedd6fa70530ffe3",
+      "question": "What was the goal of congress?"
+    },
+    {
+      "id": "16d9f1c2aab9db9cd1a1f4f486c9072b626f0604",
+      "question": "The Drago Doctrine led to a response by the United States of an addition to what foreign policy?"
+    },
+    {
+      "id": "2b9e51a9136f835c156003651ab183840fa353a8",
+      "question": "In what year did ABC's viewership end in 4th place behind the other major networks?"
+    },
+    {
+      "id": "4224e90b6280503a0eedf856a990dbdc17ce485d",
+      "question": "Who is the notable actor son of the Philip Carey and Herbert Marshall's co star in Wicked as They Come (Portrait in Smoke in the United States)?"
+    },
+    {
+      "id": "9611488ad17dd21b0d56e457184fdd4d99f79108",
+      "question": "Who was the first known European to visit China and return?"
+    },
+    {
+      "id": "e9d209142a2ee73becf845871fe710285216aba5",
+      "question": "Warsaw's National Museum is one of the most what?"
+    },
+    {
+      "id": "8a28ed30e91f191497bf6526acc8bb58c1ad5efa",
+      "question": "Stéphanie Windisch-Graetz was the granddaughter of which member of the Austrian Social Democrats?"
+    },
+    {
+      "id": "b34e88db4f5678b8454a2c2829cb51d8a236bcfd",
+      "question": "How often must local lay servant reapply?"
+    },
+    {
+      "id": "cab55edf3fca1510371b3d851da037d85d6b5fb3",
+      "question": "What year was Setanta Sports awarded Primeier Leage rights to broadcast?"
+    },
+    {
+      "id": "9663833449382b091270b40ff7bae101f2f5d61d",
+      "question": "which distillery in Bushmills located in  Northern Ireland was Saint Columb's Rill, ource of water used for distilling its  whiskey."
+    },
+    {
+      "id": "63c420bccb4e95d4e75befd5cdc3a4be60c018d6",
+      "question": "When was the city that was home to the winners of the 1999 NBA Finals founded as a colonial outpost?"
+    },
+    {
+      "id": "7c0bf7b9312523eab36bb0fda76e79d8676cd7e8",
+      "question": "How wide is the Rhine in Germany between Emmrich and Cleves?"
+    },
+    {
+      "id": "cdefb911ad0f9b9679a4d5b312030d82bb88bb59",
+      "question": "What is a mechanical barrier in insects that protects the insect?"
+    },
+    {
+      "id": "2864f1ed8dd86d299e50e94598b3b98e7035a81b",
+      "question": "With what body must a pharmacy technician register?"
+    },
+    {
+      "id": "c9c99ce532ef36803dcb2580afbe3e127ab42521",
+      "question": "What coach who retired in June 2017 led his team to victory in the post-season college football bowl game played on January 3, 2001?"
+    },
+    {
+      "id": "204c8c39cde4c6c6f144c59a2dd097b559f7d569",
+      "question": "What can be seen between hadrons?"
+    },
+    {
+      "id": "0111c78a5dc21379dcad441966558dc841a80cf1",
+      "question": "The prior chief executive of Shareblue that is also a member of the band The Daou was advisor to what politician's political campaign?"
+    },
+    {
+      "id": "4511577c177698bc38d2fb9b58cf11ef505ee63e",
+      "question": "What is the mascot of the team that Everaldo Stum plays professional football for?"
+    },
+    {
+      "id": "3290516537a9136d3e15e6d9958f85e784741cb7",
+      "question": " Melanie Janene Thornton died when an Avro RJ100 operating the route crashed into a wooded range of hills near where?"
+    },
+    {
+      "id": "1b1346b9f5c3689cd4be327dec4c4abf8d01904f",
+      "question": "What is the main denomination of Christians in Kenya?"
+    },
+    {
+      "id": "4ed64f0b2eb524d41ea83218163620b3f20dfa6b",
+      "question": "Who was Warsaw under the administration of when it came under the rule of the General Goverment?"
+    },
+    {
+      "id": "09c88aa3cd91b2275097e9d49626b66e1685170e",
+      "question": "Who were the champions of the league sometimes called the Junior Circuit in 1905?"
+    },
+    {
+      "id": "14f4e246149c2101a19fe70f38f4e8589478b1f5",
+      "question": "The Hanging Gale was first aired on an Irish network that began it's radio service in what year ?"
+    },
+    {
+      "id": "c5347faac3e9eda13d21a3b71192108857f1c0b6",
+      "question": "What might the Government require a teacher have before being allowed to teach?"
+    },
+    {
+      "id": "12587d8d062f531d3652ef3cfaafdd724dbb243b",
+      "question": "What does Salafism in its harshest form encourage its followers to view the religion of others with?"
+    },
+    {
+      "id": "fdbbedb1d5ad6913c6e604d49f5de739de898e7a",
+      "question": "Who was HUBERT ZEMKE to JIMMY Doolittle?"
+    },
+    {
+      "id": "1a2369b145a2a022f28d93fb2684552e672a8269",
+      "question": "What University that is accredited by the Commission on Colleges of the Southern Association of Colleges and Schools needed to review thier set of discriminatory policies?"
+    },
+    {
+      "id": "293b30a596fc346174f38097af7777f1096cd012",
+      "question": "What is the mlolongo system?"
+    },
+    {
+      "id": "8f788161a6505fdc7067d90cc9c5ecc550166a03",
+      "question": "Teaching Christians how they should live is what use of the law?"
+    },
+    {
+      "id": "48a5eb14a1277305ac4bc968a76a5a43d3cb887d",
+      "question": "Which country had trading posts in India before Britain?"
+    },
+    {
+      "id": "dc3c9992fcddcdbe9d1a4150f3086e718aec03d9",
+      "question": "Fred Mundee attended a high school built in which year ?"
+    },
+    {
+      "id": "d59968b54be63125093ca82f7ebc60a7a595fe16",
+      "question": "What was the average duty of a low-pressure Watt engine?"
+    },
+    {
+      "id": "c78d825d995ae94aa27340f162d726db6bef4af3",
+      "question": "How often do trains journey to King's Cross?"
+    },
+    {
+      "id": "8cf1b643df5dee346d56d8feaf57335b7396c2ca",
+      "question": "When was Zhu Shijie born?"
+    },
+    {
+      "id": "f4bc04ef7edde5c20f7fa95721287f36505cf8d4",
+      "question": "How many people were involved in the study?"
+    },
+    {
+      "id": "bcd71676cbc234e820dcff9bf6b1517109016b90",
+      "question": "Who was born first John Brascia or Vera-Ellen ?"
+    },
+    {
+      "id": "d536d97df0e64b1a4aa1834610841e960e0a0c66",
+      "question": "What is the name of the driver who placed second in the 2016 Pau Grand Prix and was the youngest driver to achieve a podium finish his rookie season?"
+    },
+    {
+      "id": "25e56e8695367161b28363051bd4b2d66c9d79c1",
+      "question": "How are the combs spaced?"
+    },
+    {
+      "id": "28828417d2a437bdf55622db81237ab1dbe1c238",
+      "question": "What was the average family size?"
+    },
+    {
+      "id": "50abb16e0b51b0082cb07dd9a175ff02947b9e0c",
+      "question": "What is the primary goal of pleading not guilty when arrested for Civil Disobedience?"
+    },
+    {
+      "id": "5944145bfb8a3c270e67cb2d3dd732fe796f9ae5",
+      "question": "What was the first single of the music artist behind the album \"Why Wait?\""
+    },
+    {
+      "id": "8a7db575186d73441d6ccc4dfc9c23f709d22249",
+      "question": "What sport attracts most tourists to Jacksonville?"
+    },
+    {
+      "id": "da2acbba0a12c2947048b26e94a0635b6356287a",
+      "question": "New Perspective is a song by Panic! at the Disco, and the band's first single after the departure of their guitarist who was also a founding member of what band with Jon Walker? "
+    },
+    {
+      "id": "532654acebba9e3d87a167a3c58e8996812d3491",
+      "question": "What caused the separation of the Methodists in the American colonies?"
+    },
+    {
+      "id": "46ccbf369abfb37d9b408d09b66f173b6a134412",
+      "question": "Who was born first, Kazuo Ishiguro or Katherine Anne Porter?"
+    },
+    {
+      "id": "62e1e273d43e9c3ec1c2d52da86f9f2986e21df1",
+      "question": "What other activities does the UNFCCC require the IPCC to run?"
+    },
+    {
+      "id": "7203ec814cb416ddbaa884613b9672a2aa0f768c",
+      "question": "What is the polish word for wreaths?"
+    },
+    {
+      "id": "3ea7a947e75c1f0e8ac5504e158862693fa64030",
+      "question": "What year was the retired Austrian football player, father of an Austrian footballer who plays for RB Leipzig, born?"
+    },
+    {
+      "id": "f711d2bb04ab44bad338a77045841fbb86b2f439",
+      "question": "Are Bazhou City and Wu'an located in different countries?"
+    },
+    {
+      "id": "c261789bd3a0e5bb14a2e4c1f69d04c24e418fbc",
+      "question": "How much of Jacksonville is made up of water?"
+    },
+    {
+      "id": "88c922e7d70bb42dc298d5cf7dafba0b0930bd12",
+      "question": "How old was DJ Maphorisa when he co-produced One Dance?"
+    },
+    {
+      "id": "64e38d4e45ba6efaf98548c97ed3c5ea7f1fc74e",
+      "question": "Which album did Gavin Lurssen work on that released on October 23, 2007?"
+    },
+    {
+      "id": "86ceff20f0e0b42aac05b664f369812ddbfad35c",
+      "question": "The spin of what can produce a magnetic effect to oxygen molecules?"
+    },
+    {
+      "id": "41fb17b16a51496c074bc76336db317bb0ccfffe",
+      "question": "Which star of the Australian soap opera \"Neighbours\" released a disco song on their debut studio album?"
+    },
+    {
+      "id": "fe4df4150512ac5e6342876687e432307e4f47ff",
+      "question": "From 2002 to December 2004 Keramuddin Keram  was the Chief of Staff for a department headquartered in what city?"
+    },
+    {
+      "id": "a99f35ff7477eb182c540aaf5cc90a3f3aeb3656",
+      "question": "What was Warsaw's first literary cabaret?"
+    },
+    {
+      "id": "4dd7430dc200851f1b77488b94276e93505f3db9",
+      "question": "Where are these animals mostly located?"
+    },
+    {
+      "id": "83dbb10e81f2e02ba9c0fea72cf925979dc476e2",
+      "question": "what is the super hero movie series directed by Christopher Nolan and starring Christian Bale?"
+    },
+    {
+      "id": "f1d7383fc3afa02e1cc8e624cbc4c67c31eea135",
+      "question": "Who was named after Thomas Alva Edison?"
+    },
+    {
+      "id": "d1d52ec2c2c49b5452d4a6f324dab5ebd5d6b8c8",
+      "question": "To where is most of the abalone and lobster caught in Victorian waters shipped?"
+    },
+    {
+      "id": "b83f89a7b0ac3c8041bf807f806775b621fff7d3",
+      "question": "Shilo Inns compete with the family hotels that have corporate headquarters in what city?"
+    },
+    {
+      "id": "4a782bbf0df5f6e7ab87c79575d2d791ab5d93f5",
+      "question": "How many invertebrate species are known in Brazil alone? "
+    },
+    {
+      "id": "5d7dfaeefa51f4d8f2ded0cdb874ff51dc97cc25",
+      "question": "When did the New Frontier Hotel and Casino, that Diana Ross performed at open?"
+    },
+    {
+      "id": "60a1c13172724856f2e3da46ad786307bcc967c8",
+      "question": "What route connects Fresno with the California Central Valley?"
+    },
+    {
+      "id": "d6158be68e137cc921a02d50afc98cafeee13746",
+      "question": "The analysis of stratigraphic sections such as drill cores is done by who?"
+    },
+    {
+      "id": "0589f1b48c1429c24efcb7df350cabb3ae78a21f",
+      "question": "When did the attack occur in which the Normans impressed Prince Guaimar III occur?"
+    },
+    {
+      "id": "cdab961208f14518b1aef723b04504e8c0557f49",
+      "question": "What do redistribution mechanisms lead to?"
+    },
+    {
+      "id": "30e3de7624df433721a66817ea8247503a0ea8d5",
+      "question": "What analyst did not agree with the ruling of the incomplete pass?"
+    },
+    {
+      "id": "00d786acb82630c3265cd8d93a53b4b18cd3aa50",
+      "question": "When was the ability to use radioactive isotopes to date rock formations developed?"
+    },
+    {
+      "id": "603ee8f16f5238ca0b101ab4974e62d7ca848812",
+      "question": "Who wants a more confrontational type of discipline?"
+    },
+    {
+      "id": "d8564511d0562d37af46ba1135ccc25a4bfd8ed2",
+      "question": "What was Goldenson's 1991 book about ABC titled?"
+    },
+    {
+      "id": "c6fb66645a2cf02052732c43a1331070a852bc3c",
+      "question": "which  Home Rule Municipality that is the count has Troy Graves committed rape"
+    },
+    {
+      "id": "09a3702833f9b5645251450dc23fa2fa5f94da42",
+      "question": "The actress known for her role in \"Herman's Head\" star along side Frankie Muniz in a film released by what company?"
+    },
+    {
+      "id": "e4e718092e8d107ebbe0b02dcf5dcdbbdfabef10",
+      "question": "When were the Wars of Religion fought?"
+    },
+    {
+      "id": "66011f791fd630576fa5fec20957c0326aa31806",
+      "question": "What type of interpretation of Islam does Salafism promote?"
+    },
+    {
+      "id": "c41f45c85445282118be58cd886f8bab6c333e8d",
+      "question": "This causes the rock unit as a whole to become longer and thinner. "
+    },
+    {
+      "id": "bfe816fe0c7106879f536ea4284efc16c0e8605f",
+      "question": "What American actor and singer starred in the drama \"The Sanford Prison Experiment\" and Madame Bovary?"
+    },
+    {
+      "id": "779c9d80fd23dcdadebcb2c2c9713549e1d179a2",
+      "question": "Yellow pine, when spoken of in the western US, refers to which large pine tree species?"
+    },
+    {
+      "id": "bfcdb0000481bfcd0d7dd343d8038ffcac3d7598",
+      "question": "What type of measurements result under Schrodinger equations when using operators instead of Newtonian variables?"
+    },
+    {
+      "id": "44325a2fa80e459f39f4d7741110d80662c816df",
+      "question": "Theodore V. \"Ted\" Wells, Jr. received his B.A. from a college founded in what year?"
+    },
+    {
+      "id": "5265015fb898b7524089d6209116d1cff49dc89c",
+      "question": "Which band consists of only one person, Mother Mother or Czesław Śpiewa?"
+    },
+    {
+      "id": "b733e3c2897bf46fd4183d5cce7bf447b7838d16",
+      "question": "Who did the army siege belong to?"
+    },
+    {
+      "id": "4a0073d72729fa425fd173b2f6bde037ccce6fdf",
+      "question": "Kalalau Beach is the final destination on a trail that runs for how long ?"
+    },
+    {
+      "id": "8effa3bf704beb267f06d0ad6c4d72751f36ebf3",
+      "question": "What is a descriptive term for a low-to-high energy bond?"
+    },
+    {
+      "id": "ad880199147f50c29f58678ead9a897cc670a6e9",
+      "question": "How many NFL teams have gone 15-1 in one season?"
+    },
+    {
+      "id": "7019c98b554c9d89920042cd2b76931a9bb9ca5b",
+      "question": "What hymn did Luther write after the martyrdom of Esch and Voes?"
+    },
+    {
+      "id": "c718f19d20b86af91ef45639b3f570c416bcc1f0",
+      "question": "WeWork's Oregon's located is in the United States Customhouse; where is its headquarters?"
+    },
+    {
+      "id": "79e8f93bc93062bacaa05385d13f2df0f95b1cde",
+      "question": "Some elements of the Brotherhood directed what action against the government?"
+    },
+    {
+      "id": "719ebbcdee52111ca154386d40aaaa01db666ef6",
+      "question": "How old was Tesla when he died?"
+    },
+    {
+      "id": "8a480adae23dc802cb8da706d74398849ce0872b",
+      "question": "Besides constant flooding, why else was there regulation of the Rhine?"
+    },
+    {
+      "id": "5cdd16e743d5996741180bef0995d1db7487e2a9",
+      "question": "What genre of film was the 1988 film Stormy Monday?"
+    },
+    {
+      "id": "e2cf12ed394831f7e64e8a7306c5f3ce78f0e9a2",
+      "question": "In the 2008 film Punisher: War Zone, which the character who made his first appearance in \"The Amazing Spider-Man\" #162 does Castle wage a one-man war against?"
+    },
+    {
+      "id": "5cb1a63630a3dc9944d421ad94d17652569948e5",
+      "question": "Sarah Niles had a role in the 2008 film \"Happy-Go-Lucky\", directed by which English writer and director of film and theatre born February 20, 1943?"
+    },
+    {
+      "id": "9154778f13af50efef96e8c5ba51b91dd3cbdbe0",
+      "question": "Where did this group of players first perform that gave origins to a stock character of pantomime like Bessie McCoy's animated performance that made \"The Yama Yama Man\" popular?"
+    },
+    {
+      "id": "eb8a8f8d980d85fec858f41c282db72a61e87b72",
+      "question": "What year was the actress born who plays the step daughter of the talent manage it the film Papa?"
+    },
+    {
+      "id": "eabdeafd4406a6182543f73262589631dcc905c1",
+      "question": "Where is Audra McDonald from?"
+    },
+    {
+      "id": "034e2ae1e7fc904f52ebbe5d4b746f7a20f8cb1e",
+      "question": "Which film was farther along in the list of films produced in its respective countries, The Many Adventures of Winnie the Pooh and The Book of Masters?"
+    },
+    {
+      "id": "5722dacb46670741a5180c810859c8e90b9dbd47",
+      "question": "Under which President did the Secretary of State, who used her family's private email server for official communications, serve?"
+    },
+    {
+      "id": "2e855f83d8d2f65fb60e802dfe120c38e95e430b",
+      "question": "Who was the V&A's first director?"
+    },
+    {
+      "id": "244bac7747d425e381eede46120710921be5a125",
+      "question": "George Archainbaud and Gregory Hoblit share what profession?"
+    },
+    {
+      "id": "e722e5824ce858dde410d78b67ba7e26325e928d",
+      "question": "The town of Goodsprings, Nevada is located in the Goodsprings Valley, and is located in what Nevada county?"
+    },
+    {
+      "id": "1f7b689f308ce7b05d4aad004f0798a94b8c5a30",
+      "question": "Who had worked on the Saturn series even before the Apollo program began officially?"
+    },
+    {
+      "id": "1581ba431a9b70e2d88d7b9d58e12d6b94733043",
+      "question": "How many seasons did the starting quarterback of the 2013 Denver Broncos play in the NFL ?"
+    },
+    {
+      "id": "7d074bce4aa7ee8be88f45f35dc872718f37b413",
+      "question": "Which Pheonix Suns player had a twin brother who was a University of Kentucky alum? "
+    },
+    {
+      "id": "d045948714f984d0738ecf86e2ea60ac50d6da30",
+      "question": "What state in Australia is the center of dairy farming?"
+    },
+    {
+      "id": "624d7f45416a279f6b258479345f11cd22fd42fa",
+      "question": "Which Italian entrepreneur was  Maria Franca Fissolo widow "
+    },
+    {
+      "id": "e79cca982279386ff7507daf40276341563d8467",
+      "question": "Which building was taller, the Singer Building or 40 Wall Street?"
+    },
+    {
+      "id": "bfba8ea59d79bda3eceff09bc5d76f0956654fc3",
+      "question": "Are Snow White and the Seven Dwarfs and Alice in Wonderland both films in the fantasy genre?"
+    },
+    {
+      "id": "ed60b7171d4db9de334a0c5cb4cfb6860ab7ead7",
+      "question": "How old was Manning at the beginning of the 2015 season?"
+    },
+    {
+      "id": "33cc21a5fd3ef9e2cf73fd8d54c8b080526c3c60",
+      "question": "What can be the result of a change in an organization?"
+    },
+    {
+      "id": "5bb0d580ead6c9f87a8a20ad5696ddfab6c24c37",
+      "question": "What type of atmosphere helped fuel the fire throughout the cabin?"
+    },
+    {
+      "id": "3fdc6a80d4dd47266f084214bf0d5a118b596155",
+      "question": "Name one country that banned boating, driving and flying on Sundays."
+    },
+    {
+      "id": "ae77d20c0400c8c691a0ec813dc5a27636d25fee",
+      "question": "Who recovered the fumble and ran the ball in for a touchdown?"
+    },
+    {
+      "id": "02bcceedf72e7bb00a3ba82ba8d4e86f655b57fb",
+      "question": "Which group did not agree to sign these agreements?"
+    },
+    {
+      "id": "d80cc680c79a7e107065f0ce63f31daca4a4d9af",
+      "question": "The German businessman and Nazi Party member instrumental to refugee sheltering in the Nanking occupation worked with which co-committee member that sheltered Chinese women in a college?"
+    },
+    {
+      "id": "e45d0676f365554e03e2abe43ce802a27adfcfe7",
+      "question": "What does the teen comedy film \"The Lizzie McGuire Movie\" and \"The Matterhorn Bobsleds\" have in common?"
+    },
+    {
+      "id": "76f5ff61f625d8cc79c6a456cea14f8863d6f2bd",
+      "question": "What is an example of a rotary engine without pistons?"
+    },
+    {
+      "id": "0c0e435faed0afe4230356eec72a2ed3c05b2e83",
+      "question": "What are the first buildings the university built knows as today?"
+    },
+    {
+      "id": "9d512f82ca8f489c84ebaf2181a0e353ea30b7a7",
+      "question": "What fortification was built in the 19th century after the defeat of the November Uprising?"
+    },
+    {
+      "id": "1bea20a6484f160ec980f21b2e01e12952ea0508",
+      "question": "The song \"Relay\" by influential English rock band The Who was written by which band member?"
+    },
+    {
+      "id": "626a2d49074ac29f1c6180b094f9d68c0cc7149a",
+      "question": "After Apollo missions 18 and 19 were cancelled, what happened to the Saturn Vs that were never used?"
+    },
+    {
+      "id": "8b48b1317070110883013c483a696c720ecbd01b",
+      "question": "What is one variable on which the running time may be contingent?"
+    },
+    {
+      "id": "70bf3eee56e3dc928132d01c56da88252c0d4f73",
+      "question": "What type of defense is sometimes used in court by protestors?"
+    },
+    {
+      "id": "d8258bed8ee61bdc44cfd108207c5062579c350f",
+      "question": "Which town's massacre did Genghis Khan order in retribution for the treatment of his envoys?"
+    },
+    {
+      "id": "3e971a3ab9ded0bad1870c7a9b61fdb283b62e27",
+      "question": "What does pumping water into the mesoglea do?"
+    },
+    {
+      "id": "980ba4a7084d3b841130dcf9e0c854c5394f14d7",
+      "question": "What party forms the Scottish Parliament?"
+    },
+    {
+      "id": "950167c65d573db55f8009c4dd92a4edd48ec388",
+      "question": "Which country has legal gambling and a lack of natural resources?"
+    },
+    {
+      "id": "004b9579e2e8d8b2ce5171677ed7d612c9a8fcf1",
+      "question": "Who produced the second movie directed by the director of the film, Inception?"
+    },
+    {
+      "id": "07dc0966d0f8687abd5a959224cb7c8e2e6dbdc3",
+      "question": "What single by American rapper The Game is a tribute to the victim of a well-known police shooting that occured on August 9 , 2014, in Ferguson, Missouri, a northern suburb of St. Louis?"
+    },
+    {
+      "id": "70255486537c883af93cef3775ed39650b63d572",
+      "question": "The Melbourne Zoo is accessed by what 29km trail?"
+    },
+    {
+      "id": "712e18261fb472b388e0c5fb53a860d642cc4779",
+      "question": "What was Luther's major work of 60,000 words on the Jews?"
+    },
+    {
+      "id": "8590b2db657a693138e4392d2584f0d7d10bb735",
+      "question": "When Iqbal promoted ideas of greater Islamic political unity, what did he encourage ending?"
+    },
+    {
+      "id": "eec6a7bbc77b9284979625a116d4cc1bca2dd7e2",
+      "question": "What is the immune system of the brained known as?"
+    },
+    {
+      "id": "adbbc95e28166cd3492479579c0100d4b2978ed3",
+      "question": "What song, produced by DJ Mustard, and recorded by Barbadian singer Rihanna was released on March 30, 2016? "
+    },
+    {
+      "id": "6243585b514f5c034491456c50db437c55a89b0f",
+      "question": "At  which Atlantic City, New Jersey resort did Johnny Mathis record his television concert \"Wonderful, Wonderful? "
+    },
+    {
+      "id": "42303f104eb0e1d41364734346d3d6353188f454",
+      "question": "What does the title Gür Khan mean?"
+    },
+    {
+      "id": "1cc5afd8980fcaf68dc7f7e38e4937a221880fb2",
+      "question": "What does pushing and pulling perceptions provide for describing forces?"
+    },
+    {
+      "id": "f93b329d48839475aa39a580eb3ce6e52a7b33bc",
+      "question": "The German submarine U-1016 was a part of the Nazi fleet during what years?"
+    },
+    {
+      "id": "aaf988f9f53309a2f39c9e866df354b47df3b76e",
+      "question": "What is the name for the smaller streams along the region northern Germany?"
+    },
+    {
+      "id": "460916f583006866b9baba518aaaa6a0263e1250",
+      "question": "Who was the duke in the battle of Hastings?"
+    },
+    {
+      "id": "2e20fc70fbf8f1b22c537d4fb2a52cfcc49947ee",
+      "question": "What were steam engines used as a source of?"
+    },
+    {
+      "id": "4880de7560b8f6a7dd247f4276ad22397419be6e",
+      "question": "What is the most successful team sport in Kenya?"
+    },
+    {
+      "id": "efb1c26295692854abc5ce0ac55516e5fc7132ce",
+      "question": "What team received the opening kickoff?"
+    },
+    {
+      "id": "35b8d655d37af44d79814b55d5a3643ed6ec37a2",
+      "question": "what other digital TV service took Sky UK Limited's most popular spot?"
+    },
+    {
+      "id": "5154ea82880af077bede240b604ee73ce6ca329d",
+      "question": "What was the job of British politican, John Profumo, when his career ended after his affair with Christine Keeler in 1961?"
+    },
+    {
+      "id": "67043e68ede8a3a4aa2abfec27fb4da082ab7d40",
+      "question": "When is the Evolution Festival hosted?"
+    },
+    {
+      "id": "e7f8ee087ede56d0fa06270b45b9480fa132441c",
+      "question": "The fastest trainsets in America share run the Connecticut Department of Transportation's Shore Line East commuter rail service along with what other Amtrak service with out stopping?"
+    },
+    {
+      "id": "34c8d6182e70fca3895ad739645e14bd24e9251c",
+      "question": "What are the independant components of a vector sum that has been determined by scalar addition of individual vectors?"
+    },
+    {
+      "id": "a3c51a6ab148b2df714c5fa1bf62fc97c7e240d9",
+      "question": "When was there a armed protest at Ballarat about mining taxes?"
+    },
+    {
+      "id": "db172a3ba442ff4f3982b97202b629a4fb4b6d62",
+      "question": "Who besides the british colonized Africa?"
+    },
+    {
+      "id": "40e176128b6679f58146e97a3feccfb378de5f7e",
+      "question": "What was suggested at the Symposium in 1967"
+    },
+    {
+      "id": "bfe26bc0ee231f9286e9e48f1a53852c18fd32f2",
+      "question": "Who defines what constitutes a patient-doctor relationship?"
+    },
+    {
+      "id": "e48501e6e7278c8dac8786fbc47af78bcf4cb75c",
+      "question": "Why is the building on Spital Tongues known as the Pink Palace?"
+    },
+    {
+      "id": "6fb8877d5d12846fb46c20e9a87d7fb81e5eba29",
+      "question": "When was the Royal University of Warsaw established?"
+    },
+    {
+      "id": "e06644268e8a604cbbc102b9765715aceb67f86e",
+      "question": "Who sold the Upper Rhine to Burgundy?"
+    },
+    {
+      "id": "0aa036aef6be6484819eb35620f889965c8875f0",
+      "question": "How many warriors did Toghrul provide Temüjin when his wife was captured?"
+    },
+    {
+      "id": "6ef4522f80d996c9165481ea1a0c4f2a2ab6e955",
+      "question": "The same restaurant company that owns a franchise with 20,000 locations in 123 countries also owns another franchise with 15,000 locations worldwide that was founded in what year by Dan and Frank Carney?"
+    },
+    {
+      "id": "a8114ba93ba3eab925db694293a590a7373b241c",
+      "question": "Como Orchards Summer Colony One-Room Cottage is near the town in what Montana county?"
+    },
+    {
+      "id": "cae845564743166384fbc758ec86452515892b3f",
+      "question": "What was the concept of force an integral part of?"
+    },
+    {
+      "id": "ee68f877bb50c76d6733f1e49850be710a2aa905",
+      "question": "What was the building that formerly occupied the V&A's present site called?"
+    },
+    {
+      "id": "eb7b6816d2a043f42bfe516cc22c72a525a0807e",
+      "question": "Civil disobedience can occur when people speak about a certain topic that is deemed as?"
+    },
+    {
+      "id": "a5d247a5dc3efad56af1dd23a41a5d2094a616ab",
+      "question": "What was the artist nicknames Gentleman Jim's Christmas album?"
+    },
+    {
+      "id": "3e364bf68f432cb875b0b9b330c63bbe076d87e9",
+      "question": "There is a public database of epitopes for pathogens known to be recognizable by what cells?"
+    },
+    {
+      "id": "e3dc28e340338abefbd8937c11ee90643d169626",
+      "question": "Are The Lion King and The Princess Diaries both inspired by a book/novel?"
+    },
+    {
+      "id": "bf02b3ca9460a7e73b0a54b992f14691d398a7df",
+      "question": "What other moniker was Genghis Khan's general Jebe known by?"
+    },
+    {
+      "id": "a1cb7780816bb89cf59193ed0fe85a81e271f860",
+      "question": "In what year did an American endocronologist of Polish-Jewish decent win the Nobel prize?"
+    },
+    {
+      "id": "bfb614cffd2e47ca7f713af4aa86b097b8a3f202",
+      "question": "To calculate instant angular acceleration of a rigid body what would you use?"
+    },
+    {
+      "id": "d6adab1fff17ec844c1ac924a691ed9772c3d70b",
+      "question": "Which actress in \"Carry On England\" played Nana McQueen in \"Hollyoaks\"?"
+    },
+    {
+      "id": "ce02891448b20bcbc7086f45f846eac2a9a5cc5d",
+      "question": "What was the middle name of the politician who resigned after an affair with Sara Keats ?"
+    },
+    {
+      "id": "0e4f578721113bbb5e670280d377b72018157bcf",
+      "question": "The psychiatrist that wrote the foreword to the book \"Life Before Life\" worked for fifty years at what univeristy?"
+    },
+    {
+      "id": "23176cb496c41e324cb27310d124b76d01b5c404",
+      "question": "What did the LMP acronym stand for regarding the Block II launch positions?"
+    },
+    {
+      "id": "7856cb8907b22ad3a78c52af23035ac64411fb8a",
+      "question": "Falkins is a mountain range located in between Switzerland and doubly landlocked German-speaking microstate in what region of Europe?"
+    },
+    {
+      "id": "1caed7c853afe0f51a9e9744ef8a48ef605378f4",
+      "question": "What delimits the delta of the Rhine in the west?"
+    },
+    {
+      "id": "21d9f5c3df16a65638f8179ef9f9a1fad588384e",
+      "question": "Michael H. Sutton is a director of a company founded by who?"
+    },
+    {
+      "id": "b413c28a50f8701cd55459f6140f8604c444b23e",
+      "question": "What was the year when Tesla went back to Smiljan?"
+    },
+    {
+      "id": "3a5526a020a94f032767e4f7c6913ceacf1ffb2a",
+      "question": "What ingredient do the drinks Jack Rose and Fizz both have in common?"
+    },
+    {
+      "id": "1d51a31d8af3135611154e435c914b8b26b84f31",
+      "question": "In 2013, ABC's identity was revamped by what design agency?"
+    },
+    {
+      "id": "b9adc22ba691835ad4d3afb361f7a7b6337ee199",
+      "question": "What did the second stage in the Saturn V end up doing?"
+    },
+    {
+      "id": "deebf620f008e69b584709cd71579026caa5f6f0",
+      "question": "What is the Canal in Wesel? "
+    },
+    {
+      "id": "e97676334ad70a4faee3b98f961b3a4c1fd65259",
+      "question": "When did the V&A acquired the Costiff collection?"
+    },
+    {
+      "id": "ff88afd1726825ec1c3f5e35e05e80ee9b728822",
+      "question": "Kyle Ezellis currently head of the undergraduate planning program of the a school located in what city?"
+    },
+    {
+      "id": "f3b69459e22babb02662700a44082508f5e7b1be",
+      "question": "What day was Super Bowl 50 media day switched to?"
+    },
+    {
+      "id": "157d193f7f0693a479ad34155e1189201ec57bcb",
+      "question": "What democratic Socialist Republic is located northwest of Pasikudah?"
+    },
+    {
+      "id": "9f9a6ffd04c0c6e62c9569a8ccd929d77c3eb92c",
+      "question": "What did Marlee Matlin translate?"
+    },
+    {
+      "id": "b42e92b9ddd59e50a48d52b9a0d2f63ab545d8a2",
+      "question": " Who is was born first, Allan Moyle or Albert S. Rogell?"
+    },
+    {
+      "id": "eab6cbb04499a5219ad184569c3a9ce00b81c9b5",
+      "question": "Which direction did the Rhine flow during the last cold phase?"
+    },
+    {
+      "id": "c4d7e5d5010f64b85767fc84e7ad8f0d63edd04a",
+      "question": "Who conceptualized the aeolipile?"
+    },
+    {
+      "id": "dda00e454ea46a684ffe59829cfa6fd52c2401a7",
+      "question": "Apollo 17 was significant for what reason?"
+    },
+    {
+      "id": "292553cba4de887dfdfad891f578d60059ae4544",
+      "question": "How many types of movements do euplokamis tentilla have?"
+    },
+    {
+      "id": "e63bece5ef5bbdd0882f8b161a766d3d9cb66572",
+      "question": "How old was Peyton Manning in 2015?"
+    },
+    {
+      "id": "dd1ee80103434b4ddb8419a52cadcf5521782b59",
+      "question": "What religion did Tesla grow up in?"
+    },
+    {
+      "id": "9888982fbe3c99e4ad6ac2d2e0cc22929a1c2d1f",
+      "question": "Microplates squeezing and rotating created the features of what?"
+    },
+    {
+      "id": "05a9f97664ea5eb5841beb355b115a78360d4d7d",
+      "question": "Where is the mansion constructed by the defendant in the Manhattan Well Murder located?"
+    },
+    {
+      "id": "08996ac9b8095a59c6e685f6e4df214d6bd308f9",
+      "question": "When did Luther save the group of nuns from the convent?"
+    },
+    {
+      "id": "597edb09b745f0f714f31834ba2f64a97af61431",
+      "question": "Thomas Hiddleston, an English actor, played in a theatre production that was orginally a play by William Shakespeare and although no precise date of composition is known, when was it certainly produced? "
+    },
+    {
+      "id": "6f0c6247959cb3f21927212184f824ecaf80b899",
+      "question": "What did France offer that was rare by imperial standards?"
+    },
+    {
+      "id": "f65dee732af22a808a83d7d9d63220f1de3030fe",
+      "question": "What kind of techniques were used to create the theme?"
+    },
+    {
+      "id": "80b6035f7d94c6162eaeb1ffafee31fbb971ea24",
+      "question": "Tumbleweed, a 1953 film, was inspired by a war hero who died in what year?"
+    },
+    {
+      "id": "390663d6b88626166fd9e6497674245402bf782a",
+      "question": "How many Examination Boards exist in India?"
+    },
+    {
+      "id": "60a77ca1ebc7ca5ff5da031e0cafc89a80e8ded5",
+      "question": "At the time of the 2010 census, what was the population in the town that was once occupied by the Delamater Estate?"
+    },
+    {
+      "id": "74b16b76b2b2eefccdefaa68118d36ec24998bbe",
+      "question": "The Salzburg Festival is held in the birthplace of which Classical era composer?"
+    },
+    {
+      "id": "e68863a7fe9dc8a776993a1735bc9c2f82d4afdb",
+      "question": "What type of musical instruments did the Yuan bring to China?"
+    },
+    {
+      "id": "e17bb87503b3cb7774be31f5f55de4d9c6be1490",
+      "question": "Other than singing and songwriting what other profession did Lithuanian Eurovision Song Contestant Mia join?"
+    },
+    {
+      "id": "fd7065c202ecfa488604db7ffbc84ce6c303acf8",
+      "question": "At first what did Tesla think was the main cause of damage to skin cells when they were exposed to X-rays?"
+    },
+    {
+      "id": "5f1d34991e0d7055e49fd87bfcb795fea25ff01b",
+      "question": "Paul N. Hehn served as a part of what force in the US Navy?"
+    },
+    {
+      "id": "631d97f3791b8386da6d63f38455965e8bd3751c",
+      "question": "What is a protein that is closely intertwined with circadian rhythms?"
+    },
+    {
+      "id": "56e9d752aa271e2ef36938baac80420ad0f5b002",
+      "question": "Which television network was founded second: ESPN, CNN, or MTV?"
+    },
+    {
+      "id": "fb54fe8455f61fe722e734c51292aa0e7948ce24",
+      "question": "How much did Tesla spend on the injured pigeon?"
+    },
+    {
+      "id": "6ad555b984954f0376d94729d29a264882ff2364",
+      "question": "Which writer of the 1950 film, Sunset Boulevard, was born last?"
+    },
+    {
+      "id": "6092dacb5ecf1b5e53c6e3dadf40cd62032f967b",
+      "question": "Why did he walk?"
+    },
+    {
+      "id": "e475ed1e40a3097023996ec6d2b5a680f09b861c",
+      "question": "Under which president saw the 19th century policy where the United States government relocate a group of peoples through the use of land grants?"
+    },
+    {
+      "id": "5b528318bd5ffff829ea9529c4294f8c2158dd35",
+      "question": "What year was the dance that is danced primarily in a slotted area on the dance floor become the official state dance of one of the states in the United States?"
+    },
+    {
+      "id": "4cd7ad6bd64dfe42195f26ca45d4bf7ce4836f9a",
+      "question": "Which film, directed by Porto's executive producer, was added to the National Film Registry in December 2002?"
+    },
+    {
+      "id": "365d1ea54bd00d47617ae71b7d94875508c1a6f9",
+      "question": "How can someone be recognized as local church lay servant?"
+    },
+    {
+      "id": "3d52af5a6e987ad8e05692b8bac842b28f4bef33",
+      "question": "What type of musical release does Do My Dance and Tyga have in common?"
+    },
+    {
+      "id": "08ccdbe124e26d8521008f086630204e352ba7dd",
+      "question": "What geometric shape is used in equations to determine net force?"
+    },
+    {
+      "id": "c5f77219b87bcae2d9d98c87896e672c866b3ba1",
+      "question": "Which genus of plants has more species, Elymus or Globba?"
+    },
+    {
+      "id": "b5af3463ad5a6c1de0df3bbb6ac640809f52acbd",
+      "question": "Reaseheath Old Hall is now part of which land-based higher education facility?"
+    },
+    {
+      "id": "cfa0865498a1b7bb7ca62f97f1d7540718da9c68",
+      "question": "What kind of light is inadequate for chloroplasts to divide?"
+    },
+    {
+      "id": "1b0c534ae358fd101a59fc192e5dc66d10c4e064",
+      "question": "Which articles state that the member states' rights to deliver public services may not be obstructed?"
+    },
+    {
+      "id": "ff9badbea8f8e3e3a2e3ca30b9daada3c00924d7",
+      "question": "In between Seed and Motor Trend which one is for automobile?"
+    },
+    {
+      "id": "1011e3577b864f698e81427ac68e4198173d01a8",
+      "question": "What did the astronauts on the moon send back to Earth live via signals?"
+    },
+    {
+      "id": "cdcc3609e777ad2f73776c6d1afef70ae7bd1b19",
+      "question": "Does Laccospadix and Prosopis have the same amount of species?"
+    },
+    {
+      "id": "00d7711783cf87a266566efe8b4b6bdcdf5501be",
+      "question": "What does civil disobedience relate to?"
+    },
+    {
+      "id": "7c1012ad1b8c10113260fb0a8d982f208a044582",
+      "question": "What party is the women Carl Bernstein had an afair with part of?"
+    },
+    {
+      "id": "317d1a105b350d825e12f20702955d3c4a1b7f4d",
+      "question": "What French actress and former musician starred in Raw?"
+    },
+    {
+      "id": "d012b9a4617d5e7888169af3640dc220778521ff",
+      "question": "What is the shortened name of the annual yacht race that takes place?"
+    },
+    {
+      "id": "ae7b10175f66c3933ade10a6bd4647df135dadd8",
+      "question": "Daddy Grace was a contemporary of what religious leader that founded the International Peace Mission Movement?"
+    },
+    {
+      "id": "4d826ea8cc48bf4e232157c119706db573410b0e",
+      "question": "What encouraged cultural exchange under the Yuan?"
+    },
+    {
+      "id": "abdf6cdb2b3874198398607c5369cd9024aa1c6a",
+      "question": "What was the style of Luther's salute at the end of his speech?"
+    },
+    {
+      "id": "9094354d87245f575dbf57902d8d5c2523e6c8b0",
+      "question": "What is wasted by rubisco's flaw?"
+    },
+    {
+      "id": "305fab8f4e4d986ba4d801ce071ee095dad515a7",
+      "question": "What county is Wesley Memorial Methodist Episcopal Church in?"
+    },
+    {
+      "id": "fab5fbacffff394551563375d8db0330d0f1c167",
+      "question": "Which country did Rewe-Zentrale AG wish to import from?"
+    },
+    {
+      "id": "cc971b11bebdbe8deda330843199b3d86647e575",
+      "question": "The script writer for the special went on to have what role in the revised Doctor Who series?"
+    },
+    {
+      "id": "1cba0ab1088e41fb5bd807dc5c4e6422bf99662d",
+      "question": "Which company is headquartered in Europe: Blizzard, Activision, or Rivio?"
+    },
+    {
+      "id": "9c9c848cd4ad1be83d9bed5ba749fbceefad62a2",
+      "question": "Who said people involved in the ozone situation had \"a better understanding of scientific ignorance and uncertainties\"?"
+    },
+    {
+      "id": "17abad6c501cab2383a8eb5caeefdbc501387175",
+      "question": "The point at which different radiometric isotopes stop diffusing into and out of the crystal lattice is called what?"
+    },
+    {
+      "id": "b920ea5fdd35fc2bd854d79aeded7b8d676ca6d3",
+      "question": "What are new responsibilities pharmacy technicians now deal with?"
+    },
+    {
+      "id": "abe1ed88349ef17e6ba44de2f54a3f4775e81f3f",
+      "question": "The species Oncorhynchus clarki lewisi was discovered by the Lewis and Clark Expedition at what part of the Great Falls? "
+    },
+    {
+      "id": "e66e1b5be3dc25ea0c1bda6d16a6244e0ce7bf41",
+      "question": "By what document did the Huguenots confess their faith to the Portuguese in Brazil?"
+    },
+    {
+      "id": "3c32bbf40145dc54a93688d094665f8949c999e3",
+      "question": "What does less education lead to when working?"
+    },
+    {
+      "id": "930bb4fbebcf9b4e7d63a0b89abf694b3a9f6c22",
+      "question": "<|/7\\What is the song name interpolated by Khia Shamone Finch who is best known for her hit single \"My Neck, My Back (Lick It)\"?"
+    },
+    {
+      "id": "c354b346631d0bd7db75ad1aa20fb534ac17f0f4",
+      "question": "Cobra Energy Drink Iron Men were owned by which LT Group-owned company?"
+    },
+    {
+      "id": "dd03b2bdab5eade277a90b9c16071372115dab01",
+      "question": "In what year did the Master reincarnate into a female body?"
+    },
+    {
+      "id": "63ac47a5a115467d4c89b5964c99ca536d00ed2f",
+      "question": "What is the name for a problem that meets Ladner's assertion?"
+    },
+    {
+      "id": "4e789b508044911852bd4c76f80ba1375a18cc83",
+      "question": "In order to be considered in the top percentile, a person would need to amass how much money each year?"
+    },
+    {
+      "id": "13df2a5fb1bb2fd6b0f25d1af9dd586f1fbce61b",
+      "question": "Who was the daughter of DFS co-founder and shareholder?"
+    },
+    {
+      "id": "e04a65f40a43558d737262678cfde7a2171d6339",
+      "question": "Bite is a production show which opened at what hotel, casino, and tower located on Las Vegas Boulevard just north of the Las Vegas Strip?"
+    },
+    {
+      "id": "1c737788e68fde71b8f699f85f3719903addd105",
+      "question": "Who introduced plague to Europe?"
+    },
+    {
+      "id": "7e5a090fbf100a56cf875532dd460e26a26cdbf2",
+      "question": "What are three examples of complexity classes associated with definitions established by probabilistic Turing machines?"
+    },
+    {
+      "id": "ccf659a9b31cf47f479f111ccea27eab144af402",
+      "question": "What does southern California have a reputation for?"
+    },
+    {
+      "id": "811c45835c4eec998c6a3c1529b63adabc6f52b8",
+      "question": "Who was one man who joined hands and said \"Lord of the Church, we are united in Thee...?\""
+    },
+    {
+      "id": "5ffdbc5465d4849fb6c51e666bcd872d4bb78a40",
+      "question": "The S-IVB-200 was used in what stage of the Saturn V?"
+    },
+    {
+      "id": "73cae5668187493eaa3829f153c5bf9952b5df95",
+      "question": "From what Bible book did the crew of Apollo 8 read from during this stream of images?"
+    },
+    {
+      "id": "98cda6b782be8faae22403180b998bc31c98bc63",
+      "question": "Is Black Rebel Motorcycle Club or Panic! at the Disco from further west?"
+    },
+    {
+      "id": "d2330534d6eb9fd897467cd4e80c81a5798f699a",
+      "question": "The Christmas carol, \"I Heard the Bells on Christmas Day\" is based on a poem by the American poet who was the first to translate what Italian work?"
+    },
+    {
+      "id": "bab94b555cd657afefab9847453d6c3d5d03fa1b",
+      "question": "What is a Cairns replication intermediate?"
+    },
+    {
+      "id": "bf75ae165192e3537526d3ee5265b3a00df23dc0",
+      "question": "When had the Brotherhood renounced violence as a means of achieving its goals?"
+    },
+    {
+      "id": "ba06dc2c508380ce7d0d02537fd249229b9ed085",
+      "question": "Who lived in a tree to prevent it from being cut down as a form of civil disobedience?"
+    },
+    {
+      "id": "d9e2e89e954b707f91bdcd849f0e2f5d83d665a3",
+      "question": "Which musical group did the V&A present in July 1973 as part of its youth outreach programme?"
+    },
+    {
+      "id": "5fb3b517ded886215765dd4b0df60a3715addadf",
+      "question": "How quickly can an algorithm solve an NP-complete knapsack problem?"
+    },
+    {
+      "id": "56974462ac7f3f59b6f87eb9f1a9db37c14bd31d",
+      "question": "What was the Yuan's unofficial state religion?"
+    },
+    {
+      "id": "450962b2735fa04a19ebcdda7bf23a8de3003d6f",
+      "question": "When were these settlers naturalized as English colonists?"
+    },
+    {
+      "id": "6785b86656057018203a1517de46a9477406493c",
+      "question": " Prince Albert Kamehameha is the only son of a monarch born in which year ?"
+    },
+    {
+      "id": "c5b05b1e825107d6a46c0be32b55aea6e1dde480",
+      "question": "Jenggis is the adjectival form of what word?"
+    },
+    {
+      "id": "d9b3b4a5cadb42d0ce0b37a567b98df13a49f80e",
+      "question": "What company does Ann Mather serv on the board of directors for that had over 75,606 employees as of 2017? "
+    },
+    {
+      "id": "88a334677d5c377528615a6c2ebd1b5a552402ce",
+      "question": "Which write of \"The Adventures of Tom Sawyer\"  died on April 21, 1910?"
+    },
+    {
+      "id": "4969e72369e9dfe5b457c095aed5f0abd25c48bb",
+      "question": "How many television and radio channels could the new digital service carry?"
+    },
+    {
+      "id": "3e9606385940b2aa984d127c0d1ddf4a6c4e4b2a",
+      "question": "Which designation did the woman, who’s son was president from 1825 to 1829, receive?"
+    },
+    {
+      "id": "7303a321b6d8bdfdcaa8d8377c402d6ef02e92fd",
+      "question": "In what area of this British colony were Huguenot land grants?"
+    },
+    {
+      "id": "e6535fa5f6cb56b59aecdc753464b4776a17bf38",
+      "question": "What was the average qualifying sales in 2013 of the magazine that had Annamma Mathew as editor?"
+    },
+    {
+      "id": "142e7e56bfc37acc14e622d635dc2fddf34cb224",
+      "question": "If the head of government refuses to enforce a decision of the highest court what terminology could be used?"
+    },
+    {
+      "id": "c8d175bad11d88fbd6945ab83c7f57f1b24a81db",
+      "question": "Which cast member of \"Blackadder\" also stars in the romantic comedy \"The Oranges\"?"
+    },
+    {
+      "id": "dcac049317af55d7176b0698ee77ec09137e9a8f",
+      "question": "Where is the location of the base which has March Field Air Museum adjacent to it?"
+    },
+    {
+      "id": "cef770c2545ad6fc92ef28a4ea6def702c22de0f",
+      "question": "What company owned NBC in the 1930s?"
+    },
+    {
+      "id": "3ddf7c3d23965f655ca7419cb51bc107763c5fbf",
+      "question": "What did Sasse proclaim Luther to be?"
+    },
+    {
+      "id": "e6ae4a9d2de87b0bced01abd18534635346644f9",
+      "question": "What library contains the Selmur Productions catalogue?"
+    },
+    {
+      "id": "4ac6cdec191af9b20283b2f248b8ad21a649758e",
+      "question": "Who wrote that it is difficult to produce an all inclusive definition of civil disobedience?"
+    },
+    {
+      "id": "e4dce39c66fdaf503a29b56120bc689666e2ccc0",
+      "question": "When was the Third Assessment Report published?"
+    },
+    {
+      "id": "01fbe96417a1da950855b04f5e243a0a32f58719",
+      "question": "When did Martin Luther receive his Doctor of Theology?"
+    },
+    {
+      "id": "a2fc421771ee06e24a4ef6fa987de2e5e873b763",
+      "question": "Where are the state electoral results for Norwood in South Australia listed?"
+    },
+    {
+      "id": "5f4c5678a28d8a3f955a0ba2f4db89daa67ce5ce",
+      "question": "What year was the author of Mitla Pass born? "
+    },
+    {
+      "id": "f9121b0828cd6f047da29f69f734fe31c9df229c",
+      "question": "The Bandit of Zhobe starred Victore Mature, Anthly Newley, and which leading lady?"
+    },
+    {
+      "id": "f376e2fd6d366882211018644d2862ae8fea3bf0",
+      "question": "What will be the importance of the pharmacist in coming decades?"
+    },
+    {
+      "id": "6ebaa2cec054722675100e9086a7bbdaa28ca64f",
+      "question": "What was Kublai Khan's relation to Genghis Khan?"
+    },
+    {
+      "id": "6e4c3be4da4ab3a025c3fb9e85be65c81623eca7",
+      "question": "Combs are called what?"
+    },
+    {
+      "id": "612bf8451f5cad773a130c2b76aea1a05c4cb260",
+      "question": "What choice did French have for surrendering land?"
+    },
+    {
+      "id": "e9a0a47f1f5b6b9c72adcb48d9f8becd0bec6325",
+      "question": "Who was the only author to have won the Prix Goncourt under two names and wrote Clair de femme?"
+    },
+    {
+      "id": "a453acc61eecc18a50a2d35059c051ac9f2b92fe",
+      "question": "Theories on imperialism use which country as a model?"
+    },
+    {
+      "id": "d7322c081eb09167a1dc352b927244ea84c67570",
+      "question": "What year was \"The Ascent of the Blessed\" Painter born ?"
+    },
+    {
+      "id": "9a739cda3548d0626759302e04b0f69daaf3a486",
+      "question": "Are Spy Alley and Saint Petersburg varieties of board games?"
+    },
+    {
+      "id": "efe8ea608ff7efcba6e7a90c7b3eecf781505785",
+      "question": "In what year did Roger Goodell call Super Bowl 50 'an important game for us as a league'?"
+    },
+    {
+      "id": "b63cd09373856b7da2f3773da0639892af9c24f0",
+      "question": "Goldenson proposed a merger between UPT and what network in October 1954?"
+    },
+    {
+      "id": "1930e6ecf5bbfc64625d2f666c51e68311303c35",
+      "question": "How many people were on the project that followed Project Mercury?"
+    },
+    {
+      "id": "c41697403c85afa7df65ba79cb6d46e277a8e926",
+      "question": "What comedy for ABC ended its broadcast run in 1986?"
+    },
+    {
+      "id": "4bfd550477caf112f26ac6cfbd71e3989adb29c1",
+      "question": "In which year were the North and South Courts opened?"
+    },
+    {
+      "id": "9e3a6fd2e8733399479c48f42c11584e79b2f937",
+      "question": "Who are debates and meetings open to?"
+    },
+    {
+      "id": "de80e40154376d4642bd07bc53c0a04e7d7912b6",
+      "question": "What Catholic Church liturgical belief did Lortie criticize openly?"
+    },
+    {
+      "id": "eba271baac308017908d5d153fed13def7b5edf2",
+      "question": "In 1984 Thomas Murphy contacted Leonard Goldenson about merging ABC with what company?"
+    },
+    {
+      "id": "4159809a990ac10d091061b9dba512b3dfedb29a",
+      "question": "What was the first Super Bowl to use the standardized logo template?"
+    },
+    {
+      "id": "b4b4befea10740617969809a786d84d7a8e6362e",
+      "question": "Autumn Reeser was in the 2016 biopic written by whom?"
+    },
+    {
+      "id": "c28d615285f11b662673fba4cc2bfd936a92f7cc",
+      "question": "Who did the US provide aid to, to fight against the Soviet Union?"
+    },
+    {
+      "id": "52a4cd4073ff42b0991121deb223927fce72515d",
+      "question": "What was a non-religious reason for the massacre?"
+    },
+    {
+      "id": "2b61079731a5db17939cde427a7a91722ed1f3e6",
+      "question": "Was Reinhold Ewald or Klaus-Dietrich Flade born first?"
+    },
+    {
+      "id": "466af9aa2ebefb48aa6ba813b07b34b321bc0aec",
+      "question": "What are the exchanged particles predicted by the standard Model?"
+    },
+    {
+      "id": "1f76545b74ed9f4f64750c6cbeca2b473b477df4",
+      "question": "Do Perry Farrell and Ian MacKaye have the same nationality ?"
+    },
+    {
+      "id": "db96a8bf502aea73b05203514366526cce03103d",
+      "question": "Who protected Jamukha after he escaped the conflict with Temüjin?"
+    },
+    {
+      "id": "907ac1af7fd39e0649ac6b4c570d7f595cdff6f9",
+      "question": "What reconstructions supported the 1999 paper's information?"
+    },
+    {
+      "id": "d84008d06343876336cf45690694a4a569852197",
+      "question": "Who said Barton's investigation was \"misguided and illegitimate\"?"
+    },
+    {
+      "id": "40467ba53e78e33819fd262e3bb111439c8c6c9f",
+      "question": "William S. Harley co-founded an iconic manufacturing company in Milwaukee in 1903, to produce what?"
+    },
+    {
+      "id": "fa97a71d73242e070ce454b68098f46dd0c64445",
+      "question": "The Album Appalachian Journey continues a new kind of classical music influenced by the sounds and structures of America's own musical traditions which was begun by Aaron Copeland's Appalachian Spring which premier in what year?"
+    },
+    {
+      "id": "7795582fb202c9bd12cf881bdae59dd28d0d62af",
+      "question": "Which tennis player is from a country closer to Canada, Sherwood Stewart or Leoš Friedl?"
+    },
+    {
+      "id": "3a5234733e56bfcd6214c1f32d24bfe1912eb723",
+      "question": "What other projectiles did Tesla compare the electric particles to?"
+    },
+    {
+      "id": "e58800210360d3c0eea91dadcd417a0306d5cfeb",
+      "question": "How many times has Doctor Who won the Hugo for Best Dramatic Presentation?"
+    },
+    {
+      "id": "6ae0d9967dc94a07e96fe9893237fbb2120aa7a2",
+      "question": "What type of steam engine produces most electricity in the world today?"
+    },
+    {
+      "id": "37a33513dace301edbe8ebf38a264e748a9b5508",
+      "question": "Who was born first, Elswyth Thane or Donald Harington?"
+    },
+    {
+      "id": "83f4e614286e56d4c2ff1a58cf0a7ed13a2b0e56",
+      "question": "Other than the steamboat, what modern form of travel brought visitors to Florida?"
+    },
+    {
+      "id": "e799316a480351c39e9c911c6a88b5ab93f9ee96",
+      "question": "What success did Abercrombie gain out of the defeat at Carillon?"
+    },
+    {
+      "id": "db657122f082e4e41f08b07e1867b8b0ecf1663f",
+      "question": "Enter the Eagles starred this Hong Kong actor and singer who is a member of what committee?"
+    },
+    {
+      "id": "05441a8e8c100a39159047b7e9837a7311a91fad",
+      "question": "Which country's cars became more highly sought after as they were more fuel efficient?"
+    },
+    {
+      "id": "55cb73d92a1bb6571257af1952a75ae722fd8227",
+      "question": "What did Lepidodinium viride replace their original chloroplast with?"
+    },
+    {
+      "id": "b8cb7a017bb814a30746a041b47e185e9af04b47",
+      "question": "What novel is the musical that Russ Brown played Benny Van Buren based on?"
+    },
+    {
+      "id": "37365b40e081599738e224c67f58f2205823cdc9",
+      "question": "At which stadium did the Clemson Tigers defeat the Oklahoma Sooners 37-17 in 2015?"
+    },
+    {
+      "id": "9b77dfe95df56f0f1d931770fb0761edea096e7a",
+      "question": "What profession does Scott Sanders and Jørgen Leth have in common?"
+    },
+    {
+      "id": "6cfe04ea49792c4d2e786d46a04ad941f949ec7f",
+      "question": "With what word was Tesla's sociability described?"
+    },
+    {
+      "id": "fdd6174a6c22003b5a84f163aa6fa52e1f9b4706",
+      "question": "What is different about Cyanidioschyzon merolæ?"
+    },
+    {
+      "id": "9d6d98aa871ae5c4e5700c811a3bb245611b9231",
+      "question": "What equation currently decribes the physics of force."
+    },
+    {
+      "id": "f2234b743d03ff50c9b45d5ebddfe32c6b2dab94",
+      "question": "East Gate Square is located adjacent to a mall owned by what company?"
+    },
+    {
+      "id": "f408892cdf9178eda3e3a8fcbd5021200a2ffc40",
+      "question": "Few people outside of what country saw the magazine associated with the artistic movement Stanislav Zhukovsky was part of?"
+    },
+    {
+      "id": "93664eb6058548c2a9fc341af515bbedc9da598b",
+      "question": "What is the name and nationality of the author who published a novelization of 'Star Trek: Enterprise'?"
+    },
+    {
+      "id": "b9f80bce9149b851e7460168b53d874f1ae48e53",
+      "question": "Who was the head of the household that Temüjin joined when he was nine years old?"
+    },
+    {
+      "id": "ffeadbbbb94063d83a45a2ed70d98eef6295666b",
+      "question": "David Seroro performed in which opera based on biblical books?"
+    },
+    {
+      "id": "c897104b91ea29a1d967c65329bcf90368cba955",
+      "question": "Knott Rigg is in a book by Alfred Wainwright that was first started in what year?"
+    },
+    {
+      "id": "f4d816019499517765b0811d6f55bfdcce5fed6c",
+      "question": "M.I.L.F.$ is a song recorded by Fergie for what album what was released on September 22, 2017, and was her first to be released under her own imprint, Dutchess Music?"
+    },
+    {
+      "id": "2ae8c5e321d931da39134c161252e80da6e7c20d",
+      "question": "When did the San Francisco Bay area last host the Super Bowl?"
+    },
+    {
+      "id": "43e28fdf827e3ea4d420ba9ce3563f1091a52589",
+      "question": "Who was the speaker of the tribal council?"
+    },
+    {
+      "id": "04b4b9e7fc09c960f23dbd1bd167975e36d8a014",
+      "question": "If input size is is equal to n, what can respectively be assumed is the function of n?"
+    },
+    {
+      "id": "becb71642eb4c7c38583a581236131284267d0c6",
+      "question": "What was the hymn based on?"
+    },
+    {
+      "id": "f25ac25fc9a4e7f2ab1fb30bb6c570281c568f2b",
+      "question": "What type of compounds such as acetone,contain oxygen?"
+    },
+    {
+      "id": "b62bd7c3590e7cd01a6e67c878f3cc2d63972cd4",
+      "question": "What is the colloquial phrase used to convey the continuum of algorithms with unlimited availability irrespective of time? "
+    },
+    {
+      "id": "fdfd1d44d799c940b78459e977b533bda893f6fe",
+      "question": "What kind of art does Scitex CT and Adobe Photoshop have in common?"
+    },
+    {
+      "id": "870cf4db5f9badff77fbe0179f18e6aa1368b884",
+      "question": "When was the Muslim Brotherhood founded?"
+    },
+    {
+      "id": "edb3075dd016895445fe1e3041c7926255ff17f3",
+      "question": "Which is headquartered farther east, The Christian Century or the Adventist Review"
+    },
+    {
+      "id": "9870821db87909053f59c937a025de74bac34078",
+      "question": "Where was there a weakness in British supply chain?"
+    },
+    {
+      "id": "9d3072757648901205d15f55cf87ff3b3c733944",
+      "question": "Who killed the socialite about whom the film \"Saving Grace\" is based?"
+    },
+    {
+      "id": "f75531f9a6180a5acc3f88fe11f4f91acbdfa4aa",
+      "question": "Who was the king of Sweden and Norway that had a relationship with the Swedish opera singer, Marie Friberg? "
+    },
+    {
+      "id": "e564ffa37811b7eeec4aeb8d8860345a8a46c706",
+      "question": "Deacons serve a term of how many years as provisional deacons?"
+    },
+    {
+      "id": "45938346dbba60a27bea8196253e080c548f52c3",
+      "question": "John Cullum received his first tony nomination in 1966 for his performance in a musical that was written by who ?"
+    },
+    {
+      "id": "6f77510401115583777432d4f98bcafd729f943b",
+      "question": "How many astronauts was the LM intended to take from orbit of the moon to the surface of the moon?"
+    },
+    {
+      "id": "82dbdd2e325849008b91036f98f05e8455b3c444",
+      "question": "For how long did the plague stick around?"
+    },
+    {
+      "id": "0852352701c5dec17e3d5351fb6b44c18d8ebacb",
+      "question": "Rundetaarn was a project started by the Duke of what localities?"
+    },
+    {
+      "id": "ec51b526f6b8fa3384a90720789fd0470630d4ec",
+      "question": "To which year is the Gloucester Candlestick dated?"
+    },
+    {
+      "id": "ed407d84d813606c8cedd5ae68ad923d7bed65fe",
+      "question": "Who was a manager of the team which John Tortes \"Chief\" Meyers played on in the 1911, 1912 and 1913 World Series?"
+    },
+    {
+      "id": "d8d5e60e31b8aa70bd9f08ce2afa3a635c68330b",
+      "question": "Which of Williams sisters was ranked world No.1 on eight seperate occasions by WTA?"
+    },
+    {
+      "id": "e5477be20f5b5ae14a1e3e2d5ba1ff72f9efc2c9",
+      "question": "What were two of Fresno's most beautiful architectural buildings that are now demolished?"
+    },
+    {
+      "id": "bde31a2040309b9d5d35ec695e20335cf03397f3",
+      "question": "What talk show followed immediately after Super Bowl 50 on CBS?"
+    },
+    {
+      "id": "445fc54e410178580410c2333253b6fa411d4af3",
+      "question": "Which group headlined the Super Bowl 50 halftime show?"
+    },
+    {
+      "id": "9a83b526f82df916cdc52c55d504aa54355138eb",
+      "question": "Who sanctions the championship in which the the Baku FIA Formula 2 round were held in Baku, Azerbaijan?"
+    },
+    {
+      "id": "058753a6f440027f9c718f1832ca8634840b29fe",
+      "question": "The amazon rainforest became a mostly inland forest around which global event?"
+    },
+    {
+      "id": "c977052cfeb500010979534f7bd315cd2042ad4b",
+      "question": "Under whose distribution was the album containing \"Ko Ko Bop\"  released?"
+    },
+    {
+      "id": "bd9cbdce412cd542fbd6d388e22b5a86ab3eaf13",
+      "question": "The Dawns Here Are Quiet was revived at the theatre in what Russian city in 2015?"
+    },
+    {
+      "id": "25b57b093e689e32af627eb38c244c56d29e3522",
+      "question": "What was the the movement called that brought Baltic countries independence from the Soviet Union?"
+    },
+    {
+      "id": "ba5498523c12e2513900e9120873ba641b82822d",
+      "question": "Which film took longer to shoot, Samsara or What Remains of Us?"
+    },
+    {
+      "id": "88309aa7949ec2e7d847e114ff7779ae8719a29a",
+      "question": "Who did Temüjin's mother adopt to help integrate the tribes he conquered?"
+    },
+    {
+      "id": "dc022ac98049818c9143bfd057724a815dc22ae6",
+      "question": "Who has performed all the Doctor Who music since the 2005 Christmas special?"
+    },
+    {
+      "id": "1c68a14b994cb5c7d4f314a3e7bb296cd5be4ed6",
+      "question": "Who destroyed the most valuable relics in the mausoleum during the Cultural Revolution?"
+    },
+    {
+      "id": "046278f24b6df1864738418dd66a8ee502f08c5c",
+      "question": "Who did Noble acquire the rights to the American Broadcasting Company name from?"
+    },
+    {
+      "id": "4e571872a5b6412c5e90e12ca32c6922894a7d28",
+      "question": "What injury did the Carolina Panthers lose Kelvin Benjamin to during their preseason?"
+    },
+    {
+      "id": "9ece71b11759aba47cc69698ebff675ddfde6e49",
+      "question": "Who patented a high-pressure compound engine in 1805?"
+    },
+    {
+      "id": "edc7007d07c93d8124ea6a9f8a322373e0f1652b",
+      "question": "Which bass guitarist joined Metallica in 1986 following the death of Cliff Burton?"
+    },
+    {
+      "id": "0a0417a6292d4e2dfb6247f5e624ee15d98026d6",
+      "question": "What mechanism moves coal from a bunker to the firebox?"
+    },
+    {
+      "id": "e874e3ef5e408bc8cd58d58b42683017c3a09639",
+      "question": "Six Flags White Water is a gate to the theme park in what Georgia county?"
+    },
+    {
+      "id": "0c8880e38680716d61446b53506afa9f73f58154",
+      "question": "What magnetic character do triplet O2 have?"
+    },
+    {
+      "id": "a51e0c4d7d4f565cb1249ecc99ff7aa63a029a95",
+      "question": "What did Carolina face in the opening drive that they had not faced the entire postseason?"
+    },
+    {
+      "id": "06ca31eba2d1024558268573b9fdce2c86848b39",
+      "question": "What kind of universities is the region famous for?"
+    },
+    {
+      "id": "8eff0a0c3453361fa3f5e9a552096caf59c0219a",
+      "question": "How many elementary schools are overseen by the archdiocese in the city where the author of Bernice Bobs Her Hair was born?"
+    },
+    {
+      "id": "5bcb6de60696d165ecd46b57a5a5ed40f891206d",
+      "question": "Do Marion Zimmer Bradley and Noah Gordon have the same name?"
+    },
+    {
+      "id": "f378381e4bd761137b5a2e4024ffcac28a3e2ed0",
+      "question": "What do Maximum PC and Heavy Metal have in common?"
+    },
+    {
+      "id": "b9142c2ff73a2d6447a7fb81193726a1999eb6bc",
+      "question": "When is one of the three Subban brother drafted into the NHL from  Canadia born"
+    },
+    {
+      "id": "1e2b90af89233167828c2f4470c4ed6f6153a2e3",
+      "question": "Which studio produces a Marvel Television show that has featured the actor who played Shaun Evans on \"One Life to Live\"?"
+    },
+    {
+      "id": "2dc4b41ecae7f5ce2a7f595dc9c3bcbe78257a5c",
+      "question": "In general, what were teachers paid in the past?"
+    },
+    {
+      "id": "7883c58e3dbb7d450349188944174c0114fff21c",
+      "question": "Which astronomical object is closest to the Earth among the three, the Sirius, the Altair, or the crab nebula?"
+    },
+    {
+      "id": "a8961ba4aa8e5608fba22fc6349fecb5d9299745",
+      "question": "Who is taught at teacher's colleges?"
+    },
+    {
+      "id": "47b89b0c03bb8e32fa48a8331d20947f2b30b11b",
+      "question": "Maria Agatha Franziska Gobertina von Trapp was the daughter of which Austro-Hungarian Navy officer who sank 13 Allied ships during World War I?"
+    },
+    {
+      "id": "06000708ab4b42b866698186c01cf4a17deb42f1",
+      "question": "Which popular novelist was first born, Australian Peter Carey or American V. C. Andrews?"
+    },
+    {
+      "id": "30cff428fbf9b3e5c386c6cc301c44cc88e4c239",
+      "question": "What site is located in the San Francisco Bay Area?"
+    },
+    {
+      "id": "c6820212f074e3e9c3270191ea4ee23403132a3b",
+      "question": "What technique was used to decorate the east side of the building?"
+    },
+    {
+      "id": "206ccea04ca9d04836f13136d8f3e6273ec9b95a",
+      "question": "Which oil tycoon built a family estate called Kykuit and a church for the nearby town of Pocantico Hills?"
+    },
+    {
+      "id": "5cafec3f0482a18ee370b6254bcea7d920b02b29",
+      "question": "What is the name of the private day school for K-12 students the university runs?"
+    },
+    {
+      "id": "c286feaf2c7da6555bd8d9222b91cc4f16e64687",
+      "question": "Which President lowered barriers for the adoption of children?"
+    },
+    {
+      "id": "0276966dce53cec18b2152b75190f04850f8a7c9",
+      "question": "Bob Foster won the world light heavyweight title in 1968 from the boxer who also held what other title?"
+    },
+    {
+      "id": "a6cd2f982b4e014cdd67d0ab114c733a272b04a8",
+      "question": "When did photosynthetic organisms evolve on Earth?"
+    },
+    {
+      "id": "b2951c7a928ed94dece05e64c11c154fda198203",
+      "question": "Which book discussed the theory about low populations in the Amazon rainforest?"
+    },
+    {
+      "id": "839fb265d41c24c0942cdc7f8fc3cf7c25733b48",
+      "question": "Who performed a benefit concert for the charity Children in Need?"
+    },
+    {
+      "id": "cb3526694bbd13016f8b164e1f036efc4f417749",
+      "question": "The UMC understands itself to be part of what church?"
+    },
+    {
+      "id": "c280f0e40a00b950a6089f7c7bb5a2333a704cdd",
+      "question": "Which British sculptor and a leading member of the New Sculpture movement is represented in the the V&A collection?"
+    },
+    {
+      "id": "5856b9bcb07870a76864e60cd2c425037986f1ba",
+      "question": "How many large public parks does Fresno have?"
+    },
+    {
+      "id": "ece2139bea407f3714da87db020bfb6c6a40e4d8",
+      "question": "By separating faith and reason, what does Luther honor?"
+    },
+    {
+      "id": "2e3709e721da63914e8b72beef5ccee0b05bf6ad",
+      "question": "Who did Denver beat in the AFC championship?"
+    },
+    {
+      "id": "fab6654b8707b0f1db12def14ddcfc7ccd4c055e",
+      "question": "What type of practices did the Yuan reintroduce in government?"
+    },
+    {
+      "id": "b7bdac7aceff0e7cb8c5fa850bfccc1a144021b4",
+      "question": "Which baseball team, an affiliate of the Houston Astros, was partially responsible for the demise of the Diamond Dogs baseball team?"
+    },
+    {
+      "id": "16367576991cb5e21a1e9da7c5964ce56babe8f0",
+      "question": "Which NCAA Division II head coach spent the majority of his coaching career at the University of Akron?"
+    },
+    {
+      "id": "3b7433cdb9c00c8e6c1221b7f099f753e20c95f5",
+      "question": "What is reduced by using plastid transformation for gene modification?"
+    },
+    {
+      "id": "301d869c07ac7cac27e174747dcdb3f36cccd559",
+      "question": "On what other calendar is Luther commemorated?"
+    },
+    {
+      "id": "89e1a9421a6c5278cc3a52f5be27282dc40af336",
+      "question": "The stoner metal band, Torche, had the artwork for their album designed by fellow musician John Dyer Baizley; why type of band is Baizley a member of?"
+    },
+    {
+      "id": "6985603aa197854e1bddb3e6c6acc2005d729f1f",
+      "question": "Live at the Budokan was recorded during a tour for an album by which band?"
+    },
+    {
+      "id": "798c347340318b62b740165faf598775b7f1ffed",
+      "question": "What is the key accomplishment of Genghis Khan that modern Mongolians celebrate?"
+    },
+    {
+      "id": "c9cbd8bb1cc9ac506f2fc202813d22eb8cde9a5a",
+      "question": "Who designs both the \"50\" as well as the Trophy?"
+    },
+    {
+      "id": "2313dea29b3565f63baab6bd27ab34319cfe3dd9",
+      "question": "When was the first direct elections for native Kenyans?"
+    },
+    {
+      "id": "34ea17a4f1d9df2fb46093e0ec10b140259655ea",
+      "question": "What group killed thousands of Huguenots?"
+    },
+    {
+      "id": "473dc795de24adadf8d3b41de1ab866f2afb27ce",
+      "question": "From where would scientists like measure vegetation radiance?"
+    },
+    {
+      "id": "ab03dc40b1e7060798a8a2c4572a888adbab508b",
+      "question": "Who identified gravity as a force?"
+    },
+    {
+      "id": "63d4f2717e491e4df3643c5b029432aba065d3dc",
+      "question": "Why was old oil withdrawn from the market?"
+    },
+    {
+      "id": "f20de46a511464f6d2c6bf5569ddcca6ebb680a1",
+      "question": "Which company owns ABC?"
+    },
+    {
+      "id": "7a090292c45727b51cc0bdb0f781804c9fa80a33",
+      "question": "Where is the Danish airline, that Røros Flyservice AS services, headquartered?"
+    },
+    {
+      "id": "b92715747fde77a22af840dfa43da7895435dac7",
+      "question": "What was the alternative name for the show OutThere during the season it was presented by Emily \"Bouff\" Bouffante?"
+    },
+    {
+      "id": "7a29f71a7a6d86eaee32b6ac947413fa86ad8ce0",
+      "question": "Which band has released the most albums, The Sundays or Flow?"
+    },
+    {
+      "id": "fc4cd6614689cd6daf1b27a251405df8ae504ee5",
+      "question": "Which natural resource was mined out of the ground of both the Hedley Mascot Mine and the Kemess Mine in British Columbia, Canada?"
+    },
+    {
+      "id": "08d3312c2dad012d85aed345eeaa5078838aa120",
+      "question": "What religion were the Normans"
+    },
+    {
+      "id": "049a65477df8563bcb2ad67bc5bb4c707b30dae5",
+      "question": "What is the title of Edwards book about Luther?"
+    },
+    {
+      "id": "9e4709950f12e0e3ee186e827603e5dd914581d7",
+      "question": "What was the importance of the congress?"
+    },
+    {
+      "id": "a173b56e0daad429dc500e0737b724f653b0da04",
+      "question": "What platform was Sentanta Sports planning on launching on?"
+    },
+    {
+      "id": "a43d03c2a9bf8ebc2decf0ed0648eda5310e1ae0",
+      "question": "In what year was the trial of Rev. Jimmy Creech?"
+    },
+    {
+      "id": "455cad515e8b243115659cd154540c0263b20715",
+      "question": "In what year did Tesla receive a Nobel Prize bid?"
+    },
+    {
+      "id": "b1deb89b38ebaa7c5f56dfb630c9753989c277e8",
+      "question": "Where were Persians more successful compared to Chinese in the Yuan?"
+    },
+    {
+      "id": "5d1527c84aaaf319f47dbc70d1a08b2d947ab024",
+      "question": "What did the Church do when Luther refused to retract his writings?"
+    },
+    {
+      "id": "f6cf4019ebff8aed91d9356d0a768452bbee625e",
+      "question": "What year was the new bus station in Newcastle officially opened?"
+    },
+    {
+      "id": "b6c938c3c9e5fb224364b3f22d0c7c5ffb769e38",
+      "question": "What does immunodeficiency cause?"
+    },
+    {
+      "id": "adbb08dc7634df9e7be5e27f6a8dac83c7e952b5",
+      "question": "Which first baseman for the Cincinattie Reds is the client of Dan Lozano?"
+    },
+    {
+      "id": "34b37769f2a925f7565001e5b25c4d52a21ea809",
+      "question": "Which country does the Rhine encounter it's main tributaries?"
+    },
+    {
+      "id": "207057d1f49236ab709375d29168abafb7f290d2",
+      "question": "What South African law recognized two types of schools?"
+    },
+    {
+      "id": "54262083c9e3bfe92647a178a5ffc59c14d9856a",
+      "question": "How was the civil disobedience shown in Antigone?"
+    },
+    {
+      "id": "c2507c641a721b260b28241cf818b634ca5e3fd0",
+      "question": "What type of launch was happening during the Apollo 1 incident?"
+    },
+    {
+      "id": "13ae54b6f0ebdd9f4c16240ceaa798a3c6ebcb36",
+      "question": "The 1976 Major League Baseball All-Star Game was played at which multi-purpose Philadelphia stadium?"
+    },
+    {
+      "id": "8bcf6c44e04f3bf8694f3702852d9224d57348f2",
+      "question": "How much do estimations of the population during the plague vary?"
+    },
+    {
+      "id": "c87c6ac8a1e3c75428f6b4ecc1ad2e967a96a504",
+      "question": "What company do Savage Sam and It's a Small World have in common?"
+    },
+    {
+      "id": "372d280816d5d52185efe6b63a742de7aa2e0295",
+      "question": "What gameshow featuring newly married people was debuted by ABC in July 1966?"
+    },
+    {
+      "id": "150f6a1f7bae6389bf51054608d18b4ee225cad5",
+      "question": "Leiomy Maldonado has worked with which artist who made her acting debut in 2007 in the film \"I Am Legend?\""
+    },
+    {
+      "id": "0fa69706cd8c3c7e2659fe926ad3a562465c6fe7",
+      "question": "What did he believe the ether did?"
+    },
+    {
+      "id": "32cebf2ac46444f62bb085c810246056e0f3873b",
+      "question": "Tribal members living in the rainforests of what region are using Google Earth?"
+    },
+    {
+      "id": "7e15b08405366d8e39a624c43f75101a765b5bc1",
+      "question": "What resolution were the cameras increased to for the game?"
+    },
+    {
+      "id": "a088c7abf376127213b7f3d26affb1a1473d2f38",
+      "question": "What cycle AC current system did Tesla propose?"
+    },
+    {
+      "id": "934175279322d43b22eb4129b522427685451c91",
+      "question": "In what year did Fresno become an incorporated city?"
+    },
+    {
+      "id": "4107b654b6a160fc5a28177d694a7ea95278de46",
+      "question": "What were NTL's services rebranded as?"
+    },
+    {
+      "id": "6af263a52ea03e118e15adea068488da6070b8da",
+      "question": "Juvenile and adult  beroe lack what?"
+    },
+    {
+      "id": "c688e2e9bd08cc5c9e7f14f6a0b1fd7172428c41",
+      "question": "Who created the 2005 theme for Doctor Who?"
+    },
+    {
+      "id": "e34d10f74e25b77328c77f5352289819d6e84ec0",
+      "question": "Where did Charles de Gaulle and the Free French run operations during World War 2?"
+    },
+    {
+      "id": "1d072f961e1b053a7c4e99e25369ce79cf1209d0",
+      "question": "In 1758 what was duc de Choiseul's plan for focused military efforts?"
+    },
+    {
+      "id": "e1c68c13d3039a0598af177cc673d2bfe7369dfe",
+      "question": "What did Luther claim the church would have to comprise if the law were not taught?"
+    },
+    {
+      "id": "93ac03b021868aa47fb0e6a313b9ae2a5c0a950e",
+      "question": "How old was Elway during his Super Bowl XXXIII win?"
+    },
+    {
+      "id": "5221d1e4e794791a96f5d008923aeb840d3c0c13",
+      "question": "In what part of the United States did many students migrate to Christian academies during the desegregation period?"
+    },
+    {
+      "id": "3cf1fbe39ab03c8af9ccda28eec929ad3891854f",
+      "question": "Which strategic bomber fleet is powered by the same engine core design as the General Electric F110?"
+    },
+    {
+      "id": "079cc66d4ca511d6f9f1359eb1b7628d13958283",
+      "question": "What year was the county, where Troy Airport is located, founded?"
+    },
+    {
+      "id": "720bc6910a537721da3dcc0028ef0c7c08388866",
+      "question": "The Sushi Economy book contains information about which Japanese chef and restaurateur?"
+    },
+    {
+      "id": "c11b1394952f5d2356b6dbc36d69096b10581197",
+      "question": "What did this affair cause to Luther's reputation?"
+    },
+    {
+      "id": "b57638fcde2bfbfe8938788f3317528415c306b9",
+      "question": "For how many years was evidence shown that humans shaped the the Amazon?"
+    },
+    {
+      "id": "20dcea3079c63074bfb01b1ed159caf5c274c064",
+      "question": "When did the UMC enter into full communion with several churches?"
+    },
+    {
+      "id": "05ce25aecbebe15853851c8dbdc6fe4238c3f324",
+      "question": "Where did Josiah Russell export manufacture sodas, mineral waters, and carbonated soft drinks that have quinine dissolved in them?"
+    },
+    {
+      "id": "63783a0fce5695d18ede1c7ba84d1c10b200f00a",
+      "question": "What is the process by which pathogens evade the immune system by hiding inside the host cells called?"
+    },
+    {
+      "id": "9429fc85a0b08d60c467b7667137cb5e7d8bd4aa",
+      "question": "How much did the IPCC Third Assessment Report say sea levels will rise from 1990 to 2100?"
+    },
+    {
+      "id": "e0a39e9695ac38fde6e5126e22d65c79ef08b28c",
+      "question": "Where were populations centered in colonies?"
+    },
+    {
+      "id": "4ddf83195038287e0ba4f513807de486697c2357",
+      "question": "Why did Luther condemn vows of celibacy?"
+    },
+    {
+      "id": "962f6dfd864518629300a00542c53d52306071fb",
+      "question": "Mr. Pim Passes By is a play performed in London's West End and Broadway shortly after the First World War. Who was its English writer, who later wrote hugely successful children's books?"
+    },
+    {
+      "id": "fbbf26c232b7b0f2c73c17f286d2b3c3b3d86c37",
+      "question": "What rules does the IPCC have to follow?"
+    },
+    {
+      "id": "81442193ce6c42a849738248f2f38953d34d3204",
+      "question": "What did creating highways in the Amazon rainforest lead to?"
+    },
+    {
+      "id": "804a0fd1a6697c2a63f5378d3d826d1234b45df1",
+      "question": "What does turning sideways protect chloroplasts from?"
+    },
+    {
+      "id": "a24ddbc582da1e751d3b82e1e321ee667f643c3b",
+      "question": "What  two-time American League (AL) Most Valuable Player (MVP) award winner, a four-time AL batting champion, and an eleven-time MLB All-Star is on the cover of MLB 14: The Show?"
+    },
+    {
+      "id": "67d494386420471b727a89af76a8d4d95c2d228c",
+      "question": "A Doctor Who show featuring Vincent Van Gogh was recognized by what award?"
+    },
+    {
+      "id": "e245b949e298b6401ae9b4ee16b28b2e5ef90797",
+      "question": "Which television network was founded second: Disney Channel, CNN, or MSNBC?"
+    },
+    {
+      "id": "4f3a7cb3cc0277e4bb85011979092e39cbfbf802",
+      "question": "What did Biraben say about the plague in Europe?"
+    },
+    {
+      "id": "08094386263380d92cfa770461dc1268e48e05c1",
+      "question": "What is a mechanism that can help plants block virus replication?"
+    },
+    {
+      "id": "e27dfc82d0685bc4bc93814de5c49b1aea57d80c",
+      "question": "Deliver Us from Evil 2014 movie based on the book written by what retired NYPD Sergeant?"
+    },
+    {
+      "id": "b4637814d5d7446ec6090e5b992cc0c9d83581bb",
+      "question": "What date was Super Bowl Opening Night held?"
+    },
+    {
+      "id": "33fab03448a32343200da5bc33efef6c7eafdd74",
+      "question": "What was huihui?"
+    },
+    {
+      "id": "111bf1d8613b7e555c862d5b4ff0ee0057450a84",
+      "question": "What does civil disobedience protest against?"
+    },
+    {
+      "id": "048609eda09b448b24caf08084e39c6158524c91",
+      "question": "How many scalar equations were formed into a set by James Maxwell?"
+    },
+    {
+      "id": "aa382564a0a4061887c0dbd790365d065457cb01",
+      "question": "Where was the event located where Dominick Cruz lost?"
+    },
+    {
+      "id": "87a861b0a8360233d6c41e5b2337170c14339b50",
+      "question": "Who was the king of the earls with whom Robert of Jumièges had a conflict?"
+    },
+    {
+      "id": "b21feaf41c5e02196cda262c318274afbfa78c34",
+      "question": "Where is the museum sponsored by Heathgate Resources located?"
+    },
+    {
+      "id": "06ca1ff6e599f711810c88bd30dacec62fe74a7a",
+      "question": "Both used to herd cattle, is the Perro de Presa Canario and the Lancashire Heeler of similar size?"
+    },
+    {
+      "id": "2cb4276f4cb21d0e496c2997c46fbb25591defd4",
+      "question": "When did he first mention wireless communication?"
+    },
+    {
+      "id": "6357d3f32c0ae5e665c22741c36fff3127d0c911",
+      "question": "In a type III secretion system, proteins are transported to the host cell in order to do what?"
+    },
+    {
+      "id": "413c54c2cb33678f1c7dee80a644f349daebc6d2",
+      "question": "Where did Moncalm slip away to attack, left largely unprotected?"
+    },
+    {
+      "id": "6121858550d226866c40117e4a0925fc62e2c4e7",
+      "question": "What was the name of the Norman castle?"
+    },
+    {
+      "id": "be3351a749deda126bdd06854ed81e60ce2b14c4",
+      "question": "What country of origin does The Fat Slags and Viz should appear have in common?"
+    },
+    {
+      "id": "3f392c319192544662708baf695a0f126d4f42b5",
+      "question": "How many people died in the launch of the second orbiter of NASA's space shuttle program?"
+    },
+    {
+      "id": "9f6e5da10306cff39d5bba945f158d9b467b1faf",
+      "question": "Carrie Coon starred as Margo Dunne, in a thriller film set in what state?"
+    },
+    {
+      "id": "2598f6b7a343f2821289665101db3a20711f1da3",
+      "question": "What cell type is also used for immune response in most types of invertebrate life?"
+    },
+    {
+      "id": "b4122ceab783615a2ecabfc372b49ad45abb262a",
+      "question": "What is the next largest city in Greenland above the hometown of the 2007 Danish parliament electee and member of Halibut Greenland fishing company?"
+    },
+    {
+      "id": "840ffc2824f921b6753bf7daaf514d37e704189b",
+      "question": "What kind of self-consistent models are physicists trying to make that would create a theory of everything?"
+    },
+    {
+      "id": "9702a316b82e03b994c86a949dd5b5112ebfc7ec",
+      "question": "What was established in 1918 as a Communist Party and was also invited to participate at the electoral leftist alliance group?"
+    },
+    {
+      "id": "669be0a9ae9a8033d34b87d4a1f2a8b01afad47a",
+      "question": "In what treatment are nonconservative and conservative forces described?"
+    },
+    {
+      "id": "37d5cff9da56d01968c59f083c276a752479f257",
+      "question": "Which movie won the Academy Award for Best Animated Feature the year after the film about Louis Nirenberg’s co-winner of the Abel Prize won Best Picture?"
+    },
+    {
+      "id": "1517d421eff5fdb771836bce1354aebc11f02f0c",
+      "question": "What type of missions were approved by Mueller after the incident?"
+    },
+    {
+      "id": "a7aa8e11dd0b0e101d74aa422b90ec0667d8a026",
+      "question": "Icons.com which has sold merchandise signed by the likes ofthe record goalscorer for the England national team and for Manchester United, was launched in what year? "
+    },
+    {
+      "id": "98701f5ebd0dd28e11dac34c9bc8090c8774a6ef",
+      "question": "Miller Grove High School is outside of what major city in Georgia?"
+    },
+    {
+      "id": "953273282fdc09ae39702c3a3c8ec84677264762",
+      "question": "Are Pointer and Beauceron both considered herding dogs?"
+    },
+    {
+      "id": "dd85dec84fe7706549d73fc51051d2f3ddbfc43f",
+      "question": "What minor amount of liquid oxygen was produced by early French experimenters?"
+    },
+    {
+      "id": "bb9310273227168d2cc3eb5113cc444995cc7181",
+      "question": "Were Byron Howard and Harold Young both American film animators?"
+    },
+    {
+      "id": "ca70336ca161c689844d12aa5801dd70a0380bf2",
+      "question": "Who scolded Luther about his rudeness?"
+    },
+    {
+      "id": "cdfc6fc0a406cddaa9beed1c4ffad086edbd1e51",
+      "question": "When did Luther's writings to spread to France, England and Italy?"
+    },
+    {
+      "id": "713b710483675072825ebdc22dd8c8407efc7419",
+      "question": "What is the largest co-ed independent school in Newcastle?"
+    },
+    {
+      "id": "05ad32365f1a5d53ad3bf2ea9703d81d7dd30feb",
+      "question": "What are Plastoglobuli made of?"
+    },
+    {
+      "id": "b4f5bc1130a221f787e766501956f0f448d78607",
+      "question": "What is Qantas' \"value based\" low-cost brand called, which operates flights in New Zealand as well as Australia?"
+    },
+    {
+      "id": "20e0a8fa9ccc717defa81737f7aa1c378dd5faf5",
+      "question": "What happened earlier, the founding of W, or the closing of Harrods Buenos Aires?"
+    },
+    {
+      "id": "9e7238e1bddda37d548fcae18ca8b7a728d6c6ad",
+      "question": "Other than San Bernardino, what is the name of the other city that maintains the districts including University Town?"
+    },
+    {
+      "id": "d1c82036e63393e3afb9c30fbb781eeecf5b2428",
+      "question": "Are both Fitzroya and Croton from the same genus?"
+    },
+    {
+      "id": "2d9f78dc8d9d2b32ebcd1c6ba831012f1f331fe7",
+      "question": "What is the primary purpose of chloroplasts?"
+    },
+    {
+      "id": "98ff2094a84122c96834122d7e94fad05fafd459",
+      "question": "Which company has sales in more countries, Philip Morris International or EBay?"
+    },
+    {
+      "id": "d23b1ace47f01e05eaa204ea13da955411534f51",
+      "question": "Which American actress born in March 1958 co-starred in the movie Catwoman."
+    },
+    {
+      "id": "9132b40ee9d1ed4e57de333c14c4cfcef8ab73c8",
+      "question": "What comedy block debuted in 1989 for ABC?"
+    },
+    {
+      "id": "fe71a6402a80c17cf99c1665d0a61b60ba9be3f6",
+      "question": "Who were Temüjin's three full brothers?"
+    },
+    {
+      "id": "288e141ae398d2d497bd0144c0b845bbd0978987",
+      "question": "Lodewijk van den Berg flew on the ship that would later launch and break apart how long after liftoff?"
+    },
+    {
+      "id": "6d17e8910e7d58a3a8c6be83aa4f2ff529f417d1",
+      "question": "What amount of the worlds carbon is stored in the Amazon forest?"
+    },
+    {
+      "id": "54a18853da0a9fd738416d575e738440ccbc65e2",
+      "question": "Which is a lesbian feminist magazine, Conditions or Sayidaty?"
+    },
+    {
+      "id": "3447ac071e435cc07fbedd17fa6f66a0bcdbde00",
+      "question": "What part of the V&A collection does the Henry Cole Wing houses?"
+    },
+    {
+      "id": "4810e18cc8b47026361a0a28dfc013164374ede3",
+      "question": "Which mine was in operation first, Tundra Mine or Colomac Mine?"
+    },
+    {
+      "id": "154517b80443db7eb94414b13d1ee45213eb9c67",
+      "question": "How many counties initially made up the definition of southern California?"
+    },
+    {
+      "id": "3a561d0af4ad9b932d108cd988fab4733918ada9",
+      "question": "What city is the capital of Victoria?"
+    },
+    {
+      "id": "8a6efb0a680e035090c4e5708c7efb3b20aa306f",
+      "question": "Who may not require that its teachers be certified?"
+    },
+    {
+      "id": "b26093e4a6767e758d147f3dd6038b8b8ae788b2",
+      "question": "Latin hymn, Veni, Veni, Emmanuel is used as Vespers in what faith?"
+    },
+    {
+      "id": "107e3f8a634704f20b81b13d8ed62c7e70997d7a",
+      "question": "When did Khan formally declare the Yuan dynasty?"
+    },
+    {
+      "id": "84bd7f2963df06effe2eb085c562677dbbc785f2",
+      "question": "How many sacks did Derek Wolfe register?"
+    },
+    {
+      "id": "57a6fe48c27d960659845a303eb27aff58dee80a",
+      "question": "What did Tesla's father promise him while he were bedridden?"
+    },
+    {
+      "id": "0d4591fab0d72a36093f2a702410e30bf4152a4b",
+      "question": "What was the museum originally called?"
+    },
+    {
+      "id": "342d442b77f3bab9b9ad9e7e3cb5cdcbd3f69625",
+      "question": "Which State Route has been in discussion to upgrade to interstate standards?"
+    },
+    {
+      "id": "22cc136a8a895f2837f050f635b2680b10c0d0d1",
+      "question": "What is the intrisic angular variable called when particles act upon one another?"
+    },
+    {
+      "id": "fb149a6ca7aa949e5b4a7824dbcdeb5f98965f1d",
+      "question": "What format is ABC's master feed transmitted in?"
+    },
+    {
+      "id": "de04f2b7829b87d175d00bdc0aa770e6f49244bc",
+      "question": "The Art Deco style of glassware is represented by which artist?"
+    },
+    {
+      "id": "3d30fd5561b915fdb6bc9660f19a22f8948414c4",
+      "question": "Which Scandinavian monarch turned into an Augustinian priority in the House of the Holy Ghost?"
+    },
+    {
+      "id": "4d839be4c63dc1d625ce97dafea66ff7bc87f955",
+      "question": "What is the name of one algorithm useful for conveniently testing the primality of large numbers? "
+    },
+    {
+      "id": "7c21f362690d4816c57a20b3331ba3d252314a54",
+      "question": "What colors was the 2001 ABC logo?"
+    },
+    {
+      "id": "e3a8d6d7d901dad61dcfc517fc66ee3bcfbdfc5e",
+      "question": "What genre does Entourage and Jerry Ferrara have in common?"
+    },
+    {
+      "id": "68b65ab62c7ed662bc9cda5bc16870caa51b4462",
+      "question": "The winner of the 1935 Grand Prix season raced for what team during the Silver Arrows period?"
+    },
+    {
+      "id": "d80a4e9f9836bb909d54485160c97dfccb301d9f",
+      "question": "Where were the Kikuyu people located?"
+    },
+    {
+      "id": "3e1384dff80c2b782623bc0f00754ed9226f9f26",
+      "question": "Where is the headquarters of the company that owned Woolworths.co.uk from 2009 onwards located?"
+    },
+    {
+      "id": "59bc7e33aa50fdbe6c2b97fcf9effda2914e68da",
+      "question": "The Armada Memorial celebrates the defeat of a Spanish fleet in what year?"
+    },
+    {
+      "id": "16cb1cf77caafae5548d8a2bbebdbf90e4608e17",
+      "question": "Both Panicum and Pereskia are both what level of classification of species?"
+    },
+    {
+      "id": "31fa0a54a5966bcb39a17b0d9fed3f9b5ffa8e9d",
+      "question": "Markus Pink, a striker, plays for SV Mattersburg which is located where?"
+    },
+    {
+      "id": "5575127416e463673887c747dea3a743de963a78",
+      "question": "What is the natural dam that the Rhine flows through?"
+    },
+    {
+      "id": "dafaf386a3f756d41bf928a7699a51a5c15b2225",
+      "question": "What was the name of Wesley's famous sermon in which he warned against the dangers of drinking?"
+    },
+    {
+      "id": "c608ed02eb1c94e578a8625fd1fa33c15bdb5f05",
+      "question": "Before moving to this theater on Broadway, which venue hosted this musical based on the punk rock band Green Day's music, in which Rebecca Naomi Jones performed?"
+    },
+    {
+      "id": "485ce69313612bcbfd0fe1642240644f4bd13d4f",
+      "question": "What is the home stadium of the team that beat the Auburn Tigers football team in the 2016 Sugar Bowl?"
+    },
+    {
+      "id": "a624d9d09ae4c652b025aabbfcd3183191bdc3ab",
+      "question": "What modern city did Khanbaliq become?"
+    },
+    {
+      "id": "de3e4925b4d72025f8a50c93dd73748ae3c9ad77",
+      "question": "What is the most important item for civil disobedience to follow through?"
+    },
+    {
+      "id": "bea5ea56e1070a109938f9b21b3264ae390576f9",
+      "question": "Are Peter Murphy and Parabelle from the same country?"
+    },
+    {
+      "id": "0c2b2c8a0788ade098251569c523a26e8f95366b",
+      "question": "What percentage of farmland grows wheat?"
+    },
+    {
+      "id": "7633611d0b8739624b9db508d0acc4b91ae1f9d8",
+      "question": "For what position was the stepson of Dale Smedsmo drafted ?"
+    },
+    {
+      "id": "b494139ed92ca8d51b89c29c00ce1e52b9fad167",
+      "question": "Maurice Multhaup plays for a club that was founded in which year ?"
+    },
+    {
+      "id": "7cbbb589ddc18a9d6761ca30f92520fb2893ad06",
+      "question": "How was the school able to bring aboard the best talented students?"
+    },
+    {
+      "id": "48f3be990bee4d9b42e4e7026e33fcb2abdd67a9",
+      "question": "In what year was the author of \"The Invasion of Compulsory Sex Morality\" born?"
+    },
+    {
+      "id": "36f1056358f42707578102a61db0f90a87a5fd45",
+      "question": "Which film, Troop 1500 or A Summer in the Cage, was directed by Benjamin Selkow?"
+    },
+    {
+      "id": "4a036dca390527bad66fc245a8225f2cdf01f609",
+      "question": "Have both Bruce Conner and Cate Shortland been involved in film?"
+    },
+    {
+      "id": "098ca25a22d6c82b5c4e174d6c9039ccd111e8e2",
+      "question": "Who thought that applied force caused movement of an object regardless of non-zero velocity?"
+    },
+    {
+      "id": "5f18da218834c4e4268e856c5fea99b239be00f0",
+      "question": "On what days did Hey Ghost, Let's Fight, starring Kim So-hyun, air?"
+    },
+    {
+      "id": "579dcdb53a8f71d7ab8f44c2e23e1f3d18b73270",
+      "question": "What early Huguenot Church was established in England?"
+    },
+    {
+      "id": "401f514c38e7bd45f91295fb1a7e4cbe677b7594",
+      "question": "What did the 1938 brand created by Edsel Ford share a platform with in 1958?"
+    },
+    {
+      "id": "f2da8e506c0aef4a0f7124c1677426880b8f4bc1",
+      "question": "Who is the oldest quarterback to play in a Super Bowl?"
+    },
+    {
+      "id": "7a153c73dbfa9174a56d2ee2a6f315523fec0d28",
+      "question": "When was the St. Bartholomew's Day Massacre?"
+    },
+    {
+      "id": "8688b6ac03db727561627eaf7ac46c4f38c41ffd",
+      "question": "What do you get when you figure the sum of forces with vector addition?"
+    },
+    {
+      "id": "37a5abbc72b3d59a90f08e65fe1f19a9d52e8b43",
+      "question": "What is considered as a potential advantage for wealth for some Americans?"
+    },
+    {
+      "id": "b2b7dee7875d240241d3db4ce3c65828f42745c7",
+      "question": "What did Luther identify the Papacy as?"
+    },
+    {
+      "id": "298ba5a00058d35c95fff1e22bb0dcfbb571614a",
+      "question": "Point Conception is an example of a landmark among what boundary of southern California?"
+    },
+    {
+      "id": "9900465ebf4c2e3bebd852f6b704c876c75e739f",
+      "question": "What series featured Doctors from the revised version of Doctor Who?"
+    },
+    {
+      "id": "02e3d3a4e24fe225f77f63c9c90aa706ec76e81b",
+      "question": "Where is the production company that made a 2015 independent drama film directed by Lenny Abrahamson and written by Emma Donoghue based in?"
+    },
+    {
+      "id": "595eabaac18cfc8aedb5a9617087edccdf02ce7b",
+      "question": "The Internet Storm Center is a program of an institute founded in what year?"
+    },
+    {
+      "id": "63f41eed335f60e55c00180348d290ca8015bcd3",
+      "question": "What do a plant's chloroplasts descend from?"
+    },
+    {
+      "id": "bac280a1ee6ca1856e5f913084d8e49b25f32762",
+      "question": "Tinker Bell is a computer animated fantasy film and prequel to a film based on a play by who?"
+    },
+    {
+      "id": "b0cd051cdd2a2d7c9ae1d1e41e08e08de0ccc39e",
+      "question": "If you were to take a train west or south out of the city of Fresno, which railroad would you take?"
+    },
+    {
+      "id": "bd2ff4483b608b843bd0ddb277ed795db46e12e3",
+      "question": "What do Germans call private schools?"
+    },
+    {
+      "id": "794ecbe31f8a6c50aa77f73ae20ed76c80d5ff16",
+      "question": "Who did the Liberian president who was rebelled against by Gyude Bryant resign?"
+    },
+    {
+      "id": "e4d9dc8673b0ce29cbdccfea5f0ee8aaf3b179dd",
+      "question": "The Italian motorcycle racer Axel Bassani was signed up to race in this racing season where which racer is the reigning series champion?"
+    },
+    {
+      "id": "3d298609640967972dc8c395b7f027b8993b005e",
+      "question": "What process is responsible for the planet's oxygen content?"
+    },
+    {
+      "id": "f63a2052cb172762b713316c5678ff37895f19d0",
+      "question": "How did Genghis Khan observed the surrender terms after Samarkand fell?"
+    },
+    {
+      "id": "43ef151eb9e4f43749f48c7c3641b6058332a9cb",
+      "question": "When did ABC first premiere Who Wants to Be a Millionaire?"
+    },
+    {
+      "id": "7def8f2873fcb28cf12b5f8e08e6b7afca6f9592",
+      "question": "Which star from the movie \"The Final\" was born on August 19, 1988 ?"
+    },
+    {
+      "id": "24c87e126b4675b30afcc8316619f7d31f7d7ccc",
+      "question": "What gorge is between the Bingen and Bonn?"
+    },
+    {
+      "id": "8595f9d0b0f7828674c1075f7d8584a49611c2fa",
+      "question": "What is the title of the autobiography examining the life of Theoren Fleury and his ice hockey career?"
+    },
+    {
+      "id": "4e91ae7015bc639b32f6dfbbc05c30f9d992c1d3",
+      "question": "Who was reintroduced for the 50th Anniversary special?"
+    },
+    {
+      "id": "3ca915e4eeef7dccbde782c07cf5c69ddc70243d",
+      "question": "Richard Gasquet and Gisela Dulko are both Grand Slam tennis doubles champions, who has won more titles?"
+    },
+    {
+      "id": "0084e0c6c5304525c6b7d417eaca17f1cb9ed51c",
+      "question": "What prohibition agent was also an alumni at the university?"
+    },
+    {
+      "id": "c7122fd0068ac6c3ebb58206c4e67ec836580949",
+      "question": "What movie starring Saniyya Sidney is based on the book by Margot Lee Shetterly?"
+    },
+    {
+      "id": "dcaddaf146106f856ae796f0553ff0bb98dc8ab4",
+      "question": "Which sitcom broadcast on BBC Four is written by the actor who portrays Orell in \"Game of Thrones\"?"
+    },
+    {
+      "id": "6a1c1ca25e6e96b5129222de33144f22ce5d3e6d",
+      "question": "Which magazine is published more frequently, Me Naiset or Cleo?"
+    },
+    {
+      "id": "eff0ed3390a7aa9c1e40221302150bf7dd2c81a8",
+      "question": "What was the score of the last game the Carolina Panthers played prior to the NFC Championship?"
+    },
+    {
+      "id": "bf8ee9f4dc40f965a031b2ebf509bdc7c2d61a30",
+      "question": "Who developed the sequel to the last Assassin's Creed game released for the Xbox 360?"
+    },
+    {
+      "id": "b14009cb4bdedca63675ee597ab9a1e8a1297d33",
+      "question": "Who was the director of the 2013 British black comedy thriller film  starring the actress who made her screen debut on the Australian television drama \"All Saints\" in 2004?"
+    },
+    {
+      "id": "59ef5ed83682bcf3e7db8fc76f5d3d39dceb717b",
+      "question": "Where have the first episodes of Doctor Who always appeared?"
+    },
+    {
+      "id": "6166c9777b01e9ba4cd20dfeaff04eeaeb1f3ee1",
+      "question": "Streptomyces longwoodensis is from the soil of land in Philadelphia consisting of how many acres?"
+    },
+    {
+      "id": "e760f54f70eb037e4e3443d0fb761a46309166e7",
+      "question": "What was Maxwell's job?"
+    },
+    {
+      "id": "2841731a92cb830e1a59fed713976c3cb214aee6",
+      "question": "What did Kenya name itself on December 12, 1964? "
+    },
+    {
+      "id": "66f458f1d087cdcb8c85b544cef7e6a85a373c2b",
+      "question": "Who was the broadcaster for Super Bowl 50 in the United States?"
+    },
+    {
+      "id": "4274d9d7615212ff729d12efec30a007d29db4de",
+      "question": "What movie was the main character named Oliver starred Mary Page Keller ?"
+    },
+    {
+      "id": "a2e41fe226ccb8752fbbe8ccfc4133dbea96269c",
+      "question": "What is the exam at the end of Form Four?"
+    },
+    {
+      "id": "2b70731aa5ec9adc1142b13b89f364808c67e354",
+      "question": "For what nation did Ribault initially claim what is now Jacksonville?"
+    },
+    {
+      "id": "765af1cc113aba7b699126b568eb8e03b30d851c",
+      "question": "\"Tired of Waiting for You\" is a song by a band formed by which who ?"
+    },
+    {
+      "id": "dedad3e86e6d3a49f847ef9c1292c07fce5a0dd0",
+      "question": "Daisy is the fourth studio album by an American rock band formed in what year?"
+    },
+    {
+      "id": "b2ca23c03dc7ee5e5c44f6c0fdaf7e4a2e607654",
+      "question": "Which genus Eucharis or Cryptanthus has a common name Earth Star?"
+    },
+    {
+      "id": "4f4af002cee420eeb28b21de4fc6d5b5fd25bfcf",
+      "question": "which  American journalist and mystery writer wrote Elusive Isabel"
+    },
+    {
+      "id": "1807f11cb9dd12ce7d79206b6702f284c173f6bd",
+      "question": "1949 San Remo Grand Prix was one by a race car driver that won the World Drivers' Championship how many times?"
+    },
+    {
+      "id": "1385fb5e7c4470aa0845d85430997c998146bd63",
+      "question": "What team had the lowest downs and yards ever in the Super Bowl as of Super Bowl 50?"
+    },
+    {
+      "id": "5ee7c008028dfdc2c545c3005d3793ca0f3db220",
+      "question": "What type of immune systems are found in all plants and animals?"
+    },
+    {
+      "id": "35052190b8caf56bd30986d2e7ed112953e2a29e",
+      "question": "Who did the Mongols bring to China as administrators?"
+    },
+    {
+      "id": "dc14bab4edbd891cb9ebbfbfab8e31198bec546a",
+      "question": "Amour, which was made by an Austrian film producer, but what language was it filmed in?"
+    },
+    {
+      "id": "7324ddec96ea27da3e1df6edd851426359bc7e49",
+      "question": "What group has no feeding appendages?"
+    },
+    {
+      "id": "d02dd807b58dad7807021742b58746e1f185ef24",
+      "question": "The co-director of The Simpsons helped create the American sitcom, Shaping Up, which was canceled on what date?"
+    },
+    {
+      "id": "2863b49fac353d3f58b500b714bd02c263d38def",
+      "question": "Which band included a guitarist that has collaborated with Hugh McDonald?"
+    },
+    {
+      "id": "5d74670ea2f9d1f0bb366f9810ec06c30603f465",
+      "question": "Who was the leader when the Franks entered the Euphrates valley?"
+    },
+    {
+      "id": "18b964dc67f92733925a91bf0c80d54bf411552a",
+      "question": "On what date did Luther die?"
+    },
+    {
+      "id": "d196b34bf89f8a84fff6acb1f198f640a070cb97",
+      "question": "Were the stars of the 1991 film, Thelma & Louise, born in the same month?"
+    },
+    {
+      "id": "a6f9e9af2a14c990fcb504aee13ab315baf46416",
+      "question": "Which women's magazine was founded first, Woman's Viewpoint or Femmes d’Aujourd’hui?"
+    },
+    {
+      "id": "7c715d7165a42b70ae29e4e767f2455e0f480081",
+      "question": "How did Celeron handle meeting with Old Briton?"
+    },
+    {
+      "id": "49cbdc839ad5f4720472491796ea7c80cc44c326",
+      "question": "When did the Herald Tribune publish its Tesla article?"
+    },
+    {
+      "id": "a3adfedd4313d2f03bb08939beba9b630e0bb9e3",
+      "question": "What is the population of the city that is home to the losers of the 2014 NBA Finals?"
+    },
+    {
+      "id": "a5852ab163d7fddfcefd59e3aebd881c25f84e03",
+      "question": "How would the operator of observe the reflected signal?"
+    },
+    {
+      "id": "3c0936e34bfe3cf82dc3adb6eccd248477e5340d",
+      "question": "Which has a larger population, Gaocheng District or Yingcheng?"
+    },
+    {
+      "id": "3ff4fe8530cca33f655214e148cd72a4d866900c",
+      "question": "Is the city that was home to the 2006 NBA Finals champions the eighth most populous in the United States?"
+    },
+    {
+      "id": "db726cda326f182b786e058525158a5bfbaf153a",
+      "question": "What are cestida called?"
+    },
+    {
+      "id": "3e55b1969f47d50d0f0e795c10759b40ca2876b4",
+      "question": "What did Pope Leo X launch against Luther?"
+    },
+    {
+      "id": "a82276b2b76bc4eb27c8080fe5052624f4eea8fe",
+      "question": "This English singer-songwriter's  first three studio albums are experiments concocted with a  multimedia artist who performs in what?"
+    },
+    {
+      "id": "ae89a3c251286c54ac649e0088e56ae5d0fb0793",
+      "question": "Who composed the music for Disney's 20th animated feature film?"
+    },
+    {
+      "id": "b352c3fa7f45e307ac789329cfe3903bc59e2ee7",
+      "question": "What is the force called rgarding a potential field between two locations?"
+    },
+    {
+      "id": "481648adbbb9430fe83a769f2010d9d0c4d9b62d",
+      "question": "What anniversary of the Pokémon franchise was celebrated during the Super Bowl?"
+    },
+    {
+      "id": "2f473175991ca2053067cc9e2bb359c059dca939",
+      "question": "Who was keeping pressure and showing disagreements for the LOR, even in front of the President?"
+    },
+    {
+      "id": "59dcc07e8ff07af2e864ba29b666a69104c8cc3d",
+      "question": "In what year was the debut hit of the American rapper who did the song \"Congratulations\" released?"
+    },
+    {
+      "id": "b6b26cecaaf5593f1e11a6b420c687c52113926e",
+      "question": "What occupations did John Schwert and Orson Welles share?"
+    },
+    {
+      "id": "392007cad781819fab723426b844497806fd8d2b",
+      "question": "Which Scottish castle is located near the parish of Dyke in Moray?"
+    },
+    {
+      "id": "43eda966d7728909f6f60209cd87f00a613a899d",
+      "question": "Is fertilization  internal or exeternal in most species?"
+    },
+    {
+      "id": "2959f7e3d92ea9ee13ad3691de31b0cff9ae1ae9",
+      "question": "Supplies from Jacksonville were in support of which faction in the Civil War?"
+    },
+    {
+      "id": "577e0b3f1904a00fdb3d4d563d9c17653cd759c4",
+      "question": "What year did Tom Petty release the album Full Moon Fever containing hits like Free Fallin'? "
+    },
+    {
+      "id": "fcce6ad1a40e31d12c5b5ce1f7561030a4c8feac",
+      "question": "What was the teacher's role while the child was with them?"
+    },
+    {
+      "id": "1d4516d08176e76472827fa13eb4bc201760abce",
+      "question": "Which television network was founded first: Disney Channel, Nickelodeon, or MTV?"
+    },
+    {
+      "id": "9b21bcac40f90ce6b9b6444eea23aa75325787ae",
+      "question": "How many types of X.25 networks were there originally "
+    },
+    {
+      "id": "129b0c1289267e4cd76af99397482dcdb342e872",
+      "question": "If 1 were to be considered as prime what would the sieve of Eratosthenes yield for all other numbers?"
+    },
+    {
+      "id": "b36b1ab60b1089c5023bff51981bfb7f34a5fcea",
+      "question": "Who was the designer of the Oriental Courts?"
+    },
+    {
+      "id": "2f43de1d338ed013b869e8403aadd31db8ee6dd3",
+      "question": "When did Watt finish the development of his improvements to Newcomen's engine?"
+    },
+    {
+      "id": "606146bfccfc0d6c7ebaaf93e26f4f08ee676d98",
+      "question": "What is the birthdate of this pioneering ecologist who was professor of forest ecology at Purdue University for which Lindsey Islands was named?"
+    },
+    {
+      "id": "5243e6a9cec8420a9946c2a80128659998751021",
+      "question": "When did the show that \"Valar Dohaeris\" is the third season premier of premier?"
+    },
+    {
+      "id": "4876a5917554afed124099b1167f78c78391575e",
+      "question": "When was the prime number theorem proven?"
+    },
+    {
+      "id": "c32dc32eb38ff9629440d2f2c8aa6ab2790679dd",
+      "question": "What type of intervention would changing the work environment be?"
+    },
+    {
+      "id": "df371f647847b50e0a6b9ed9426cfaa5cd8fad05",
+      "question": "What were the first two destinations of Huguenot emigres?"
+    },
+    {
+      "id": "aec8f173cafd7a306f8c00b37cae3f84bee86e40",
+      "question": "In which team Matt holliday was a degintaed hitter?"
+    },
+    {
+      "id": "341a49e6c6a010b5b78a03f32a6bd6dcd0e2614f",
+      "question": "What year did the person who was elected as Deputy President of the African National Congress (ANC) at the ANC National Conference in Mangaung in December 2012 create a mine workers union?"
+    },
+    {
+      "id": "179e2c48a3d2faea3c505e76ae20035140126d2c",
+      "question": "What is the name of the TV scrambling system BSkyB uses?"
+    },
+    {
+      "id": "412e03f4a95ff63cf8755072c33b1bbbb73b8e11",
+      "question": "Where was the borough  where  William A. Wittmer Lustron House was situated located? "
+    },
+    {
+      "id": "35d185971762228cffd3cf49ed3387c09bcbe63f",
+      "question": "Sam Jones has photographed which actress born in 1974?"
+    },
+    {
+      "id": "ff1e5373cbf0fbaa237c58634c0b4079125f3339",
+      "question": "What have Muslims praised Hamas for doing?"
+    },
+    {
+      "id": "1b817086ae4c8462c8baefbdb7adaffc55905a59",
+      "question": "Who may assign Elders?"
+    },
+    {
+      "id": "1d5906104275d8d20128833c86818b80d7c5a36c",
+      "question": "How many meals a day do normal Kenyans eat?"
+    },
+    {
+      "id": "de049da1c9770e6ae4184ef0037c36799847a5a2",
+      "question": "What is the official capacity of the stadium in which Louisville Cardinals played their 18th season?"
+    },
+    {
+      "id": "5ca2ec42672b2c76319f35a2db0826f959b9b086",
+      "question": "Rapper Mac Miller's album GO:OD AM features which Carson, California American hip-hop recording artist?"
+    },
+    {
+      "id": "0f61b849f8d03e1e2549ae793b83fd11ef483ab6",
+      "question": "Why did the exiled Polish government in London order the underground Home Army to seize control of Warsaw prior to the arrival of the Red Army?"
+    },
+    {
+      "id": "0c8465db68b7636f0d87580f28710da45c8b31b5",
+      "question": "Packet Switching contrast with what other principal "
+    },
+    {
+      "id": "79c725cfda60a79d8797b294688f4083d19aae61",
+      "question": "State Route 180 comes from which direction via Mendota?"
+    },
+    {
+      "id": "e97ce21c636961df8b5166704a741c9c421c8c3e",
+      "question": "Which hip hop duo that sang \"Meow the Jewels\" is an American hip hop duo formed in 2013 by rapper/producer El-P and rapper Killer Mike?"
+    },
+    {
+      "id": "5b3ab068dd4a621c7ceb0744c3da74bc37cefb9d",
+      "question": "When did the man famous for  the classical theory of electromagnetic radiation derive Ampère's circuital law:?"
+    },
+    {
+      "id": "836202965a82b0203b00f9acf0816f12d8e346ca",
+      "question": "Which television network was founded second: MTV, MSNBC, or ESPN?"
+    },
+    {
+      "id": "6b2588dc3fdecb254359d85398051c3c527aef9f",
+      "question": "Condong is a type of dance that is a tradition of what island?"
+    },
+    {
+      "id": "f865b90aecc5929453a251fe48bb94185117b579",
+      "question": "What is the name of Charlie Apana's police headquarters?"
+    },
+    {
+      "id": "03605a6b234d826f276e7daa1cfec1f5996ce5f4",
+      "question": "What country is this statistic for?"
+    },
+    {
+      "id": "727e0cb4037cf90d210faf4bfc6534e25dc90a68",
+      "question": "How are the particle forces and accelerations explained as by gauge bosons exchange?"
+    },
+    {
+      "id": "1e5c762b6c87b9f16b124732ba78bef728948a0e",
+      "question": "Whose tune did Luther adapt for the hymn of Psalm 67?"
+    },
+    {
+      "id": "33434eff35ae81e195d4a19a168880cbd37a4f8c",
+      "question": "Ensemble Pieces, which was a classical work done in part by John Adams, had strong roots in what style of music?"
+    },
+    {
+      "id": "90e5f87d0d9e38145f981f9234411d4699706e53",
+      "question": "In what episode did Doctor Who get a new cycle of regenerations?"
+    },
+    {
+      "id": "61c038fe3d511a284767d92799c9adfe2e08d366",
+      "question": "100 Million BC is a 2008 direct-to-DVD action film continuing the urban myth about an experiment held at which place ?"
+    },
+    {
+      "id": "a9c9b6e9a096e22631dddd20c29376fbaa65fc2e",
+      "question": "What do ctenophores have that no other animals have?"
+    },
+    {
+      "id": "25ce41147f58adbb3ce870e1a320ca8cddc7a7be",
+      "question": "Which writer is from England, Gerald Green or Ronald Firbank?"
+    },
+    {
+      "id": "a644b861677667a196da6fb99dc6d36839a8792a",
+      "question": "What was the advantage that the LOR method produced in the event of a spacecraft failure?"
+    },
+    {
+      "id": "d4e39153fe4fcbbc716268ab3d195e471cb979e6",
+      "question": "Which  American actress and former model played the main character in the television movie based on the 1985 biography Elvis and Me?"
+    },
+    {
+      "id": "4a32ce5deb78a44b21370682e2fa659070f9ce2e",
+      "question": "What city is Vdara Hotel & Spa located in?"
+    },
+    {
+      "id": "c7ede34ae7642399535438c51579f40472fbd0fe",
+      "question": "What is a very seldom used unit of mass in the metric system?"
+    },
+    {
+      "id": "d4a586b74f55f715219b20728535db13cb8cd184",
+      "question": "Are Jeon Ji-yoon and James Dean Bradfield both rappers?"
+    },
+    {
+      "id": "8735a4840b5b1aba138775607989d7a64c5e2ac2",
+      "question": "What caused Luther to write hymns?"
+    },
+    {
+      "id": "634f725dae97503000bcda4977f227f94755c4dc",
+      "question": "Which two Mongol leaders added Persia to the Mongol Empire?"
+    },
+    {
+      "id": "8478a5e59552a9b8b0116e0ee55c18f4d106ed8e",
+      "question": "Which of the people Michael Signer worked with was born on  January 8, 1949? "
+    },
+    {
+      "id": "fe727cfced0fbdf4f240200dbd4cb594d13747e5",
+      "question": "Missing self desribes cells that only have small amounts of what cell-surface marker?"
+    },
+    {
+      "id": "ffc5667bd5d5d8f960c0ae05844f81145b661ae9",
+      "question": "At what rate is Orange County developing its business centers?"
+    },
+    {
+      "id": "e3cd11d128dd0e887e07695152c60efe4155f5c0",
+      "question": "Are Eccremocarpus and Centranthus both native to the same locations?"
+    },
+    {
+      "id": "2689c320d01f24dca9adbd00c0094573b84de65f",
+      "question": "In what states are pharmacist clinicians given prescriptive and diagnostic authority?"
+    },
+    {
+      "id": "9c571df50a7d24aadb0628494b45c396ad053e4d",
+      "question": "The Revelers fly which four-engine transport aircraft?"
+    },
+    {
+      "id": "917009bb1445ffc4ff5a0df3aa99d83077675631",
+      "question": "What is the name of the European Union agency for external border security?"
+    },
+    {
+      "id": "a1584bc88601e96cc38bb53c1b28d769b70a7823",
+      "question": "Which host of The Ex-Wives Club was born in 1963?"
+    },
+    {
+      "id": "75ca6d3d79ecd4d7fdadceabec9e0e7185dcbe8b",
+      "question": "Which Denver player took the ball to the Panthers 14 yard line?"
+    },
+    {
+      "id": "1a078df41d8e36ae4580e9887e72540ec3c6a015",
+      "question": "The Asia-Pacific Nazarene Theological Seminary is founded in a tradition based upon the theology of a theologian of what nationality?"
+    },
+    {
+      "id": "94e605c28b9fc2a9b88635c15d06520ef0ce090c",
+      "question": "What type of disability would a teacher help a student with?"
+    },
+    {
+      "id": "4fd776cd461990ecd6da5eb0dc7b045561f71e06",
+      "question": "Who portrayed Roger Penrose’s co-winner of the Wolf Prize in a film based on that person’s life?"
+    },
+    {
+      "id": "a2779a476788af941f558ab524f364164fc47551",
+      "question": "Where were non-condensing direct-drive locomotives notably used for fast passenger trains?"
+    },
+    {
+      "id": "9edde62c96f5dce417c069e6f3fdc42d377075c5",
+      "question": "Which gallery was redesigned in the 1990s and later improved in 2002? "
+    },
+    {
+      "id": "daf2bcf860c4ce37e9da925b68449dbc359eec42",
+      "question": "Is Kid Cudi or Dredg from further east?"
+    },
+    {
+      "id": "034d4dca789c48a056a9e432e2e161fa3b649ae9",
+      "question": "What historic plantation house in North Caroline was the birth place of the Chief of Staff to the US Army in the 1930s?"
+    },
+    {
+      "id": "fc7007018ab1c368379eaf8e0dc15ee067951bd5",
+      "question": "What chloroplast structure is similar to the inner mitochondria membrane?"
+    },
+    {
+      "id": "e3006a5466c4514b71845b341ffccf16dfd8d6ad",
+      "question": "Joseph T. O'Neal graduated from which college located in Danville, Kentucky?"
+    },
+    {
+      "id": "3ac01931287931debb8e55b84da92463095f71a2",
+      "question": "Tension, compression, and drag are what kind of forces?"
+    },
+    {
+      "id": "bb28204b8b8a1bf66a62eba90600eb5a9f6a873e",
+      "question": "How much land do farms use in Victoria?"
+    },
+    {
+      "id": "eb834025b808c0c5a7dacaf0d3e2ea038e1327d5",
+      "question": "What type of inversion is used in the Iron Rattler that is similar to the Barrel roll?"
+    },
+    {
+      "id": "9d3e3ffc096f50bf1883212cba89b4ee70ea56da",
+      "question": "In what year was the institution whose surgery department Murray Brennan chaired from 1985 to 2006 chaired founded?"
+    },
+    {
+      "id": "966cca7cd7c7b9199be9bee279e3afe488cffa1e",
+      "question": "What is the name of the eighth album by  Irish rock band U2 who sang the song titled Daddy's Gonna Pay for Your Crashed Car?"
+    },
+    {
+      "id": "9b39edcaabd0927f33c74c36366ebee78f38add1",
+      "question": "The 1931 Michigan Wolverines football team finished the season in a three-way tie for first place in a conference that was formerly known as the Big Nine, and by what other name?"
+    },
+    {
+      "id": "5a286ac609a1e04a9c084bc8d51ac2d3aa3237da",
+      "question": "Which of the four living species of the order Sirenia used to abound on Sea Cow Island?"
+    },
+    {
+      "id": "eb982633aceb89ecb19a32483a5eb9b4d19c50fe",
+      "question": "Besides rivers, what shapes the sedimentation of the rivers?"
+    },
+    {
+      "id": "e43daba181eb5ae95752a6d5aaffe52633c45a6f",
+      "question": "How many seats does Victoria have in the Senate?"
+    },
+    {
+      "id": "d9d94ce97b914db68ac9d4e837653112799f8991",
+      "question": "Boycotting, refusing to pay taxes, sit ins, and draft dodging all make what harder?"
+    },
+    {
+      "id": "8f1959db57728a6b0dd8109289cd852140c9a5a0",
+      "question": "What agreement was made for trade with natives and British?"
+    },
+    {
+      "id": "596d3c70d77a78b6fb116fb0ddfb7ebaacf1bfcc",
+      "question": "What position does Jerricho Cotchery play?"
+    },
+    {
+      "id": "1c78f451cf22e4cb5487eeb0c892c1a6fdcfe926",
+      "question": "When did shooting for the episode \"Pilot\" begin for the HBO series The Deuce?"
+    },
+    {
+      "id": "a4bd322d2e6370a0bf78161ce8c8e32bfd53bed1",
+      "question": "In what year was the man who's real voice was forbidden to be broadcast in Britain during the 1980s born?"
+    },
+    {
+      "id": "362c1d88884c73cf1e348135e76420af8dc474e3",
+      "question": "Who proposed the 1924 attempt to solve WWI reparations problems that Germany had to pay?"
+    },
+    {
+      "id": "476070dbb76daa98c6abf79e843ee879db7a90c3",
+      "question": "What kind of cell identifies pathogens when the antibodies on its surface complex with a specific foreign antigen?"
+    },
+    {
+      "id": "1d9075ccc564486651d3b7279401897afae06280",
+      "question": "What action by Luther added to antisemitism in Germany?"
+    },
+    {
+      "id": "8405586a78fc0e4727dfd1d83f22ad62ac27ec68",
+      "question": "Before which military campaign did Chagatai publicly dispute Jochi's paternity?"
+    },
+    {
+      "id": "02e731798364adee9359dadf3c9ce0fe63981200",
+      "question": "Who wrote \"Walking in Fresno?\""
+    },
+    {
+      "id": "3b9d64dc2085e1d7d3bcbcffd51a20dc4339f3c2",
+      "question": "By which year did full sized American cars shrink to be smaller?"
+    },
+    {
+      "id": "22b735e76427ed46dddc9e632af0b7a112d75c0e",
+      "question": "Where was the university at which Flatliners was shot located? "
+    },
+    {
+      "id": "de8ec0a7b1c05bd7011c3368744d4fa3eac37d3c",
+      "question": "How many ABC affiliates does the E. W. Scripps Company own?"
+    },
+    {
+      "id": "34abb40acc050d6de1cbf8e7985c07dcb0afde6a",
+      "question": "What is the logo of Hermes establish in 1857?"
+    },
+    {
+      "id": "ea6c467ddb822eb84a34a294d7dd369679d2b1e1",
+      "question": "Who supported Andreas Karistadt in reform at Wittenberg?"
+    },
+    {
+      "id": "88ca3294fa00bbbf7d4fe22007aad25044cfdbc2",
+      "question": "Jayne Mansfield Busts Up Las Vegas was an album that was a recording taken at the casino in what Nevada suburb?"
+    },
+    {
+      "id": "6059a622d9fb45f5777a649ea89896ce65bbe8dc",
+      "question": "Which actor in the 1979 film \"Players\" was the son of American entertainer Dean Martin?"
+    },
+    {
+      "id": "3eda4b4a390dd9081b97842416896a6433c9a776",
+      "question": "What other professional team did the player who was the first ever NFL Draft selection for the current incarnation of the Colts franchise play for?"
+    },
+    {
+      "id": "534fc9e52706355bad51f93f9d4e89708d108e7b",
+      "question": "Which part of China had people ranked lower in the class system?"
+    },
+    {
+      "id": "b6e924bc0e1e1c47d58540dbc4e53ef93f249277",
+      "question": "Do both Craig Nicholls and Jun. K act?"
+    },
+    {
+      "id": "2c8008b5e2116bec95a9c35d0a7fb9d379be9364",
+      "question": "What are two examples of measurements are bound within algorithms to establish complexity classes?"
+    },
+    {
+      "id": "c933fe92860975fd25ab3b7747b8799b9c419205",
+      "question": "Antigens bind to what in order to elicit a response of the immune system?"
+    },
+    {
+      "id": "eefa076e01ae383ec8f2dc4cc313125396d9fd07",
+      "question": "What does Abū Ja'far al-Khāzin and the Brethren of Purity have in common?"
+    },
+    {
+      "id": "91d7fb91cf888feaf4147e17d91df07203735011",
+      "question": "What is the year of the event which occured first, the CIA discrimination controversy arose, or Aldrich Ames was born?"
+    },
+    {
+      "id": "0d8c8ffe2f3c7fa1d56acf0af5d6493afb257a97",
+      "question": "Born October 18, 1987 this actor stared in Baywatch the american action comedy film directed by Seth Gordon and based on the television series of the same name."
+    },
+    {
+      "id": "a3c9f7b7b21ba8a6ecec89475c94c638abe1bc0e",
+      "question": "How many levels of galleries do the façades surround?"
+    },
+    {
+      "id": "8dac54bc221efbb70c8f0e429c0cb526dc4d5671",
+      "question": "What is the eukaryotic parasite responsible for malaria known as?"
+    },
+    {
+      "id": "86f4cc12c4cd8ac1bbc94169ae2ef01530f9b234",
+      "question": "What was special about Tesla's memory?"
+    },
+    {
+      "id": "cb0a42917b594e6f50f2b9a3424db10219c6ff88",
+      "question": "Where did a racing driver, currently racing for the Haas F1 Team, compete on 21 April 2013?"
+    },
+    {
+      "id": "4ae3bbe50c1256a67d45009c71e9368a8bc1d527",
+      "question": "Who was born first Reinhard Furrer or Umberto Guidoni ?"
+    },
+    {
+      "id": "0297da99a6fc1ee3eceb096a331cfc4bfe247939",
+      "question": "Which is found in southern Africa, Pratia or Zaluzianskya?"
+    },
+    {
+      "id": "fd9553edababcbfe2e561d5d06f28b4bfea32eb8",
+      "question": "Tae Brooks has the voice of Michael Jackson in the animated series based on a film released in what year?"
+    },
+    {
+      "id": "2b501fbe3cc5dd7db9aa5796e76d9173c92b0080",
+      "question": "Do the U.S. flags on the moon still have their original coloring or were they faded due to the Sun?"
+    },
+    {
+      "id": "9309d180277f7828e64c87bd81c59a63f66013db",
+      "question": "Cristian Bay's encyclopedia concludes that civil disobedience does not only include what behavior?"
+    },
+    {
+      "id": "3ca5fc2343e523cecd27adf87e311a440edf884d",
+      "question": "Besides publishing To the Christian Nobility of the German Nation and On the Babylonian Captivity of the Church, what other work did Luther produce in 1520?"
+    },
+    {
+      "id": "5fd729a3b9c1dde2fd47c45c0155b903c5c9fd5f",
+      "question": "What crime was political figure Rita Lavelle convicted of in relationship to the Stringfellow Acid Pits toxic waste dump?"
+    },
+    {
+      "id": "0bdc34ddb178f60f2772978040b24ccc01e9a624",
+      "question": "Did a brother of the director of Alien film has the same job?"
+    },
+    {
+      "id": "9995413badf9e67f36bbae816adf9d9a8e1bcbaf",
+      "question": "In what city's Marriott did the Broncos stay?"
+    },
+    {
+      "id": "b1639cdf79d5edd16663db34174a14b525e677b7",
+      "question": "Where was American Broadcasting-Paramount Theatres, Inc headquartered after the merger?"
+    },
+    {
+      "id": "284f6389bcbcaab94dd29b68702c87e4d823742f",
+      "question": "On what yard line did Carolina begin with 4:51 left in the game?"
+    },
+    {
+      "id": "378ab70599b4d61d739060091e2a1032e2256b74",
+      "question": "In what year was the movie Pretty Baby released?"
+    },
+    {
+      "id": "050e98f63faa881c339fca0e604b4c60c14c1cb5",
+      "question": "What area did the Westwood One broadcast cover?"
+    },
+    {
+      "id": "c1151cf9e5585505659715c91f76c40c8b3323cf",
+      "question": "What river runs alongside Jacksonville?"
+    },
+    {
+      "id": "0d718e697760da391ba0baa87e8101dfea908f77",
+      "question": "Where is the company that manufactured the Outlaw Run roller coaster based?"
+    },
+    {
+      "id": "e7563f1dad842ce2806e9d07618ee06b2b97664c",
+      "question": "How many acts are in this opera with music by Maurice Ravel in which Robert Nagy sang in 1981?"
+    },
+    {
+      "id": "5d701355723a23d9fc51a79d2461d7a979d15fdb",
+      "question": "What has successfully dealt with ozone depletion?"
+    },
+    {
+      "id": "4d16234ee6d7fe4ab5a45643741bb87384f658c2",
+      "question": "How large is the population of the city where the author of Winter Dreams was born?"
+    },
+    {
+      "id": "b2701e12d08f85b15ac721f39c3b083d009b16b3",
+      "question": "In which city is the hockey team that Éric Bélanger played for?"
+    },
+    {
+      "id": "8c4b148d0d6002e6dd6ac460c980c9f7811eed8d",
+      "question": "What other name is the new bassist for Will Haven Chris Fehn known by?"
+    },
+    {
+      "id": "bb0fbed8532ae88bb2f4f4705d62328fe4a65873",
+      "question": "In what Biblical book are Hobah and the cities of Sodom and Gomorrah mentioned?"
+    },
+    {
+      "id": "d979e76614b49d1e0b421cbf699d4a1b2aa63c64",
+      "question": "Q: Fountain, Florida and Panama City, Florida are both located in which county? A: Bay County, FLorida"
+    },
+    {
+      "id": "3d9a06ee509eab4f43dc068ca01a692e76413393",
+      "question": "What feature of the Amazon made people believe it couldn't have many inhabitants?"
+    },
+    {
+      "id": "af1898e83aa0d663822f54b527d2416bc6dc9a09",
+      "question": "What do students learn about in confirmation and membership preparation classes?"
+    },
+    {
+      "id": "80f13763f9e6b14c368aa6e0d9450597add05506",
+      "question": "What tidal bore, said to take its name from the Norse god of the ocean, reaches the village of East Stockwith in the West Lindsey district of Lincolnshire, England?"
+    },
+    {
+      "id": "4530683081d89aea8024e5a8d8ff3b391f2d9b7a",
+      "question": "What does the WG I Summary for Policymakers report say human activities are doing to greenhouse gases?"
+    },
+    {
+      "id": "8488de88c7e42c6a48354ce2c3159e46c93749e4",
+      "question": "When was the administrative region in which Kloster, Denmark is located established?"
+    },
+    {
+      "id": "d5c1052e798ca7d8b282e7926e669799a45dad54",
+      "question": "which  English novelist regarded by many as one of the great writers was Giles Havergal from "
+    },
+    {
+      "id": "093c86d0fa355b9e0644651db5689c3dd92fe78a",
+      "question": "Which Grammy Award-winning American musician wrote a short story that De-Loused in the Comatorium is based on?"
+    },
+    {
+      "id": "f2021e2752ee5c42700b96ef1f9cb4158ec67b45",
+      "question": "What group of people performed revolutionary civil disobedience toward the Austrian government?"
+    },
+    {
+      "id": "950bc91d199b57afac6544f691b82a38d6222fe5",
+      "question": "When was the band formed whose debut album was Salvation Town ?"
+    },
+    {
+      "id": "77ef7df3c14cc84eab8b61933924c36226eb5bfc",
+      "question": "Who would Begter have married when he came of age?"
+    },
+    {
+      "id": "347d94c1783fdb8e19ef83c7bdd4b7c8db621a4f",
+      "question": "Andrew Wood and Cia Berg are both singers - which is American?"
+    },
+    {
+      "id": "19ea7f5c2ba5c057e5e53f5a49f5cf8d3ae9e040",
+      "question": "What is the prize offered for finding a solution to P=NP?"
+    },
+    {
+      "id": "3df0075ebb1bd6a2eba4178af6bb08ea6975c7af",
+      "question": "What is the name of the supposition that there are infinite pairs of primes whose difference is 2?"
+    },
+    {
+      "id": "a575e5facc1a94e20b162bd3a2a3d697a72e0b33",
+      "question": "What did Luther seek to restore?"
+    },
+    {
+      "id": "1eef7b69e76c769720d9f6df1f5b94af8e74012f",
+      "question": "Along with electric motors, what type of engines superseded piston steam engines?"
+    },
+    {
+      "id": "cf6ba886919a5c13fa3f492b0778f5f0255b86ec",
+      "question": "The album Pretty Boy Dirty Boy was recorderd by Maluma on what music label?"
+    },
+    {
+      "id": "39f8f93beb4c11e9c09615fa6423e1d399565246",
+      "question": "Relegation to secondary status for ABC resulted in viewership how much lower than their competitors, according to Goldenson?"
+    },
+    {
+      "id": "9885bdae5c7f49becfc134808550395aae94ca97",
+      "question": "What was originally on the spacesuits prior to the clear \"fishbowl\" helmet?"
+    },
+    {
+      "id": "455e21e4af27edb4e1b508feae29e8c599c32ffe",
+      "question": "How many students have received unwanted sexual attention from a teacher or other education figure?"
+    },
+    {
+      "id": "939bb3ee3fb27167b72853e98f3f40b0accfaafc",
+      "question": "In what country did the dance that Martina Maria Iniguez de Montreal was well known for writing about begin?  "
+    },
+    {
+      "id": "baee1deea1e095d128d0de0f1f2bc18fc275c780",
+      "question": "Tara Allain is miss Maine 2007. Since what year has Maine been reprsented in the Miss America Pageant ?"
+    },
+    {
+      "id": "be55ba0e46d9a171470f8f53ca748e848358783d",
+      "question": "In what city is the painting \"Adoration of the Magi\" displayed?"
+    },
+    {
+      "id": "6b94ced3176cedc70ea57b4a80bf09361db40490",
+      "question": "What does NADPH store?"
+    },
+    {
+      "id": "f42364cd97a860de15931f009dba6522fea181df",
+      "question": "How many Frenchman won Battle of Carillon?"
+    },
+    {
+      "id": "84ebed351fd096ee77aadb875ed9b47e2f698a68",
+      "question": "The merger between ITT and ABC was suspended after a complaint was filed by whom in July 1967?"
+    },
+    {
+      "id": "00a4de14d495fbb50eacd394be0a05f7b3e1b4c4",
+      "question": "Which movie starred Christina Ricci, The Lizzie McGuire Movie or That Darn Cat?"
+    },
+    {
+      "id": "780c92f5ebdfb53ed6449feba9b9fb020435ed30",
+      "question": "What bridge had a model of it at the Super Bowl Opening Night?"
+    },
+    {
+      "id": "bb92487f7e3f4764c79c7f0e33314782ed773899",
+      "question": "The actor who plays the character of Jack \"The Devil\" Murdock in Daredevil got his breakthrough role in what 1982 film?"
+    },
+    {
+      "id": "1836218dff7883ff1566cdef0388c79474f30aae",
+      "question": "Besides Germany and Switzerland, where else is Lake Constance?"
+    },
+    {
+      "id": "bf11dfbc2be095e28bef6bab64dcd3e3cd9ea571",
+      "question": "Are David Twohy and Ulrich Seidl both film directors?"
+    },
+    {
+      "id": "1b71e8ca09bb5a77b6d58de4063dfbd6a103db3b",
+      "question": "Which New York City hotel inspired the design of The Cameron House and is a designated New York City landmark?"
+    },
+    {
+      "id": "d2cb9be6a1532a0655f0cb4e354748292ff99cbe",
+      "question": "What type of vote must the Council pass in order to approve of any changes recommended by Parliament? "
+    },
+    {
+      "id": "e9b58d0a542bc15263dfd107add9665180cfd1b4",
+      "question": "What percentage of electrical power in the United States is made by steam turbines?"
+    },
+    {
+      "id": "10ad1f988586c1a052da57da1bdf0e6caea452c4",
+      "question": "Where did Birgitte Einarsen premier a musical in 1988?"
+    },
+    {
+      "id": "596777d692cc087f23c4ddfebdeee6a21d4b3eff",
+      "question": "In what city is Farnsworth Art museum, where Greg Mort has a collection of his works, located?"
+    },
+    {
+      "id": "70c444720176312a8b468eea443d2d89d5149e26",
+      "question": "What was named \"The Tesla\" in his honor?"
+    },
+    {
+      "id": "1b8b3e57ac5822391d45f1631e03d5066427afda",
+      "question": "What type of steam engines produced most power up to the early 20th century?"
+    },
+    {
+      "id": "c35edf4ce68a818af8c9186f102c69dfd2557b1c",
+      "question": "In the same year in which he took office in the House of Commons of the UK Parliament, Richard Harrington's political party won power from which other political party in the General Election?"
+    },
+    {
+      "id": "f598ecd2f395fedfa632ea19bb9cd662472d6c1f",
+      "question": "How many turnovers did the Panthers force during the NFC Championship game?"
+    },
+    {
+      "id": "4fbcb03cd28c89ab53973e56986ff80f82f103eb",
+      "question": "Who is also known at the father of the hydrogen bomb?"
+    },
+    {
+      "id": "21111a197c964c9d759d05bbbd986f3201eeba1d",
+      "question": "In what type of work was Luther prolific?"
+    },
+    {
+      "id": "e3a1471bc5fe106fc83cddd660a4e6d2919e413c",
+      "question": "Dennis Leeflang is best known for his work with one of the lead guitarists of which band?"
+    },
+    {
+      "id": "871444691546204ed639ca5aee5741c040327103",
+      "question": "Which city is the most populous in California?"
+    },
+    {
+      "id": "1caf9ce38fe68e9ddca49908488eb1253b2d03c0",
+      "question": "Who was born first, Rob Tyner or Rivers Cuomo?"
+    }
+  ]
+}

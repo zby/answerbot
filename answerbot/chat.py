@@ -38,6 +38,7 @@ class Chat:
     fail_on_tool_error: bool = True  # if False the error message is passed to the LLM to fix the call, if True exception is raised
     one_tool_per_step: bool = True  # for stateful tools executing more than one tool call per step is often confusing for the LLM
     saved_tools: list[LLMFunction|Callable] = field(default_factory=list)
+    retries: int = 3
 
     def __post_init__(self):
         if self.template_env and (self.templates or self.templates_dirs):
@@ -115,6 +116,7 @@ class Chat:
         args = {
             'model': self.model,
             'messages': self.messages,
+            'num_retries': self.retries
         }
 
         if len(schemas) > 0:
@@ -156,6 +158,7 @@ class Chat:
                     logger.warning(soft_error)
             self.append(result.to_message())
             if result.error and self.fail_on_tool_error:
+                print(result.stack_trace)
                 raise Exception(result.error)
             if isinstance(result.output, Prompt):
                 output = self.render_prompt(result.output)

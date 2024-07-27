@@ -1,0 +1,162 @@
+{
+  "version": "1.0",
+  "split": "train",
+  "data": [
+    {
+      "id": "8af07575b8444ae748634478f96b00d4e7dbd170",
+      "src": "squad",
+      "answers": [
+        "1793"
+      ],
+      "question": "When did Wordsworth initially attack Burke?",
+      "context": [
+        [
+          "Edmund Burke",
+          "In the 19th century, Burke was praised by both liberals and conservatives. Burke's friend Philip Francis wrote that Burke \"was a man who truly & prophetically foresaw all the consequences which would rise from the adoption of the French principles\", but because Burke wrote with so much passion, people were doubtful of his arguments. William Windham spoke from the same bench in the House of Commons as Burke had when he had separated from Fox and an observer said Windham spoke \"like the ghost of Burke\" when he made a speech against peace with France in 1801. William Hazlitt, a political opponent of Burke, regarded him as amongst his three favourite writers (the others being Junius and Rousseau) and made it \"a test of the sense and candour of any one belonging to the opposite party, whether he allowed Burke to be a great man\". William Wordsworth was originally a supporter of the French Revolution and attacked Burke in \"A Letter to the Bishop of Llandaff\" (1793), but by the early 19th century he had changed his mind and came to admire Burke. In his \"Two Addresses to the Freeholders of Westmorland\", Wordsworth called Burke \"the most sagacious Politician of his age\", whose predictions \"time has verified\". He later revised his poem \"The Prelude\" to include praise of Burke (\"Genius of Burke! forgive the pen seduced/By specious wonders\") and portrayed him as an old oak. Samuel Taylor Coleridge came to have a similar conversion as he had criticised Burke in \"The Watchman\", but in his \"Friend\" (1809–1810) had defended Burke from charges of inconsistency. Later in his \"Biographia Literaria\" (1817), Coleridge hails Burke as a prophet and praises Burke for referring \"habitually to \"principles\". He was a \"scientific\" statesman; and therefore a \"seer\"\". Henry Brougham wrote of Burke that \"all his predictions, save one momentary expression, had been more than fulfilled: anarchy and bloodshed had borne sway in France; conquest and convulsion had desolated Europe. [...] [T]he providence of mortals is not often able to penetrate so far as this into futurity\". George Canning believed that Burke's \"Reflections\" \"has been justified by the course of subsequent events; and almost every prophecy has been strictly fulfilled\". In 1823, Canning wrote that he took Burke's \"last works and words [as] the manual of my politics\". The Conservative Prime Minister Benjamin Disraeli \"was deeply penetrated with the spirit and sentiment of Burke's later writings\"."
+        ]
+      ]
+    },
+    {
+      "id": "7e07be1a905b70f143b2c8aff00caf16e2b32b31",
+      "src": "squad",
+      "answers": [
+        "Investiture Controversy"
+      ],
+      "question": "The clash between Henry IV and the pope was part of what greater conflict?",
+      "context": [
+        [
+          "Middle Ages",
+          "During the early High Middle Ages, Germany was ruled by the Ottonian dynasty, which struggled to control the powerful dukes ruling over territorial duchies tracing back to the Migration period. In 1024, they were replaced by the Salian dynasty, who famously clashed with the papacy under Emperor Henry IV (r. 1084–1105) over Church appointments as part of the Investiture Controversy. His successors continued to struggle against the papacy as well as the German nobility. A period of instability followed the death of Emperor Henry V (r. 1111–25), who died without heirs, until Frederick I Barbarossa (r. 1155–90) took the imperial throne. Although he ruled effectively, the basic problems remained, and his successors continued to struggle into the 13th century. Barbarossa's grandson Frederick II (r. 1220–1250), who was also heir to the throne of Sicily through his mother, clashed repeatedly with the papacy. His court was famous for its scholars and he was often accused of heresy. He and his successors faced many difficulties, including the invasion of the Mongols into Europe in the mid-13th century. Mongols first shattered the Kievan Rus' principalities and then invaded Eastern Europe in 1241, 1259, and 1287."
+        ]
+      ]
+    },
+    {
+      "id": "c9dfc01655bc5abc59a1ee2583c8b3f7fba6c2e2",
+      "src": "squad",
+      "answers": [
+        "the Thermidorian Reaction"
+      ],
+      "question": "What historical event brought about the fall of the Robespierres?",
+      "context": [
+        [
+          "Napoleon",
+          "Some contemporaries alleged that Bonaparte was put under house arrest at Nice for his association with the Robespierres following their fall in the Thermidorian Reaction in July 1794, but Napoleon's secretary Bourrienne disputed the allegation in his memoirs. According to Bourrienne, jealousy was responsible, between the Army of the Alps and the Army of Italy (with whom Napoleon was seconded at the time). Bonaparte dispatched an impassioned defence in a letter to the commissar Saliceti, and he was subsequently acquitted of any wrongdoing. He was released within two weeks and, due to his technical skills, was asked to draw up plans to attack Italian positions in the context of France's war with Austria. He also took part in an expedition to take back Corsica from the British, but the French were repulsed by the British Royal Navy."
+        ]
+      ]
+    },
+    {
+      "id": "cf10ffbb5023cd0bc4637655458512b2186dc886",
+      "src": "squad",
+      "answers": [
+        "Morales"
+      ],
+      "question": "Who came up with a policy for indigenous autonomy?",
+      "context": [
+        [
+          "Indigenous peoples of the Americas",
+          "Morales began work on his \"indigenous autonomy\" policy, which he launched in the eastern lowlands department on 3 August 2009. Bolivia was the first nation in the history of South America to affirm the right of indigenous people to self-government. Speaking in Santa Cruz Department, the President called it \"a historic day for the peasant and indigenous movement\", saying that, though he might make errors, he would \"never betray the fight started by our ancestors and the fight of the Bolivian people.\" A vote on further autonomy for jurisdictions took place in December 2009, at the same time as general elections to office. The issue divided the country."
+        ]
+      ]
+    },
+    {
+      "id": "0a185aca81f9e36bfb2486f690885011a6aefb2e",
+      "src": "hotpotqa",
+      "answers": [
+        "Darren Lynn Bousman"
+      ],
+      "question": "Greg Hoffman was working on \"Saw III,\" a 2006 American horror film, but was unable to finish his work on the film, which was directed by who?",
+      "context": [
+        [
+          "Saw III",
+          "Saw III is a 2006 horror film directed by Darren Lynn Bousman from a screenplay by Leigh Whannell and a story by Whannell and James Wan. It is the third installment in the \"Saw\" film series. The film stars Tobin Bell, Shawnee Smith, Angus Macfadyen, Bahar Soomekh and Dina Meyer."
+        ],
+        [
+          "Saw III",
+          "The story follows Jeff, a man who, after his son is killed by a drunk driver, is put through a series of tests by Jigsaw in order to try to get him to let go of his vengeance for the man that killed his son. Meanwhile, a bed-ridden John Kramer has his apprentice Amanda Young kidnap Dr. Lynn Denlon, who is tasked with keeping John alive for one final test before he dies."
+        ],
+        [
+          "Gregg Hoffman",
+          "Gregg Hoffman (June 11, 1963 – December 4, 2005), born in Phoenix, Arizona, was a film producer responsible for developing \"Saw\" and \"Saw II\". He studied communications, law and economics at American University in Washington, D.C. Hoffman was working on \"Saw III\", \"Saw IV\" and other films for Twisted Pictures when he died in a hospital in Hollywood, California of natural causes. He was 42 years old at his death. The movie \"Dead Silence\" (2007) was dedicated to him. He was also thanked in the film \"Gross Misconduct\", mentioned as dedicatee for \"Saw III\", and posthumously credited with producing the \"Saw\" films from 2007 through 2017."
+        ]
+      ]
+    },
+    {
+      "id": "7f8ad9cb395a19b23c8341c4a7a0584a26263ec9",
+      "src": "squad",
+      "answers": [
+        "modernism"
+      ],
+      "question": "What was  architectural phenomenology reacting to?",
+      "context": [
+        [
+          "Architecture",
+          "Beginning in the late 1950s and 1960s, architectural phenomenology emerged as an important movement in the early reaction against modernism, with architects like Charles Moore in the United States, Christian Norberg-Schulz in Norway, and Ernesto Nathan Rogers and Vittorio Gregotti, Michele Valori, Bruno Zevi in Italy, who collectively popularized an interest in a new contemporary architecture aimed at expanding human experience using historical buildings as models and precedents. Postmodernism produced a style that combined contemporary building technology and cheap materials, with the aesthetics of older pre-modern and non-modern styles, from high classical architecture to popular or vernacular regional building styles. Robert Venturi famously defined postmodern architecture as a \"decorated shed\" (an ordinary building which is functionally designed inside and embellished on the outside), and upheld it against modernist and brutalist \"ducks\" (buildings with unnecessarily expressive tectonic forms)."
+        ]
+      ]
+    },
+    {
+      "id": "67b7897315d3281c7dcb52cb7f8cedcbdfdfeca1",
+      "src": "squad",
+      "answers": [
+        "FedEx"
+      ],
+      "question": "Which major global shipping company is based in Memphis?",
+      "context": [
+        [
+          "Tennessee",
+          "Large corporations with headquarters in Tennessee include FedEx, AutoZone and International Paper, all based in Memphis; Pilot Corporation and Regal Entertainment Group, based in Knoxville; Eastman Chemical Company, based in Kingsport; Hospital Corporation of America and Caterpillar Financial, based in Nashville; and Unum, based in Chattanooga. "
+        ]
+      ]
+    },
+    {
+      "id": "304ca347702470ace55ec0e2ae6ca5c806e35139",
+      "src": "hotpotqa",
+      "answers": [
+        "Coram"
+      ],
+      "question": "Which hamlet in Suffolk County, New York is part of District 3?",
+      "context": [
+        [
+          "Patricia Eddington",
+          "Patricia A. Eddington (born 1947/1948) served from 2001 through 2009 in the New York State Assembly, representing District 3 which comprises Patchogue, Medford, Coram and Yaphank, among other neighboring communities within Suffolk County, New York. She stepped down from the Assembly after winning an election for Town Clerk of Brookhaven, New York in November 2009."
+        ],
+        [
+          "Coram, New York",
+          "Coram is a hamlet (and census-designated place) in Suffolk County, New York, in the United States. As of the 2010 census, the CDP population was 39,113."
+        ]
+      ]
+    },
+    {
+      "id": "65a89f07ef96031e7e34875de88db75b29f85107",
+      "src": "hotpotqa",
+      "answers": [
+        "79"
+      ],
+      "question": "The brother of Ray Harvey appeared in how many test matches between 1948 and 1963?",
+      "context": [
+        [
+          "Neil Harvey",
+          "Robert Neil Harvey {'1': \", '2': \", '3': \", '4': \"} (born 8 October 1928) is an Australian former cricketer who represented the Australian cricket team between 1948 and 1963, playing in 79 Test matches. He was the vice-captain of the team from 1957 until his retirement. An attacking left-handed batsman, sharp fielder and occasional off-spin bowler, Harvey was the senior batsman in the Australian team for much of the 1950s and was regarded by Wisden as the finest fielder of his era. Upon his retirement, Harvey was the second-most prolific Test run-scorer and century-maker for Australia."
+        ],
+        [
+          "Ray Harvey",
+          "Raymond Harvey (born 3 January 1926) is an Australian former first-class cricketer who played for Victoria in the 1940s and 1950s. He was the brother of Australian Test batsmen Merv and Neil and first-class cricketer and umpire Mick Harvey. Ray Harvey was an attacking and talented batsman but failed to reach international standards and only managed to hold down a regular position in the Victorian team in two seasons in the 1950s. This failure to match the standards set by his Test-capped brothers was often attributed to a lack of single-mindedness and hunger."
+        ]
+      ]
+    },
+    {
+      "id": "0bd72eac7b553d444ca7e275df61d0fd74d29e7f",
+      "src": "squad",
+      "answers": [
+        "1977"
+      ],
+      "question": "What year was Spoleto Festival USA founded?",
+      "context": [
+        [
+          "Charleston, South Carolina",
+          "Charleston's culture blends traditional Southern U.S., English, French, and West African elements. The downtown peninsula has a number of art, music, local cuisine, and fashion venues. Spoleto Festival USA, held annually in late spring, was founded in 1977 by Pulitzer Prize-winning composer Gian Carlo Menotti, who sought to establish a counterpart to the \"Festival dei Due Mondi\" (the Festival of Two Worlds) in Spoleto, Italy."
+        ]
+      ]
+    }
+  ]
+}

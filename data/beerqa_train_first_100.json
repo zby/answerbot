@@ -1,0 +1,1718 @@
+{
+  "version": "1.0",
+  "split": "train",
+  "data": [
+    {
+      "id": "8af07575b8444ae748634478f96b00d4e7dbd170",
+      "src": "squad",
+      "answers": [
+        "1793"
+      ],
+      "question": "When did Wordsworth initially attack Burke?",
+      "context": [
+        [
+          "Edmund Burke",
+          "In the 19th century, Burke was praised by both liberals and conservatives. Burke's friend Philip Francis wrote that Burke \"was a man who truly & prophetically foresaw all the consequences which would rise from the adoption of the French principles\", but because Burke wrote with so much passion, people were doubtful of his arguments. William Windham spoke from the same bench in the House of Commons as Burke had when he had separated from Fox and an observer said Windham spoke \"like the ghost of Burke\" when he made a speech against peace with France in 1801. William Hazlitt, a political opponent of Burke, regarded him as amongst his three favourite writers (the others being Junius and Rousseau) and made it \"a test of the sense and candour of any one belonging to the opposite party, whether he allowed Burke to be a great man\". William Wordsworth was originally a supporter of the French Revolution and attacked Burke in \"A Letter to the Bishop of Llandaff\" (1793), but by the early 19th century he had changed his mind and came to admire Burke. In his \"Two Addresses to the Freeholders of Westmorland\", Wordsworth called Burke \"the most sagacious Politician of his age\", whose predictions \"time has verified\". He later revised his poem \"The Prelude\" to include praise of Burke (\"Genius of Burke! forgive the pen seduced/By specious wonders\") and portrayed him as an old oak. Samuel Taylor Coleridge came to have a similar conversion as he had criticised Burke in \"The Watchman\", but in his \"Friend\" (1809–1810) had defended Burke from charges of inconsistency. Later in his \"Biographia Literaria\" (1817), Coleridge hails Burke as a prophet and praises Burke for referring \"habitually to \"principles\". He was a \"scientific\" statesman; and therefore a \"seer\"\". Henry Brougham wrote of Burke that \"all his predictions, save one momentary expression, had been more than fulfilled: anarchy and bloodshed had borne sway in France; conquest and convulsion had desolated Europe. [...] [T]he providence of mortals is not often able to penetrate so far as this into futurity\". George Canning believed that Burke's \"Reflections\" \"has been justified by the course of subsequent events; and almost every prophecy has been strictly fulfilled\". In 1823, Canning wrote that he took Burke's \"last works and words [as] the manual of my politics\". The Conservative Prime Minister Benjamin Disraeli \"was deeply penetrated with the spirit and sentiment of Burke's later writings\"."
+        ]
+      ]
+    },
+    {
+      "id": "7e07be1a905b70f143b2c8aff00caf16e2b32b31",
+      "src": "squad",
+      "answers": [
+        "Investiture Controversy"
+      ],
+      "question": "The clash between Henry IV and the pope was part of what greater conflict?",
+      "context": [
+        [
+          "Middle Ages",
+          "During the early High Middle Ages, Germany was ruled by the Ottonian dynasty, which struggled to control the powerful dukes ruling over territorial duchies tracing back to the Migration period. In 1024, they were replaced by the Salian dynasty, who famously clashed with the papacy under Emperor Henry IV (r. 1084–1105) over Church appointments as part of the Investiture Controversy. His successors continued to struggle against the papacy as well as the German nobility. A period of instability followed the death of Emperor Henry V (r. 1111–25), who died without heirs, until Frederick I Barbarossa (r. 1155–90) took the imperial throne. Although he ruled effectively, the basic problems remained, and his successors continued to struggle into the 13th century. Barbarossa's grandson Frederick II (r. 1220–1250), who was also heir to the throne of Sicily through his mother, clashed repeatedly with the papacy. His court was famous for its scholars and he was often accused of heresy. He and his successors faced many difficulties, including the invasion of the Mongols into Europe in the mid-13th century. Mongols first shattered the Kievan Rus' principalities and then invaded Eastern Europe in 1241, 1259, and 1287."
+        ]
+      ]
+    },
+    {
+      "id": "c9dfc01655bc5abc59a1ee2583c8b3f7fba6c2e2",
+      "src": "squad",
+      "answers": [
+        "the Thermidorian Reaction"
+      ],
+      "question": "What historical event brought about the fall of the Robespierres?",
+      "context": [
+        [
+          "Napoleon",
+          "Some contemporaries alleged that Bonaparte was put under house arrest at Nice for his association with the Robespierres following their fall in the Thermidorian Reaction in July 1794, but Napoleon's secretary Bourrienne disputed the allegation in his memoirs. According to Bourrienne, jealousy was responsible, between the Army of the Alps and the Army of Italy (with whom Napoleon was seconded at the time). Bonaparte dispatched an impassioned defence in a letter to the commissar Saliceti, and he was subsequently acquitted of any wrongdoing. He was released within two weeks and, due to his technical skills, was asked to draw up plans to attack Italian positions in the context of France's war with Austria. He also took part in an expedition to take back Corsica from the British, but the French were repulsed by the British Royal Navy."
+        ]
+      ]
+    },
+    {
+      "id": "cf10ffbb5023cd0bc4637655458512b2186dc886",
+      "src": "squad",
+      "answers": [
+        "Morales"
+      ],
+      "question": "Who came up with a policy for indigenous autonomy?",
+      "context": [
+        [
+          "Indigenous peoples of the Americas",
+          "Morales began work on his \"indigenous autonomy\" policy, which he launched in the eastern lowlands department on 3 August 2009. Bolivia was the first nation in the history of South America to affirm the right of indigenous people to self-government. Speaking in Santa Cruz Department, the President called it \"a historic day for the peasant and indigenous movement\", saying that, though he might make errors, he would \"never betray the fight started by our ancestors and the fight of the Bolivian people.\" A vote on further autonomy for jurisdictions took place in December 2009, at the same time as general elections to office. The issue divided the country."
+        ]
+      ]
+    },
+    {
+      "id": "0a185aca81f9e36bfb2486f690885011a6aefb2e",
+      "src": "hotpotqa",
+      "answers": [
+        "Darren Lynn Bousman"
+      ],
+      "question": "Greg Hoffman was working on \"Saw III,\" a 2006 American horror film, but was unable to finish his work on the film, which was directed by who?",
+      "context": [
+        [
+          "Saw III",
+          "Saw III is a 2006 horror film directed by Darren Lynn Bousman from a screenplay by Leigh Whannell and a story by Whannell and James Wan. It is the third installment in the \"Saw\" film series. The film stars Tobin Bell, Shawnee Smith, Angus Macfadyen, Bahar Soomekh and Dina Meyer."
+        ],
+        [
+          "Saw III",
+          "The story follows Jeff, a man who, after his son is killed by a drunk driver, is put through a series of tests by Jigsaw in order to try to get him to let go of his vengeance for the man that killed his son. Meanwhile, a bed-ridden John Kramer has his apprentice Amanda Young kidnap Dr. Lynn Denlon, who is tasked with keeping John alive for one final test before he dies."
+        ],
+        [
+          "Gregg Hoffman",
+          "Gregg Hoffman (June 11, 1963 – December 4, 2005), born in Phoenix, Arizona, was a film producer responsible for developing \"Saw\" and \"Saw II\". He studied communications, law and economics at American University in Washington, D.C. Hoffman was working on \"Saw III\", \"Saw IV\" and other films for Twisted Pictures when he died in a hospital in Hollywood, California of natural causes. He was 42 years old at his death. The movie \"Dead Silence\" (2007) was dedicated to him. He was also thanked in the film \"Gross Misconduct\", mentioned as dedicatee for \"Saw III\", and posthumously credited with producing the \"Saw\" films from 2007 through 2017."
+        ]
+      ]
+    },
+    {
+      "id": "7f8ad9cb395a19b23c8341c4a7a0584a26263ec9",
+      "src": "squad",
+      "answers": [
+        "modernism"
+      ],
+      "question": "What was  architectural phenomenology reacting to?",
+      "context": [
+        [
+          "Architecture",
+          "Beginning in the late 1950s and 1960s, architectural phenomenology emerged as an important movement in the early reaction against modernism, with architects like Charles Moore in the United States, Christian Norberg-Schulz in Norway, and Ernesto Nathan Rogers and Vittorio Gregotti, Michele Valori, Bruno Zevi in Italy, who collectively popularized an interest in a new contemporary architecture aimed at expanding human experience using historical buildings as models and precedents. Postmodernism produced a style that combined contemporary building technology and cheap materials, with the aesthetics of older pre-modern and non-modern styles, from high classical architecture to popular or vernacular regional building styles. Robert Venturi famously defined postmodern architecture as a \"decorated shed\" (an ordinary building which is functionally designed inside and embellished on the outside), and upheld it against modernist and brutalist \"ducks\" (buildings with unnecessarily expressive tectonic forms)."
+        ]
+      ]
+    },
+    {
+      "id": "67b7897315d3281c7dcb52cb7f8cedcbdfdfeca1",
+      "src": "squad",
+      "answers": [
+        "FedEx"
+      ],
+      "question": "Which major global shipping company is based in Memphis?",
+      "context": [
+        [
+          "Tennessee",
+          "Large corporations with headquarters in Tennessee include FedEx, AutoZone and International Paper, all based in Memphis; Pilot Corporation and Regal Entertainment Group, based in Knoxville; Eastman Chemical Company, based in Kingsport; Hospital Corporation of America and Caterpillar Financial, based in Nashville; and Unum, based in Chattanooga. "
+        ]
+      ]
+    },
+    {
+      "id": "304ca347702470ace55ec0e2ae6ca5c806e35139",
+      "src": "hotpotqa",
+      "answers": [
+        "Coram"
+      ],
+      "question": "Which hamlet in Suffolk County, New York is part of District 3?",
+      "context": [
+        [
+          "Patricia Eddington",
+          "Patricia A. Eddington (born 1947/1948) served from 2001 through 2009 in the New York State Assembly, representing District 3 which comprises Patchogue, Medford, Coram and Yaphank, among other neighboring communities within Suffolk County, New York. She stepped down from the Assembly after winning an election for Town Clerk of Brookhaven, New York in November 2009."
+        ],
+        [
+          "Coram, New York",
+          "Coram is a hamlet (and census-designated place) in Suffolk County, New York, in the United States. As of the 2010 census, the CDP population was 39,113."
+        ]
+      ]
+    },
+    {
+      "id": "65a89f07ef96031e7e34875de88db75b29f85107",
+      "src": "hotpotqa",
+      "answers": [
+        "79"
+      ],
+      "question": "The brother of Ray Harvey appeared in how many test matches between 1948 and 1963?",
+      "context": [
+        [
+          "Neil Harvey",
+          "Robert Neil Harvey {'1': \", '2': \", '3': \", '4': \"} (born 8 October 1928) is an Australian former cricketer who represented the Australian cricket team between 1948 and 1963, playing in 79 Test matches. He was the vice-captain of the team from 1957 until his retirement. An attacking left-handed batsman, sharp fielder and occasional off-spin bowler, Harvey was the senior batsman in the Australian team for much of the 1950s and was regarded by Wisden as the finest fielder of his era. Upon his retirement, Harvey was the second-most prolific Test run-scorer and century-maker for Australia."
+        ],
+        [
+          "Ray Harvey",
+          "Raymond Harvey (born 3 January 1926) is an Australian former first-class cricketer who played for Victoria in the 1940s and 1950s. He was the brother of Australian Test batsmen Merv and Neil and first-class cricketer and umpire Mick Harvey. Ray Harvey was an attacking and talented batsman but failed to reach international standards and only managed to hold down a regular position in the Victorian team in two seasons in the 1950s. This failure to match the standards set by his Test-capped brothers was often attributed to a lack of single-mindedness and hunger."
+        ]
+      ]
+    },
+    {
+      "id": "0bd72eac7b553d444ca7e275df61d0fd74d29e7f",
+      "src": "squad",
+      "answers": [
+        "1977"
+      ],
+      "question": "What year was Spoleto Festival USA founded?",
+      "context": [
+        [
+          "Charleston, South Carolina",
+          "Charleston's culture blends traditional Southern U.S., English, French, and West African elements. The downtown peninsula has a number of art, music, local cuisine, and fashion venues. Spoleto Festival USA, held annually in late spring, was founded in 1977 by Pulitzer Prize-winning composer Gian Carlo Menotti, who sought to establish a counterpart to the \"Festival dei Due Mondi\" (the Festival of Two Worlds) in Spoleto, Italy."
+        ]
+      ]
+    },
+    {
+      "id": "c6c3b7ee83473b4673b59137a9e3d74a0509f202",
+      "src": "hotpotqa",
+      "answers": [
+        "\"Beyond Geek\""
+      ],
+      "question": "Which show featured a series of endurance races held on paved road race courses across the United States, Australia (since October 2015) and New Zealand (first event held September 2016) in season 1?",
+      "context": [
+        [
+          "24 Hours of LeMons",
+          "The 24 Hours of LeMons is a series of endurance races held on paved road race courses across the United States and, since 2016, Australia and New Zealand. The series holds the Guinness World Record for the \"Most participants in one race\" (216 cars). "
+        ],
+        [
+          "Beyond Geek",
+          "\"Beyond Geek\" Season 1 featured the 24 Hours of LeMons, Dagorhir, Belegarth, Amtgard, 8 Bit Weapon, NES Homebrew, JP Aerospace, WW2 Re-enactors, and Real-life Superheroes. Season 2 features Kinetic Sculpture Racing, Lightsaber Combat, Hackathon, Pirate Re-enactors, Professional Wrestling, Telerobotics, and Star Trek Fan Films."
+        ]
+      ]
+    },
+    {
+      "id": "04e0bc7f3a73763f1926aa40a06d7f9ca40e1bff",
+      "src": "hotpotqa",
+      "answers": [
+        "William Jefferson Clinton"
+      ],
+      "question": "Which former Governor of Arkansas was elected president the same year as the United States Senate elections in 1992?",
+      "context": [
+        [
+          "Bill Clinton",
+          "William Jefferson Clinton (\"né\" Blythe III; born August 19, 1946) is an American lawyer and politician who served as the 42nd president of the United States from 1993 to 2001. Prior to his presidency, he served as governor of Arkansas (1979–1981 and 1983–1992) and as attorney general of Arkansas (1977–1979). A member of the Democratic Party, Clinton was known as a New Democrat, and many of his policies reflected a centrist \"Third Way\" political philosophy. He is the husband of former secretary of state, former U.S. senator, and two-time candidate for president Hillary Clinton."
+        ],
+        [
+          "1992 United States Senate elections",
+          "The 1992 United States Senate elections, held November 3, 1992, were elections for the United States Senate that coincided with Bill Clinton's victory the presidential election. Both parties swapped a pair of seats, resulting in no net change in partisan breakdown."
+        ],
+        [
+          "1992 United States Senate elections",
+          "Democratic victories over Republicans John F. Seymour (in the special California race) and Bob Kasten (of Wisconsin) were cancelled out by the defeats of Democrats Wyche Fowler (of Georgia) and Terry Sanford (of North Carolina). The election of four new Democratic women to the Senate was notable (referred to in the press as the \"Year of the Woman\"). Due to a special election in California, both of California's Senate seats were up for election in 1992. These seats were won by Dianne Feinstein and Barbara Boxer. Thus, California became the first state to have elected women to occupy both of its Senate seats. No man has represented the state in the Senate since, as of 2020."
+        ]
+      ]
+    },
+    {
+      "id": "63dff072aa302c5725f226667f9a692e2953920a",
+      "src": "hotpotqa",
+      "answers": [
+        "V. S. Naipaul"
+      ],
+      "question": "What Nobel Prize winning British writer who was born in Trinidad, wrote \"A Writer's People: Ways of Looking and Feeling\"?",
+      "context": [
+        [
+          "V. S. Naipaul",
+          "Sir Vidiadhar Surajprasad Naipaul {'1': \", '2': 'TC', '3': \", '4': \"} ( ; 17 August 1932 – 11 August 2018), most commonly known as V. S. Naipaul, and informally, Vidia Naipaul, was a Trinidad and Tobago-born British writer of works of fiction and nonfiction in English. He is known for his comic early novels set in Trinidad, his bleaker novels of alienation in the wider world, and his vigilant chronicles of life and travels. He wrote in prose that was widely admired, but his views sometimes aroused controversy. He published more than thirty books over fifty years."
+        ],
+        [
+          "A Writer's People",
+          "A Writer's People: Ways of Looking and Feeling is a non-fiction book by V. S. Naipaul, first published in 2007, in which Naipaul discusses how the work of other writers has affected his own writing. The book attracted criticism in British literary circles for its uncharitable treatment of several notable authors, and in particular of Anthony Powell's novel sequence \"A Dance to the Music of Time\", especially since Powell was an old friend of Naipaul's."
+        ]
+      ]
+    },
+    {
+      "id": "bdb13de0aace86194e84bb734d5b041d16fb775e",
+      "src": "hotpotqa",
+      "answers": [
+        "American"
+      ],
+      "question": "In which country the Dinosaur Jr. was formed and M83 music rockband currently based in?",
+      "context": [
+        [
+          "Dinosaur Jr.",
+          "Dinosaur Jr. is an American rock band formed in Amherst, Massachusetts, in 1984, originally simply called Dinosaur until legal issues forced a change in name."
+        ],
+        [
+          "M83 (band)",
+          "M83 is a French electronic music project formed in Antibes, Alpes-Maritimes in 2001 and currently based in Los Angeles, United States. The band's primary member is vocalist, songwriter, multi-instrumentalist and record producer Anthony Gonzalez. The band was initially formed as a duo also with Nicolas Fromageau; it has released eight albums and two soundtracks, including the Grammy Award-nominated \"Hurry Up, We're Dreaming\"."
+        ],
+        [
+          "M83 (band)",
+          "Gonzalez and Fromageau parted ways shortly after touring their second album \"Dead Cities, Red Seas & Lost Ghosts\". Gonzalez records primarily on his own, with other artists as guest musicians. The band is signed to Mute Records and found international success in 2011 with the single \"Midnight City\". Their most recent album \"DSVII\" (the sequel of \"Digital Shades Vol. 1\") was released on 20 September 2019."
+        ]
+      ]
+    },
+    {
+      "id": "f23bf798ee420da271fd588db4cb07994c664ea1",
+      "src": "hotpotqa",
+      "answers": [
+        "John Browning"
+      ],
+      "question": "The Northrop P-61 Black Widow had a gun mounted that was designed by whom?",
+      "context": [
+        [
+          "Northrop P-61 Black Widow",
+          "The Northrop P-61 Black Widow, named for the North American spider, was the first operational U.S. warplane designed as a night fighter, and the first aircraft designed to use radar. The P-61 had a crew of three: pilot, gunner, and radar operator. It was armed with four 20 mm (.79 in) Hispano M2 forward-firing cannon mounted in the lower fuselage, and four .50 in (12.7 mm) M2 Browning machine guns mounted in a remote-controlled dorsal gun turret."
+        ],
+        [
+          "M2 Browning",
+          "The M2 machine gun or Browning .50 caliber machine gun is a heavy machine gun designed toward the end of World War I by John Browning. Its design is similar to Browning's earlier M1919 Browning machine gun, which was chambered for the .30-06 cartridge. The M2 uses the much larger and much more powerful .50 BMG cartridge, which was developed alongside and takes its name from the gun itself (BMG standing for \"Browning machine gun\"). It has been referred to as \"Ma Deuce\", in reference to its M2 nomenclature. The design has had many specific designations; the official US military designation for the current infantry type is Browning Machine Gun, Cal. .50, M2, HB, Flexible. It is effective against infantry, unarmored or lightly armored vehicles and boats, light fortifications, and low-flying aircraft."
+        ],
+        [
+          "M2 Browning",
+          "The Browning .50 caliber machine gun has been used extensively as a vehicle weapon and for aircraft armament by the United States from the 1930s to the present. It was heavily used during World War II, the Korean War, the Vietnam War, the Falklands War, the Soviet–Afghan War, the Gulf War, the Iraq War, and the War in Afghanistan in the 2000s and 2010s. It is the primary heavy machine gun of NATO countries, and has been used by many other countries as well. The M2 has been in use longer than any other firearm in U.S. inventory except the .45 ACP M1911 pistol, also designed by John Browning."
+        ]
+      ]
+    },
+    {
+      "id": "14ba6663e87c4c47174c14d1948933c7c82d206d",
+      "src": "squad",
+      "answers": [
+        "first ejaculation"
+      ],
+      "question": "What is a male's major landmark of puberty?",
+      "context": [
+        [
+          "Adolescence",
+          "The major landmark of puberty for males is spermarche, the first ejaculation, which occurs, on average, at age 13. For females, it is menarche, the onset of menstruation, which occurs, on average, between ages 12 and 13. The age of menarche is influenced by heredity, but a girl's diet and lifestyle contribute as well. Regardless of genes, a girl must have a certain proportion of body fat to attain menarche. Consequently, girls who have a high-fat diet and who are not physically active begin menstruating earlier, on average, than girls whose diet contains less fat and whose activities involve fat reducing exercise (e.g. ballet and gymnastics). Girls who experience malnutrition or are in societies in which children are expected to perform physical labor also begin menstruating at later ages."
+        ]
+      ]
+    },
+    {
+      "id": "b0f095941bf1bfbd7589c546f93554bc43d24a2e",
+      "src": "hotpotqa",
+      "answers": [
+        "no"
+      ],
+      "question": "Are Michael Herz and Asghar Farhadi both nationals of the same country ?",
+      "context": [
+        [
+          "Asghar Farhadi",
+          "Asghar Farhadi ( ; ] born 7 May 1972) is an Iranian film director and screenwriter."
+        ],
+        [
+          "Asghar Farhadi",
+          "Farhadi has received two Oscars for Best Foreign Language Film for his films \"A Separation\" (2012) and \"The Salesman\" (2016), making him one of the few directors worldwide who have won the Academy Award for Best Foreign Language Film twice. In 2012, he was included on the annual \"Time\" 100 list of the most influential people in the world."
+        ],
+        [
+          "Michael Herz (producer)",
+          "Michael Herz is an American film producer, director and screenwriter. With Lloyd Kaufman, the two are the co-founders of Troma Entertainment, the world's longest running independent film studio, known for their comedic horror films, including the cult favorite \"Toxic Avenger\" series and \"Tromeo and Juliet\"."
+        ]
+      ]
+    },
+    {
+      "id": "d2a2a5cb3b7c741ba4d8f7878ca8132d0c6fef05",
+      "src": "hotpotqa",
+      "answers": [
+        "Roy Williams"
+      ],
+      "question": "The ban on the horse-collar tackle maneuver in American football was named after what 1980-born University of Oklahoma college football player?",
+      "context": [
+        [
+          "Horse-collar tackle",
+          "The horse-collar tackle is an American football maneuver in which a defender tackles another player by grabbing the back collar or the back-inside of an opponent's shoulder pads and pulling the ball carrier directly downward violently in order to pull his feet from underneath him. The technique is most closely associated with Pro Bowl safety Roy Williams. "
+        ],
+        [
+          "Horse-collar tackle",
+          "After being blamed for a series of major injuries in the 2004 season, the horse-collar tackle was banned from the NFL during the 2005 off-season. The rule forbidding it is often referred to in the press as \"The Roy Williams Rule\". The rule, with modifications, was adopted in college football in 2008 and high school football in 2009."
+        ],
+        [
+          "Roy Williams (safety)",
+          "Roy Lee Williams (born August 14, 1980), is a former American college and professional football player who was a safety in the National Football League (NFL) for nine seasons. He played college football for the University of Oklahoma, and was recognized as a unanimous All-American. He was drafted by the Dallas Cowboys eighth overall in the 2002 NFL Draft, and played professionally for the Cowboys and Cincinnati Bengals. He earned five straight Pro Bowl selections from 2003 to 2007. Williams is currently a sideline reporter for Oklahoma football games."
+        ]
+      ]
+    },
+    {
+      "id": "74df91bc55baa005936681dbab656fafc2de0033",
+      "src": "squad",
+      "answers": [
+        "Marcus Garvey Memorial Park"
+      ],
+      "question": "At which park does E 122nd Street end?",
+      "context": [
+        [
+          "List of numbered streets in Manhattan",
+          "E 122nd Street runs four blocks (2250 ft ) west from the intersection of Second Avenue and terminates at the intersection of Madison Avenue at Marcus Garvey Memorial Park. This segment runs in East Harlem and crosses portions of Third Avenue, Lexington, and Park (Fourth Avenue)."
+        ]
+      ]
+    },
+    {
+      "id": "5f22b7b42816e473265ba4c9a9346e9a668ae69d",
+      "src": "hotpotqa",
+      "answers": [
+        "the Pike's Peak Gold Rush"
+      ],
+      "question": " Boston Market Corporation is a chain of American fast casual restaurants headquartered in a municipality founded on 16 June 1859 during what?",
+      "context": [
+        [
+          "Golden, Colorado",
+          "Golden is the Home Rule Municipality that is the county seat of Jefferson County, Colorado, United States. Golden lies along Clear Creek at the base of the Front Range of the Rocky Mountains. Founded during the Pike's Peak Gold Rush on June 16, 1859, the mining camp was originally named \"Golden City\" in honor of Thomas L. Golden. Golden City served as the capital of the provisional Territory of Jefferson from 1860 to 1861, and capital of the official Territory of Colorado from 1862 to 1867. In 1867, the territorial capital was moved about 12 mi east to Denver City. As of the 2010 census, the city population was 18,867."
+        ],
+        [
+          "Golden, Colorado",
+          "The Colorado School of Mines, offering programs in engineering and science, is located in Golden. Also there are the National Renewable Energy Laboratory, National Earthquake Information Center, Coors Brewing Company, CoorsTek, Boston Market, Spyderco, Software Bisque, American Mountaineering Center, and Colorado Railroad Museum. It is the birthplace of the Jolly Rancher, a candy bought out by the Hershey Foods Corporation, and home to Yeti Cycles. Famous western showman William F. \"Buffalo Bill\" Cody is buried nearby on Lookout Mountain."
+        ],
+        [
+          "Boston Market",
+          "Boston Market Corporation, known as Boston Chicken until 1995, is an American fast casual restaurant chain headquartered in Golden, Colorado. It is owned by the Rohan Group."
+        ],
+        [
+          "Boston Market",
+          "Boston Market has its greatest presence in the Northeastern and Midwestern United States, but also has a large presence in California, Florida, and Texas. s of  2018 , the chain has approximately 450 company-owned restaurant locations in 28 states, with 14,000 employees. In the early 2000s, Boston Market operated two locations in Toronto, Ontario, Canada. In early 2002, Boston Market entered the Australian market, opening nine stores in the Sydney metropolitan area by 2004, before converting some stores to McDonald's and quietly exiting the Australian market later that year due to competitive pressures. In June 2016, Boston Market IP Company, Ltd., an affiliate of Boston Market Corporation, signed an area development agreement with Al-Ghunaim Trading Co. Ltd. that will open dozens of Boston Market restaurants in the Middle East."
+        ]
+      ]
+    },
+    {
+      "id": "07a58379988e3032aec5a2d097a13f17e0260703",
+      "src": "squad",
+      "answers": [
+        "fever and nausea"
+      ],
+      "question": "What are two examples of minor side effects caused by some antibiotics?",
+      "context": [
+        [
+          "Antibiotic",
+          "Antibiotics are screened for any negative effects before their approval for clinical use, and are usually considered safe and well tolerated. However, some antibiotics have been associated with a wide extent of adverse side effects ranging from mild to very severe depending on the type of antibiotic used, the microbes targeted, and the individual patient. Side effects may reflect the pharmacological or toxicological properties of the antibiotic or may involve hypersensitivity or allergic reactions. Adverse effects range from fever and nausea to major allergic reactions, including photodermatitis and anaphylaxis. Safety profiles of newer drugs are often not as well established as for those that have a long history of use."
+        ]
+      ]
+    },
+    {
+      "id": "bb371ca57a7651d0013e67b3c4226603f40d27f9",
+      "src": "squad",
+      "answers": [
+        "East Prussia"
+      ],
+      "question": "What province of Germany did Kaliningrad Oblast form a part of?",
+      "context": [
+        [
+          "Russian Soviet Federative Socialist Republic",
+          "On 17 April 1946, the Kaliningrad Oblast — the north-eastern portion of the former Kingdom of Prussia, the founding state of the German Empire (1871–1918) and later the German province of East Prussia including the capital and baltic seaport city of Königsberg — was annexed by the Soviet Union and made part of the Russian SFSR."
+        ]
+      ]
+    },
+    {
+      "id": "cf01284af96aa29b6b8f098273b8f13122447ac0",
+      "src": "hotpotqa",
+      "answers": [
+        "the United Kingdom"
+      ],
+      "question": "Where is the group founded by Noel Stanton based?",
+      "context": [
+        [
+          "Jesus Army",
+          "The Jesus Army, also known as the Jesus Fellowship Church and the Bugbrooke Community, was a neocharismatic evangelical Christian movement based in the United Kingdom, part of the British New Church Movement. The name \"Jesus Army\" was specifically used for the outreach and street-based evangelism for which they were known."
+        ],
+        [
+          "Noel Stanton",
+          "Stanton was born in Bedfordshire in the East of England, and educated at Bedford Modern School. His parents were farmers. When he was 18, he was conscripted into British military service with the Royal Navy. The navy sent him to Sydney, Australia, where he was approached by evangelist Frank Jenner, who asked him, \"If you should die tonight, where would you go? Would it be heaven or hell?\" Stanton felt convicted for several months afterwards and consequently converted to Christianity the next year. "
+        ],
+        [
+          "Noel Stanton",
+          "When World War II ended, Stanton attended All Nations Bible College and worked for and then went into business. In 1957, he became the pastor of a Baptist church in Bugbrooke, Northamptonshire. Under Stanton's leadership, the church took on characteristics of the Charismatic Movement and then of the 1960s counterculture. In 1973, he began turning the church into an intentional community modelled after early Christianity, and the resulting movement became the Jesus Army. He wrote the book \"Your Baptism Into Jesus Christ and His Church\", which was published in 1998. Stanton remained the Jesus Army's leader until 2009, when he named Mick Haines the new leader before dying on 20 May."
+        ]
+      ]
+    },
+    {
+      "id": "43dcac23e77526b9a145143b51b2b9bbbf8e2a3f",
+      "src": "squad",
+      "answers": [
+        "to launch the enhanced music experience"
+      ],
+      "question": "Why did youtube want to ensure only contractees music was played?",
+      "context": [
+        [
+          "YouTube",
+          "In May 2014, before Music Key service was launched, the independent music trade organization Worldwide Independent Network alleged that YouTube was using non-negotiable contracts with independent labels that were \"undervalued\" in comparison to other streaming services, and that YouTube would block all music content from labels who do not reach a deal to be included on the paid service. In a statement to the \"Financial Times\" in June 2014, Robert Kyncl confirmed that YouTube would block the content of labels who do not negotiate deals to be included in the paid service \"to ensure that all content on the platform is governed by its new contractual terms.\" Stating that 90% of labels had reached deals, he went on to say that \"while we wish that we had [a] 100% success rate, we understand that is not likely an achievable goal and therefore it is our responsibility to our users and the industry to launch the enhanced music experience.\" The \"Financial Times\" later reported that YouTube had reached an aggregate deal with Merlin Network—a trade group representing over 20,000 independent labels, for their inclusion in the service. However, YouTube itself has not confirmed the deal."
+        ]
+      ]
+    },
+    {
+      "id": "691506fe32dc29ee4b8bba471737724194702cd3",
+      "src": "hotpotqa",
+      "answers": [
+        "The Third Eye"
+      ],
+      "question": "What show featuring characters with psychic abilities was based off of Into the Labyrinth?",
+      "context": [
+        [
+          "The Third Eye (TV series)",
+          "The Third Eye is an American anthology series on Nickelodeon. It consisted of several English-language science fiction serials from the United Kingdom and New Zealand. All of the program's featurettes focused on characters with psychic abilities."
+        ],
+        [
+          "Into the Labyrinth (TV series)",
+          "Into the Labyrinth is a British children's television series. It was produced by HTV for the ITV network between 1980 and 1982, the first series was not broadcast until May 1981. Three series, each consisting of seven 25-minute episodes, were produced and directed by Peter Graham Scott. The series was created by Scott along with Bob Baker, who had previously written several stories for \"Doctor Who\". The first series only was later shown in the United States as part of \"The Third Eye\" science fiction series on Nickelodeon. It was also broadcast on ABC TV in Australia, TVE in Spain, RTÉ One and RTÉ Two as part of \"The Den\" in Ireland, ETB 1 and ETB 2 in Basque Country, TV2 in Malaysia and both RTV and ATV in Hong Kong. The series also reran on British satellite television and aired on The Children's Channel as part of one of its wrapper programmes \"Roustabout\"."
+        ]
+      ]
+    },
+    {
+      "id": "8b99e8554b7d90d3b8f2995f82b816e2e3c89631",
+      "src": "squad",
+      "answers": [
+        "six"
+      ],
+      "question": "How many number one singles did Beyonce now have after the song \"Telephone\"?",
+      "context": [
+        [
+          "Beyoncé",
+          "At the 52nd Annual Grammy Awards, Beyoncé received ten nominations, including Album of the Year for \"I Am... Sasha Fierce\", Record of the Year for \"Halo\", and Song of the Year for \"Single Ladies (Put a Ring on It)\", among others. She tied with Lauryn Hill for most Grammy nominations in a single year by a female artist. Beyoncé went on to win six of those nominations, breaking a record she previously tied in 2004 for the most Grammy awards won in a single night by a female artist with six. In 2010, Beyoncé was featured on Lady Gaga's single \"Telephone\" and appeared in its music video. The song topped the US Pop Songs chart, becoming the sixth number-one for both Beyoncé and Gaga, tying them with Mariah Carey for most number-ones since the Nielsen Top 40 airplay chart launched in 1992. \"Telephone\" received a Grammy Award nomination for Best Pop Collaboration with Vocals."
+        ]
+      ]
+    },
+    {
+      "id": "43cc137e6477ae02fdc89ac84c09863953e515d8",
+      "src": "squad",
+      "answers": [
+        "Khorog Airport"
+      ],
+      "question": "What is the name of the airport in the eastern half of the country?",
+      "context": [
+        [
+          "Tajikistan",
+          "In 2009 Tajikistan had 26 airports, 18 of which had paved runways, of which two had runways longer than 3,000 meters. The country's main airport is Dushanbe International Airport, which as of April 2015 had regularly-scheduled flights to major cities in Russia, Central Asia, as well as Delhi, Dubai, Frankfurt, Istanbul, Kabul, Tehran, and Ürümqi, amongst others. There are also international flights, mainly to Russia, from Khujand Airport in the northern part of the country as well as limited international services from Kulob Airport, and Qurghonteppa International Airport. Khorog Airport is a domestic airport and also the only airport in the sparsely populated eastern half of the country."
+        ]
+      ]
+    },
+    {
+      "id": "09a58f6468748fe4ef3a92d10449b411c06ae349",
+      "src": "hotpotqa",
+      "answers": [
+        "1941"
+      ],
+      "question": "The German propaganda film, Triumph of the Will, included excerpts of speeches by Rudolf Hess, who was Deputy Fuhrer from 1933 until when?",
+      "context": [
+        [
+          "Rudolf Hess",
+          "Rudolf Walter Richard Hess (Heß in German; 26 April 1894 – 17 August 1987) was a German politician and a leading member of the Nazi Party in Nazi Germany. Appointed Deputy Führer to Adolf Hitler in 1933, Hess served in that position until 1941, when he flew solo to Scotland in an attempt to negotiate peace with the United Kingdom during World War II. He was taken prisoner and eventually convicted of crimes against peace, serving a life sentence until his suicide in 1987."
+        ],
+        [
+          "Triumph of the Will",
+          "Triumph of the Will ( ) is a 1935 Nazi propaganda film directed, produced, edited, and co-written by Leni Riefenstahl. It chronicles the 1934 Nazi Party Congress in Nuremberg, which was attended by more than 700,000 Nazi supporters. The film contains excerpts from speeches given by Nazi leaders at the Congress, including Adolf Hitler, Rudolf Hess and Julius Streicher, interspersed with footage of massed Sturmabteilung (SA) and Schutzstaffel (SS) troops and public reaction. Hitler commissioned the film and served as an unofficial executive producer; his name appears in the opening titles. The film's overriding theme is the return of Germany as a great power, with Hitler as the leader who will bring glory to the nation. Because the film was made after the 1934 Night of the Long Knives (on 30 June), many prominent Sturmabteilung (SA) members are absent—they were murdered in that Party purge, organised and orchestrated by Hitler to replace the SA with the Schutzstaffel (SS) as his main paramilitary force."
+        ]
+      ]
+    },
+    {
+      "id": "7a961214519ba960da165734881ce3d94779a72b",
+      "src": "squad",
+      "answers": [
+        "nearly 1,000"
+      ],
+      "question": "How many rooms were in the merged Chalfonte-Haddon Hall Hotel?",
+      "context": [
+        [
+          "Atlantic City, New Jersey",
+          "One by one, additional large hotels were constructed along the boardwalk, including the Brighton, Chelsea, Shelburne, Ambassador, Ritz Carlton, Mayflower, Madison House, and the Breakers. The Quaker-owned Chalfonte House, opened in 1868, and Haddon House, opened in 1869, flanked North Carolina Avenue at the beach end. Over the years, their original wood-frame structures would be enlarged, and even moved closer to the beach. The modern Chalfonte Hotel, eight stories tall, opened in 1904. The modern Haddon Hall was built in stages and was completed in 1929, at eleven stories. By this time, they were under the same ownership and merged into the Chalfonte-Haddon Hall Hotel, becoming the city's largest hotel with nearly 1,000 rooms. By 1930, the Claridge, the city's last large hotel before the casinos, opened its doors. The 400-room Claridge was built by a partnership that included renowned Philadelphia contractor John McShain. At 24 stories, it would become known as the \"Skyscraper by the Sea.\" The city became known as \"The World's Playground\"."
+        ]
+      ]
+    },
+    {
+      "id": "5d04765f6f37bea27fc4d136ad162dda89dde9f3",
+      "src": "squad",
+      "answers": [
+        "Umban u’Kest"
+      ],
+      "question": "Who directed the first feature film in Guinea-Bissau?",
+      "context": [
+        [
+          "Guinea-Bissau",
+          "Flora Gomes is an internationally renowned film director; his most famous film is \"Nha Fala\" ( ). Gomes's \"Mortu Nega\" (\"Death Denied\") (1988) was the first fiction film and the second feature film ever made in Guinea-Bissau. (The first feature film was \"N’tturudu\", by director Umban u’Kest in 1987.) At FESPACO 1989, \"Mortu Nega\" won the prestigious Oumarou Ganda Prize. In 1992, Gomes directed \"Udju Azul di Yonta\", which was screened in the Un Certain Regard section at the 1992 Cannes Film Festival. Gomes has also served on the boards of many Africa-centric film festivals. The actress Babetida Sadjo was born in Bafatá, Guinea-Bissau."
+        ]
+      ]
+    },
+    {
+      "id": "efa3ddf00dceb36acd22bfb797170085e33e035c",
+      "src": "hotpotqa",
+      "answers": [
+        "1847"
+      ],
+      "question": "The Irlams o' th' Height railway station was opened by a railway company incorporated in what year?",
+      "context": [
+        [
+          "Irlams o' th' Height railway station",
+          "Irlams o' th' Height railway station was located on the Atherton Line between Manchester Victoria and Wigan Wallgate. The railway station was opened by the Lancashire and Yorkshire Railway on 1 July 1901, some 14 years after the Atherton Line had opened in 1888. The station closed on 5 March 1956. The preceding station was Pendleton, the following station was Pendlebury, also both since demolished."
+        ],
+        [
+          "Lancashire and Yorkshire Railway",
+          "The Lancashire and Yorkshire Railway (L&YR) was a major British railway company before the 1923 Grouping. It was incorporated in 1847 from an amalgamation of several existing railways. It was the third-largest railway system based in northern England (after the Midland and North Eastern Railways). "
+        ]
+      ]
+    },
+    {
+      "id": "5276c7058e599d993000deddf790807d0a2dd3f4",
+      "src": "hotpotqa",
+      "answers": [
+        "one of the teams played in its home stadium"
+      ],
+      "question": "What was unusual about the venue of the 1957 European Cup Final and 2012 UEFA Champions League Final?",
+      "context": [
+        [
+          "2012 UEFA Champions League Final",
+          "The 2012 UEFA Champions League Final was an association football match which took place on Saturday, 19 May 2012 between Bayern Munich of Germany and Chelsea of England at the Allianz Arena in Munich, Germany. The match was to decide the winner of the 2011–12 season of the UEFA Champions League, Europe's premier club football tournament. Bayern were making their ninth appearance in the competition's final, having won four and lost four, most recently losing in 2010. Chelsea were appearing in their second final, having lost their first in 2008."
+        ],
+        [
+          "1957 European Cup Final",
+          "The 1957 European Cup Final was a football match which took place at the Santiago Bernabéu Stadium in Madrid, Spain, on 30 May 1957. It was contested between Real Madrid of Spain and Fiorentina of Italy. Real Madrid won 2–0 after goals from Alfredo Di Stéfano and Francisco Gento in the second half. It was the first of four finals (also counting the Champions League era, followed by the 1965, 1984 and 2012 finals) where one of the teams played in its home stadium, and also the first final when the winning team played at their home stadium."
+        ]
+      ]
+    },
+    {
+      "id": "e1348aad0faa724c7a9dfebfe6f656f3a7088311",
+      "src": "squad",
+      "answers": [
+        "The climate varies from subtropical in the north to tropical in the south"
+      ],
+      "question": "What is the florida climate ",
+      "context": [
+        [
+          "Florida",
+          "About two-thirds of Florida occupies a peninsula between the Gulf of Mexico and the Atlantic Ocean. Florida has the longest coastline in the contiguous United States, approximately 1350 mi , not including the contribution of the many barrier islands. Florida has a total of 4,510 islands that are 10 acre or larger in area. This is the second-highest number of islands of any state; only Alaska has more. It is the only state that borders both the Gulf of Mexico and the Atlantic Ocean. Much of the state is at or near sea level, and is characterized by sedimentary soil. Florida has the lowest high point of any U.S. state. The American alligator, American crocodile, American flamingo, Roseate spoonbill, Florida panther, bottlenose dolphin, and manatee can be found in Everglades National Park in the southern part of the state. The climate varies from subtropical in the north to tropical in the south. Along with Hawaii, Florida is one of only two states that have a tropical climate, and is the only continental state that has both a tropical climate and a coral reef. The Florida Reef is the only living coral barrier reef in the continental United States, and the third-largest coral barrier reef system in the world (after the Great Barrier Reef and Belize Barrier Reef)."
+        ]
+      ]
+    },
+    {
+      "id": "1c6ddea5b618750d6fe4dacbc4c4727baddeecdc",
+      "src": "squad",
+      "answers": [
+        "a spiritual reality"
+      ],
+      "question": "What can interpretation find that lies the behind the apparent events referred to in a Quranic story?",
+      "context": [
+        [
+          "Quran",
+          "Muhammad Husayn Tabatabaei says that according to the popular explanation among the later exegetes, \"ta'wil\" indicates the particular meaning a verse is directed towards. The meaning of revelation (\"tanzil\"), as opposed to \"ta'wil\", is clear in its accordance to the obvious meaning of the words as they were revealed. But this explanation has become so widespread that, at present, it has become the primary meaning of \"ta'wil\", which originally meant \"to return\" or \"the returning place\". In Tabatabaei's view, what has been rightly called \"ta'wil\", or hermeneutic interpretation of the Quran, is not concerned simply with the denotation of words. Rather, it is concerned with certain truths and realities that transcend the comprehension of the common run of men; yet it is from these truths and realities that the principles of doctrine and the practical injunctions of the Quran issue forth. Interpretation is not the meaning of the verse—rather it transpires through that meaning, in a special sort of transpiration. There is a spiritual reality—which is the main objective of ordaining a law, or the basic aim in describing a divine attribute—and then there is an actual significance that a Quranic story refers to."
+        ]
+      ]
+    },
+    {
+      "id": "67c13bf50d5d4f20b0081a3ccfa4855fe1f9f889",
+      "src": "hotpotqa",
+      "answers": [
+        "Bee Movie"
+      ],
+      "question": "Mehrdad Raissi Ardali has provided Persian voice over for which movie that was based on a honey bee that learns humans sell and consume honey?",
+      "context": [
+        [
+          "Mehrdad Raissi Ardali",
+          "Mehrdad Raissi Ardali ( ), born (1978--)17 1978 in Iran, is a prolific Iranian voice actor, dubbing director, founder, director, CEO and Quality Control Manager of Glory Entertainment (The Association of Tehran Young Voice Actors). He has also provided Persian voices for several animation characters, including famous characters such as Donkey in \"Shrek\", Marty in \"Madagascar\", \"\" and \"\", Buck in \"\", Bolt in \"Bolt\", Carl Fredricksen in \"Up\", Flynn Rider in \"Tangled\", The Once-ler in \"The Lorax\", RJ in \"Over the Hedge\", Francesco Bernoulli in \"Cars 2\", Mr. Ping in \"Kung fu Panda\", Ramon in \"Happy Feet 2\", The Man in the Yellow Hat in \"Curious George\", Raoul in \"A Monster in Paris\", Kevin in \"\", Barry in \"Bee Movie\", Bunnymund in \"Rise of the Guardians\", Guy in \"The Croods\" and Kristoff in \"Frozen (2013 film)\"."
+        ],
+        [
+          "Bee Movie",
+          "Bee Movie is a 2007 American computer-animated comedy film produced by DreamWorks Animation and distributed by Paramount Pictures. Directed by Simon J. Smith and Steve Hickner, the film stars Jerry Seinfeld and Renée Zellweger, with Matthew Broderick, Patrick Warburton, John Goodman and Chris Rock in supporting roles. Its story follows Barry B. Benson (Seinfeld), a honey bee who sues the human race for exploiting bees, after learning from his florist friend Vanessa (Zellweger) that humans sell and consume honey."
+        ]
+      ]
+    },
+    {
+      "id": "9e188aa8f539785bed80fd74a31c9a89bca3b574",
+      "src": "squad",
+      "answers": [
+        "works were largely ignored"
+      ],
+      "question": "What was the result of Hayek's Prices and Production?",
+      "context": [
+        [
+          "Friedrich Hayek",
+          "Hayek continued his research on monetary and capital theory, revising his theories of the relations between credit cycles and capital structure in \"Profits, Interest and Investment\" (1939) and \"The Pure Theory of Capital\" (1941), but his reputation as an economic theorist had by then fallen so much that those works were largely ignored, except for scathing critiques by Nicholas Kaldor. Lionel Robbins himself, who had embraced the Austrian theory of the business cycle in \"The Great Depression\" (1934), later regretted having written the book and accepted many of the Keynesian counter-arguments."
+        ]
+      ]
+    },
+    {
+      "id": "d10e69dc971a1db06dd33f9c8b07ff32ea82b558",
+      "src": "hotpotqa",
+      "answers": [
+        "film"
+      ],
+      "question": "The Cat from Outer Space and Darby O'Gill and the Little People, are which type of specific entertainment?",
+      "context": [
+        [
+          "Darby O'Gill and the Little People",
+          "Darby O'Gill and the Little People is a 1959 American fantasy adventure film produced by Walt Disney Productions, adapted from the \"Darby O'Gill\" stories of Herminie Templeton Kavanagh. Directed by Robert Stevenson and written by Lawrence Edward Watkin, the film stars Albert Sharpe as O'Gill alongside Janet Munro, Sean Connery, and Jimmy O'Dea."
+        ],
+        [
+          "Darby O'Gill and the Little People",
+          "Darby O'Gill (Albert Sharpe) and his daughter Katie (Janet Munro) live together in the small Irish town of Rathcullen. Darby works as the caretaker of an estate owned by Lord Fitzpatrick (Walter Fitzgerald) and tries to catch a tribe of leprechauns, particularly their king, Brian Connors (Jimmy O'Dea)."
+        ],
+        [
+          "The Cat from Outer Space",
+          "The Cat from Outer Space is a 1978 American science fiction comedy film starring Ken Berry, Sandy Duncan, Harry Morgan, Ronnie Schell, Roddy McDowall and McLean Stevenson."
+        ]
+      ]
+    },
+    {
+      "id": "d99f08090525c984ebf7e8bfd55a9b9b869f187f",
+      "src": "hotpotqa",
+      "answers": [
+        "Caché"
+      ],
+      "question": "Maurice Bénichou is a French actor, one of his best known roles, includes a collaborations with director Michael Haneke, in which 2005 French psychological thriller written and directed  by Haneke?",
+      "context": [
+        [
+          "Caché (film)",
+          "Caché (] ), also known as Hidden, is a 2005 psychological thriller film written and directed by Michael Haneke and starring Daniel Auteuil and Juliette Binoche. The plot follows an upper-middle-class French couple, Georges (Auteuil) and Anne (Binoche), who are terrorised by anonymous tapes that appear on their front porch and seem to show the family is under surveillance. Clues in the videos point to Georges's childhood memories, and his resistance to his parents' adopting an Algerian orphan named Majid, who was sent away. The tapes lead him to the now-grown Majid (Maurice Bénichou)."
+        ],
+        [
+          "Maurice Bénichou",
+          "Maurice Bénichou (23 January 1943 in Tlemcen, French Algeria – 14 June 2019) was a French actor. His best known roles include three collaborations with director Michael Haneke (\"Code inconnu\", \"Le Temps du Loup\", and \"Caché\"), and a part in Jean-Pierre Jeunet's \"Amélie\". He has also played in Peter Brook's 1989 film version of \"The Mahabharata\"."
+        ]
+      ]
+    },
+    {
+      "id": "b58b6a17fcb997b5e153c0bf8e042a38737d2864",
+      "src": "squad",
+      "answers": [
+        "final 64"
+      ],
+      "question": "What place did Chasetown come in?",
+      "context": [
+        [
+          "FA Cup",
+          "Chasetown, while playing at Level 8 of English football during the 2007–08 competition, are the lowest-ranked team to ever play in the Third Round Proper (final 64, of 731 teams entered that season). Chasetown was then a member of the Southern League Division One Midlands (a lower level within the Southern Football League), when they lost to Football League Championship (Level 2) team Cardiff City, the eventual FA Cup runners-up that year. Their success earned the lowly organisation over £60,000 in prize money."
+        ]
+      ]
+    },
+    {
+      "id": "fd619907aaf194985081db4d8e834022bddb8ec8",
+      "src": "squad",
+      "answers": [
+        ".45%"
+      ],
+      "question": "What was the vacancy rate for Bern in 2010?",
+      "context": [
+        [
+          "Bern",
+          "s of 2003 the average price to rent an average apartment in Bern was 1108.92 Swiss francs (CHF) per month (US$890, £500, €710 approx. exchange rate from 2003). The average rate for a one-room apartment was 619.82 CHF (US$500, £280, €400), a two-room apartment was about 879.36 CHF (US$700, £400, €560), a three-room apartment was about 1040.54 CHF (US$830, £470, €670) and a six or more room apartment cost an average of 2094.80 CHF (US$1680, £940, €1340). The average apartment price in Bern was 99.4% of the national average of 1116 CHF. The vacancy rate for the municipality, in 2010 , was 0.45%."
+        ]
+      ]
+    },
+    {
+      "id": "b5a0cce1ef3895c6b7ee413c5f0ec7d6aa4a0070",
+      "src": "hotpotqa",
+      "answers": [
+        "Tim Tadlock"
+      ],
+      "question": "Who is the head coach of the baseball team for which Steven Gingery is a pitcher?",
+      "context": [
+        [
+          "Texas Tech Red Raiders baseball",
+          "The Texas Tech Red Raiders baseball team represents Texas Tech University in NCAA Division I college baseball. The team competes in the Big 12 Conference and plays at Dan Law Field at Rip Griffin Park. Their head coach is Tim Tadlock and he is in his 7th season with the Red Raiders."
+        ],
+        [
+          "Steven Gingery",
+          "Steven Michael Gingery (born September 23, 1997) is an American professional baseball pitcher in the St. Louis Cardinals organization."
+        ],
+        [
+          "Steven Gingery",
+          "Gingery attended Marina High School in Huntington Beach, California. As a senior, he had a 2–4 win–loss record with a 1.30 earned run average (ERA). He was not drafted out of high school in the 2015 MLB draft and enrolled at Texas Tech University. In 2016, as a freshman, Gingery appeared in 15 games (14 being starts) and was 4–2 with a 3.18 ERA."
+        ]
+      ]
+    },
+    {
+      "id": "2c844fb73553ae1771b381491cd86275716ad54b",
+      "src": "hotpotqa",
+      "answers": [
+        "yes"
+      ],
+      "question": "Are Jimmy Connors and Juan Sebastián Cabal both tennis players?",
+      "context": [
+        [
+          "Jimmy Connors",
+          "James Scott Connors (born September 2, 1952) is a retired American world No. 1 tennis player. He held the top Association of Tennis Professionals (ATP) ranking for a then-record 160 consecutive weeks from 1974 to 1977 and a career total of 268 weeks."
+        ],
+        [
+          "Juan Sebastián Cabal",
+          "Juan Sebastián Cabal Valdés (] ; born 25 April 1986) is a Colombian professional tennis player specialising in doubles. His current ranking in men's doubles is No. 1, and he has also reached World No. 184 in singles. He has won three grand slam doubles titles in his career, in 2017 he won the mixed doubles title at the Australian Open, partnering Abigail Spears of the USA, and two years later he won his first men's doubles grand slam title, winning the 2019 Wimbledon title and 2019 US Open title alongside countryman and regular doubles partner Robert Farah."
+        ]
+      ]
+    },
+    {
+      "id": "d3bde9ce1c578b4d96b379035743f08ac7f2925c",
+      "src": "hotpotqa",
+      "answers": [
+        "Frank Darabont"
+      ],
+      "question": "Who's the Hungarian-born US film director renowned for adapting Stephen King novellas to the screen, including The Mist and The Green Mile?",
+      "context": [
+        [
+          "Frank Darabont",
+          "Frank Árpád Darabont (born Ferenc Árpád Darabont, January 28, 1959) is a Hungarian-American film director, screenwriter and producer who has been nominated for three Academy Awards and a Golden Globe Award. In his early career, he was primarily a screenwriter for horror films such as \"\" (1987), \"The Blob\" (1988) and \"The Fly II\" (1989). As a director, he is known for his film adaptations of Stephen King novellas and novels such as \"The Shawshank Redemption\" (1994), \"The Green Mile\" (1999) and \"The Mist\" (2007)."
+        ],
+        [
+          "The Mist (film)",
+          "The Mist (also known as Stephen King's The Mist) is a 2007 American science fiction horror film based on the 1980 novella \"The Mist\" by Stephen King. The film was written and directed by Frank Darabont. Darabont had been interested in adapting \"The Mist\" for the big screen since the 1980s. The film features an ensemble cast including Thomas Jane, Marcia Gay Harden, Nathan Gamble, Andre Braugher, Toby Jones, Frances Sternhagen, Buck Taylor, William Sadler, Sam Witwer, Alexa Davalos, Chris Owen, Andy Stahl, and future \"The Walking Dead\" actors Laurie Holden, Jeffrey DeMunn, Melissa McBride, and Juan Gabriel Pareja."
+        ],
+        [
+          "The Mist (film)",
+          "Filming for \"The Mist\" began in Shreveport, Louisiana, in February 2007. The film was commercially released in the United States and Canada on November 21, 2007; it performed well at the box office and received generally positive reviews. Darabont has since revealed that he had \"always had it in mind to shoot \"The Mist\" in black and white\", a decision inspired by such iconic films as \"Night of the Living Dead\" (1968) and the \"pre-color\" work of Ray Harryhausen. While the film's cinematic release was in color, the director has described the black and white print (released on Blu-ray in 2008) as his \"preferred version.\""
+        ]
+      ]
+    },
+    {
+      "id": "c1553e0ff90298134e9ec793c85a0428db26d074",
+      "src": "squad",
+      "answers": [
+        "Mykolas Burokevičius,"
+      ],
+      "question": "Who was in charge of the loyalist faction?",
+      "context": [
+        [
+          "Dissolution of the Soviet Union",
+          "On December 7, 1989, the Communist Party of Lithuania under the leadership of Algirdas Brazauskas, split from the Communist Party of the Soviet Union and abandoned its claim to have a constitutional \"leading role\" in politics. A smaller loyalist faction of the Communist Party, headed by hardliner Mykolas Burokevičius, was established and remained affiliated with the CPSU. However, Lithuania's governing Communist Party was formally independent from Moscow's control – a first for Soviet Republics and a political earthquake that prompted Gorbachev to arrange a visit to Lithuania the following month in a futile attempt to bring the local party back under control. The following year, the Communist Party lost power altogether in multiparty parliamentary elections which had caused Vytautas Landsbergis to become the first non-Communist leader (Chairman of the Supreme Council of Lithuania) of Lithuania since its forced incorporation into the USSR."
+        ]
+      ]
+    },
+    {
+      "id": "4a2166b45c9fd79166b41b5770cb2652f47e8865",
+      "src": "hotpotqa",
+      "answers": [
+        "1957"
+      ],
+      "question": "In what year did a Soviet, Russian, and American theoretical physicist, whose main contributions are in the field of condensed matter physics, come up with his famous theory?",
+      "context": [
+        [
+          "Alexei Alexeyevich Abrikosov",
+          "Alexei Alexeyevich Abrikosov ( ; June 25, 1928 – March 29, 2017) was a Soviet, Russian and American theoretical physicist whose main contributions are in the field of condensed matter physics. He was the co-recipient of the 2003 Nobel Prize in Physics, with Vitaly Ginzburg and Anthony James Leggett, for theories about how matter can behave at extremely low temperatures."
+        ],
+        [
+          "Alexei Alexeyevich Abrikosov",
+          "Abrikosov was born in Moscow, Russian SFSR, Soviet Union, on June 25, 1928, to a couple of physicians: Prof. Alexei Ivanovich Abrikosov and Dr. Fani Abrikosova, née Wulf, a Jewish Russian physician. He graduated from Moscow State University in 1948. From 1948 to 1965, he worked at the Institute for Physical Problems of the USSR Academy of Sciences, where he received his Ph.D. in 1951 for the theory of thermal diffusion in plasmas, and then his Doctor of Physical and Mathematical Sciences (a \"higher doctorate\") degree in 1955 for a thesis on quantum electrodynamics at high energies."
+        ],
+        [
+          "Abrikosov vortex",
+          "In superconductivity, an Abrikosov vortex (also called a fluxon) is a vortex of supercurrent in a type-II superconductor theoretically predicted by Alexei Abrikosov in 1957. Abrikosov vortices occur generically in the Ginzburg–Landau theory of superconductivity, and can be explicitly demonstrated as solutions to that theory in a general mathematical setting, \"viz.\" as vortices in complex line bundles on Riemannian manifolds."
+        ],
+        [
+          "Abrikosov vortex",
+          "The supercurrent circulates around the normal (i.e. non-superconducting) core of the vortex. The core has a size formula_1 — the superconducting coherence length (parameter of a Ginzburg–Landau theory). The supercurrents decay on the distance about formula_2 (London penetration depth) from the core. Note that in type-II superconductors formula_3. The circulating supercurrents induce magnetic fields with the total flux equal to a single flux quantum formula_4. Therefore, an Abrikosov vortex is often called a fluxon."
+        ]
+      ]
+    },
+    {
+      "id": "9d19bffebd81f49cac96dc638e76efd34ab8e8eb",
+      "src": "squad",
+      "answers": [
+        "Sea City"
+      ],
+      "question": "What Southampton festival culminates in the Boat Show?",
+      "context": [
+        [
+          "Southampton",
+          "The annual Southampton Boat Show is held in September each year, with over 600 exhibitors present. It runs for just over a week at Mayflower Park on the city's waterfront, where it has been held since 1968. The Boat Show itself is the climax of Sea City, which runs from April to September each year to celebrate Southampton's links with the sea."
+        ]
+      ]
+    },
+    {
+      "id": "5fd753ed2ad1b4ce1ff04995fcc78470f779ef33",
+      "src": "hotpotqa",
+      "answers": [
+        "1996"
+      ],
+      "question": "The author of 1957 novel Atlas Shrugged, had a documentary film written, produced and directed by Michael Paxton, in what year?",
+      "context": [
+        [
+          "Atlas Shrugged",
+          "Atlas Shrugged is a 1957 novel by Ayn Rand. Rand's fourth and final novel, it was also her longest, and the one she considered to be her \"magnum opus\" in the realm of fiction writing. \"Atlas Shrugged\" includes elements of science fiction, mystery, and romance, and it contains Rand's most extensive statement of Objectivism in any of her works of fiction. The theme of \"Atlas Shrugged\", as Rand described it, is \"the role of man's mind in existence\". The book explores a number of philosophical themes from which Rand would subsequently develop Objectivism. In doing so, it expresses the advocacy of reason, individualism, and capitalism, and depicts what Rand saw to be the failures of governmental coercion. "
+        ],
+        [
+          "Ayn Rand: A Sense of Life",
+          "Ayn Rand: A Sense of Life is a 1996 American documentary film written, produced, and directed by Michael Paxton. Its focus is on novelist and philosopher Ayn Rand, the author of the bestselling novels \"The Fountainhead\" and \"Atlas Shrugged\", who promoted her philosophy of Objectivism through her books, articles, speeches, and media appearances."
+        ]
+      ]
+    },
+    {
+      "id": "14d939352a68dc093098a0b621de5a784fab7585",
+      "src": "hotpotqa",
+      "answers": [
+        "Michael Dorn"
+      ],
+      "question": "What American actor, who directed In the Cards, is known for his role as the Klingon Worf in the Star Trek franchise?",
+      "context": [
+        [
+          "Michael Dorn",
+          "Michael Dorn (born December 9, 1952) is an American actor and voice actor, who is known for his role as the Klingon Worf in the \"Star Trek\" franchise."
+        ],
+        [
+          "In the Cards",
+          "\"In the Cards\" is the penultimate episode of the of \"\". This episode marks Michael Dorn's directorial debut."
+        ]
+      ]
+    },
+    {
+      "id": "f110340e4efcff498780ad70d41cea9b14e2ff7a",
+      "src": "squad",
+      "answers": [
+        "the use of computers to study the brain; second, the study of how brains perform computation."
+      ],
+      "question": "Computational neuroscience is concerned with what two studies?",
+      "context": [
+        [
+          "Brain",
+          "Computational neuroscience encompasses two approaches: first, the use of computers to study the brain; second, the study of how brains perform computation. On one hand, it is possible to write a computer program to simulate the operation of a group of neurons by making use of systems of equations that describe their electrochemical activity; such simulations are known as \"biologically realistic neural networks\". On the other hand, it is possible to study algorithms for neural computation by simulating, or mathematically analyzing, the operations of simplified \"units\" that have some of the properties of neurons but abstract out much of their biological complexity. The computational functions of the brain are studied both by computer scientists and neuroscientists."
+        ]
+      ]
+    },
+    {
+      "id": "11e66f5173067f86530b6ed59fbebd1d8b033bf7",
+      "src": "hotpotqa",
+      "answers": [
+        "A Kind of Living"
+      ],
+      "question": "Frances de la Tour and Alec Christie both were in a siutation comedy called what?",
+      "context": [
+        [
+          "Frances de la Tour",
+          "Frances de la Tour, also Frances J. de Lautour, (born 30 July 1944) is an English actress, known for her role as Miss Ruth Jones in the television sitcom \"Rising Damp\" from 1974 until 1978. She is a Tony Award winner and three-time Olivier Award winner."
+        ],
+        [
+          "Alec Christie",
+          "Alec Christie is a British actor. He started acting at the age of ten appearing on stage at the Birmingham Repertory Theatre as young Herbert Pocket in \"Great Expectations\". At the age of twelve he was cast as Tolly in the BBC adaptation of Lucy M. Boston's \"The Children of Green Knowe\". He went on to appear alongside Richard Griffiths, Frances de la Tour and Tim Healy in the situation comedy \"A Kind of Living\"."
+        ]
+      ]
+    },
+    {
+      "id": "dde365cf05d6a2f582bb60c843e02b8f080c4a04",
+      "src": "hotpotqa",
+      "answers": [
+        "Australian psychedelic rock band"
+      ],
+      "question": "What does Nonagon Infinity and King Gizzard & the Lizard Wizard have in common? ",
+      "context": [
+        [
+          "Nonagon Infinity",
+          "Nonagon Infinity is the eighth studio album by Australian psychedelic rock band King Gizzard & the Lizard Wizard. It was released on 29 April 2016 on ATO Records. The album is designed to play as an \"infinite loop\" where \"the record can be played front-to-back-to-front-to-back and the sound won’t break.\""
+        ],
+        [
+          "King Gizzard & the Lizard Wizard",
+          "King Gizzard & the Lizard Wizard are an Australian rock band formed in 2010 in Melbourne, Victoria. The band consists of Stu Mackenzie (vocals, guitar, bass, keyboards, flute), Ambrose Kenny-Smith (vocals, harmonica, keyboards), Cook Craig (guitar, bass, vocals), Joey Walker (guitar, bass, keyboards, vocals), Lucas Harwood (bass, keyboards), Michael Cavanagh (drums, percussion), and Eric Moore (drums, percussion, management). They are known for exploring many different genres, staging energetic live shows and building a prolific discography, having released fifteen studio albums, two EPs and four live albums since the band's formation."
+        ]
+      ]
+    },
+    {
+      "id": "deb23a4bc418f8a45459afd5788eb5a4af92563f",
+      "src": "hotpotqa",
+      "answers": [
+        "Kingpin"
+      ],
+      "question": "Richard Fisk is the son of what fictional supervillain that was created by Stan Lee and John Romita Sr.?",
+      "context": [
+        [
+          "Richard Fisk",
+          "Richard Fisk is a fictional character, a criminal appearing in American comic books published by Marvel Comics. The character first appears in \"The Amazing Spider-Man\" #83 (April 1970) and was created by Stan Lee and John Romita Sr. He is the son of Wilson Fisk and Vanessa Fisk. Although he was originally a villain, he became an antihero."
+        ],
+        [
+          "Kingpin (character)",
+          "The Kingpin (Wilson Grant Fisk) is a fictional supervillain appearing in American comic books published by Marvel Comics. The character was created by Stan Lee and John Romita Sr., and first appeared in \"The Amazing Spider-Man\" #50 (cover-dated July 1967)."
+        ]
+      ]
+    },
+    {
+      "id": "12904469a4e894c1b67a3232d2ec8e8432c6a0e8",
+      "src": "squad",
+      "answers": [
+        "Karl von Clausewitz"
+      ],
+      "question": "What famous German military strategist has a name with Slavic origin?",
+      "context": [
+        [
+          "Germans",
+          "After Christianization, the Roman Catholic Church and local rulers led German expansion and settlement in areas inhabited by Slavs and Balts, known as Ostsiedlung. During the wars waged in the Baltic by the Catholic German Teutonic Knights; the lands inhabited by the ethnic group of the Old Prussians (known then simply as \"Prussians\"), were conquered by the Germans. The Old Prussians were an ethnic group related to the Latvian and Lithuanian Baltic peoples. The former German state of Prussia took its name from the Baltic Prussians, although it was led by Germans who had assimilated the Old Prussians; the Old Prussian language was extinct by the 17th or early 18th century. The Slavic people of the Teutonic-controlled Baltic were assimilated into German culture and eventually there were many intermarriages of Slavic and German families, including into Prussia's aristocracy known as the Junkers. Prussian military strategist Karl von Clausewitz is a famous German whose surname is of Slavic origin. Massive German settlement led to the assimilation of Baltic (Old Prussians) and Slavic (Wends) populations, who were exhausted by previous warfare."
+        ]
+      ]
+    },
+    {
+      "id": "e6bc55d3bc85cef56b7e45b812898f6bf5cd1cfa",
+      "src": "hotpotqa",
+      "answers": [
+        "yes"
+      ],
+      "question": "Are both Battle Sheep and Clans board games?",
+      "context": [
+        [
+          "Battle Sheep",
+          "Battle Sheep is a 2010 board game developed by Francesco Rotta. It has been published by Blue Orange Games, HUCH! & friends and Lautapelit.fi."
+        ],
+        [
+          "Clans (board game)",
+          "Clans is a German-style board game designed by Leo Colovini. The game centers on the creation of villages."
+        ]
+      ]
+    },
+    {
+      "id": "7cf73abbea002ec5180869b27dbcf3e7af7dc45c",
+      "src": "hotpotqa",
+      "answers": [
+        "Dave Sexton"
+      ],
+      "question": "The 1977–78 season was Manchester United's 76th season in the Football League, and their third consecutive season in the top division of English football, it was their first season under the management of which English football manager and player? ",
+      "context": [
+        [
+          "Dave Sexton",
+          "David James Sexton OBE (6 April 1930 – 25 November 2012) was an English football manager and player."
+        ],
+        [
+          "1977–78 Manchester United F.C. season",
+          "The 1977–78 season was Manchester United's 76th season in the Football League, and their third consecutive season in the top division of English football. It was their first season under the management of Dave Sexton, following the dismissal of Tommy Docherty in the close season due to revelations about his personal life. As FA Cup holders they contested the Charity Shield and were joint holders with league champions Liverpool, but failed to make an impact in Europe or on either of the domestic cups and finished only 10th in the league."
+        ]
+      ]
+    },
+    {
+      "id": "b31f8b9b2eb9174d30a86d03086d1445d69115d2",
+      "src": "hotpotqa",
+      "answers": [
+        "Edwin Greenwood"
+      ],
+      "question": "In between John Mulholland and Edwin Greenwood who was a British screenwriter and film director?",
+      "context": [
+        [
+          "Edwin Greenwood",
+          "Edwin Greenwood (1895-1939) was a British screenwriter, novelist and film director."
+        ],
+        [
+          "John Mulholland (director)",
+          "John Mulholland is a film historian and an American writer and director, specializing in documentaries. He was born in New York City, where he still lives. Mulholland's most recent documentary is \"\", exploring the 20-year friendship between actor Gary Cooper and author Ernest Hemingway."
+        ]
+      ]
+    },
+    {
+      "id": "9ded5951a4e95a35e5f223ba0b1de80958efaf6d",
+      "src": "squad",
+      "answers": [
+        "Gaudium et spes"
+      ],
+      "question": "What document states that the Catholic church is not subject to any particlar government?",
+      "context": [
+        [
+          "Pope Paul VI",
+          "Like his predecessor Pius XII, Paul VI put much emphasis on the dialogue with all nations of the world through establishing diplomatic relations. The number of foreign embassies accredited to the Vatican doubled during his pontificate. This was a reflection of a new understanding between Church and State, which had been formulated first by Pius XI and Pius XII but decreed by Vatican II. The pastoral constitution \"Gaudium et spes\" stated that the Catholic Church is not bound to any form of government and willing to co-operate with all forms. The Church maintained its right to select bishops on its own without any interference by the State. "
+        ]
+      ]
+    },
+    {
+      "id": "4f5b2f33b816ab900e47a0de9180dd3953eeba67",
+      "src": "squad",
+      "answers": [
+        "Hellenism"
+      ],
+      "question": "In Culture and Anarchy, Hebraism is contrasted with what?",
+      "context": [
+        [
+          "Hellenistic period",
+          "\"Hellenistic\" is a modern word and a 19th-century concept; the idea of a Hellenistic period did not exist in ancient Greece. Although words related in form or meaning, e.g. \"Hellenist\" ( , \"Hellēnistēs\"), have been attested since ancient times, it was Johann Gustav Droysen in the mid-19th century, who in his classic work \"Geschichte des Hellenismus\" (\"History of Hellenism\"), coined the term \"Hellenistic\" to refer to and define the period when Greek culture spread in the non-Greek world after Alexander's conquest. Following Droysen, \"Hellenistic\" and related terms, e.g. \"Hellenism\", have been widely used in various contexts; a notable such use is in \"Culture and Anarchy\" by Matthew Arnold, where Hellenism is used in contrast with Hebraism."
+        ]
+      ]
+    },
+    {
+      "id": "be962442036eb02da6899f8bba4e090fb3b2740c",
+      "src": "hotpotqa",
+      "answers": [
+        "University of Pennsylvania"
+      ],
+      "question": "1988 NCAA Division I Field Hockey Championship was held at what University's stadium?",
+      "context": [
+        [
+          "Franklin Field",
+          "Franklin Field is an American sports stadium located in Philadelphia at the eastern edge of the University of Pennsylvania's campus. It is the home stadium for the Penn Relays, and is the University of Pennsylvania's stadium for football, track and field, lacrosse and formerly for soccer, field hockey and baseball. It is also used by Penn students for recreation, and for intramural and club sports, including touch football and cricket, and is the site of Penn's graduation exercises, weather permitting. "
+        ],
+        [
+          "Franklin Field",
+          "According to the NCAA, Franklin Field is the oldest stadium still operating for football. It was the first stadium in the United States with a scoreboard or an upper deck of seats. In 1922, it was the site of the first radio broadcast of a football game in 1922 on WIP, as well as of the first television broadcast of a football game by Philco."
+        ],
+        [
+          "1988 NCAA Division I Field Hockey Championship",
+          "The 1988 NCAA Division I Field Hockey Championship was the eighth women's collegiate field hockey tournament organized by the National Collegiate Athletic Association, to determine the top college field hockey team in the United States. The Old Dominion Lady Monarchs won their fourth championship, defeating the Iowa Hawkeyes in the final. The championship rounds were held at Franklin Field in Philadelphia, Pennsylvania."
+        ]
+      ]
+    },
+    {
+      "id": "2fb7dd89e74383e5affcfdc2576ffc642a2a4ffe",
+      "src": "hotpotqa",
+      "answers": [
+        "Con Air"
+      ],
+      "question": "What is a 1997 American action film directed by Simon West, written by Scott Rosenberg and stars a man who was nominated for a Golden Globe Award for Best Actor – Motion Picture Musical or Comedy for his performance in \"High Fidelity\" (2000)?",
+      "context": [
+        [
+          "Con Air",
+          "Con Air is a 1997 American action thriller film directed by Simon West, written by Scott Rosenberg, and produced by Jerry Bruckheimer. The film stars Nicolas Cage, John Cusack and John Malkovich, with Steve Buscemi, Ving Rhames, Colm Meaney, Mykelti Williamson, Dave Chappelle, Rachel Ticotin, Danny Trejo, Nick Chinlund, Jesse Borrego, Jose Zuniga, and Monica Potter in supporting roles."
+        ],
+        [
+          "John Cusack",
+          "John Paul Cusack ( ; born June 28, 1966) is an American actor, producer, screenwriter and activist. He began acting in films during the 1980s and has since starred in more than 85 movies, including \"Better Off Dead\" (1985), \"Say Anything...\" (1989), \"Bullets over Broadway\" (1994), \"Grosse Pointe Blank\" (1997), \"Being John Malkovich\" (1999), \"High Fidelity\" (2000), \"1408\" (2007), \"Igor\" (2008), \"2012\" (2009), \"The Raven\" (2012) and \"Love & Mercy\" (2014). The son of filmmaker Dick Cusack, his sisters are actresses Joan and Ann Cusack."
+        ]
+      ]
+    },
+    {
+      "id": "9704093b961f3c496dae8e6f12f0ca9ee839a7ce",
+      "src": "hotpotqa",
+      "answers": [
+        "Azriel Páez"
+      ],
+      "question": "What professional boxer has a father who's also a boxer and a former circus performer?",
+      "context": [
+        [
+          "Jorge Páez",
+          "Jorge Adolfo Páez (born October 27, 1965) is a Mexican actor, circus performer and former professional boxer. In boxing he held the WBO and IBF featherweight titles. Paez's nickname of \"\"El Maromero\"\" is in honor of the somersault (referred to in Spanish as \"\"maroma\"\") acts he performs at the circus. It was in the circus that he learned acrobatic moves he would later use in the boxing ring. Páez is also the father of Azriel Páez, Jorge Páez Jr., and Airam Páez."
+        ],
+        [
+          "Azriel Páez",
+          "Azriel Páez (born May 28, 1989 in San Luis Rio Colorado, Sonora, Mexico) is a Mexican professional boxer in the Welterweight division. His father is the former WBO, IBF Champion Jorge Páez and his brother Jorge Páez, Jr. is the current WBC Youth Intercontinental Welterweight Champion."
+        ]
+      ]
+    },
+    {
+      "id": "ab68496eafd9d30a3a56af735a38108b845451a0",
+      "src": "squad",
+      "answers": [
+        "four-year"
+      ],
+      "question": "How long are Tucson's city council terms?",
+      "context": [
+        [
+          "Tucson, Arizona",
+          "Both the council members and the mayor serve four-year terms; none face term limits. Council members are nominated by their wards via a ward-level primary held in August. The top vote-earners from each party then compete at-large for their ward's seat on the November ballot. In other words, on election day the whole city votes on all the council races up for that year. Council elections are severed: Wards 1, 2, and 4 (as well as the mayor) are up for election in the same year (most recently 2015), while Wards 3, 5, and 6 share another year (most recently 2017)."
+        ]
+      ]
+    },
+    {
+      "id": "acf587a7c945970e8751fadb8062e5133bda47c4",
+      "src": "squad",
+      "answers": [
+        "Whiggism"
+      ],
+      "question": "What political position did Samuel Johnson say would soon poison America?",
+      "context": [
+        [
+          "Edmund Burke",
+          "Among the reasons this speech was so greatly admired was its passage on Lord Bathurst (1684–1775) in which Burke describes an angel in 1704 prophesying to Bathurst the future greatness of England and also of America: \"Young man, There is America—which at this day serves little more than to amuse you with stories of savage men, and uncouth manners; yet shall, before you taste of death, shew itself equal to the whole of that commerce which now attracts the envy of the world\". Samuel Johnson was so irritated at hearing it continually praised that he made a parody of it, where the devil appears to a young Whig and predicts that in short time Whiggism will poison even the paradise of America."
+        ]
+      ]
+    },
+    {
+      "id": "4e04f93e5961253dd1fb1b0472ad54d75623b824",
+      "src": "hotpotqa",
+      "answers": [
+        "Kwik-E-Mart"
+      ],
+      "question": " Krusty Gets Busted revolves around the heist of what marketplace?",
+      "context": [
+        [
+          "Krusty Gets Busted",
+          "\"Krusty Gets Busted\" is the twelfth episode of \"The Simpsons\"' first season. It originally aired on the Fox network in the United States on April 29, 1990. The episode was written by Jay Kogen and Wallace Wolodarsky, and directed by Brad Bird. In the episode, Krusty the Clown is convicted of armed robbery of the Kwik-E-Mart and sentenced to jail. Convinced that Krusty has been framed, Bart and Lisa investigate the crime and learn that Krusty's sidekick, Sideshow Bob, is the culprit."
+        ],
+        [
+          "Kwik-E-Mart",
+          "The Kwik-E-Mart (spelled \"Quick-E-Mart\" in \"Bart the General\") is a convenience store in the animated television series \"The Simpsons\". It is a parody of American convenience stores, such as 7-Eleven and Wawa Inc., and depicts many of the stereotypes about them. It is notorious for its high prices and the poor quality of its merchandise. It is run by an Indian-American named Apu Nahasapeemapetilon. It first appeared in the episode \"The Telltale Head\" and has since become a common setting in \"The Simpsons\"."
+        ]
+      ]
+    },
+    {
+      "id": "e9c1cd83eeb3f43b1defbf05ab9bcc3c76bf465b",
+      "src": "hotpotqa",
+      "answers": [
+        "Discocactus"
+      ],
+      "question": "Which of the following is a type of cacti known to grow in Brazil: Piper or Discocactus?",
+      "context": [
+        [
+          "Discocactus",
+          "Discocactus is a genus of tropical cacti. The name comes from the ancient Greek \" \" (=disc) because of its shape. \"Discocactus\" plants are endemic to southern Brazil, eastern Bolivia, and northern Paraguay. These species are in the risk of extinction in the wild."
+        ],
+        [
+          "Piper (plant)",
+          "Piper, the pepper plants or pepper vines, is an economically and ecologically important genus in the family Piperaceae."
+        ]
+      ]
+    },
+    {
+      "id": "b9b6e1b92f902774ab371bcab47c817929dff68e",
+      "src": "hotpotqa",
+      "answers": [
+        "Shenandoah National Park"
+      ],
+      "question": "Which National Park contains the summit for the Blue Ridge Mountains and is part of the National Wilderness Preservation System?",
+      "context": [
+        [
+          "Shenandoah National Park",
+          "Shenandoah National Park (often ) is an American national park that encompasses part of the Blue Ridge Mountains in the state of Virginia. The park is long and narrow, with the Shenandoah River and its broad valley to the west, and the rolling hills of the Virginia Piedmont to the east. Skyline Drive is the main park road, generally traversing near the ridgeline of the mountains. Almost 40% of the land area—79579 acre —has been designated as wilderness and is protected as part of the National Wilderness Preservation System. The highest peak is Hawksbill Mountain at 4051 ft ."
+        ],
+        [
+          "Pignut Mountain",
+          "Pignut Mountain is a mountain in Rappahannock County, Virginia. It is part of the Blue Ridge Mountains. Its summit lies within Shenandoah National Park."
+        ]
+      ]
+    },
+    {
+      "id": "aaece7627f9a41b7ebf97c6b39dda1eb9b61d41d",
+      "src": "squad",
+      "answers": [
+        "Tatmadaw"
+      ],
+      "question": "What is the name of the military in Burma ?",
+      "context": [
+        [
+          "Myanmar",
+          "Myanmar's armed forces are known as the Tatmadaw, which numbers 488,000. The Tatmadaw comprises the Army, the Navy, and the Air Force. The country ranked twelfth in the world for its number of active troops in service. The military is very influential in Myanmar, with all top cabinet and ministry posts usually held by military officials. Official figures for military spending are not available. Estimates vary widely because of uncertain exchange rates, but Myanmar's military forces' expenses are high. Myanmar imports most of its weapons from Russia, Ukraine, China and India."
+        ]
+      ]
+    },
+    {
+      "id": "e30d16dadc7be6fa5ebfba335e32add49d5c60d0",
+      "src": "hotpotqa",
+      "answers": [
+        "2018 Winter Olympics"
+      ],
+      "question": "The results of The 2018 Prudential U.S. Figure Skating Championships are part of the U.S. selection criteria for which sport event to be held at the Gangneung Ice Arena in Gangneung, South Korea. [5] The five events will take place between 9–23 February 2018?",
+      "context": [
+        [
+          "Figure skating at the 2018 Winter Olympics",
+          "Figure skating at the 2018 Winter Olympics was held at the Gangneung Ice Arena in Gangneung, South Korea. The five events took place between 9 and 23 February 2018."
+        ],
+        [
+          "2018 U.S. Figure Skating Championships",
+          "The 2018 Prudential U.S. Figure Skating Championships were held from December 29, 2017 – January 8, 2018 at the SAP Center in San Jose, California. Medals were awarded in the disciplines of men's singles, ladies singles, pair skating, and ice dancing at the senior, junior, novice, intermediate, and juvenile levels. The results were part of the U.S. selection criteria for the 2018 Winter Olympics, 2018 Four Continents Championships, 2018 World Junior Championships, and the 2018 World Championships."
+        ]
+      ]
+    },
+    {
+      "id": "41391e09e531139e5980b1bd5878606611c0302b",
+      "src": "hotpotqa",
+      "answers": [
+        "The Incredible Journey"
+      ],
+      "question": "What film was produced first, The Incredible Journey or Muppet Treasure Island?",
+      "context": [
+        [
+          "Muppet Treasure Island",
+          "Muppet Treasure Island is a 1996 American musical adventure comedy film directed by Brian Henson, produced by Jim Henson Productions, and distributed by Walt Disney Pictures. It is the fifth feature film to star the Muppets and is based on the 1883 novel \"Treasure Island\" by Robert Louis Stevenson."
+        ],
+        [
+          "The Incredible Journey (film)",
+          "The Incredible Journey is a 1963 live-action Walt Disney film based on the 1961 novel \"The Incredible Journey\" by Sheila Burnford. Narrated by Rex Allen, the film follows the adventure of Luath the Labrador Retriever, Bodger the Bull Terrier and Tao the Siamese cat (Syn Cat) as they journey 250 miles (400 km) through the Canadian wilderness to return to their home."
+        ]
+      ]
+    },
+    {
+      "id": "bb22d2eeeb83b1cd276670730c716416d4cf1091",
+      "src": "squad",
+      "answers": [
+        "matter"
+      ],
+      "question": "A materialist considers what as the most important?",
+      "context": [
+        [
+          "Materialism",
+          "Despite the large number of philosophical schools and subtle nuances between many, all philosophies are said to fall into one of two primary categories, defined in contrast to each other: \"idealism\" and \"materialism\". The basic proposition of these two categories pertains to the nature of reality—the primary distinction between them is the way they answer two fundamental questions: \"what does reality consist of?\" and \"how does it originate?\" To idealists, spirit or mind or the objects of mind (\"ideas\") are primary, and matter secondary. To materialists, matter is primary, and mind or spirit or ideas are secondary—the product of matter acting upon matter."
+        ]
+      ]
+    },
+    {
+      "id": "4f425a0a304c8f8e1f1f904e599f214dfb149a2e",
+      "src": "hotpotqa",
+      "answers": [
+        "Joe Genaro"
+      ],
+      "question": "Which vocalist does Pleaseeasaur and The Dead Milkmen have in common?",
+      "context": [
+        [
+          "The Dead Milkmen",
+          "The Dead Milkmen are an American punk rock band formed in 1983 in Philadelphia, Pennsylvania. Their original lineup consisted of vocalist and keyboardist Rodney Linderman (\"Rodney Anonymous\"), guitarist and vocalist Joe Genaro (\"Joe Jack Talcum\"), bassist Dave Schulthise (\"Dave Blood\") and drummer Dean Sabatino (\"Dean Clean\")."
+        ],
+        [
+          "Pleaseeasaur",
+          "Pleaseeasaur (pronounced Please-ee-uh-saur) is an American comedic musical act made of JP Hasson (formerly in We’re Not From Idaho and Touch Me Zoo, both with Joe Genaro of The Dead Milkmen). The music is high energy camp style humor. The live performance usually includes Hasson in many costumes, each of which coincides with the song, along with multimedia animations of related images on a large screen. Many songs are commercials for fake companies such as \"No Prob Limo\", \"Pizza Brothers and Sons, Inc.\" and \"Action City News.\""
+        ]
+      ]
+    },
+    {
+      "id": "93fc715eee3d72476312ff53729cdada63d51789",
+      "src": "hotpotqa",
+      "answers": [
+        "Wolfgang Amadeus Mozart"
+      ],
+      "question": "While both were born in the 18th century, which composer was born first: Wolfgang Amadeus Mozart or Giacomo Meyerbeer?",
+      "context": [
+        [
+          "Giacomo Meyerbeer",
+          "Giacomo Meyerbeer (born Jacob Liebmann Beer; 5 September 1791 – 2 May 1864) was a German opera composer of Jewish birth, \"the most frequently performed opera composer during the nineteenth century, linking Mozart and Wagner\". With his 1831 opera \"Robert le diable\" and its successors, he gave the genre of grand opera 'decisive character'. Meyerbeer's grand opera style was achieved by his merging of German orchestra style with Italian vocal tradition. These were employed in the context of sensational and melodramatic libretti created by Eugène Scribe and were enhanced by the up-to-date theatre technology of the Paris Opéra. They set a standard which helped to maintain Paris as the opera capital of the nineteenth century."
+        ],
+        [
+          "Giacomo Meyerbeer",
+          "Born to a very wealthy Berlin family, Meyerbeer began his musical career as a pianist but soon decided to devote himself to opera, spending several years in Italy studying and composing. His 1824 opera \"Il crociato in Egitto\" was the first to bring him Europe-wide reputation, but it was \"Robert le diable\" (1831) which raised his status to great celebrity. His public career, lasting from then until his death, during which he remained a dominating figure in the world of opera, was summarized by his contemporary Hector Berlioz, who claimed that he 'has not only the luck to be talented, but the talent to be lucky.' He was at his peak with his operas \"Les Huguenots\" (1836) and \"Le prophète\" (1849); his last opera (\"L'Africaine\") was performed posthumously. His operas made him the most frequently performed composer at the world's leading opera houses in the nineteenth century."
+        ],
+        [
+          "Wolfgang Amadeus Mozart",
+          "Wolfgang Amadeus Mozart (27 January 17565 December 1791), baptised as Johannes Chrysostomus Wolfgangus Theophilus Mozart, was a prolific and influential composer of the Classical period."
+        ]
+      ]
+    },
+    {
+      "id": "0cf015a84f620303476df06b2627006bebbd211a",
+      "src": "hotpotqa",
+      "answers": [
+        "documentary"
+      ],
+      "question": "Which film genre do the films \"Crazy English\" and \"Capturing the Friedmans\" belong to?",
+      "context": [
+        [
+          "Capturing the Friedmans",
+          "Capturing the Friedmans is a 2003 HBO documentary film directed by Andrew Jarecki. It focuses on the 1980s investigation of Arnold and Jesse Friedman for child molestation. It was nominated for the Academy Award for Best Documentary Feature in 2003."
+        ],
+        [
+          "Crazy English (film)",
+          "Crazy English is a 1999 Chinese documentary directed by Zhang Yuan. The film premiered along with Zhang's \"Seventeen Years\" at the 1999 Locarno International Film Festival. It established Zhang's position as a \"legitimate\" director after years of working independently from, and often at odds with, the Chinese authorities."
+        ]
+      ]
+    },
+    {
+      "id": "0366b1a2685b6af0d3431686fcf50ff788135d32",
+      "src": "squad",
+      "answers": [
+        "The nucleotide sequence of a gene's DNA"
+      ],
+      "question": "What specifies the amino acid sequence of a protein?",
+      "context": [
+        [
+          "Gene",
+          "The nucleotide sequence of a gene's DNA specifies the amino acid sequence of a protein through the genetic code. Sets of three nucleotides, known as codons, each correspond to a specific amino acid. The principle that three sequential bases of DNA code for each amino acid was demonstrated in 1961 using frameshift mutations in the rIIB gene of bacteriophage T4 (see Crick, Brenner et al. experiment)."
+        ]
+      ]
+    },
+    {
+      "id": "2fccb6e4500b69527618d5dfe54ffb050fc539e3",
+      "src": "hotpotqa",
+      "answers": [
+        "1971"
+      ],
+      "question": "House Party 3 features the debut of an American actor born in what year?",
+      "context": [
+        [
+          "House Party 3",
+          "House Party 3 is a 1994 American comedy film, starring Kid 'n Play, Bernie Mac, and TLC. It is the third and intended final installment of the \"House Party\" film series. This was to be the last film in the franchise, ending it as a trilogy; however, a stand-alone direct to video sequel, \"\", was released seven years later. This is also Chris Tucker's debut on film as well as the first film in the series that Martin Lawrence does not reprise his role as Bilal, nor was he mentioned. Also absent in \"House Party 3\" are three of the members of the R&B group Full Force, who played the bullies in the first two films."
+        ],
+        [
+          "House Party 3",
+          "Christopher, a.k.a. Kid is marrying his girlfriend Veda, while his best friend Peter, a.k.a. Play is dipping his fingers into the music business and attempting to manage a roughneck female rap act called Sex as a Weapon. Play books the ladies for a concert with heavy-hitting promoter Showboat, but when they decide to fire Play and hire a new manager, he has to figure out how to deliver them to the show or face the wrath of Showboat's female security force."
+        ],
+        [
+          "Chris Tucker",
+          "Christopher Tucker (born August 31, 1971) is an American actor and stand-up comedian. He is known for his roles as Detective James Carter in Brett Ratner's \"Rush Hour\" film series and Smokey in F. Gary Gray's \"Friday\". He became a frequent stand-up performer on Def Comedy Jam in the 1990s. He appeared in Luc Besson's \"The Fifth Element\", Quentin Tarantino's \"Jackie Brown\", David O. Russell's \"Silver Linings Playbook\", and Brett Ratner's \"Money Talks\"."
+        ]
+      ]
+    },
+    {
+      "id": "7a6b6e03f6b0dd054ed251c02c2879a955fe8279",
+      "src": "squad",
+      "answers": [
+        "a bomb"
+      ],
+      "question": "How did Orsini try to assassinate Napoleon?",
+      "context": [
+        [
+          "Queen Victoria",
+          "On 14 January 1858, an Italian refugee from Britain called Felice Orsini attempted to assassinate Napoleon III with a bomb made in England. The ensuing diplomatic crisis destabilised the government, and Palmerston resigned. Derby was reinstated as prime minister. Victoria and Albert attended the opening of a new basin at the French military port of Cherbourg on 5 August 1858, in an attempt by Napoleon III to reassure Britain that his military preparations were directed elsewhere. On her return Victoria wrote to Derby reprimanding him for the poor state of the Royal Navy in comparison to the French one. Derby's ministry did not last long, and in June 1859 Victoria recalled Palmerston to office."
+        ]
+      ]
+    },
+    {
+      "id": "ef56abcc5a87018c78cf30e95a3d438e6f15f1ee",
+      "src": "hotpotqa",
+      "answers": [
+        "June 4, 2013"
+      ],
+      "question": "What date was the second president of New Afrika elected mayor of Jackson, Mississippi?",
+      "context": [
+        [
+          "Chokwe Lumumba",
+          "Chokwe Lumumba ( ; August 2, 1947 – February 25, 2014) was an American attorney and politician, affiliated with the Republic of New Afrika and serving as its second vice president. He served as a human rights lawyer in Michigan and Mississippi. In 2013, after serving on the City Council, he was elected as Mayor of Jackson, Mississippi. He was born in Detroit, Michigan, as Edwin Finley Taliaferro, and was raised there, attending local schools."
+        ],
+        [
+          "2013 Jackson mayoral election",
+          "The 2013 mayoral election in Jackson, Mississippi took place on June 4, 2013, alongside other Jackson municipal races. City councilman Chokwe Lumumba was elected mayor in a landslide in the general election after defeating Jonathan Lee and incumbent mayor Harvey Johnson, Jr. in the primary."
+        ]
+      ]
+    },
+    {
+      "id": "595c57e2b9c64968f6057316a7f976a8241b9341",
+      "src": "hotpotqa",
+      "answers": [
+        "March 20, 1976"
+      ],
+      "question": "When was the singer of the band who made Out of Ashes born?",
+      "context": [
+        [
+          "Chester Bennington",
+          "Chester Charles Bennington (March 20, 1976 – July 20, 2017) was an American singer, songwriter, musician, and actor. He was best known as the lead vocalist for Linkin Park and was also lead vocalist for the bands Grey Daze, Dead by Sunrise and, between 2013 and 2015, Stone Temple Pilots. Bennington has been credited by several publications as one of the greatest rock vocalists of his generation. "
+        ],
+        [
+          "Out of Ashes",
+          "Out of Ashes is the only studio album by American rock band Dead by Sunrise, which consisted of Linkin Park lead vocalist Chester Bennington and Amir Derakh, Ryan Shuck, Anthony 'Fu' Valcic, Brandon Belsky, and Elias Andra of Julien-K. It was released on October 13, 2009 through Warner Bros. Records, to mixed to positive reception. The album was produced by Howard Benson. The album charted on the \"Billboard\" 200, peaking at No. 29. The album spawned three singles, \"Crawl Back In\", \"Let Down\", and \"Fire\". The album achieved moderate success in the US charts."
+        ]
+      ]
+    },
+    {
+      "id": "ef4ea00ee4d78ffc6f80430e0d898c4cbaeae146",
+      "src": "squad",
+      "answers": [
+        "19˚N and 19˚S"
+      ],
+      "question": "Between which latitudes to mountains tend to have permanent snow?",
+      "context": [
+        [
+          "Glacier",
+          "The permanent snow cover necessary for glacier formation is affected by factors such as the degree of slope on the land, amount of snowfall and the winds. Glaciers can be found in all latitudes except from 20° to 27° north and south of the equator where the presence of the descending limb of the Hadley circulation lowers precipitation so much that with high insolation snow lines reach above 6500 m . Between 19˚N and 19˚S, however, precipitation is higher, and the mountains above 5000 m usually have permanent snow."
+        ]
+      ]
+    },
+    {
+      "id": "e7e885bedb641288a3f3e0eb18e881efd4ab432f",
+      "src": "hotpotqa",
+      "answers": [
+        "South African"
+      ],
+      "question": "What is the nationality of the man who 46664 was played in honor of?",
+      "context": [
+        [
+          "46664",
+          "46664 is a series of AIDS benefit concerts played in honour of Nelson Mandela by South African and foreign musicians between 2003 and 2008."
+        ],
+        [
+          "Nelson Mandela",
+          "Nelson Rolihlahla Mandela ( ; ] ; 18 July 1918 – 5 December 2013) was a South African anti-apartheid revolutionary, political leader and philanthropist who served as President of South Africa from 1994 to 1999. He was the country's first black head of state and the first elected in a fully representative democratic election. His government focused on dismantling the legacy of apartheid by tackling institutionalised racism and fostering racial reconciliation. Ideologically an African nationalist and socialist, he served as the president of the African National Congress (ANC) party from 1991 to 1997."
+        ]
+      ]
+    },
+    {
+      "id": "afa51a6929c1bf08eebe47fcb4695dc27728445d",
+      "src": "hotpotqa",
+      "answers": [
+        "George Bruns"
+      ],
+      "question": "Who wrote the music for the theme song for a dark ride at Disneyland, the Magic Kingdom, Tokyo Disneyland, and Disneyland Park in Paris?",
+      "context": [
+        [
+          "Pirates of the Caribbean (attraction)",
+          "Pirates of the Caribbean is a dark ride at Disneyland, Walt Disney World's Magic Kingdom, Tokyo Disneyland, Disneyland Park at Disneyland Paris, and Shanghai Disneyland."
+        ],
+        [
+          "Pirates of the Caribbean (attraction)",
+          "The ride tells the story of a band of pirates in the West Indies islands around the Caribbean Sea in the 17th and 18th centuries with the saga of their voyages, troubles, and exploits. The original version of the ride was opened at the original Disneyland, in Anaheim, California, near Los Angeles, in 1967, and was the last ride whose construction was envisioned and personally overseen by Walt Disney, who died three months before it opened. After immense popularity, the ride was replicated seven years later at the Magic Kingdom of Walt Disney World, near Orlando, Florida, soon after it opened, in 1973. Versions followed at Tokyo Disneyland in 1983, and at Disneyland Paris in 1992. Each of the initial four versions of the ride has a different façade but a similar ride experience. A reimagined version of the ride influenced by the visitors' familiarity with the worldwide success of the feature film series, , opened at the Shanghai Disneyland Park in 2016."
+        ],
+        [
+          "Yo Ho (A Pirate's Life for Me)",
+          "\"Yo Ho (A Pirate's Life for Me)\" is the theme song for the Pirates of the Caribbean attractions at Disney theme parks. The music was written by George Bruns with lyrics by Xavier Atencio."
+        ]
+      ]
+    },
+    {
+      "id": "2e2c67d9575283457126f29bfcd60b25f977831b",
+      "src": "hotpotqa",
+      "answers": [
+        "five"
+      ],
+      "question": "Joséphine de Reszke made her debut in Paris as Ophelia in a grand opera with how many acts?",
+      "context": [
+        [
+          "Hamlet (Thomas)",
+          "Hamlet is a grand opera in five acts of 1868 by the French composer Ambroise Thomas, with a libretto by Michel Carré and Jules Barbier based on a French adaptation by Alexandre Dumas, père, and Paul Meurice of William Shakespeare's play \"Hamlet\"."
+        ],
+        [
+          "Josephine de Reszke",
+          "Joséphine de Reszke, in Polish Józefina Reszke (4 June 1855 – 22 February 1891) was a Polish soprano. Born in Warsaw, she was the sister of the bass Edouard and the tenor Jean de Reszke, famous singers in their own rights. She began her studies with her mother and with a Mme. Nissen-Salomon, and made her debut in Paris as Ophelia in Hamlet on 21 June 1875."
+        ]
+      ]
+    },
+    {
+      "id": "b947830181f757ca2fd9070243d0b64f0babda2e",
+      "src": "hotpotqa",
+      "answers": [
+        "eight"
+      ],
+      "question": "How many aerial victories were credited to the World War I flying ace who participated in a dogfight with the man who had claimed 44 victories before his death?",
+      "context": [
+        [
+          "Albert Ball",
+          "Albert Ball, (14 August 1896 – 7 May 1917) was an English fighter pilot during the First World War. At the time of his death he was the United Kingdom's leading flying ace, with 44 victories, and remained its fourth-highest scorer behind Edward Mannock, James McCudden, and George McElroy."
+        ],
+        [
+          "Henry Meintjes",
+          "Captain Henry Meintjes, (25 December 1892 – 2 June 1949) was a South African World War I flying ace credited with eight aerial victories. "
+        ],
+        [
+          "Henry Meintjes",
+          "He attended St. Andrew's College in Grahamstown, and at the outbreak of World War I he joined the 14th Dismounted Rifles before going to England in 1915 and joining the Royal Flying Corps. After flight training he was posted to No. 60 Squadron RFC as one of the initial batch of flying officers."
+        ]
+      ]
+    },
+    {
+      "id": "2b1276dde9b28abfb6d909f3efa2d9d3995505d6",
+      "src": "hotpotqa",
+      "answers": [
+        "1986"
+      ],
+      "question": "Viktor Blom was signed-up by Full Tilt Poker on October 15, 2012, along with a rival high-stakes player who was born in which year ?",
+      "context": [
+        [
+          "Viktor Blom",
+          "Viktor Blom (born 26 September 1990) is a Swedish high-stakes online poker player, best known by the online poker name Isildur1. His rise to fame drew considerable attention around the poker world in late 2009, when he took part in all ten of the largest pots in online poker history. In December 2010, it was announced that then-anonymous Isildur1 had joined Team PokerStars Pro. Blom's identity was revealed by PokerStars on 8 January 2011, at the PokerStars Caribbean Adventure. Blom parted ways with PokerStars in August 2012 and was quickly signed-up by Full Tilt Poker on 15 October 2012, along with rival high-stakes player Tom Dwan."
+        ],
+        [
+          "Tom Dwan",
+          "Thomas Dwan Jr. (born July 30, 1986) is an American professional poker player who played online in the highest-stakes No-Limit Texas hold 'em and Pot-Limit Omaha games, primarily on Full Tilt Poker under the screen name \"durrrr\". Dwan has won prize money in live poker tournaments and has appeared on NBC's \"National Heads-Up Poker Championship\", the fourth, fifth, sixth, and seventh seasons of \"Poker After Dark\", the third, fourth and fifth seasons of Full Tilt Poker's \"Million Dollar Cash Game\", and the fifth and sixth seasons of GSN's \"High Stakes Poker\"."
+        ]
+      ]
+    },
+    {
+      "id": "810df7132ba5294bee98b3974ae7ce18a5ebab4a",
+      "src": "squad",
+      "answers": [
+        "800"
+      ],
+      "question": "What was Detroit's population in 1765?",
+      "context": [
+        [
+          "Detroit",
+          "On July 24, 1701, the French explorer Antoine de la Mothe Cadillac, along with more than a hundred other settlers, began constructing a small fort on the north bank of the Detroit River. Cadillac would later name the settlement Fort Pontchartrain du Détroit, after Louis Phélypeaux, comte de Pontchartrain, Minister of Marine under Louis XIV. A church was soon founded here, and the parish was known as Sainte Anne de Détroit. France offered free land to colonists to attract families to Detroit; when it reached a population of 800 in 1765, this was the largest European settlement between Montreal and New Orleans, both also French settlements, in the former colonies of New France and La Louisiane, respectively."
+        ]
+      ]
+    },
+    {
+      "id": "5b9ef8c931f622054098d80e64176e5990b36ccd",
+      "src": "hotpotqa",
+      "answers": [
+        "Pitch Perfect"
+      ],
+      "question": "What movie was Alexis Knapp in that also starred Anna Kendrick?",
+      "context": [
+        [
+          "Pitch Perfect",
+          "Pitch Perfect is a 2012 American musical comedy film directed by Jason Moore and written by Kay Cannon. It features an ensemble cast, including Anna Kendrick, Skylar Astin, Rebel Wilson, Anna Camp, Brittany Snow, Hana Mae Lee, Alexis Knapp, Ester Dean, Kelley Jakle, Shelley Regner, Wanetah Walmsley, Adam DeVine, Ben Platt, Utkarsh Ambudkar, John Michael Higgins, and Elizabeth Banks. The plot follows Barden University's all-girl acappella group, The Barden Bellas, as they compete against another acappella group from their college to win Nationals. The film is loosely adapted from Mickey Rapkin's non-fiction book, titled \"Pitch Perfect: The Quest for Collegiate a Cappella Glory\". Filming concluded in December 2011, in Baton Rouge, Louisiana."
+        ],
+        [
+          "Alexis Knapp",
+          "Alexis Merizalde Knapp (born July 31, 1989) is an American actress. She is known for her role as Stacie Conrad in the \"Pitch Perfect\" film series (2012–2017). She is also known for her role of Alexis in the party film \"Project X\" (2012), and her role on the first season of the TBS comedy \"Ground Floor\"."
+        ]
+      ]
+    },
+    {
+      "id": "2fccf39d27b75ae8a59e6b5bc9004405f494fd29",
+      "src": "hotpotqa",
+      "answers": [
+        "yes"
+      ],
+      "question": "Are Brodiaea and Pitcher plant both plants?",
+      "context": [
+        [
+          "Pitcher plant",
+          "Pitcher plants are several different carnivorous plants which have modified leaves known as pitfall traps—a prey-trapping mechanism featuring a deep cavity filled with digestive liquid. The traps of what are considered to be \"true\" pitcher plants are formed by specialized leaves. The plants attract and drown their prey with nectar."
+        ],
+        [
+          "Pitcher plant",
+          "The term \"pitcher plant\" generally refers to members of the Nepenthaceae and Sarraceniaceae families, but similar pitfall traps are employed by the monotypic Cephalotaceae and some members of the Bromeliaceae. The families Nepenthaceae and Sarraceniaceae "
+        ],
+        [
+          "Brodiaea",
+          "Brodiaea , also known by the common name cluster-lilies, is a monocot genus of flowering plants of the family , in the order Asparagales."
+        ],
+        [
+          "Brodiaea",
+          "It was formerly classified within the subfamily Brodiaeoideae of the family Asparagaceae, in the order Asparagales. The USDA Plants Database currently classifies the genus 'Brodiaea\" in the family Liliaceae."
+        ]
+      ]
+    },
+    {
+      "id": "3818d0e148500ba99c2a375eeb20e542e97c5540",
+      "src": "hotpotqa",
+      "answers": [
+        "Hamburg"
+      ],
+      "question": "What town was evacuated in 1940-1941 and take over by the U.S. Government to create Weldon Spring Ordnance Works, a 17323 acre facility?",
+      "context": [
+        [
+          "Hamburg, Missouri",
+          "Hamburg was a small town in St. Charles County, Missouri, United States. Hamburg was one of three towns, along with nearby Howell and Toonerville, that were evacuated in 1940–1941 when the area was taken over by the U.S. Department of the Army for the Weldon Spring Ordnance Works, which manufactured trinitrotoluene (TNT) and dinitrotoluene (DNT) and later processed uranium."
+        ],
+        [
+          "Weldon Spring Ordnance Works",
+          "Weldon Spring Ordnance Works (WSOW) was a 17323 acre U.S. Government-owned, contractor-operated (GOCO) facility in St. Charles County, Missouri, 55 km west of St. Louis. The site was originally operated by the Atlas Powder Company during World War II from 1941 to 1945 to produce explosives. The Atomic Energy Commission acquired part of the property in 1955, and Mallinckrodt, Inc. processed uranium ore from 1957 to 1966 under contract. The site has been divided into several parcels, and ownership has transferred over the years. Two portions of the original WSOW property are now Superfund sites that require substantial cleanup efforts. The environmental remediation of the WSOW site is currently designated as a major project of the Defense Environmental Restoration Program of the United States Department of Defense. Part of the original property is still used by the Army Reserve as the Weldon Spring Training Area."
+        ]
+      ]
+    },
+    {
+      "id": "3f9298ee7eef7cd768aa1d4e8000d9ee220d05fc",
+      "src": "squad",
+      "answers": [
+        "Manchester United"
+      ],
+      "question": "What team did Barcelona beat to win 2008-09 Champions League title?",
+      "context": [
+        [
+          "FC Barcelona",
+          "Barça beat Athletic Bilbao 4–1 in the 2009 Copa del Rey Final, winning the competition for a record-breaking 25th time. A historic 2–6 victory against Real Madrid followed three days later and ensured that Barcelona became 2008–09 La Liga champions. Barça finished the season by beating Manchester United 2–0 at the Stadio Olimpico in Rome, with goals from Eto'o and Messi, to win their third Champions League title, and complete the first ever treble won by a Spanish team. The team went on to win the 2009 Supercopa de España against Athletic Bilbao and the 2009 UEFA Super Cup against Shakhtar Donetsk, becoming the first European club to win both domestic and European Super Cups following a treble. In December 2009, Barcelona won the 2009 Club World Cup. Barcelona accomplished two new records in Spanish football in 2010 as they retained the La Liga trophy with 99 points and won the Supercopa de España for a ninth time."
+        ]
+      ]
+    },
+    {
+      "id": "6d9ab3ec58cadb0b177abd7ae7032d4558f0347f",
+      "src": "squad",
+      "answers": [
+        "The Shia Sevener"
+      ],
+      "question": "Which tariqah no longer exists?",
+      "context": [
+        [
+          "Imamate in Shia doctrine",
+          "The Shia tariqah with a majority of adherents are the Twelvers who are commonly known as the \"Shia\". After that come the Nizari Ismailis commonly known as the Ismailis; and then come the Mustalian Ismailis commonly known as the \"Bohras\" with further schisms within their Bohri tariqah. The Druze tariqah initially were part of the Fatimid Ismailis and separated from them (the Fatimid Ismailis) after the death of the Fatimid Imam and Caliph al Hakim Bi Amrillah. The Shia Sevener tariqah no longer exists. Another small tariqah is the Zaidi Shias, also known as the Fivers and who do not believe in The Occultation of their last Imam."
+        ]
+      ]
+    },
+    {
+      "id": "9b09739dfe806d17d6afeb9fe3794413e7582555",
+      "src": "squad",
+      "answers": [
+        "Nepal"
+      ],
+      "question": "Where did the Gurkhas come into power?",
+      "context": [
+        [
+          "Himachal Pradesh",
+          "The Kingdom of Gorkha conquered many kingdoms and came to power in Nepal in 1768. They consolidated their military power and began to expand their territory. Gradually, the Kingdom of Nepal annexed Sirmour and Shimla. Under the leadership of Amar Singh Thapa, the Nepali army laid siege to Kangra. They managed to defeat Sansar Chand Katoch, the ruler of Kangra, in 1806 with the help of many provincial chiefs. However, the Nepali army could not capture Kangra fort which came under Maharaja Ranjeet Singh in 1809. After the defeat, they expanded towards the south of the state. However, Raja Ram Singh, Raja of Siba State, captured the fort of Siba from the remnants of Lahore Darbar in Samvat 1846, during the First Anglo-Sikh War."
+        ]
+      ]
+    },
+    {
+      "id": "7e2641155e0c01e5b8c6e8beb1d23c8602f32e85",
+      "src": "squad",
+      "answers": [
+        "God exists, but does not intervene in the world beyond what was necessary to create it"
+      ],
+      "question": "What is a deistic view of God?",
+      "context": [
+        [
+          "God",
+          "Deism holds that God is wholly transcendent: God exists, but does not intervene in the world beyond what was necessary to create it. In this view, God is not anthropomorphic, and neither answers prayers nor produces miracles. Common in Deism is a belief that God has no interest in humanity and may not even be aware of humanity. Pandeism combines Deism with Pantheistic beliefs. Pandeism is proposed to explain as to Deism why God would create a universe and then abandon it, and as to Pantheism, the origin and purpose of the universe."
+        ]
+      ]
+    },
+    {
+      "id": "58c44e151f3f52b10f494ddfc7f9b6c7529c9eb7",
+      "src": "squad",
+      "answers": [
+        "September"
+      ],
+      "question": "In what month each year is the Southampton Boat Show held?",
+      "context": [
+        [
+          "Southampton",
+          "The annual Southampton Boat Show is held in September each year, with over 600 exhibitors present. It runs for just over a week at Mayflower Park on the city's waterfront, where it has been held since 1968. The Boat Show itself is the climax of Sea City, which runs from April to September each year to celebrate Southampton's links with the sea."
+        ]
+      ]
+    },
+    {
+      "id": "863099205ef64fdb85184a5ca6b88c64fa4db5c0",
+      "src": "squad",
+      "answers": [
+        "Carolyne zu Sayn-Wittgenstein"
+      ],
+      "question": "A biography on Chopin released under Franz Liszt's name was likely written by who?",
+      "context": [
+        [
+          "Frédéric Chopin",
+          "With his mazurkas and polonaises, Chopin has been credited with introducing to music a new sense of nationalism. Schumann, in his 1836 review of the piano concertos, highlighted the composer's strong feelings for his native Poland, writing that \"Now that the Poles are in deep mourning [after the failure of the November Uprising of 1830], their appeal to us artists is even stronger ... If the mighty autocrat in the north [i.e. Nicholas I of Russia] could know that in Chopin's works, in the simple strains of his mazurkas, there lurks a dangerous enemy, he would place a ban on his music. Chopin's works are cannon buried in flowers!\" The biography of Chopin published in 1863 under the name of Franz Liszt (but probably written by Carolyne zu Sayn-Wittgenstein) states that Chopin \"must be ranked first among the first musicians ... individualizing in themselves the poetic sense of an entire nation.\""
+        ]
+      ]
+    },
+    {
+      "id": "16a9bfdc9d16f69e2de6ca7d94f2d68616b2b758",
+      "src": "squad",
+      "answers": [
+        "rough"
+      ],
+      "question": "What type of surfaces can clothing protect from?",
+      "context": [
+        [
+          "Clothing",
+          "Clothing serves many purposes: it can serve as protection from the elements, rough surfaces, rash-causing plants, insect bites, splinters, thorns and prickles by providing a barrier between the skin and the environment. Clothes can insulate against cold or hot conditions, and they can provide a hygienic barrier, keeping infectious and toxic materials away from the body. Clothing also provides protection from ultraviolet radiation."
+        ]
+      ]
+    },
+    {
+      "id": "3d9a6d11666c9a45aa502d76aa8a2688ecaa97ae",
+      "src": "squad",
+      "answers": [
+        "leeward"
+      ],
+      "question": "What is the portion of the island called that is protected from the sea by the island itself?",
+      "context": [
+        [
+          "Saint Barthélemy",
+          "There are as many as 22 public beaches (most beaches on St. Barthélémy are known as \"Anse de...\") of which 15 are considered suitable for swimming. They are categorized and divided into two groups, the leeward side (calm waters protected by the island itself) and windward side (some of which are protected by hills and reefs). The windward beaches are popular for windsurfing. The beach of St Jean is suitable for water sports and facilities have been created for that purpose. The long beach at Lorient has shade and is a quiet beach as compared to St. Jean."
+        ]
+      ]
+    },
+    {
+      "id": "81f7bd9e9f239e798fd867e9386a1ee2daf25f8e",
+      "src": "hotpotqa",
+      "answers": [
+        "24.70"
+      ],
+      "question": "What is the bowling average of the leading wicket-taker in the 1956–57 Quaid-e-Azam Trophy competition?",
+      "context": [
+        [
+          "1956–57 Quaid-e-Azam Trophy",
+          "The 1956–57 Quaid-e-Azam Trophy was the third edition of the Quaid-e-Azam Trophy, the domestic first-class cricket competition in Pakistan. All matches at the tournament, played from 25 December 1956 to 8 March 1957, were accorded first-class status, with the group stage matches played over three days, the semi-finals over five days, and the final over six days. In the final, the Punjab defeated the Karachi Whites by 43 runs, claiming their first title. Hanif Mohammad was the leading run-scorer and Fazal Mahmood was the leading wicket-taker."
+        ],
+        [
+          "Fazal Mahmood",
+          "Fazal Mahmood (Punjabi, ), (18 February 1927 – 30 May 2005) was a Pakistani cricketer. He played in 34 Test matches and took 139 wickets at a bowling average of 24.70. The first Pakistani to pass 100 wickets, he reached the landmark in his 22nd match."
+        ]
+      ]
+    },
+    {
+      "id": "f298d30d4295b159b5438824329e24c7981470bd",
+      "src": "hotpotqa",
+      "answers": [
+        "Cleveland, Ohio"
+      ],
+      "question": "Where is the location of the organization that recognizes the work of Roger McGuinn with the Byrds?",
+      "context": [
+        [
+          "Rock and Roll Hall of Fame",
+          "The Rock and Roll Hall of Fame (RRHOF) is a museum and hall of fame located in downtown Cleveland, Ohio, United States, on the shore of Lake Erie. The museum documents the history of rock music and the artists, producers, engineers, and other notable figures who have influenced its development."
+        ],
+        [
+          "Rock and Roll Hall of Fame",
+          "The Rock and Roll Hall of Fame Foundation was established on April 20, 1983, by Ahmet Ertegun, founder and chairman of Atlantic Records. After a long search for the right city, Cleveland was chosen in 1986 as the Hall of Fame's permanent home. Architect I. M. Pei designed the new museum, and it was dedicated on September 1, 1995."
+        ],
+        [
+          "Roger McGuinn",
+          "James Roger McGuinn (born James Joseph McGuinn III; July 13, 1942) is an American musician. He is best known for being the frontman and leader of the Byrds. He was inducted into the Rock and Roll Hall of Fame for his work with the Byrds."
+        ]
+      ]
+    },
+    {
+      "id": "fd13f28ceb3557c8e64d0337481fcbedc832c47d",
+      "src": "hotpotqa",
+      "answers": [
+        "Jean-Marc Vallée"
+      ],
+      "question": "Which is a film director, George Albert Smith and Jean-Marc Vallée?",
+      "context": [
+        [
+          "Jean-Marc Vallée",
+          "Jean-Marc Vallée {'1': \", '2': \", '3': \", '4': \"} (born March 9, 1963) is a Canadian filmmaker, film editor and screenwriter. After studying film at the Université de Montréal, Vallée went on to make a number of critically acclaimed short films, including \"Stéréotypes\" (1991), \"Les Fleurs magiques\" (1995), and \"Les Mots magiques\" (1998)."
+        ],
+        [
+          "George Albert Smith",
+          "George Albert Smith Sr. (April 4, 1870 – April 4, 1951) was an American religious leader who served as the eighth president of The Church of Jesus Christ of Latter-day Saints (LDS Church)."
+        ]
+      ]
+    },
+    {
+      "id": "6b4765de3ad2e3cb6450fbee209cfbb77124dea6",
+      "src": "squad",
+      "answers": [
+        "December 1944"
+      ],
+      "question": "When did the Battle of the Bulge begin?",
+      "context": [
+        [
+          "Dwight D. Eisenhower",
+          "In December 1944, the Germans launched a surprise counter offensive, the Battle of the Bulge, which the Allies turned back in early 1945 after Eisenhower repositioned his armies and improved weather allowed the Army Air Force to engage. German defenses continued to deteriorate on both the Eastern Front with the Red Army and the Western Front with the Western Allies. The British wanted to capture Berlin, but Eisenhower decided it would be a military mistake for him to attack Berlin, and said orders to that effect would have to be explicit. The British backed down, but then wanted Eisenhower to move into Czechoslovakia for political reasons. Washington refused to support Churchill's plan to use Eisenhower's army for political maneuvers against Moscow. The actual division of Germany followed the lines that Roosevelt, Churchill and Stalin had previously agreed upon. The Soviet Red Army captured Berlin in a very large-scale bloody battle, and the Germans finally surrendered on May 7, 1945."
+        ]
+      ]
+    }
+  ]
+}

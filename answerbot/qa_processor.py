@@ -140,6 +140,7 @@ class QAProcessor:
     prompt_templates_dirs: list[str] = field(default_factory=list)
     name: Optional[str] = None
     fail_on_tool_error: bool = False
+    full_answer: bool = True
 
     def process(self, question: str):
         logger.info(f'Processing question: {question}')
@@ -160,8 +161,11 @@ class QAProcessor:
                 if isinstance(output, Answer):
                     answer = output
                     logger.info(f"Answer: '{answer}' for question: '{question}'")
-                    full_answer = chat.render_prompt(answer, question=question)
-                    return full_answer
+                    if self.full_answer:
+                        full_answer = chat.render_prompt(answer, question=question)
+                        return full_answer
+                    else:
+                        return answer.answer
                 history.add_observation(output)
                 if isinstance(output, Observation):
                     if output.quotable:
@@ -224,8 +228,9 @@ class QAProcessor:
         )
         new_sources = []
         for reflection in chat.process():
-            reflection.update_history(history)
-            new_sources.extend(reflection.new_sources)
+            if isinstance(reflection, ReflectionResult):
+                reflection.update_history(history)
+                new_sources.extend(reflection.new_sources)
         return new_sources
 
 

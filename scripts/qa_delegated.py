@@ -22,10 +22,11 @@ litellm.success_callback = ["langfuse"]
 litellm.failure_callback = ["langfuse"]
 
 #model="claude-3-5-sonnet-20240620"
-model="claude-3-haiku-20240307"
-model="gpt-3.5-turbo-1106"
-model="gpt-3.5-turbo-0125"
-model='gpt-3.5-turbo'
+#model="claude-3-haiku-20240307"
+#model="gpt-3.5-turbo-1106"
+#model="gpt-3.5-turbo-0125"
+#model='gpt-3.5-turbo'
+model='gpt-4o-mini'
 
 main_processor = QAProcessorDeep(
     model=model,
@@ -37,10 +38,11 @@ main_processor = QAProcessorDeep(
         'toolbox': [WikipediaTool(chunk_size=400)],
         'model': model,
         'prompt_templates_dirs': ['answerbot/templates/wiki_researcher'],
-        'max_iterations': 4,
+        'max_iterations': 5,
         'name': 'sub_processor'
     },
-    delegate_description='Delegate a question to a Wikipedia expert'
+    delegate_description='Delegate a question to a Wikipedia expert',
+    full_answer=False
 )
 
 if __name__ == "__main__":

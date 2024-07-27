@@ -52,6 +52,9 @@ class ReflectionResult(BaseModel):
 
     def extract_knowledge(self, observation: Observation):
         checked_quotes = []
+        if self.relevant_quotes is None:
+            logging.warning("No relevant quotes found, creating empty list!!!")
+            self.relevant_quotes = []
         for quote in self.relevant_quotes:
             similar_fragments = find_similar_fragments(observation.content, quote)
             checked_quotes.extend(similar_fragments)

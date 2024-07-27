@@ -13,7 +13,7 @@ class Question(Prompt):
 @dataclass
 class Answer:
     """
-    Answer to the question.
+    Answer to the question. Please make the answer as short as possible, put all reasoning and comments in the reasoning field.
     """
     answer: str
     reasoning: str

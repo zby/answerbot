@@ -39,7 +39,7 @@ app = QAProcessor(
     #model="claude-3-haiku-20240307",
     model="gpt-4o-mini",
     prompt_templates_dirs=['answerbot/templates/common', 'answerbot/templates/wiki_researcher'],
-    full_answer=False,
+    answer_type="postprocess",
 )
 
 
@@ -69,7 +69,7 @@ if __name__ == "__main__":
     question = "What government position was held by the woman who portrayed Corliss Archer in the film Kiss and Tell?"
     question = "The arena where the Lewiston Maineiacs played their home games can seat how many people?"
     #question = "What is the seating capacity of Androscoggin Bank Colisée?"
-    #question = "Who portrayed Corliss Archer in the film Kiss and Tell?"
+    question = "Who portrayed Corliss Archer in the film Kiss and Tell?"
 
 
     print()

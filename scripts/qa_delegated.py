@@ -42,7 +42,7 @@ main_processor = QAProcessorDeep(
         'name': 'sub_processor'
     },
     delegate_description='Delegate a question to a Wikipedia expert',
-    full_answer=False
+    answer_type="postprocess"
 )
 
 if __name__ == "__main__":

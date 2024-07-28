@@ -5,10 +5,15 @@ from llm_easy_tools import LLMFunction, get_tool_defs
 
 import logging
 
-from answerbot.chat import Chat, SystemPrompt, Prompt, SystemPrompt
+from answerbot.chat import Chat, SystemPrompt, Prompt
 from answerbot.tools.observation import Observation, KnowledgePiece, History
-from answerbot.reflection_result import ReflectionResult 
-from answerbot.qa_prompts import Question, Answer, StepInfo, PlanningInsert, ReflectionPrompt, PlanningPrompt, ReflectionSystemPrompt, PlanningSystemPrompt, indent_and_quote
+from answerbot.reflection_result import ReflectionResult
+from answerbot.qa_prompts import (
+    Question, Answer, StepInfo, PlanningInsert, ReflectionPrompt, 
+    PlanningPrompt, ReflectionSystemPrompt, PlanningSystemPrompt,
+    PostProcess,
+    indent_and_quote
+)
 
 # Configure logging for this module
 logger = logging.getLogger('qa_processor')
@@ -140,7 +145,7 @@ class QAProcessor:
     prompt_templates_dirs: list[str] = field(default_factory=list)
     name: Optional[str] = None
     fail_on_tool_error: bool = False
-    full_answer: bool = True
+    answer_type: str = "full"  # Changed from full_answer: bool = True
 
     def process(self, question: str):
         logger.info(f'Processing question: {question}')
@@ -159,13 +164,7 @@ class QAProcessor:
             else:
                 output = results[0]
                 if isinstance(output, Answer):
-                    answer = output
-                    logger.info(f"Answer: '{answer}' for question: '{question}'")
-                    if self.full_answer:
-                        full_answer = chat.render_prompt(answer, question=question)
-                        return full_answer
-                    else:
-                        return answer.answer
+                    return self.handle_answer(output, question)
                 history.add_observation(output)
                 if isinstance(output, Observation):
                     if output.quotable:
@@ -173,6 +172,23 @@ class QAProcessor:
             logger.info(f"Step: {step} for question: '{question}'")
 
         return None
+
+    def handle_answer(self, answer: Answer, question: str) -> str:
+        logger.info(f"Answer: '{answer}' for question: '{question}'")
+        if self.answer_type == "full":
+            full_answer = self.make_chat().render_prompt(answer, question=question)
+            return full_answer
+        elif self.answer_type == "simple":
+            return answer.answer
+        elif self.answer_type == "postprocess":
+            return self.postprocess_answer(answer, question)
+        else:
+            raise ValueError(f"Invalid answer type: {self.answer_type}")
+
+    def postprocess_answer(self, answer: Answer, question: str) -> str:
+        chat = self.make_chat()
+        postprocess_prompt = PostProcess(answer.answer, question)
+        return chat(postprocess_prompt)
 
     def plan_next_action(self, chat: Chat, question: str, history: History, new_sources: list[str]) -> str:
         schemas = get_tool_defs(self.get_tools(0))

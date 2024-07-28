@@ -49,6 +49,11 @@ class ReflectionPrompt(Prompt):
     history: History
     question: str
 
+@dataclass(frozen=True)
+class PostProcess(Prompt):
+    answer: str
+    question: str
+
 def indent_and_quote(text, indent=4, quote_char='>', width=70):
     lines = text.split('\n')
     result = []

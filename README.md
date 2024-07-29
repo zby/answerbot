@@ -24,3 +24,8 @@ Edit the file to change the question.
 
 ## Compatibility
 Uses LiteLLM. I use it with OpenAI GPTs and Anthropic Claude. Llama 3 via Groq had too many errors around tool use - I need to test 3.1 and/or other providers of maybe finetuned models.
+
+## Mutable.ai Auto Wiki
+Thanks to Mutable.ai auto wiki we have an auto generated wiki for this repo: https://wiki.mutable.ai/zby/answerbot
+
+[![Mutable.ai Auto Wiki](https://img.shields.io/badge/Auto_Wiki-Mutable.ai-blue)](https://wiki.mutable.ai/FollettSchoolSolutions/perfmon4j)

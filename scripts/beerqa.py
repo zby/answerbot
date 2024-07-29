@@ -59,5 +59,5 @@ if __name__ == "__main__":
         sys.exit(1)
 
     input_file_path = sys.argv[1]
-#    process_questions(main_processor, input_file_path)  # Pass main_processor as an argument
-    process_questions(app, input_file_path)  # Process again with answer_processor
+    process_questions(main_processor, input_file_path)  # Pass main_processor as an argument
+#    process_questions(app, input_file_path)  # Process again with answer_processor

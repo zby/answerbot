@@ -26,7 +26,8 @@ litellm.failure_callback = ["langfuse"]
 #model="gpt-3.5-turbo-1106"
 #model="gpt-3.5-turbo-0125"
 #model='gpt-3.5-turbo'
-model='gpt-4o-mini'
+#model='gpt-4o-mini'
+model='gpt-4o'
 
 main_processor = QAProcessorDeep(
     model=model,

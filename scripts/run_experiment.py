@@ -11,7 +11,6 @@ import traceback
 import logging
 
 from answerbot.qa_processor import QAProcessor, QAProcessorDeep
-from answerbot.qa_prompts import wiki_researcher_prompts, main_researcher_prompts, Answer
 
 from answerbot.tools.wiki_tool import WikipediaTool
 
@@ -21,26 +20,24 @@ load_dotenv()
 
 # Constants
 ITERATIONS = 1
-CONFIG_KEYS = ['deep', 'chunk_size', 'max_llm_calls', 'model']
+CONFIG_KEYS = ['processor_type', 'chunk_size', 'max_llm_calls', 'model']
 ADDITIONAL_KEYS = ['question_id', 'answer', 'error', 'error_type', 'warnings']
 
-wiki_researcher_prompts[Answer] = "{{answer}}"
-main_researcher_prompts[Answer] = "{{answer}}"
 
 def create_reactor(config):
     wiki_processor_config = {
         'max_iterations': config['max_llm_calls'],
         'model': config['model'],
-        'prompt_templates': wiki_researcher_prompts,
+        'prompt_templates_dirs': ['answerbot/templates/common', 'answerbot/templates/wiki_researcher'],
         'toolbox': [WikipediaTool(chunk_size=config['chunk_size'])],
         'name': 'wiki_processor'
     }
-    if config['deep']:
+    if config['processor_type'] == 'deep':
         return QAProcessorDeep(
             toolbox=[],
             max_iterations=3,
             model=config['model'],
-            prompt_templates=main_researcher_prompts,
+            prompt_templates_dirs = ['answerbot/templates/common', 'answerbot/templates/main_researcher'],
             name='main_processor',
             sub_processor_config=wiki_processor_config,
             delegate_description="Delegate a question to a Wikipedia expert."
@@ -211,9 +208,9 @@ if __name__ == "__main__":
         ]
 
     settings = {
-        "deep": [
-            True,
-            False
+        "processor_type": [
+            "deep",
+            "simple"
         ],
         "question": questions_list,
         "chunk_size": [
@@ -222,7 +219,7 @@ if __name__ == "__main__":
         "max_llm_calls": [5],
         "model": [
             "claude-3-haiku-20240307",
-            "gpt-3.5-turbo"
+            "gpt-4o-mini"
         ],
     }
 

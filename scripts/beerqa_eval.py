@@ -81,6 +81,7 @@ def update_answer(metrics, prediction, gold, prefix=None):
     best_recall = 0.0
     for gold_answer in gold:
         em = exact_match_score(prediction, gold_answer)
+        print(f"prediction: {prediction}, gold_answer: {gold_answer}, em: {em}")
         f1, prec, recall = f1_score_normalized(prediction, gold_answer)
         if best_f1 < f1:
             best_f1 = f1

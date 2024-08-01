@@ -34,10 +34,10 @@ app = QAProcessor(
     toolbox=[WikipediaTool(chunk_size=400)],
     max_iterations=7,
     #model='gpt-3.5-turbo',
-    #model='gpt-4o',
+    model='gpt-4o',
     #model='claude-3-5-sonnet-20240620',
     #model="claude-3-haiku-20240307",
-    model="gpt-4o-mini",
+    #model="gpt-4o-mini",
     prompt_templates_dirs=['answerbot/templates/common', 'answerbot/templates/wiki_researcher'],
     answer_type="postprocess",
 )

@@ -12,6 +12,8 @@ import logging
 
 # Configure logging for this module
 logger = logging.getLogger('answerbot.chat')
+logger.setLevel(logging.DEBUG)  # Set the logger to capture DEBUG level messages
+
 
 @dataclass(frozen=True)
 class Prompt:
@@ -126,11 +128,15 @@ class Chat:
             else:
                 args['tool_choice'] = "auto"
 
-        logger.debug(f"llm_reply args: {pformat(args)}")
-
         args.update(kwargs)
 
+        logger.debug(f"llm_reply args: {pformat(args)}")
+        logger.debug(f"Sending request to LLM with {len(self.messages)} messages")
+
         result = completion(**args)
+
+        logger.debug(f"Received response from LLM: {result}")
+
         message = result.choices[0].message
 
         if self.one_tool_per_step and hasattr(message, 'tool_calls') and message.tool_calls:

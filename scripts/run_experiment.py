@@ -104,16 +104,24 @@ class ExperimentWriter:
 
     def get_logger(self, combo):
         logger = logging.getLogger(f"experiment_{'-'.join(map(str, combo))}")
-        logger.setLevel(logging.INFO)
+        logger.setLevel(logging.DEBUG)
 
         if not logger.handlers:
             log_file = os.path.join(
                 self.log_dir, f"log_{'-'.join(map(str, combo))}.txt"
             )
             file_handler = logging.FileHandler(log_file)
-            formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+            formatter = logging.Formatter("%(name)s - %(levelname)s - %(message)s")
             file_handler.setFormatter(formatter)
             logger.addHandler(file_handler)
+
+            # Add handlers for chat and qa_processor loggers
+            chat_logger = logging.getLogger("answerbot.chat")
+            qa_logger = logging.getLogger("qa_processor")
+
+            for sub_logger in [chat_logger, qa_logger]:
+                sub_logger.addHandler(file_handler)
+                sub_logger.propagate = False
 
         return logger
 
@@ -131,6 +139,16 @@ class ExperimentWriter:
         self.error_file.close()
 
 
+class WarningCountHandler(logging.Handler):
+    def __init__(self):
+        super().__init__()
+        self.warning_count = 0
+
+    def emit(self, record):
+        if record.levelno == logging.WARNING:
+            self.warning_count += 1
+
+
 def eval_question(combo, experiment_writer):
     logger = experiment_writer.get_logger(
         combo[:-1]
@@ -143,6 +161,16 @@ def eval_question(combo, experiment_writer):
     log_preamble = ("=" * 80) + f"\nQuestion: {question_text}\nConfig: {config}\n"
     logger.info(log_preamble)
 
+    # Create warning count handlers
+    qa_warning_handler = WarningCountHandler()
+    chat_warning_handler = WarningCountHandler()
+
+    # Add warning count handlers to loggers
+    qa_logger = logging.getLogger("qa_processor")
+    chat_logger = logging.getLogger("answerbot.chat")
+    qa_logger.addHandler(qa_warning_handler)
+    chat_logger.addHandler(chat_warning_handler)
+
     retry_delay = [360]
     for delay in retry_delay + [0]:
         try:
@@ -151,30 +179,15 @@ def eval_question(combo, experiment_writer):
             answer = reactor.process(question_text)
             logger.info(f"Processed question. Answer: {answer}")
 
-            # More robust warning counting
-            qa_logger = logging.getLogger("qa_processor")
-            chat_logger = logging.getLogger("answerbot.chat")
-
-            warning_count = sum(
-                1
-                for handler in qa_logger.handlers
-                for record in handler.records
-                if record.levelno == logging.WARNING
-            )
-            chat_warning_count = sum(
-                1
-                for handler in chat_logger.handlers
-                for record in handler.records
-                if record.levelno == logging.WARNING
-            )
-            total_warning_count = warning_count + chat_warning_count
+            # Count warnings
+            warning_count = qa_warning_handler.warning_count + chat_warning_handler.warning_count
 
             config.update(
                 {
                     "answer": answer,
                     "error": 0,
                     "error_type": "",
-                    "warnings": total_warning_count,
+                    "warnings": warning_count,
                 }
             )
             experiment_writer.write_result(config)
@@ -192,6 +205,10 @@ def eval_question(combo, experiment_writer):
                 time.sleep(delay)
             else:
                 break
+
+    # Remove warning count handlers after processing
+    qa_logger.removeHandler(qa_warning_handler)
+    chat_logger.removeHandler(chat_warning_handler)
 
 
 def perform_experiments(settings, output_dir):

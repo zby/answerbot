@@ -180,7 +180,9 @@ def eval_question(combo, experiment_writer):
             logger.info(f"Processed question. Answer: {answer}")
 
             # Count warnings
-            warning_count = qa_warning_handler.warning_count + chat_warning_handler.warning_count
+            warning_count = (
+                qa_warning_handler.warning_count + chat_warning_handler.warning_count
+            )
 
             config.update(
                 {

@@ -11,42 +11,48 @@ import logging
 
 
 # Configure logging for this module
-logger = logging.getLogger('answerbot.chat')
+logger = logging.getLogger("answerbot.chat")
 logger.setLevel(logging.DEBUG)  # Set the logger to capture DEBUG level messages
 
 
 @dataclass(frozen=True)
 class Prompt:
     def role(self) -> str:
-        return 'user'
+        return "user"
+
 
 @dataclass(frozen=True)
 class SystemPrompt(Prompt):
     """
     System prompt for the chat.
     """
+
     def role(self) -> str:
-        return 'system'
+        return "system"
 
 
 @dataclass
 class Chat:
     model: str
-    messages: list[dict|Message] = field(default_factory=list)
+    messages: list[dict | Message] = field(default_factory=list)
     template_env: Optional[Environment] = None
     templates: dict[str, str] = field(default_factory=dict)
     templates_dirs: list[str] = field(default_factory=list)
     system_prompt: Optional[Prompt] = None
     fail_on_tool_error: bool = True  # if False the error message is passed to the LLM to fix the call, if True exception is raised
     one_tool_per_step: bool = True  # for stateful tools executing more than one tool call per step is often confusing for the LLM
-    saved_tools: list[LLMFunction|Callable] = field(default_factory=list)
+    saved_tools: list[LLMFunction | Callable] = field(default_factory=list)
     retries: int = 3
 
     def __post_init__(self):
         if self.template_env and (self.templates or self.templates_dirs):
-            raise ValueError("Cannot specify both template_env and templates/templates_dirs")
+            raise ValueError(
+                "Cannot specify both template_env and templates/templates_dirs"
+            )
         if not self.template_env and not self.templates and not self.templates_dirs:
-            logger.warning("No template environment specified and no parameters for it, using empty environment")
+            logger.warning(
+                "No template environment specified and no parameters for it, using empty environment"
+            )
         # TODO this needs a better solution
         #    raise ValueError("Must specify either template_env or templates/templates_dirs")
 
@@ -55,7 +61,10 @@ class Chat:
 
         if self.system_prompt:
             if isinstance(self.system_prompt, str):
-                system_prompt = {'role': 'system', 'content': self.system_prompt}  # the default role is 'user'
+                system_prompt = {
+                    "role": "system",
+                    "content": self.system_prompt,
+                }  # the default role is 'user'
             else:
                 system_prompt = self.system_prompt
             self.append(system_prompt)
@@ -72,7 +81,9 @@ class Chat:
         template = self.template_env.get_template(template_name)
 
         # Create a context dictionary with the object's public attributes and methods
-        obj_context = {name: getattr(obj, name) for name in dir(obj) if not name.startswith('_')}
+        obj_context = {
+            name: getattr(obj, name) for name in dir(obj) if not name.startswith("_")
+        }
 
         # Merge with kwargs
         obj_context.update(kwargs)
@@ -82,12 +93,9 @@ class Chat:
 
     def make_message(self, prompt: Prompt) -> dict:
         content = self.render_prompt(prompt)
-        return {
-            'role': prompt.role(),
-            'content': content.strip()
-        }
+        return {"role": prompt.role(), "content": content.strip()}
 
-    def __call__(self, message: Prompt|dict|Message|str, **kwargs) -> str:
+    def __call__(self, message: Prompt | dict | Message | str, **kwargs) -> str:
         """
         Allow the Chat object to be called as a function.
         Appends the given message and calls llm_reply with the provided kwargs.
@@ -97,8 +105,7 @@ class Chat:
         response = self.llm_reply(**kwargs)
         return response.choices[0].message.content
 
-
-    def append(self, message: Prompt|dict|Message|str) -> None:
+    def append(self, message: Prompt | dict | Message | str) -> None:
         """
         Append a message to the chat.
         """
@@ -107,7 +114,7 @@ class Chat:
         elif isinstance(message, dict) or isinstance(message, Message):
             message_dict = message
         elif isinstance(message, str):
-            message_dict = {'role': 'user', 'content': message}
+            message_dict = {"role": "user", "content": message}
         else:
             raise ValueError(f"Unsupported message type: {type(message)}")
         self.messages.append(message_dict)
@@ -116,17 +123,20 @@ class Chat:
         self.saved_tools = tools
         schemas = get_tool_defs(tools)
         args = {
-            'model': self.model,
-            'messages': self.messages,
-            'num_retries': self.retries
+            "model": self.model,
+            "messages": self.messages,
+            "num_retries": self.retries,
         }
 
         if len(schemas) > 0:
-            args['tools'] = schemas
+            args["tools"] = schemas
             if len(schemas) == 1:
-                args['tool_choice'] = {'type': 'function', 'function': {'name': schemas[0]['function']['name']}}
+                args["tool_choice"] = {
+                    "type": "function",
+                    "function": {"name": schemas[0]["function"]["name"]},
+                }
             else:
-                args['tool_choice'] = "auto"
+                args["tool_choice"] = "auto"
 
         args.update(kwargs)
 
@@ -139,13 +149,17 @@ class Chat:
 
         message = result.choices[0].message
 
-        if self.one_tool_per_step and hasattr(message, 'tool_calls') and message.tool_calls:
+        if (
+            self.one_tool_per_step
+            and hasattr(message, "tool_calls")
+            and message.tool_calls
+        ):
             if len(message.tool_calls) > 1:
                 logging.warning(f"More than one tool call: {message.tool_calls}")
                 message.tool_calls = [message.tool_calls[0]]
 
         if len(schemas) > 0:
-            if not hasattr(message, 'tool_calls') or not message.tool_calls:
+            if not hasattr(message, "tool_calls") or not message.tool_calls:
                 logging.warning(f"No function call:\n")
 
         self.append(message)
@@ -182,7 +196,7 @@ if __name__ == "__main__":
         answer: str
 
         def role(self) -> str:
-            return 'assistant'
+            return "assistant"
 
     @dataclass(frozen=True)
     class SpecialPrompt(Prompt):
@@ -207,8 +221,8 @@ if __name__ == "__main__":
         templates={
             "SystemPrompt": "You are a helpful assistant.",
             "AssistantPrompt": "Assistant: {{answer}}",
-            "SpecialPrompt": "{{__str__()}}"
-        }
+            "SpecialPrompt": "{{__str__()}}",
+        },
     )
 
     # Create example prompts

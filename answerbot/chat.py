@@ -140,12 +140,12 @@ class Chat:
 
         args.update(kwargs)
 
-        logger.debug(f"llm_reply args: {pformat(args)}")
+        logger.debug(f"llm_reply args: {pformat(args, width=120)}")
         logger.debug(f"Sending request to LLM with {len(self.messages)} messages")
 
         result = completion(**args)
 
-        logger.debug(f"Received response from LLM: {result}")
+        logger.debug(f"Received response from LLM: {pformat(result.to_dict(), width=120)}")
 
         message = result.choices[0].message
 

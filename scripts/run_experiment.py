@@ -54,14 +54,28 @@ def create_reactor(config):
         return QAProcessor(**wiki_processor_config)
 
 
-def load_questions_from_file(filename, start_index, end_index):
+def load_questions_from_file(filename, start_index=0, end_index=None):
     with open(filename, "r") as f:
         data = json.load(f)
     result = []
-    for item in data[start_index:end_index]:
-        if "guess" in item:
-            continue
-        result.append(item)
+
+    if "data" in data:  # BeerQA format
+        questions = data["data"]
+    else:  # Original format
+        questions = data
+
+    questions = questions[start_index:end_index] if end_index is not None else questions[start_index:]
+
+    for item in questions:
+        question = {
+            "id": item.get("id", item.get("question_id", "")),
+            "text": item.get("question", item.get("text", "")),
+            "answer": item.get("answers", item.get("answer", [])),
+            "type": item.get("src", item.get("type", "unknown"))
+        }
+        if "guess" not in item:
+            result.append(question)
+
     return result
 
 
@@ -70,7 +84,9 @@ def generate_directory_name():
     output_dir = os.path.join("experiments", current_time)
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-    return output_dir
+    beerqa_dir = os.path.join(output_dir, "beerqa")
+    os.makedirs(beerqa_dir)
+    return output_dir, beerqa_dir
 
 
 def save_git_version_and_diff(version_file_path):
@@ -88,8 +104,9 @@ def save_constants_to_file(params_file_path, settings):
 
 
 class ExperimentWriter:
-    def __init__(self, output_dir):
+    def __init__(self, output_dir, beerqa_dir):
         self.output_dir = output_dir
+        self.beerqa_dir = beerqa_dir
         self.log_dir = os.path.join(output_dir, "logs")
         os.makedirs(self.log_dir, exist_ok=True)
 
@@ -101,6 +118,8 @@ class ExperimentWriter:
             self.results_file, fieldnames=CONFIG_KEYS + ADDITIONAL_KEYS
         )
         self.results_writer.writeheader()
+
+        self.beerqa_results = {}
 
     def get_logger(self, combo):
         logger = logging.getLogger(f"experiment_{'-'.join(map(str, combo))}")
@@ -130,6 +149,19 @@ class ExperimentWriter:
         self.results_file.flush()
         os.fsync(self.results_file.fileno())
 
+        # Update BeerQA results
+        config_key = tuple(config[key] for key in CONFIG_KEYS)
+        if config_key not in self.beerqa_results:
+            self.beerqa_results[config_key] = {"answer": {}}
+        answer = getattr(config, "answer", 'unknown')
+        self.beerqa_results[config_key]["answer"][config["question_id"]] = answer
+
+    def save_beerqa_results(self):
+        for config_key, results in self.beerqa_results.items():
+            filename = f"{'_'.join(map(str, config_key))}.json"
+            with open(os.path.join(self.beerqa_dir, filename), "w") as f:
+                json.dump(results, f, indent=2)
+
     def write_error(self, log_preamble, error_trace):
         self.error_file.write(f"{log_preamble}\n{error_trace}\n\n")
         self.error_file.flush()
@@ -137,6 +169,7 @@ class ExperimentWriter:
     def close(self):
         self.results_file.close()
         self.error_file.close()
+        self.save_beerqa_results()
 
 
 class WarningCountHandler(logging.Handler):
@@ -213,8 +246,8 @@ def eval_question(combo, experiment_writer):
     chat_logger.removeHandler(chat_warning_handler)
 
 
-def perform_experiments(settings, output_dir):
-    experiment_writer = ExperimentWriter(output_dir)
+def perform_experiments(settings, output_dir, beerqa_dir):
+    experiment_writer = ExperimentWriter(output_dir, beerqa_dir)
 
     combinations = list(
         itertools.product(*[settings[key] for key in CONFIG_KEYS + ["question"]])
@@ -232,12 +265,12 @@ def perform_experiments(settings, output_dir):
         os.remove(os.path.join(output_dir, "errors.txt"))
 
 
-def record_experiment(settings, output_dir=None):
+def record_experiment(settings, output_dir=None, beerqa_dir=None):
     if output_dir is None:
-        output_dir = generate_directory_name()
+        output_dir, beerqa_dir = generate_directory_name()
     save_constants_to_file(os.path.join(output_dir, "params.json"), settings)
     save_git_version_and_diff(os.path.join(output_dir, "version.txt"))
-    perform_experiments(settings, output_dir)
+    perform_experiments(settings, output_dir, beerqa_dir)
     for file, what in [
         ("results.csv", "Results"),
         ("errors.txt", "Errors"),
@@ -251,15 +284,17 @@ def record_experiment(settings, output_dir=None):
     with open(os.path.join(output_dir, "results.csv"), "r") as file:
         content = file.read()
         print(content)
+    print(f"BeerQA results saved to {beerqa_dir}")
 
 
 if __name__ == "__main__":
     filename = sys.argv[1] if len(sys.argv) > 1 else None
     # filename = 'data/hotpot_reasonable.json'
     # filename = 'filtered_questions.json'
+    filename = 'data/beerqa_train_first_10.json'
     if filename:
-        start_index = 0
-        end_index = 1
+        start_index = None
+        end_index = None
         questions_list = load_questions_from_file(filename, start_index, end_index)
     else:
         # Default Question
@@ -298,9 +333,14 @@ if __name__ == "__main__":
             "simple"
         ],
         "question": questions_list,
-        "chunk_size": [400],
+        "chunk_size": [400, 800],
         "max_llm_calls": [5],
-        "model": ["claude-3-haiku-20240307", "gpt-4o-mini"],
+        "model": [
+            "gpt-4o-mini",
+            "gpt-4o",
+            "claude-3-haiku-20240307",
+            'claude-3-5-sonnet-20240620',
+            ],
     }
 
     record_experiment(settings)

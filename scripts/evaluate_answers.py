@@ -5,6 +5,9 @@ import string
 import sys
 from collections import Counter
 
+from answerbot.chat import Chat
+from answerbot.qa_prompts import PostProcess
+
 def normalize_answer(s):
     """Lower text and remove punctuation, articles and extra whitespace."""
     def remove_articles(text):
@@ -21,6 +24,27 @@ def normalize_answer(s):
         return text.lower()
 
     return white_space_fix(remove_articles(remove_punc(lower(s))))
+
+def make_chat(model) -> Chat:
+    template_dirs = ['answerbot/templates/common/']
+    chat = Chat(
+        model=model,
+        one_tool_per_step=True,
+        templates_dirs=template_dirs,
+    )
+    return chat
+
+
+def preprocess_answer(answer, question, model):
+    print(f"Original answer: {answer}")
+    chat = make_chat(model)
+    postprocess_prompt = PostProcess(answer, question)
+    result = chat(postprocess_prompt)
+    if result.startswith('Implicit: '):
+        result = result[9:]  # Remove the 'Compressed: ' prefix
+    print(f'Processed answer: {result}')
+    return result
+
 
 def match_multi_answer(answer, multi_answer, use_normalization=False):
     total_elements = 0
@@ -109,26 +133,30 @@ for result in results:
     recall = 0
     correct_answer = ''
     if question and result['answer'] is not None and result['answer'] != '':
-        answer = result['answer']
+        original_answer = result['answer']
+        model = result['model']
+        preprocessed_answer = preprocess_answer(original_answer, question, model)
         if 'multi_answer' in question:
             multi_answer = question['multi_answer']
-            exact_match = match_multi_answer([answer], multi_answer)
-            fuzzy_match = match_multi_answer([answer], multi_answer, use_normalization=True)
+            exact_match = match_multi_answer([preprocessed_answer], multi_answer)
+            fuzzy_match = match_multi_answer([preprocessed_answer], multi_answer, use_normalization=True)
             # For F1, precision, and recall, we'll use the first correct answer in multi_answer
             first_correct_answer = multi_answer[0] if isinstance(multi_answer[0], str) else multi_answer[0][0]
-            f1, precision, recall = calculate_f1(answer, first_correct_answer)
+            f1, precision, recall = calculate_f1(preprocessed_answer, first_correct_answer)
             correct_answer = str(multi_answer)  # Convert multi_answer to string
         else:
             correct_answers = question.get('answer', [])
             correct_answer = ', '.join(correct_answers)  # Join multiple correct answers
             for correct_ans in correct_answers:
-                if correct_ans == answer:
+                if correct_ans == preprocessed_answer:
                     exact_match = 1
-                if normalize_answer(correct_ans) == normalize_answer(answer):
+                if normalize_answer(correct_ans) == normalize_answer(preprocessed_answer):
                     fuzzy_match = 1
-                current_f1, current_precision, current_recall = calculate_f1(answer, correct_ans)
+                current_f1, current_precision, current_recall = calculate_f1(preprocessed_answer, correct_ans)
                 if current_f1 > f1:
                     f1, precision, recall = current_f1, current_precision, current_recall
+        result['original_answer'] = original_answer
+        result['preprocessed_answer'] = preprocessed_answer
         result['exact_match'] = exact_match
         result['fuzzy_match'] = fuzzy_match
         result['f1'] = f1

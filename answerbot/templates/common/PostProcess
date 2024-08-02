@@ -1,16 +1,32 @@
-Convert the following explicit answers to implicit answers by removing all context and question-repeating elements. Keep only the new, essential information.
-Examples:
+Convert the following explicit answer to implicit answer by removing all context and question-repeating
+elements. Keep only the new, essential information.
+If the answer is long then summarize it using the single most widely recognized terminology.
+Compress the information to its essence, using only key terms. Remove all unnecessary words and
+punctuation. If there are many ways to do that respond with the best one - don't list all alternative
+ways to compress the phrase.
+If the answer is implicit and short - then don't change it.
+
+Q: In which year did the French Revolution begin?
+Original: 1789
+Compressed: 1789
+
 Q: What is the capital of France?
 Original: The capital of France is Paris.
-Implicit: Paris
+Compressed: Paris
+
 Q: How many times does the human heart typically beat per minute at rest?
 Original: The human heart typically beats between 60 to 100 times per minute at rest.
-Implicit: 60 to 100
+Compressed: 60 to 100
+
 Q: When did Shakespeare write 'Romeo and Juliet'?
 Original: William Shakespeare wrote 'Romeo and Juliet' in the late 16th century.
-Implicit: Late 16th century
+Compressed: Late 16th century
+
+Q: What major historical event transformed production methods and society in the 18th-19th centuries?
+Original:The Industrial Revolution, a period of rapid industrialization and technological advancement that began in Great Britain in the late 18th century and spread to other parts of Europe and North America. This era saw a shift from manual labor and animal-based production to machine-based manufacturing, leading to increased productivity, urbanization, and significant social and economic changes. Key innovations included the steam engine, textile machinery, and new manufacturing processes.
+Compressed: Industrial Revolution
 
 Now, rewrite the following answer to contain only the core response without restating any part of the question:
 Q: {{question}}
 Original: {{answer}}
-Implicit: 
+Compressed: 

@@ -188,7 +188,10 @@ class QAProcessor:
     def postprocess_answer(self, answer: Answer, question: str) -> str:
         chat = self.make_chat()
         postprocess_prompt = PostProcess(answer.answer, question)
-        return chat(postprocess_prompt)
+        result = chat(postprocess_prompt)
+        if result.startswith('Implicit: '):
+            result = result[9:]  # Remove the 'Implicit: ' prefix
+        return result
 
     def plan_next_action(self, chat: Chat, question: str, history: History, new_sources: list[str]) -> str:
         schemas = get_tool_defs(self.get_tools(0))

@@ -153,7 +153,7 @@ class ExperimentWriter:
         config_key = tuple(config[key] for key in CONFIG_KEYS)
         if config_key not in self.beerqa_results:
             self.beerqa_results[config_key] = {"answer": {}}
-        answer = getattr(config, "answer", 'unknown')
+        answer = config.get("answer", 'unknown')
         self.beerqa_results[config_key]["answer"][config["question_id"]] = answer
 
     def save_beerqa_results(self):
@@ -329,7 +329,7 @@ if __name__ == "__main__":
 
     settings = {
         "processor_type": [
-            # "deep",
+             "deep",
             "simple"
         ],
         "question": questions_list,

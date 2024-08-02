@@ -1,16 +1,16 @@
 Convert the following explicit answers to implicit answers by removing all context and question-repeating elements. Keep only the new, essential information.
 Examples:
 Q: What is the capital of France?
-Explicit: The capital of France is Paris.
+Original: The capital of France is Paris.
 Implicit: Paris
 Q: How many times does the human heart typically beat per minute at rest?
-Explicit: The human heart typically beats between 60 to 100 times per minute at rest.
+Original: The human heart typically beats between 60 to 100 times per minute at rest.
 Implicit: 60 to 100
 Q: When did Shakespeare write 'Romeo and Juliet'?
-Explicit: William Shakespeare wrote 'Romeo and Juliet' in the late 16th century.
+Original: William Shakespeare wrote 'Romeo and Juliet' in the late 16th century.
 Implicit: Late 16th century
 
 Now, rewrite the following answer to contain only the core response without restating any part of the question:
 Q: {{question}}
-Explicit: {{answer}}
+Original: {{answer}}
 Implicit: 

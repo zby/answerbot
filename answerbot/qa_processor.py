@@ -189,7 +189,7 @@ class QAProcessor:
         chat = self.make_chat()
         postprocess_prompt = PostProcess(answer.answer, question)
         result = chat(postprocess_prompt)
-        if result.startswith('Implicit: '):
+        if result.startswith('Compressed: '):
             result = result[9:]  # Remove the 'Implicit: ' prefix
         return result
 

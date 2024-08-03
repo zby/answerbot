@@ -37,6 +37,11 @@ def make_chat(model) -> Chat:
 
 def preprocess_answer(answer, question, model):
     print(f"Original answer: {answer}")
+    # Check if the answer is just one word
+    if len(answer.split()) == 1:
+        print(f'One word answer - not processing: {answer}')
+        return answer
+
     chat = make_chat(model)
     postprocess_prompt = PostProcess(answer, question)
     result = chat(postprocess_prompt)

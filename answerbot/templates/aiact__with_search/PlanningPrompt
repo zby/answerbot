@@ -29,7 +29,7 @@ If you still need more information, consider the available tools.
 Consider the available tools.
 {% endif %}
 
-{% if observation.current_url %}
+{% if observation and observation.current_url %}
 You need to decide if the current page is relevant to answer the user question.
 If it is, then you should recommed exploring it further with the `lookup` or `read_more` tools.
 {% endif %}

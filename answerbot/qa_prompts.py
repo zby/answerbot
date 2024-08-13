@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from answerbot.chat import Prompt, Chat
+from prompete.chat import Prompt, Chat
 from answerbot.tools.observation import KnowledgePiece, History, Observation
 from answerbot.tools.wiki_tool import WikipediaTool
 

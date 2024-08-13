@@ -5,7 +5,9 @@ from llm_easy_tools import LLMFunction, get_tool_defs
 
 import logging
 
-from answerbot.chat import Chat, SystemPrompt, Prompt
+from prompete.chat import Chat, SystemPrompt, Prompt
+from jinja2 import Environment, FileSystemLoader, ChoiceLoader
+
 from answerbot.tools.observation import Observation, KnowledgePiece, History
 from answerbot.reflection_result import ReflectionResult
 from answerbot.qa_prompts import (
@@ -51,13 +53,19 @@ class QAProcessorOld:
 
     def make_chat(self, system_prompt: Optional[Prompt] = None) -> Chat:
         template_dirs = ['answerbot/templates/common/'] + self.prompt_templates_dirs
+        renderer = Environment(
+            loader=ChoiceLoader([
+                FileSystemLoader(template_dirs),
+                ])
+            )
+        renderer.filters['indent_and_quote'] = indent_and_quote
+
         chat = Chat(
             model=self.model,
             one_tool_per_step=True,
-            templates=self.prompt_templates,
-            templates_dirs=template_dirs,
             fail_on_tool_error=self.fail_on_tool_error,
             system_prompt=system_prompt,
+            renderer=renderer,
         )
         chat.template_env.filters['indent_and_quote'] = indent_and_quote
         return chat

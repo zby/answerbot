@@ -222,15 +222,20 @@ class QAProcessor:
 
     def make_chat(self, system_prompt: Optional[Prompt] = None) -> Chat:
         template_dirs = ['answerbot/templates/common/'] + self.prompt_templates_dirs
+        renderer = Environment(
+            loader=ChoiceLoader([
+                FileSystemLoader(template_dirs),
+                ])
+            )
+        renderer.filters['indent_and_quote'] = indent_and_quote
+
         chat = Chat(
             model=self.model,
             one_tool_per_step=True,
-            templates=self.prompt_templates,
-            templates_dirs=template_dirs,
             fail_on_tool_error=self.fail_on_tool_error,
             system_prompt=system_prompt,
+            renderer=renderer,
         )
-        chat.template_env.filters['indent_and_quote'] = indent_and_quote
         return chat
 
     def mk_metadata(self, tags: Optional[list[str]] = None) -> dict:
